@@ -42,3 +42,5 @@
 - 手工维护中英文 README 的排版。
   其余文档可在项目根目录用 `docs/scripts/reflow md <path>` 重排，需要 Python 3.11 或更新版本。
 - 在项目根运行 `prek install` 后，钩子会重排符合条件的暂存 Markdown，跳过两份 README 和通用 `AGENTS.md`。
+- 在 DSH 沙箱内提交时，用 `PREK_HOME="${TMPDIR:?}/prek-dsh" git commit -m "<commit message>"`，
+  让 reflow 钩子照常运行，并把 `prek` 的缓存和日志写到可写的临时目录。
