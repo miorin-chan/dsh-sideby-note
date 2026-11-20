@@ -1,6 +1,7 @@
 # 发布与版本迭代
 
-本文是边记部（Sideby Note）的分支、构建与发布手册。发布动作只有两个入口：`main` 分支和 `vX.Y.Z` tag；npm 与 GitHub Release 都由同一次 tag 推送完成。
+本文是边记部（Sideby Note）的分支、构建与发布手册。
+发布动作只有两个入口：`main` 分支和 `vX.Y.Z` tag；npm 与 GitHub Release 都由同一次 tag 推送完成。
 
 ## 分支模型
 
@@ -16,7 +17,9 @@
 
 需要并行开发时，每个分支一个独立 worktree；合并后执行 `git worktree remove <path>` 并删除分支。
 
-标签只有两类：`v<version>` 是发布标签，只能由 `npm run release` 创建、只能指向 release 提交；`docs/<version>` 是文档/截图的补充标记，指向发版后追加的截图提交，不触发发布 workflow（workflow 只认 `v*`），也不表示新版本。
+标签只有两类：`v<version>` 是发布标签，只能由 `npm run release` 创建、只能指向 release 提交；
+`docs/<version>` 是文档/截图的补充标记，指向发版后追加的截图提交，不触发发布 workflow（workflow 只认 `v*`），
+也不表示新版本。
 
 ## 日常开发循环
 
@@ -32,13 +35,20 @@ git push -u origin feat/xxx
 
 必须遵守：
 
-- `CHANGELOG.md` 顶部始终保留 `## next-released`，所有改动写在它下面；发布命令会把它改名为版本号并插入新的空标题，CI 也会检查这个标题存在。
-- 运营与基建改动（截图、上架物料、README 结构、发布与构建工具）写进 `CHANGELOG-OPS.md` 的同名 `## next-released`；它不进 Release 正文，也不随 npm 包发布。
-- Release 正文完全由 `CHANGELOG.md` 生成：本版有外部贡献者或合并 PR 时，对应小节里要写 `### Contributors / ### 贡献者`，列出 GitHub ID 与 PR 编号；漏写就不会出现在 Release 页和面板更新卡片里。
-- `client/client.js` 是**提交进仓库的构建产物**，必须与 `src/client/**` 出现在同一个提交里；CI 会重新 build 并检查 `git diff client/`，不一致直接失败。
+- `CHANGELOG.md` 顶部始终保留 `## next-released`，所有改动写在它下面；发布命令会把它改名为版本号并插入新的空标题，
+  CI 也会检查这个标题存在。
+- 运营与基建改动（截图、上架物料、README 结构、发布与构建工具）写进 `CHANGELOG-OPS.md` 的同名 `## next-released`；
+  它不进 Release 正文，也不随 npm 包发布。
+- Release 正文完全由 `CHANGELOG.md` 生成：本版有外部贡献者或合并 PR 时，对应小节里要写 `### Contributors / ### 贡献者`，
+  列出 GitHub ID 与 PR 编号；漏写就不会出现在 Release 页和面板更新卡片里。
+- `client/client.js` 是**提交进仓库的构建产物**，必须与 `src/client/**` 出现在同一个提交里；
+  CI 会重新 build 并检查 `git diff client/`，不一致直接失败。
 - 不要手改 `client/client.js`，构建会覆盖它。
 - `package.json` 的 `version` 与 `src/client/constants.ts` 的 `PLUGIN_VERSION` 必须一致，契约测试会检查。
-- UI 改动先在隔离的 DSH profile 里用 `npm pack` 的 tgz 做一次真机冒烟；**发版之前**按 [截图与预览图 SOP](./screenshot-sop.md) 重拍 README 截图并单独提交（`docs: reshoot …`），这样 `release: <version>` 提交与随后的 `v<version>` tag 自带新图。不要等发完版再补图——那只能移动已发布的 tag。
+- UI 改动先在隔离的 DSH profile 里用 `npm pack` 的 tgz 做一次真机冒烟；
+  **发版之前**按 [截图与预览图 SOP](./screenshot-sop.md) 重拍 README 截图并单独提交（`docs: reshoot …`），
+  这样 `release: <version>` 提交与随后的 `v<version>` tag 自带新图。
+  不要等发完版再补图——那只能移动已发布的 tag。
 
 ## 版本策略
 
@@ -49,9 +59,13 @@ git push -u origin feat/xxx
 | 破坏性变更（存储键、插件 id、DSH 兼容范围） | `1.0.0` |
 | 预发布 | `0.2.0-beta.1` |
 
-`dsh-sideby-note` 从 **0.1.0** 起走自己的 0.x 线；更早的版本属于上游 `dsh-aside-note`，只作历史保留。caret 范围跨不过 0.x 的 minor，所以每次发 `0.x.0` 都要把 `scripts/install.mjs` 的 `DEFAULT_RANGE` 一并改成新的 `^0.x.0`——`npx dsh-sideby-note install` 取到的总是最新安装器，新用户因此会装上最新一行。
+`dsh-sideby-note` 从 **0.1.0** 起走自己的 0.x 线；更早的版本属于上游 `dsh-aside-note`，只作历史保留。
+caret 范围跨不过 0.x 的 minor，
+所以每次发 `0.x.0` 都要把 `scripts/install.mjs` 的 `DEFAULT_RANGE` 一并改成新的 `^0.x.0`——
+`npx dsh-sideby-note install` 取到的总是最新安装器，新用户因此会装上最新一行。
 
-预发布 tag 形如 `v0.2.0-beta.1`：workflow 会发布到 npm 的 `next` dist-tag，并把 GitHub Release 标记为 prerelease，不会影响稳定用户的更新提示。
+预发布 tag 形如 `v0.2.0-beta.1`：workflow 会发布到 npm 的 `next` dist-tag，并把 GitHub Release 标记为 prerelease，
+不会影响稳定用户的更新提示。
 
 ## 发布步骤
 
@@ -72,13 +86,15 @@ git push origin v0.2.0
 
 1. 校验工作区干净、当前在 `main`、版本号大于当前版本、tag 尚未存在；
 2. 同步 `package.json` 的 `version` 与 `src/client/constants.ts` 的 `PLUGIN_VERSION`；
-3. 把 `## next-released` 改名为 `## <version>`，并在顶部插入一个新的空 `## next-released`；`CHANGELOG-OPS.md` 存在且其 `## next-released` 下有内容时，对它做同样的改名；
+3. 把 `## next-released` 改名为 `## <version>`，并在顶部插入一个新的空 `## next-released`；
+   `CHANGELOG-OPS.md` 存在且其 `## next-released` 下有内容时，对它做同样的改名；
 4. 运行 `npm run check`，确认 lint、类型、测试和构建产物都一致；
 5. 提交 `release: <version>` 并打 `v<version>` tag，**不自动 push**。
 
 预发布同样适用：`npm run release -- 0.2.0-beta.1` 会得到 `v0.2.0-beta.1` tag，workflow 自动发到 npm 的 `next` dist-tag。
 
-只想先看改动、不提交时用 `npm run release -- 0.2.0 --dry-run`：会改文件并跑检查，但不 commit、不打 tag，之后用 `git restore .` 丢弃。
+只想先看改动、不提交时用 `npm run release -- 0.2.0 --dry-run`：会改文件并跑检查，但不 commit、不打 tag，
+之后用 `git restore .` 丢弃。
 
 ## 自动发布链路
 
@@ -87,9 +103,11 @@ git push origin v0.2.0
 1. `npm ci`（强制从 `registry.npmjs.org` 取包，不受开发机镜像影响）；
 2. `npm run check`；
 3. 校验 `v$(package.json version)` 与 tag 完全一致；
-4. 校验 `CHANGELOG.md` 存在非空的 `## <version>` 小节（`node tools/release.mjs check`）；失败直接终止，**不会执行 `npm publish`**；
+4. 校验 `CHANGELOG.md` 存在非空的 `## <version>` 小节（`node tools/release.mjs check`）；
+   失败直接终止，**不会执行 `npm publish`**；
 5. `npm publish --provenance`：通过 trusted publishing（OIDC）获取短时凭据，不使用长期 token；
-6. 用 `node tools/release/notes.mjs` 由 `CHANGELOG.md` 生成 Release 正文（见下节），附安装链接与 Full Changelog；小节缺少 `app-update-notes` 标记时任务失败，**没有 `--generate-notes` 兜底**；
+6. 用 `node tools/release/notes.mjs` 由 `CHANGELOG.md` 生成 Release 正文（见下节），附安装链接与 Full Changelog；
+   小节缺少 `app-update-notes` 标记时任务失败，**没有 `--generate-notes` 兜底**；
 7. 创建同名 GitHub Release，预发布加 `--prerelease`；
 8. 把 `npm pack` 生成的 tgz 作为 Release 资产上传，保持「从 Release 安装」可用。
 
@@ -97,7 +115,9 @@ git push origin v0.2.0
 
 Release 正文由 [tools/release/notes.mjs](../tools/release/notes.mjs) 从 `CHANGELOG.md` 对应版本小节生成，中英文各一段。
 
-开发期写在 `## next-released` 下；发布提交里把标题改成 `## <version>`（与 `package.json`、tag 一致），生成器按这个标题取小节。示例（发布前）：
+开发期写在 `## next-released` 下；发布提交里把标题改成 `## <version>`（与 `package.json`、
+tag 一致），生成器按这个标题取小节。
+示例（发布前）：
 
 ```md
 ## next-released
@@ -115,8 +135,10 @@ Release 正文由 [tools/release/notes.mjs](../tools/release/notes.mjs) 从 `CHA
 
 - 标记块只包裹「更新内容」本身；面板读取的就是块内文本，按当前语言取 `zh` 或 `en`，缺失时互相回退。
 - 运营与基建记录写在 [CHANGELOG-OPS.md](../CHANGELOG-OPS.md)，不进 Release 正文，也不使用 `app-update-notes` 标记。
-- 生成器负责加上 `# English` / `# 中文`、`## What's changed` / `## 更新内容`、安装或升级一节（npm 命令 + tgz 附件），以及 `<details>` 里的 Full Changelog 链接；这些不要手写进 CHANGELOG。
-- 发布步骤第 2 步会把 `## next-released` 改成 `## <version>`；忘记改名时生成器找不到版本小节，changelog 校验会先行终止任务。
+- 生成器负责加上 `# English` / `# 中文`、`## What's changed` / `## 更新内容`、安装或升级一节（npm 命令 + tgz 附件），
+  以及 `<details>` 里的 Full Changelog 链接；这些不要手写进 CHANGELOG。
+- 发布步骤第 2 步会把 `## next-released` 改成 `## <version>`；忘记改名时生成器找不到版本小节，
+  changelog 校验会先行终止任务。
 - 小节缺少两组标记时生成器直接失败，任务中断，不会静默发出版本却没有 Release 说明。
 - 本地预览：
 
@@ -124,7 +146,8 @@ Release 正文由 [tools/release/notes.mjs](../tools/release/notes.mjs) 从 `CHA
   node tools/release/notes.mjs --version 0.1.0 --tag v0.1.0
   ```
 
-  再加 `--out notes.md` 可写到文件。`tests/release-notes-build.test.mjs` 会同时校验发布页正文与面板解析结果，防止两边漂移。
+再加 `--out notes.md` 可写到文件。
+`tests/release-notes-build.test.mjs` 会同时校验发布页正文与面板解析结果，防止两边漂移。
 
 trusted publisher 配置：
 
@@ -135,7 +158,8 @@ repository: LighghtEeloo/dsh-sideby-note
 permissions: publish, stage publish
 ```
 
-首次创建配置后必须在 2 天内完成一次 trusted publish，否则配置过期。过期后重跑下面的命令并用 security key 重新授权：
+首次创建配置后必须在 2 天内完成一次 trusted publish，否则配置过期。
+过期后重跑下面的命令并用 security key 重新授权：
 
 ```bash
 npx -y npm@11.21.1 trust github dsh-sideby-note \
@@ -145,7 +169,8 @@ npx -y npm@11.21.1 trust github dsh-sideby-note \
   --registry=https://registry.npmjs.org/ -y
 ```
 
-首次 trusted publish 成功后，建议在 npm 包设置中选择 **Require two-factor authentication and disallow tokens**，关闭 token 直发通道。
+首次 trusted publish 成功后，建议在 npm 包设置中选择 **Require two-factor authentication and disallow tokens**，
+关闭 token 直发通道。
 
 ## 发布后校验
 
@@ -162,11 +187,17 @@ gh release view v0.1.0 -R LighghtEeloo/dsh-sideby-note
 更新卡片需要三样东西同时成立：
 
 1. **npm（或 GitHub Release）有新版本**：版本号来自 npm，npm 不可用时回退到 npmmirror，再回退到 GitHub 最新 Release。
-2. **对应的 GitHub Release 存在**：面板读取 `releases?per_page=50`，取出版本高于本地、且不高于最新版的 Release 正文；只打 tag 不建 Release 时列表为空，卡片会退化为「暂无更新说明 + 完整更新说明链接」。feed 不可用时回退到 `releases/tags/v<最新版本>` 单条。workflow 已经自动创建 Release 并上传 tgz。
-3. **Release 正文带 `app-update-notes` 标记**：没有标记的旧版本在该版本条目内提示「暂无更新说明」，完整说明链接仍然可用；从本包首版 0.1.0 起由生成器保证标记存在。
-4. **多版本区间**：本地与最新版之间跨多个版本时，面板按版本从新到旧逐条展示，最新一条默认展开、其余折叠；草稿和预发布被剔除，最多 6 条，更多时给出 releases 列表链接。
+2. **对应的 GitHub Release 存在**：面板读取 `releases?per_page=50`，取出版本高于本地、且不高于最新版的 Release 正文；
+   只打 tag 不建 Release 时列表为空，卡片会退化为「暂无更新说明 + 完整更新说明链接」。
+   feed 不可用时回退到 `releases/tags/v<最新版本>` 单条。
+   workflow 已经自动创建 Release 并上传 tgz。
+3. **Release 正文带 `app-update-notes` 标记**：没有标记的旧版本在该版本条目内提示「暂无更新说明」，
+   完整说明链接仍然可用；从本包首版 0.1.0 起由生成器保证标记存在。
+4. **多版本区间**：本地与最新版之间跨多个版本时，面板按版本从新到旧逐条展示，最新一条默认展开、其余折叠；
+   草稿和预发布被剔除，最多 6 条，更多时给出 releases 列表链接。
 
-`releases/latest` 会跳过 prerelease，所以预发布不会触发稳定用户的提示。手动补建 Release 时，建议直接用生成器，避免漏掉标记：
+`releases/latest` 会跳过 prerelease，所以预发布不会触发稳定用户的提示。
+手动补建 Release 时，建议直接用生成器，避免漏掉标记：
 
 ```bash
 node tools/release/notes.mjs --version 0.1.0 --tag v0.1.0 --out notes.md
@@ -177,12 +208,14 @@ gh release upload v0.1.0 dist/dsh-sideby-note-0.1.0.tgz --clobber
 
 ## 应用内更新的路径与兜底
 
-「立即更新」通过**宿主自己的更新端点**执行，不是插件市场，也不是本插件自己跑包管理器。客户端不再探测或调用 dshmarket；宿主端点只有两个：
+「立即更新」通过**宿主自己的更新端点**执行，不是插件市场，也不是本插件自己跑包管理器。
+客户端不再探测或调用 dshmarket；宿主端点只有两个：
 
 - `GET /dsh-sideby-note/update/probe`：报告 profile、安装方式与当前版本。
 - `POST /dsh-sideby-note/update/apply`（body `{ target }`）：就地覆盖安装，装完回读版本。
 
-宿主没有这条路由（旧宿主、headless，或安装后尚未重启）时，卡片直接给出手动命令。命令由宿主生成，带目标版本和 profile 目录：
+宿主没有这条路由（旧宿主、headless，或安装后尚未重启）时，卡片直接给出手动命令。
+命令由宿主生成，带目标版本和 profile 目录：
 
 ```bash
 npx -y dsh-sideby-note install --version 1.1.2-beta.7 --profile-dir "<profile>"
@@ -194,14 +227,20 @@ npx -y dsh-sideby-note install --version 1.1.2-beta.7 --profile-dir "<profile>"
 npx -y --registry=https://registry.npmjs.org/ dsh-sideby-note@1.1.2-beta.7 install --version 1.1.2-beta.7 --profile-dir "<profile>"
 ```
 
-安装器本身也会在默认 registry 返回 `ERR_PNPM_NO_MATCHING_VERSION` 时用 npmjs 重试一次，避免 beta 用户被装回稳定版或卡在镜像同步上。
+安装器本身也会在默认 registry 返回 `ERR_PNPM_NO_MATCHING_VERSION` 时用 npmjs 重试一次，
+避免 beta 用户被装回稳定版或卡在镜像同步上。
 
 宿主拒绝码分两类：
 
-- **终端命令能绕过**：`AUTO_UPDATE_UNAVAILABLE`、`bundle-in-use`、`already-installed`、`management-required`、`not-removable`、`stop-profile`、`OPERATION_BUSY`。卡片显示错误原因，同时给出手动命令与「拷贝更新提示词」。
-- **命令也无法解决**：`UPDATE_FORBIDDEN`、`UPDATE_REJECTED`、`incompatible-version`、`DOWNGRADE_DETECTED`、`RESOLVED_VERSION_MISMATCH` 等，只显示失败原因与重试入口。
+- **终端命令能绕过**：`AUTO_UPDATE_UNAVAILABLE`、`bundle-in-use`、`already-installed`、
+  `management-required`、`not-removable`、`stop-profile`、`OPERATION_BUSY`。
+  卡片显示错误原因，同时给出手动命令与「拷贝更新提示词」。
+- **命令也无法解决**：`UPDATE_FORBIDDEN`、`UPDATE_REJECTED`、`incompatible-version`、`DOWNGRADE_DETECTED`、
+  `RESOLVED_VERSION_MISMATCH` 等，只显示失败原因与重试入口。
 
-更新完成后按宿主返回的 `refreshRequired` / `restartRequired` 显示「刷新页面」或「重启 DSH」。`tests/update-fallback.test.mjs` 覆盖宿主成功、无路由、可绕过拒绝三条路径，并断言不再请求 `/dsh-market/`；`tests/install.test.mjs` 覆盖预发布走 npmjs 的重试。
+更新完成后按宿主返回的 `refreshRequired` / `restartRequired` 显示「刷新页面」或「重启 DSH」。
+`tests/update-fallback.test.mjs` 覆盖宿主成功、无路由、可绕过拒绝三条路径，并断言不再请求 `/dsh-market/`；
+`tests/install.test.mjs` 覆盖预发布走 npmjs 的重试。
 ## 故障排查
 
 | 现象 | 原因 / 处理 |

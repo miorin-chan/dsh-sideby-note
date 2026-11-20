@@ -1,112 +1,173 @@
 # Changelog
 
-The 1.0.0–2.0.1 iterations were development builds of the same plugin; the 2.x line was withdrawn from npm before it became public and the changelog was consolidated at 0.9.10, the first public release under the `dsh-aside-note` name. The public line resumes here at 1.0.0, the first stable release.
+The 1.0.0–2.0.1 iterations were development builds of the same plugin; the 2.x line was withdrawn
+from npm before it became public and the changelog was consolidated at 0.9.10,
+the first public release under the `dsh-aside-note` name.
+The public line resumes here at 1.0.0, the first stable release.
 
-`dsh-sideby-note` starts its own public line at 0.1.0, the first release of this fork under the new name. Older sections below it — the `dsh-aside-note` releases from 0.9.10 onward — are inherited history kept for reference.
+`dsh-sideby-note` starts its own public line at 0.1.0, the first release of this fork under the new name.
+Older sections below it — the `dsh-aside-note` releases from 0.9.10 onward — are inherited history kept for reference.
 
-This file records user-visible changes only. Screenshots, marketplace listing material, documentation structure and the release pipeline are tracked in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never carry build or operations chores.
+This file records user-visible changes only.
+Screenshots, marketplace listing material, documentation structure and the release pipeline are tracked
+in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never carry build or operations chores.
 
 ## next-released
 
 <!-- app-update-notes:en:start -->
 ### Added
-- **Drag to reorder:** each open note now starts with a grip instead of a checkbox. Drag it to move the note, or focus it and press ↑ / ↓; Esc cancels a drag in flight. Archived notes stay in archive order.
+- **Drag to reorder:** each open note now starts with a grip instead of a checkbox.
+  Drag it to move the note, or focus it and press ↑ / ↓; Esc cancels a drag in flight.
+  Archived notes stay in archive order.
 
 ### Changed
-- **Hand to chat archives the note:** the old forward action is now **Hand to chat**, with a new icon. It appends the note to the open conversation's composer as plain text and archives the note in the same step; when no composer is on screen nothing changes. Notes can no longer be checked off by hand, and the forwarded check badge is gone.
-- **Quiet archive wording:** the second section is **Archived**, its clear action **Clear archived**, and the note action **Hand to chat**; the Chinese panel reads 「待续 / 归档」 — short labels, with the explanations kept out of the panel.
-- **Lighter note rows:** notes sit directly on the panel without a card frame or dividers. At rest a row shows its text and age; on hover the age gives way to Rewind, Copy and Hand to chat. Archived notes are shown in secondary ink instead of struck through.
-- **Enter matches the main composer:** the add box now sends on Enter and inserts a line break on Shift+Enter, exactly like the conversation composer; an Enter that belongs to an IME candidate pick is left to the browser.
+- **Hand to chat archives the note:** the old forward action is now **Hand to chat**, with a new icon.
+  It appends the note to the open conversation's composer as plain text and archives the note
+  in the same step; when no composer is on screen nothing changes.
+  Notes can no longer be checked off by hand, and the forwarded check badge is gone.
+- **Quiet archive wording:** the second section is **Archived**, its clear action **Clear archived**,
+  and the note action **Hand to chat**; the Chinese panel reads 「待续 / 归档」 — short labels,
+  with the explanations kept out of the panel.
+- **Lighter note rows:** notes sit directly on the panel without a card frame or dividers.
+  At rest a row shows its text and age; on hover the age gives way to Rewind, Copy and Hand to chat.
+  Archived notes are shown in secondary ink instead of struck through.
+- **Enter matches the main composer:** the add box now sends on Enter and inserts a line break on Shift+Enter,
+  exactly like the conversation composer; an Enter that belongs to an IME candidate pick is left to the browser.
 
 ### Removed
-- **Forward prefix and list markers:** the Settings › Hand to chat prefix field is gone, and notes are no longer written as `-` list items. Each hand-over lands as plain text; several notes stack on new lines after whatever is already in the composer. A previously stored `dsh.aside-note.forward-prefix` value is ignored.
-- **Forward marks:** the forward button no longer keeps a "forwarded" check; a previously stored `dsh.aside-note.forwarded` value is ignored.
-- **Send shortcut setting:** the Settings card no longer offers an Enter / ⌘+Enter choice. Enter always sends, and a previously stored `dsh.aside-note.send-shortcut` value is ignored.
+- **Forward prefix and list markers:** the Settings › Hand to chat prefix field is gone,
+  and notes are no longer written as `-` list items.
+  Each hand-over lands as plain text; several notes stack on new lines after whatever is already in the composer.
+  A previously stored `dsh.aside-note.forward-prefix` value is ignored.
+- **Forward marks:** the forward button no longer keeps a "forwarded" check;
+  a previously stored `dsh.aside-note.forwarded` value is ignored.
+- **Send shortcut setting:** the Settings card no longer offers an Enter / ⌘+Enter choice.
+  Enter always sends, and a previously stored `dsh.aside-note.send-shortcut` value is ignored.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 新增
-- **拖动排序：** 待续便笺开头的勾选圈换成了拖动把手。按住拖动即可调整先后，键盘聚焦把手后用 ↑ / ↓ 逐条移动，拖动中按 Esc 取消；已归档按归档时间排列。
+- **拖动排序：** 待续便笺开头的勾选圈换成了拖动把手。
+  按住拖动即可调整先后，键盘聚焦把手后用 ↑ / ↓ 逐条移动，拖动中按 Esc 取消；已归档按归档时间排列。
 
 ### 变更
-- **递入对话即归档：** 原来的「转发到会话」改为「递入对话」，并换了图标。它把便笺正文作为纯文本追加到当前会话输入框，同时直接把这条便笺归档；找不到输入框时什么都不改。不再手动打勾完成，转发后的勾选标识也已去掉。
-- **「归档」说得轻一点：** 第二个分区叫「归档」，清除按钮是「清空归档」，行操作是「递入对话」，第一个分区叫「待续」；主界面只留短标签，解释句子退回设置与提示。
-- **更轻的便笺行：** 便笺直接铺在面板上，去掉卡片外框与分隔线。静置时只显示正文与时间，悬停时时间让位给「退回 / 复制 / 递入对话」；归档改用次级墨色，不再划删除线。
-- **Enter 与主会话一致：** 录入框改为 Enter 发送、Shift+Enter 换行，与对话输入框完全一致；输入法选词时的 Enter 交给浏览器处理。
+- **递入对话即归档：** 原来的「转发到会话」改为「递入对话」，并换了图标。
+  它把便笺正文作为纯文本追加到当前会话输入框，同时直接把这条便笺归档；找不到输入框时什么都不改。
+  不再手动打勾完成，转发后的勾选标识也已去掉。
+- **「归档」说得轻一点：** 第二个分区叫「归档」，清除按钮是「清空归档」，行操作是「递入对话」，
+  第一个分区叫「待续」；主界面只留短标签，解释句子退回设置与提示。
+- **更轻的便笺行：** 便笺直接铺在面板上，去掉卡片外框与分隔线。
+  静置时只显示正文与时间，悬停时时间让位给「退回 / 复制 / 递入对话」；归档改用次级墨色，不再划删除线。
+- **Enter 与主会话一致：** 录入框改为 Enter 发送、Shift+Enter 换行，与对话输入框完全一致；
+  输入法选词时的 Enter 交给浏览器处理。
 
 ### 移除
-- **递入前缀与列表标记：** 设置里的「递入对话」前缀提示词已移除，便笺也不再写成 `-` 列表项。每次递入都是纯文本；多条便笺按换行接在已有输入框内容后面。之前保存的 `dsh.aside-note.forward-prefix` 会被忽略。
+- **递入前缀与列表标记：** 设置里的「递入对话」前缀提示词已移除，便笺也不再写成 `-` 列表项。
+  每次递入都是纯文本；多条便笺按换行接在已有输入框内容后面。
+  之前保存的 `dsh.aside-note.forward-prefix` 会被忽略。
 - **转发标识：** 不再在转发按钮上记录「已转发」勾选；之前保存的 `dsh.aside-note.forwarded` 会被忽略。
-- **发送快捷键设置：** 设置卡不再提供 Enter / ⌘+Enter 的选择，Enter 固定发送；之前保存的 `dsh.aside-note.send-shortcut` 会被忽略。
+- **发送快捷键设置：** 设置卡不再提供 Enter / ⌘+Enter 的选择，Enter 固定发送；
+  之前保存的 `dsh.aside-note.send-shortcut` 会被忽略。
 <!-- app-update-notes:zh:end -->
 
 ## 0.1.0
 
 <!-- app-update-notes:en:start -->
 ### Added
-- **First release under the new name:** `dsh-sideby-note` 0.1.0 is the first published version of this fork, branded 边记部 / Sideby Note; notes and settings already stored under the shared `dsh.aside-note.*` keys are read as-is.
-- **All official DSH languages:** the panel, the note-entry tooltips and the plugin listing now follow every language the DSH client ships — Chinese, English, Japanese, Spanish, French, German, Russian and Brazilian Portuguese — and switch immediately with the DSH language setting.
+- **First release under the new name:** `dsh-sideby-note` 0.1.0 is the first published version
+  of this fork, branded 边记部 / Sideby Note; notes and settings already stored
+  under the shared `dsh.aside-note.*` keys are read as-is.
+- **All official DSH languages:** the panel, the note-entry tooltips
+  and the plugin listing now follow every language the DSH client ships — Chinese, English, Japanese,
+  Spanish, French, German, Russian and Brazilian Portuguese — and switch immediately with the DSH language setting.
 
 ### Fixed
-- **Panel language follows DSH:** the panel now reads DSH's live locale (`active`) instead of a field the locale service no longer exposes, and re-binds its dictionary when a client-plugin reload replaces the locale service. Previously it could fall back to English while DSH was set to Chinese.
+- **Panel language follows DSH:** the panel now reads DSH's live locale (`active`) instead
+  of a field the locale service no longer exposes, and re-binds its dictionary
+  when a client-plugin reload replaces the locale service.
+  Previously it could fall back to English while DSH was set to Chinese.
 
 ### Changed
-- **One editor for note text:** a note can now be edited only in the top composer. Each row's inline editor and delete button are gone; **Rewind** (↺) moves the text back into the composer and removes the row, submitting adds it back, and clearing the composer removes the note. An existing draft is never overwritten.
+- **One editor for note text:** a note can now be edited only in the top composer.
+  Each row's inline editor and delete button are gone; **Rewind** (↺) moves the text back
+  into the composer and removes the row, submitting adds it back, and clearing the composer removes the note.
+  An existing draft is never overwritten.
 
 ### Removed
-- **Anonymous feature statistics:** the panel no longer reports usage events. The Settings › Privacy switch, the bundled analytics SDK and the anonymous visitor id are gone, so no analytics data leaves the browser.
+- **Anonymous feature statistics:** the panel no longer reports usage events.
+  The Settings › Privacy switch, the bundled analytics SDK and the anonymous visitor id are gone,
+  so no analytics data leaves the browser.
 
 ### Contributors
-- [@LighghtEeloo](https://github.com/LighghtEeloo) — [#4](https://github.com/Rayle8/dsh-aside-note/pull/4) follow the live locale snapshot and rebind after a reload
+- [@LighghtEeloo](https://github.com/LighghtEeloo) —
+  [#4](https://github.com/Rayle8/dsh-aside-note/pull/4) follow the live locale snapshot and rebind after a reload
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 新增
-- **新名称的首个版本：** `dsh-sideby-note` 0.1.0 是本次改版的首个公开版本（边记部 / Sideby Note）；沿用 `dsh.aside-note.*` 键的既有便笺与设置会原样读取。
-- **支持全部 DSH 官方语言：** 面板、入口提示与插件列表现在跟随 DSH 客户端提供的全部语言——中文、英语、日语、西班牙语、法语、德语、俄语和巴西葡萄牙语，并随 DSH 语言设置即时切换。
+- **新名称的首个版本：** `dsh-sideby-note` 0.1.0 是本次改版的首个公开版本（边记部 / Sideby Note）；
+  沿用 `dsh.aside-note.*` 键的既有便笺与设置会原样读取。
+- **支持全部 DSH 官方语言：** 面板、入口提示与插件列表现在跟随 DSH 客户端提供的全部语言——
+  中文、英语、日语、西班牙语、法语、德语、俄语和巴西葡萄牙语，并随 DSH 语言设置即时切换。
 
 ### 修复
-- **面板语言跟随 DSH：** 面板改为读取 DSH 当前语言的 `active` 字段（不再读语言服务已不提供的旧字段），并在客户端插件热重载替换语言服务后重新绑定字典；此前可能在 DSH 为中文时回退成英文。
+- **面板语言跟随 DSH：** 面板改为读取 DSH 当前语言的 `active` 字段（不再读语言服务已不提供的旧字段），
+  并在客户端插件热重载替换语言服务后重新绑定字典；此前可能在 DSH 为中文时回退成英文。
 
 ### 变更
-- **便笺正文只保留一个编辑区：** 行内编辑器与行尾「删除」按钮已移除，改为「退回」（↺）——把正文放回顶部输入框并从清单移除，改完提交后重新加入；清空输入框即删除该条。录入框已有内容时不会覆盖。
+- **便笺正文只保留一个编辑区：** 行内编辑器与行尾「删除」按钮已移除，改为「退回」（↺）——
+  把正文放回顶部输入框并从清单移除，改完提交后重新加入；清空输入框即删除该条。
+  录入框已有内容时不会覆盖。
 
 ### 移除
-- **匿名功能统计：** 面板不再上报使用事件。设置 › 隐私开关、内置统计 SDK 与匿名访客 ID 均已移除，不会有统计数据的请求离开浏览器。
+- **匿名功能统计：** 面板不再上报使用事件。
+  设置 › 隐私开关、内置统计 SDK 与匿名访客 ID 均已移除，不会有统计数据的请求离开浏览器。
 
 ### 贡献者
-- [@LighghtEeloo](https://github.com/LighghtEeloo) — [#4](https://github.com/Rayle8/dsh-aside-note/pull/4) 跟随语言快照并在重载后重新绑定
+- [@LighghtEeloo](https://github.com/LighghtEeloo) — [#4](https://github.com/Rayle8/dsh-aside-note/pull/4)
+  跟随语言快照并在重载后重新绑定
 <!-- app-update-notes:zh:end -->
 
 ## 1.1.4
 
 <!-- app-update-notes:en:start -->
 ### Added
-- **All official DSH languages:** the panel, the note-entry tooltips and the plugin listing now follow every language the DSH client ships — Chinese, English, Japanese, Spanish, French, German, Russian and Brazilian Portuguese — and switch immediately with the DSH language setting.
+- **All official DSH languages:** the panel, the note-entry tooltips
+  and the plugin listing now follow every language the DSH client ships — Chinese, English, Japanese,
+  Spanish, French, German, Russian and Brazilian Portuguese — and switch immediately with the DSH language setting.
 
 ### Changed
-- **Marketplace icon:** the plugin listing and marketplace detail page now use the gradient note-card mark over a chat bubble, which stays legible in dark mode; the in-app buttons and panel UI are unchanged.
+- **Marketplace icon:** the plugin listing and marketplace detail page now use the gradient note-card mark
+  over a chat bubble, which stays legible in dark mode; the in-app buttons and panel UI are unchanged.
 
 ### Fixed
-- **Localized default forward prompt:** when the prefix prompt was never customized, forwarding now uses the default for the active language, resolved at click time; a customized prompt is used verbatim, an explicitly cleared prompt adds no lead-in, and a reset control returns to the localized default.
+- **Localized default forward prompt:** when the prefix prompt was never customized,
+  forwarding now uses the default for the active language, resolved at click time;
+  a customized prompt is used verbatim, an explicitly cleared prompt adds no lead-in,
+  and a reset control returns to the localized default.
 
 ### Contributors
-- [@LighghtEeloo](https://github.com/LighghtEeloo) — [#2](https://github.com/Rayle8/dsh-aside-note/pull/2) all official DSH languages, [#3](https://github.com/Rayle8/dsh-aside-note/pull/3) marketplace icon
+- [@LighghtEeloo](https://github.com/LighghtEeloo) —
+  [#2](https://github.com/Rayle8/dsh-aside-note/pull/2) all official DSH languages,
+  [#3](https://github.com/Rayle8/dsh-aside-note/pull/3) marketplace icon
 - [@Rayle8](https://github.com/Rayle8) — English fallback and the localized forward prompt
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 新增
-- **支持全部 DSH 官方语言：** 面板、入口提示与插件列表现在跟随 DSH 客户端提供的全部语言——中文、英语、日语、西班牙语、法语、德语、俄语和巴西葡萄牙语，并随 DSH 语言设置即时切换。
+- **支持全部 DSH 官方语言：** 面板、入口提示与插件列表现在跟随 DSH 客户端提供的全部语言——
+  中文、英语、日语、西班牙语、法语、德语、俄语和巴西葡萄牙语，并随 DSH 语言设置即时切换。
 
 ### 变更
 - **市场上架图标：** 插件列表与市场详情页换用渐变便签卡叠对话气泡的新标识，深色模式下更清晰；应用内按钮与面板 UI 不变。
 
 ### 修复
-- **默认转发提示词跟随语言：** 未自定义前缀提示词时，转发会按当前语言解析默认提示词；自定义内容按原文使用，主动清空则不加前缀，并提供一键恢复默认提示词。
+- **默认转发提示词跟随语言：** 未自定义前缀提示词时，转发会按当前语言解析默认提示词；自定义内容按原文使用，
+  主动清空则不加前缀，并提供一键恢复默认提示词。
 
 ### 贡献者
-- [@LighghtEeloo](https://github.com/LighghtEeloo) — [#2](https://github.com/Rayle8/dsh-aside-note/pull/2) 全部 DSH 官方语言、[#3](https://github.com/Rayle8/dsh-aside-note/pull/3) 市场上架图标
+- [@LighghtEeloo](https://github.com/LighghtEeloo) — [#2](https://github.com/Rayle8/dsh-aside-note/pull/2)
+  全部 DSH 官方语言、[#3](https://github.com/Rayle8/dsh-aside-note/pull/3) 市场上架图标
 - [@Rayle8](https://github.com/Rayle8) — 英文回退与默认转发提示词修复
 <!-- app-update-notes:zh:end -->
 
@@ -114,50 +175,82 @@ This file records user-visible changes only. Screenshots, marketplace listing ma
 
 <!-- app-update-notes:en:start -->
 ### Added
-- **New-session entry:** a blank new session now shows the notes button at the top right, beside the right-sidebar control. Until the first message it reads the workspace list and hides the session option; once the session starts, the entry moves into the conversation header and the switch becomes available.
-- **Scope tooltips:** hovering or focusing the Workspace / Session switch explains what each list is for; a blank new session says the workspace list is the only one until the session starts.
+- **New-session entry:** a blank new session now shows the notes button at the top right,
+  beside the right-sidebar control.
+  Until the first message it reads the workspace list and hides the session option; once the session starts,
+  the entry moves into the conversation header and the switch becomes available.
+- **Scope tooltips:** hovering or focusing the Workspace / Session switch explains what each list is for;
+  a blank new session says the workspace list is the only one until the session starts.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 新增
-- **新会话入口：** 空白新会话右上角也会出现旁边记按钮，位于右侧栏按钮左侧。发出第一条消息前只读取工作区清单，不显示「会话」选项；会话开始后入口回到对话头部，切换随之可用。
-- **范围提示：** 悬停或聚焦「工作区 / 会话」切换时，会说明两种清单各自的用途；空白新会话则提示当前只能记到工作区，会话开始后才可切换。
+- **新会话入口：** 空白新会话右上角也会出现旁边记按钮，位于右侧栏按钮左侧。
+  发出第一条消息前只读取工作区清单，不显示「会话」选项；会话开始后入口回到对话头部，切换随之可用。
+- **范围提示：** 悬停或聚焦「工作区 / 会话」切换时，会说明两种清单各自的用途；空白新会话则提示当前只能记到工作区，
+  会话开始后才可切换。
 <!-- app-update-notes:zh:end -->
 
 ## 1.1.2
 
 <!-- app-update-notes:en:start -->
 ### Added
-- **Anonymous feature statistics:** the panel reports a small set of anonymous events to the Tencent Cloud Observability Platform — panel opened, note created/completed/edited/deleted/forwarded, scope switched, update checked — to see which features are used and where people get stuck. Events carry the action and outcome, the plugin version, an anonymous visitor ID and basic environment details such as network, region and device type; note text, conversations and account details are never read. Only custom events are sent: page performance, web vitals, JS errors, API and asset speed are off, and Do Not Track drops reports.
-- **Privacy switch:** Settings › Privacy now has an “Anonymous feature statistics” switch, on by default. Turning it off stops reporting immediately; the final event only records that choice, and the preference stays in this browser.
+- **Anonymous feature statistics:** the panel reports a small set of anonymous events
+  to the Tencent Cloud Observability Platform — panel opened, note created/completed/edited/deleted/forwarded,
+  scope switched, update checked — to see which features are used and where people get stuck.
+  Events carry the action and outcome, the plugin version, an anonymous visitor ID and basic environment details such
+  as network, region and device type; note text, conversations and account details are never read.
+  Only custom events are sent: page performance, web vitals, JS errors, API and asset speed are off,
+  and Do Not Track drops reports.
+- **Privacy switch:** Settings › Privacy now has an “Anonymous feature statistics” switch, on by default.
+  Turning it off stops reporting immediately; the final event only records that choice,
+  and the preference stays in this browser.
 
 ### Changed
-- **In-app updates now run through the host:** the plugin no longer uses the plugin market. The host installs over the running copy and verifies the version on disk; prerelease builds also read the `next` dist-tag, while stable builds keep reading `latest` only.
-- **Failed updates stay actionable:** a failed update states its cause. When the host has no update route or refuses an in-place install, the card hands over a command pinned to the offered version; prereleases also pin the npmjs registry, and the installer retries npmjs when the configured mirror has not caught up.
-- **No more waiting on unrelated work:** updates no longer queue behind the plugin market or wait for an unrelated agent to finish.
-- **No “Restart DSH” button:** after an update the card offers a page refresh and says the new version lands at the next start.
-- **One neutral footer line:** both the workspace and session scopes now read “Notes are saved only on this device”; the switch under the title shows which list is visible.
+- **In-app updates now run through the host:** the plugin no longer uses the plugin market.
+  The host installs over the running copy and verifies the version on disk;
+  prerelease builds also read the `next` dist-tag, while stable builds keep reading `latest` only.
+- **Failed updates stay actionable:** a failed update states its cause.
+  When the host has no update route or refuses an in-place install, the card hands
+  over a command pinned to the offered version; prereleases also pin the npmjs registry,
+  and the installer retries npmjs when the configured mirror has not caught up.
+- **No more waiting on unrelated work:** updates no longer queue behind the plugin market
+  or wait for an unrelated agent to finish.
+- **No “Restart DSH” button:** after an update the card offers a page refresh and says the new version lands
+  at the next start.
+- **One neutral footer line:** both the workspace and session scopes now read “Notes are saved only on this device”;
+  the switch under the title shows which list is visible.
 
 ### Fixed
-- **Settings card scrolling:** in a short window the settings card now scrolls inside the panel instead of being cut off below its bottom edge, while a tall panel still shows the whole card.
-- **Manual update command:** when an older host sends a fallback command without the offered version, or without the npmjs pin for a prerelease, the card replaces it with its own pinned command so it cannot install the stable line.
+- **Settings card scrolling:** in a short window the settings card now scrolls inside the panel instead
+  of being cut off below its bottom edge, while a tall panel still shows the whole card.
+- **Manual update command:** when an older host sends a fallback command without the offered version,
+  or without the npmjs pin for a prerelease, the card replaces it with its own pinned command
+  so it cannot install the stable line.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 新增
-- **匿名功能统计：** 面板通过腾讯云可观测平台上报少量匿名事件——打开面板、新建/完成/编辑/删除/转发便笺、切换清单、检查更新等，用来判断哪些功能常用、哪里容易卡住。事件带操作类型与结果、插件版本、匿名访客 ID，以及网络、地域、设备类型等基础环境信息；不读取便笺正文、对话或账号信息。只上报自定义事件，页面性能、Web Vitals、JS 报错、接口与资源测速均关闭，浏览器开启 DNT 时丢弃上报。
-- **隐私开关：** 设置 › 隐私新增「匿名功能统计」开关，默认开启。关闭后不再上报，最后一条事件只记录这次选择；开关状态仅保存在本机。
+- **匿名功能统计：** 面板通过腾讯云可观测平台上报少量匿名事件——打开面板、新建/完成/编辑/删除/转发便笺、
+  切换清单、检查更新等，用来判断哪些功能常用、哪里容易卡住。
+  事件带操作类型与结果、插件版本、匿名访客 ID，以及网络、地域、设备类型等基础环境信息；不读取便笺正文、对话或账号信息。
+  只上报自定义事件，页面性能、Web Vitals、JS 报错、接口与资源测速均关闭，浏览器开启 DNT 时丢弃上报。
+- **隐私开关：** 设置 › 隐私新增「匿名功能统计」开关，默认开启。
+  关闭后不再上报，最后一条事件只记录这次选择；开关状态仅保存在本机。
 
 ### 变更
-- **应用内更新改走宿主：** 不再使用插件市场。宿主就地覆盖安装并回读磁盘版本；预发布版同时读取 `next` 标签，稳定版仍只读 `latest`。
-- **更新失败仍可继续：** 失败时说明原因；宿主没有更新路由或拒绝就地覆盖时，卡片给出固定目标版本的命令。预发布还会固定 npmjs registry，安装器在默认镜像缺版本时也会用 npmjs 重试。
+- **应用内更新改走宿主：** 不再使用插件市场。
+  宿主就地覆盖安装并回读磁盘版本；预发布版同时读取 `next` 标签，稳定版仍只读 `latest`。
+- **更新失败仍可继续：** 失败时说明原因；宿主没有更新路由或拒绝就地覆盖时，卡片给出固定目标版本的命令。
+  预发布还会固定 npmjs registry，安装器在默认镜像缺版本时也会用 npmjs 重试。
 - **更新不再被无关任务阻塞：** 不再排队等插件市场，也不会因为别的 agent 正在运行而拒绝更新。
 - **不再提供「重启 DSH」按钮：** 更新完成后提供「刷新页面」，并说明新版本在下次启动生效。
 - **页脚统一为一条中性说明：** 工作区与会话都显示「便笺数据仅保存在本地」，当前清单只由标题下方的切换表示。
 
 ### 修复
 - **设置卡滚动：** 窗口偏矮时设置卡在面板内滚动，不再被面板下沿裁掉；面板够高时仍完整显示。
-- **手动更新命令：** 旧宿主返回的兜底命令如果没带目标版本、或预发布没带 npmjs 固定，卡片会换成自己生成的固定版本命令，避免装回稳定版。
+- **手动更新命令：** 旧宿主返回的兜底命令如果没带目标版本、或预发布没带 npmjs 固定，
+  卡片会换成自己生成的固定版本命令，避免装回稳定版。
 <!-- app-update-notes:zh:end -->
 
 
@@ -165,67 +258,99 @@ This file records user-visible changes only. Screenshots, marketplace listing ma
 
 <!-- app-update-notes:en:start -->
 ### Fixed
-- **Manual update command:** when a host from an older build sends a fallback command without the offered version, or without the npmjs pin for a prerelease, the card now replaces it with its own pinned command instead of handing over one that could install the stable line.
+- **Manual update command:** when a host from an older build sends a fallback command without the offered version,
+  or without the npmjs pin for a prerelease, the card now replaces it with its own pinned command instead
+  of handing over one that could install the stable line.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 修复
-- **手动更新命令：** 旧宿主返回的兜底命令如果没带目标版本、或预发布没带 npmjs 固定，卡片会用自己生成的固定版本命令替换它，避免把用户带回稳定版。
+- **手动更新命令：** 旧宿主返回的兜底命令如果没带目标版本、或预发布没带 npmjs 固定，
+  卡片会用自己生成的固定版本命令替换它，避免把用户带回稳定版。
 <!-- app-update-notes:zh:end -->
 
 ## 1.1.2-beta.7
 
 <!-- app-update-notes:en:start -->
 ### Changed
-- **Updates:** the plugin no longer probes or calls the plugin market. An update is one request to the host, and when that route is unavailable the card states a command pinned to the offered version; prereleases also pin the npmjs registry. The installer retries a prerelease against npmjs when the configured registry has not caught up.
+- **Updates:** the plugin no longer probes or calls the plugin market.
+  An update is one request to the host, and when that route is unavailable the card states a command pinned
+  to the offered version; prereleases also pin the npmjs registry.
+  The installer retries a prerelease against npmjs when the configured registry has not caught up.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 变更
-- **更新：** 插件不再探测或调用插件市场，更新只走宿主一个请求；宿主没有路由时，卡片直接给出带目标版本与 profile 目录的命令，预发布还会固定 npmjs registry；安装器在默认 registry 缺版本时也会用 npmjs 重试一次。
+- **更新：** 插件不再探测或调用插件市场，更新只走宿主一个请求；宿主没有路由时，
+  卡片直接给出带目标版本与 profile 目录的命令，预发布还会固定 npmjs registry；
+  安装器在默认 registry 缺版本时也会用 npmjs 重试一次。
 <!-- app-update-notes:zh:end -->
 
 ## 1.1.2-beta.6
 
 <!-- app-update-notes:en:start -->
 ### Changed
-- **Analytics copy:** the settings switch now says the statistics come from the Tencent Cloud Observability Platform and what they are for — seeing which features are used and where people get stuck — and spells out what travels with each event: an anonymous visitor ID plus basic environment details such as network, region and device type. Notes, conversations and account details are never read.
+- **Analytics copy:** the settings switch now says the statistics come from the Tencent Cloud Observability Platform
+  and what they are for — seeing which features are used and where people get stuck — and spells out what travels
+  with each event: an anonymous visitor ID plus basic environment details such as network, region and device type.
+  Notes, conversations and account details are never read.
 ### Fixed
-- **Settings:** opening Settings in a short window no longer cuts the card off below the panel edge with no scrollbar. The card now scrolls on its own rail, and the note list gives up its height first, so the whole card still fits whenever the panel is tall enough.
+- **Settings:** opening Settings in a short window no longer cuts the card off below the panel edge with no scrollbar.
+  The card now scrolls on its own rail, and the note list gives up its height first,
+  so the whole card still fits whenever the panel is tall enough.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 变更
-- **统计说明：** 设置开关现在写明统计通过腾讯云可观测平台完成，用途是找出常用功能和卡点；同时写明事件会带上匿名访客 ID，以及网络、地域、设备类型等基础环境信息；不读取便笺、对话或账号信息。
+- **统计说明：** 设置开关现在写明统计通过腾讯云可观测平台完成，用途是找出常用功能和卡点；
+  同时写明事件会带上匿名访客 ID，以及网络、地域、设备类型等基础环境信息；不读取便笺、对话或账号信息。
 ### 修复
-- **设置：** 窗口偏矮时打开设置，设置卡不再被面板下沿裁掉、也没有滚动条。设置卡改为在面板内的轨道里滚动，列表先让出高度，面板够高时整张卡片仍然完整显示。
+- **设置：** 窗口偏矮时打开设置，设置卡不再被面板下沿裁掉、也没有滚动条。
+  设置卡改为在面板内的轨道里滚动，列表先让出高度，面板够高时整张卡片仍然完整显示。
 <!-- app-update-notes:zh:end -->
 
 ## 1.1.2-beta.5
 
 <!-- app-update-notes:en:start -->
 ### Added
-- **Privacy switch:** Settings now has a switch for anonymous usage statistics. Turning it off stops reporting immediately and sends one final event recording the choice; the preference is stored only in this browser.
+- **Privacy switch:** Settings now has a switch for anonymous usage statistics.
+  Turning it off stops reporting immediately and sends one final event recording the choice;
+  the preference is stored only in this browser.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 新增
-- **隐私开关：** 设置里新增「匿名使用统计」开关。关闭后立即停止上报，并在关闭这一刻发送最后一条事件记录该选择；开关状态只保存在本机。
+- **隐私开关：** 设置里新增「匿名使用统计」开关。
+  关闭后立即停止上报，并在关闭这一刻发送最后一条事件记录该选择；开关状态只保存在本机。
 <!-- app-update-notes:zh:end -->
 
 ## 1.1.2-beta.4
 
 <!-- app-update-notes:en:start -->
 ### Added
-- **Anonymous usage statistics:** the panel reports a few anonymous events to Tencent Cloud RUM — panel opened (first / repeat), panel closed with a dwell-time bucket, settings opened, update checked (auto / manual + result), update started (host / market / copy-update-prompt + result), note created, completed/uncompleted, edited, deleted, forwarded, scope switched, and how many completed notes a clear removed. Events carry the scope kind and a `done` / `open` status only, plus an anonymous visitor id (`uin`) so the console can count unique users. Only custom events are reported: page performance, web vitals, global JS errors, API and asset speed stay off, the reported page name is a constant, and Do Not Track drops the reports.
+- **Anonymous usage statistics:** the panel reports a few anonymous events to Tencent Cloud RUM —
+  panel opened (first / repeat), panel closed with a dwell-time bucket, settings opened,
+  update checked (auto / manual + result), update started (host / market / copy-update-prompt + result), note created,
+  completed/uncompleted, edited, deleted, forwarded, scope switched, and how many completed notes a clear removed.
+  Events carry the scope kind and a `done` / `open` status only,
+  plus an anonymous visitor id (`uin`) so the console can count unique users.
+  Only custom events are reported: page performance, web vitals, global JS errors, API and asset speed stay off,
+  the reported page name is a constant, and Do Not Track drops the reports.
 
 ### Changed
-- **Footer:** the panel footer no longer names the Workspace/Session scope; both scopes now read “Notes are saved only on this device”, and the switch under the title says which list is showing.
+- **Footer:** the panel footer no longer names the Workspace/Session scope;
+  both scopes now read “Notes are saved only on this device”, and the switch under the title says which list is showing.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 新增
-- **匿名使用统计：** 面板会向腾讯云 RUM 上报几条匿名事件——打开面板（首次 / 再次）、关闭面板（停留时长按 `<5s` / `5-30s` / `30-120s` / `2-10m` / `>=10m` 分档）、打开设置、检查更新（自动 / 手动 + 结果）、开始更新（宿主 / 应用内市场 / 复制更新提示词 + 结果）、新建、完成/取消完成、编辑、删除、转发便笺，切换清单范围，以及一次清空删掉了多少条已完成。事件只带清单范围（`workspace` / `session`）、`done` / `open` 状态和一个匿名访客 ID（`uin`，用于统计 UV），不含便笺正文、会话 ID 或对话内容；只上报自定义事件，页面性能、web vitals、全局 JS 报错、接口与资源测速都关闭，页面名固定为常量，浏览器开启「请勿追踪」时丢弃上报。
+- **匿名使用统计：** 面板会向腾讯云 RUM 上报几条匿名事件——打开面板（首次 / 再次）、
+  关闭面板（停留时长按 `<5s` / `5-30s` / `30-120s` / `2-10m` / `>=10m` 分档）、打开设置、
+  检查更新（自动 / 手动 + 结果）、开始更新（宿主 / 应用内市场 / 复制更新提示词 + 结果）、新建、
+  完成/取消完成、编辑、删除、转发便笺，切换清单范围，以及一次清空删掉了多少条已完成。
+  事件只带清单范围（`workspace` / `session`）、`done` / `open` 状态和一个匿名访客 ID（`uin`，用于统计 UV），
+  不含便笺正文、会话 ID 或对话内容；只上报自定义事件，页面性能、web vitals、全局 JS 报错、接口与资源测速都关闭，
+  页面名固定为常量，浏览器开启「请勿追踪」时丢弃上报。
 
 ### 变更
 - **页脚：** 面板页脚不再区分工作区 / 会话，两种范围都显示「便笺数据仅保存在本地」；当前清单看标题下方的范围切换。
@@ -234,131 +359,196 @@ This file records user-visible changes only. Screenshots, marketplace listing ma
 
 <!-- app-update-notes:en:start -->
 ### Changed
-- **Updating no longer requires the plugin market:** the card asks the host first and reads the market only when the host has no update route, so a DSH without the market can still update in-app. The terminal command now appears after an attempt finds no path, instead of whenever the market is missing.
-- **No more "Restart DSH" button:** this panel does not own the host's lifecycle. After an update it offers a page reload and says the new version lands at the next start.
+- **Updating no longer requires the plugin market:** the card asks the host first and reads the market only
+  when the host has no update route, so a DSH without the market can still update in-app.
+  The terminal command now appears after an attempt finds no path, instead of whenever the market is missing.
+- **No more "Restart DSH" button:** this panel does not own the host's lifecycle.
+  After an update it offers a page reload and says the new version lands at the next start.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 变更
-- **更新不再依赖插件市场：** 卡片先问宿主，只有宿主没有更新路由时才去读市场，所以没装市场的 DSH 也能在应用内更新。终端命令改为「尝试过、确实无路可走」才出现，而不是一发现市场缺失就出现。
-- **去掉「重启 DSH」按钮：** 宿主生命周期不归这个面板管。更新后提供刷新页面，并说明新版本在下次启动生效。
+- **更新不再依赖插件市场：** 卡片先问宿主，只有宿主没有更新路由时才去读市场，所以没装市场的 DSH 也能在应用内更新。
+  终端命令改为「尝试过、确实无路可走」才出现，而不是一发现市场缺失就出现。
+- **去掉「重启 DSH」按钮：** 宿主生命周期不归这个面板管。
+  更新后提供刷新页面，并说明新版本在下次启动生效。
 <!-- app-update-notes:zh:end -->
 
 ## 1.1.2-beta.2
 
 <!-- app-update-notes:en:start -->
 ### Changed
-- **Second beta:** 1.1.2-beta.2 follows the first beta so the in-app update can be exercised between two prerelease builds; nothing outside the update path changed.
+- **Second beta:** 1.1.2-beta.2 follows the first beta
+  so the in-app update can be exercised between two prerelease builds; nothing outside the update path changed.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 变更
-- **第二个 beta：** 1.1.2-beta.2 接在首个 beta 之后，用于验证两个预发布版本之间的应用内更新；除更新链路外没有其它行为变化。
+- **第二个 beta：** 1.1.2-beta.2 接在首个 beta 之后，用于验证两个预发布版本之间的应用内更新；
+  除更新链路外没有其它行为变化。
 <!-- app-update-notes:zh:end -->
 
 ## 1.1.2-beta.1
 
 <!-- app-update-notes:en:start -->
 ### Changed
-- **In-app update works on Desktop:** the panel now installs a newer build from the host instead of only asking the plugin market. The market replaces a package by removing it first, and Desktop refuses to remove a bundle that is in use — which this panel always is while it is open. The host installs over the running copy (DSH's installer, then `dsh plugin add`, then the profile's own package manager) and checks the version on disk before reporting success.
-- **Update failures name their cause:** refusals such as `bundle-in-use`, `already-installed` and `management-required` now say what happened and offer the terminal command, instead of a bare "update failed".
-- **Pre-release builds update themselves:** a build installed from the `next` dist-tag now reads that tag too, so a beta tester is offered the next beta (and its notes). Stable builds keep reading `latest` alone, so a pre-release can never reach a regular user.
+- **In-app update works on Desktop:** the panel now installs a newer build
+  from the host instead of only asking the plugin market.
+  The market replaces a package by removing it first, and Desktop refuses to remove a bundle
+  that is in use — which this panel always is while it is open.
+  The host installs over the running copy (DSH's installer, then `dsh plugin add`,
+  then the profile's own package manager) and checks the version on disk before reporting success.
+- **Update failures name their cause:** refusals such as `bundle-in-use`, `already-installed`
+  and `management-required` now say what happened and offer the terminal command, instead of a bare "update failed".
+- **Pre-release builds update themselves:** a build installed from the `next` dist-tag now reads that tag too,
+  so a beta tester is offered the next beta (and its notes).
+  Stable builds keep reading `latest` alone, so a pre-release can never reach a regular user.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 变更
-- **桌面端可在应用内更新：** 面板现在由宿主安装新版本，不再只依赖插件市场。市场的更新会先移除再安装，而桌面端不允许移除正在使用的插件——面板打开时恰好一直是这个状态。宿主改为就地覆盖（DSH 安装器 → `dsh plugin add` → profile 自带包管理器），并在报告成功前核对磁盘上的版本。
-- **更新失败会说明原因：** `bundle-in-use`、`already-installed`、`management-required` 这类拒绝现在会讲清楚发生了什么，并给出终端命令，而不是只回一句"更新失败"。
-- **预发布版可自我更新：** 从 `next` 标签安装的版本也会读取该标签，beta 测试者能收到下一个 beta 及其说明。稳定版仍只读 `latest`，预发布永远不会推给普通用户。
+- **桌面端可在应用内更新：** 面板现在由宿主安装新版本，不再只依赖插件市场。
+  市场的更新会先移除再安装，而桌面端不允许移除正在使用的插件——面板打开时恰好一直是这个状态。
+  宿主改为就地覆盖（DSH 安装器 → `dsh plugin add` → profile 自带包管理器），并在报告成功前核对磁盘上的版本。
+- **更新失败会说明原因：** `bundle-in-use`、`already-installed`、`management-required` 这类拒绝现在会讲清楚发生了什么，
+  并给出终端命令，而不是只回一句"更新失败"。
+- **预发布版可自我更新：** 从 `next` 标签安装的版本也会读取该标签，beta 测试者能收到下一个 beta 及其说明。
+  稳定版仍只读 `latest`，预发布永远不会推给普通用户。
 <!-- app-update-notes:zh:end -->
 
 ## 1.1.1
 
 <!-- app-update-notes:en:start -->
 ### Changed
-- **Update:** when the market refuses an update because an agent is running, the card now names that refusal and hands over the terminal command plus **Copy update prompt**, the same way it already did for a busy or missing market. The command does not go through the market, so it is the way to update while an agent runs.
-- **Update copy:** the card calls the in-app update **automatic update** instead of naming the plugin market — “the market is running another update” read as an internal detail the user cannot act on.
-- **Drafts follow the workspace:** unsaved add and edit drafts are shared by every conversation in a workspace, so switching conversations or the Workspace/Session switch never loses half-typed text; submitting still writes the list selected at that moment. Sessions outside a workspace keep their own draft, and the first workspace open after upgrading folds the current session's old draft into the shared one.
+- **Update:** when the market refuses an update because an agent is running, the card now names that refusal and hands
+  over the terminal command plus **Copy update prompt**, the same way it already did for a busy or missing market.
+  The command does not go through the market, so it is the way to update while an agent runs.
+- **Update copy:** the card calls the in-app update **automatic update** instead of naming the plugin market —
+  “the market is running another update” read as an internal detail the user cannot act on.
+- **Drafts follow the workspace:** unsaved add and edit drafts are shared by every conversation in a workspace,
+  so switching conversations or the Workspace/Session switch never loses half-typed text;
+  submitting still writes the list selected at that moment.
+  Sessions outside a workspace keep their own draft, and the first workspace open
+  after upgrading folds the current session's old draft into the shared one.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 变更
-- **更新：** 市场因「有 agent 正在运行」拒绝更新时，卡片现在会说明这一点，并像忙碌/无市场那样给出终端命令与「拷贝更新提示词」。该命令不经过市场，所以 agent 运行期间也能更新。
-- **更新文案：** 卡片把应用内更新称为**自动更新**，不再直呼插件市场——「市场正在执行另一个更新」读起来像用户无法处置的内部细节。
-- **草稿跟随工作区：** 工作区内所有会话共用一份新增/编辑草稿，切换会话或在「工作区 / 会话」之间切换都不会丢字；提交时仍写入当前选中的清单。工作区之外的会话按会话保存草稿，升级后首次打开工作区会把当前会话的旧草稿并入共享草稿。
+- **更新：** 市场因「有 agent 正在运行」拒绝更新时，卡片现在会说明这一点，
+  并像忙碌/无市场那样给出终端命令与「拷贝更新提示词」。
+  该命令不经过市场，所以 agent 运行期间也能更新。
+- **更新文案：** 卡片把应用内更新称为**自动更新**，不再直呼插件市场——
+  「市场正在执行另一个更新」读起来像用户无法处置的内部细节。
+- **草稿跟随工作区：** 工作区内所有会话共用一份新增/编辑草稿，切换会话或在「工作区 / 会话」之间切换都不会丢字；
+  提交时仍写入当前选中的清单。
+  工作区之外的会话按会话保存草稿，升级后首次打开工作区会把当前会话的旧草稿并入共享草稿。
 <!-- app-update-notes:zh:end -->
 
 ## 1.1.0
 
 <!-- app-update-notes:en:start -->
 ### Added
-- **Workspace-shared notes:** sessions in one workspace now read and write a single list, so switching conversations keeps the same tasks in view. Notes already recorded per session are folded in once on first open; sessions outside a workspace keep their own list.
-- **Forward to the open conversation:** forwarding a shared note appends it to the composer of the conversation currently on screen, not the one the panel was opened from.
-- **Workspace / session switch:** the panel header switches between the workspace list and the current session's list; the choice is remembered across panel openings.
-- **Separate storage keys:** session notes stay under `dsh.aside-note` with their original shape, while workspace notes live under `dsh.aside-note.workspaces`; adding the workspace list never rewrites existing session data.
+- **Workspace-shared notes:** sessions in one workspace now read and write a single list,
+  so switching conversations keeps the same tasks in view.
+  Notes already recorded per session are folded in once on first open; sessions outside a workspace keep their own list.
+- **Forward to the open conversation:** forwarding a shared note appends it to the composer
+  of the conversation currently on screen, not the one the panel was opened from.
+- **Workspace / session switch:** the panel header switches between the workspace list and the current session's list;
+  the choice is remembered across panel openings.
+- **Separate storage keys:** session notes stay under `dsh.aside-note` with their original shape,
+  while workspace notes live under `dsh.aside-note.workspaces`;
+  adding the workspace list never rewrites existing session data.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 新增
-- **工作区共享：** 同一工作区的会话现在共用一份清单，切换会话也能接着看同一批事项；首次打开时会把各会话已有的便笺合并一次，工作区之外的会话仍各自独立。
+- **工作区共享：** 同一工作区的会话现在共用一份清单，切换会话也能接着看同一批事项；
+  首次打开时会把各会话已有的便笺合并一次，工作区之外的会话仍各自独立。
 - **转发到当前会话：** 共享便笺会追加到当前屏幕上打开的会话输入框，而不是面板最初打开时所在的会话。
 - **工作区 / 会话切换：** 面板顶部可在工作区清单与当前会话清单之间切换，选择会被记住，下次打开沿用。
-- **独立存储键：** 会话便笺仍保存在 `dsh.aside-note`，结构不变；工作区清单使用 `dsh.aside-note.workspaces`，新增工作区不会改写原有会话数据。
+- **独立存储键：** 会话便笺仍保存在 `dsh.aside-note`，结构不变；工作区清单使用 `dsh.aside-note.workspaces`，
+  新增工作区不会改写原有会话数据。
 <!-- app-update-notes:zh:end -->
 
 ## 1.0.3
 
 <!-- app-update-notes:en:start -->
 ### Fixed
-- **Install:** the one-command installer runs `pnpm install` through the node and pnpm DeepSeek Harness ships (it falls back to the pnpm on PATH, and `DSH_RUNTIME_DIR` pins a runtime), so a profile is never written by another pnpm major — which surfaced as `ERR_PNPM_UNEXPECTED_STORE` on the host's next install. When pnpm asks to purge a store left by another major it re-runs once with `CI=true`.
+- **Install:** the one-command installer runs `pnpm install` through the node
+  and pnpm DeepSeek Harness ships (it falls back to the pnpm on PATH,
+  and `DSH_RUNTIME_DIR` pins a runtime), so a profile is never written by another pnpm major —
+  which surfaced as `ERR_PNPM_UNEXPECTED_STORE` on the host's next install.
+  When pnpm asks to purge a store left by another major it re-runs once with `CI=true`.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 修复
-- **安装：** 安装器改用 DeepSeek Harness 自带的 node 与 pnpm 执行 `pnpm install`（找不到运行时回退到 PATH 上的 pnpm，可用 `DSH_RUNTIME_DIR` 指定），避免 profile 被另一个主版本的 pnpm 写入、导致宿主下次安装报 `ERR_PNPM_UNEXPECTED_STORE`；pnpm 要求清空旧 store 时会自动用 `CI=true` 重跑一次。
+- **安装：** 安装器改用 DeepSeek Harness 自带的 node 与 pnpm 执行 `pnpm install`（找不到运行时回退到 PATH 上的 pnpm，
+  可用 `DSH_RUNTIME_DIR` 指定），避免 profile 被另一个主版本的 pnpm 写入、
+  导致宿主下次安装报 `ERR_PNPM_UNEXPECTED_STORE`；pnpm 要求清空旧 store 时会自动用 `CI=true` 重跑一次。
 <!-- app-update-notes:zh:end -->
 
 ## 1.0.2
 
 <!-- app-update-notes:en:start -->
 ### Fixed
-- **Update:** when the market is busy with another operation, “Update now” waits and retries before reporting it. If the market stays busy — or is not installed at all — the card now states the command (`npx -y dsh-aside-note install`, or the Plugins page) and offers **Copy update prompt**, instead of stopping at “another update is already running — try again shortly”.
+- **Update:** when the market is busy with another operation, “Update now” waits and retries before reporting it.
+  If the market stays busy — or is not installed at all —
+  the card now states the command (`npx -y dsh-aside-note install`, or the Plugins page)
+  and offers **Copy update prompt**, instead of stopping at “another update is already running — try again shortly”.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 修复
-- **更新：** 市场正在执行别的操作时，「立即更新」会先等待并重试；如果市场一直忙、或根本没有安装市场，卡片不再停在「市场正在执行另一个更新，请稍后再试」，而是直接给出命令（`npx -y dsh-aside-note install`，或到「插件」页更新），并提供「拷贝更新提示词」。
+- **更新：** 市场正在执行别的操作时，「立即更新」会先等待并重试；如果市场一直忙、或根本没有安装市场，
+  卡片不再停在「市场正在执行另一个更新，请稍后再试」，而是直接给出命令（`npx -y dsh-aside-note install`，
+  或到「插件」页更新），并提供「拷贝更新提示词」。
 <!-- app-update-notes:zh:end -->
 
 ## 1.0.1
 
 <!-- app-update-notes:en:start -->
 ### Changed
-- **Install:** the installer now closes by telling the user that the 旁边记 entry sits at the top right of the conversation after install — no restart — and, when it is still missing, to refresh the Plugins page and toggle the plugin off and on once, which recomposes the running host.
+- **Install:** the installer now closes by telling the user that the 旁边记 entry sits
+  at the top right of the conversation after install — no restart — and, when it is still missing,
+  to refresh the Plugins page and toggle the plugin off and on once, which recomposes the running host.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 变更
-- **安装：** 安装器结束时不再只说「无需重启」，而是明确告诉用户安装后会话右上角即可看到「旁边记」；入口没出现时，到「插件」页刷新并把插件关闭再开启一次，运行中的 Host 会随之重新组合。
+- **安装：** 安装器结束时不再只说「无需重启」，而是明确告诉用户安装后会话右上角即可看到「旁边记」；入口没出现时，
+  到「插件」页刷新并把插件关闭再开启一次，运行中的 Host 会随之重新组合。
 <!-- app-update-notes:zh:end -->
 
 ## 1.0.0
 
 <!-- app-update-notes:en:start -->
 ### Changed
-- **Naming:** the Chinese product name is now **旁边记** (English: AsideNote) with the tagline “让想法留在对话旁边” / “Keep your ideas beside the conversation”. The panel title, empty state and composer placeholder carry the new name, and Settings › About shows the tagline.
-- **Storage:** local storage keys now follow the package name: the notes key is `dsh.aside-note`, with `.drafts`, `.forwarded`, `.sections`, `.panel-width`, `.panel-height`, `.send-shortcut` and `.forward-prefix` beside it. The old `dsh.aside-notes.*.v2` keys and the 1.x `dsh.session-memos.v1` / `dsh.memo.*.v1` keys are not read or migrated; rename your data under `localStorage` after upgrading to keep it.
-- **Install:** the installer defaults to `^1.0.0` now, so a fresh `npx dsh-aside-note install` follows the stable 1.x line instead of pinning the profile to 0.9.x.
+- **Naming:** the Chinese product name is now **旁边记** (English: AsideNote)
+  with the tagline “让想法留在对话旁边” / “Keep your ideas beside the conversation”.
+  The panel title, empty state and composer placeholder carry the new name, and Settings › About shows the tagline.
+- **Storage:** local storage keys now follow the package name: the notes key is `dsh.aside-note`, with `.drafts`,
+  `.forwarded`, `.sections`, `.panel-width`, `.panel-height`, `.send-shortcut` and `.forward-prefix` beside it.
+  The old `dsh.aside-notes.*.v2` keys and the 1.x `dsh.session-memos.v1` / `dsh.memo.*.v1` keys are not read
+  or migrated; rename your data under `localStorage` after upgrading to keep it.
+- **Install:** the installer defaults to `^1.0.0` now,
+  so a fresh `npx dsh-aside-note install` follows the stable 1.x line instead of pinning the profile to 0.9.x.
 
 ### Fixed
-- **Update check:** a manual check no longer flashes the running version as a newly available release before settling on “up to date”.
+- **Update check:** a manual check no longer flashes the running version as a newly available release
+  before settling on “up to date”.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 变更
-- **命名：** 产品中文名定为**旁边记**（英文名沿用 AsideNote），slogan 为「让想法留在对话旁边」。浮窗标题、空状态与输入占位改用新名字，设置 › 关于展示 slogan。
-- **存储：** 本地存储键统一到包名：便笺键为 `dsh.aside-note`，其余为 `.drafts`、`.forwarded`、`.sections`、`.panel-width`、`.panel-height`、`.send-shortcut` 与 `.forward-prefix`。旧的 `dsh.aside-notes.*.v2` 与 1.x 的 `dsh.session-memos.v1` / `dsh.memo.*.v1` 键不再读取，也不自动迁移；升级后如需保留数据，请在 `localStorage` 中手动改名。
-- **安装：** 安装器默认范围改为 `^1.0.0`，`npx dsh-aside-note install` 会接入稳定的 1.x 线，而不是把 profile 固定在 0.9.x。
+- **命名：** 产品中文名定为**旁边记**（英文名沿用 AsideNote），slogan 为「让想法留在对话旁边」。
+  浮窗标题、空状态与输入占位改用新名字，设置 › 关于展示 slogan。
+- **存储：** 本地存储键统一到包名：便笺键为 `dsh.aside-note`，其余为 `.drafts`、`.forwarded`、
+  `.sections`、`.panel-width`、`.panel-height`、`.send-shortcut` 与 `.forward-prefix`。
+  旧的 `dsh.aside-notes.*.v2` 与 1.x 的 `dsh.session-memos.v1` / `dsh.memo.*.v1` 键不再读取，也不自动迁移；
+  升级后如需保留数据，请在 `localStorage` 中手动改名。
+- **安装：** 安装器默认范围改为 `^1.0.0`，`npx dsh-aside-note install` 会接入稳定的 1.x 线，
+  而不是把 profile 固定在 0.9.x。
 
 ### 修复
 - **检查更新：** 手动检查不会再先把当前版本短暂显示为新版本，再回到「已是最新版本」。
@@ -368,13 +558,16 @@ This file records user-visible changes only. Screenshots, marketplace listing ma
 
 <!-- app-update-notes:en:start -->
 ### Changed
-- **Identity:** the npm package, plugin id and repository are now `dsh-aside-note`; install with `npx dsh-aside-note install`. Storage keys (`dsh.aside-notes.*.v2`) and CSS prefixes are unchanged, so existing notes and settings carry over.
+- **Identity:** the npm package, plugin id and repository are now `dsh-aside-note`;
+  install with `npx dsh-aside-note install`.
+  Storage keys (`dsh.aside-notes.*.v2`) and CSS prefixes are unchanged, so existing notes and settings carry over.
 - **First public release:** 0.9.9 was withdrawn before it became public; this version starts the name cleanly.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 变更
-- **命名：** npm 包名、插件 id 与仓库统一为 `dsh-aside-note`；安装命令为 `npx dsh-aside-note install`。存储键（`dsh.aside-notes.*.v2`）与 CSS 前缀保持不变，已有便笺和设置直接沿用。
+- **命名：** npm 包名、插件 id 与仓库统一为 `dsh-aside-note`；安装命令为 `npx dsh-aside-note install`。
+  存储键（`dsh.aside-notes.*.v2`）与 CSS 前缀保持不变，已有便笺和设置直接沿用。
 - **首个公开版本：** 0.9.9 在公开前已撤回，本版本以新名字重新开始。
 <!-- app-update-notes:zh:end -->
 
@@ -382,26 +575,48 @@ This file records user-visible changes only. Screenshots, marketplace listing ma
 
 <!-- app-update-notes:en:start -->
 ### Added
-- **Panel:** a top-right header entry with an open-count badge opens a floating, resizable right panel; Open and Completed keep their own sticky, collapsible sections, and the panel size, drafts and section state are restored per session.
-- **Notes:** quick add, edit, complete, copy, forward to the composer, delete, and clear completed behind an inline confirmation; the composer and editor grow with wrapped text.
-- **Settings:** a send/newline shortcut (⌘ or Ctrl aware), a one-click forward prefix, the version and author in About, and the full Chinese/English copy from one dictionary.
-- **Update centre:** Settings › About checks npm (npmmirror, then the GitHub Release fallback), lists pending releases newest-first, and updates in place through the plugin market with a refresh hint.
-- **Installer:** `npx dsh-aside-note install` (`scripts/install.mjs`, shipped as the package's `bin`) resolves the DSH profile (`DSH_PROFILE_DIR`, `--profile`, `--profile-dir`), backs up the manifest and lockfile, adds the dependency plus the `dsh.profile.bundles` entry, runs `pnpm install` and verifies the installed `client/client.js`; `--dry-run` and `--no-install` keep it reviewable and re-running is idempotent. `docs/install-prompt.md` carries a shareable agent prompt, and a page reload is enough after install or upgrade.
+- **Panel:** a top-right header entry with an open-count badge opens a floating, resizable right panel;
+  Open and Completed keep their own sticky, collapsible sections, and the panel size,
+  drafts and section state are restored per session.
+- **Notes:** quick add, edit, complete, copy, forward to the composer, delete,
+  and clear completed behind an inline confirmation; the composer and editor grow with wrapped text.
+- **Settings:** a send/newline shortcut (⌘ or Ctrl aware), a one-click forward prefix,
+  the version and author in About, and the full Chinese/English copy from one dictionary.
+- **Update centre:** Settings › About checks npm (npmmirror, then the GitHub Release fallback),
+  lists pending releases newest-first, and updates in place through the plugin market with a refresh hint.
+- **Installer:** `npx dsh-aside-note install` (`scripts/install.mjs`, shipped
+  as the package's `bin`) resolves the DSH profile (`DSH_PROFILE_DIR`, `--profile`, `--profile-dir`),
+  backs up the manifest and lockfile, adds the dependency plus the `dsh.profile.bundles` entry,
+  runs `pnpm install` and verifies the installed `client/client.js`; `--dry-run`
+  and `--no-install` keep it reviewable and re-running is idempotent.
+  `docs/install-prompt.md` carries a shareable agent prompt, and a page reload is enough after install or upgrade.
 
 ### Changed
-- **Design:** the panel is rebuilt on DSH semantic tokens — a 12/13/14 type scale at weight 500 or less, 0.5px hairlines, shared radii and elevation, the DSH scrollbar skin, and hover styles gated behind `@media (hover:hover)` — with feedback routed through `shell.overlay` toasts.
-- **Identity:** renamed 一点待办 → Memo → Notes → **AsideNote** (`dsh-aside-note`); storage moved to `dsh.aside-notes.*.v2` with a one-time copy of 1.x data, and the old keys are kept so a rollback still works.
+- **Design:** the panel is rebuilt on DSH semantic tokens — a 12/13/14 type scale at weight 500
+  or less, 0.5px hairlines, shared radii and elevation, the DSH scrollbar skin,
+  and hover styles gated behind `@media (hover:hover)` — with feedback routed through `shell.overlay` toasts.
+- **Identity:** renamed 一点待办 → Memo → Notes → **AsideNote** (`dsh-aside-note`); storage moved
+  to `dsh.aside-notes.*.v2` with a one-time copy of 1.x data, and the old keys are kept so a rollback still works.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
 ### 新增
-- **面板：** 右上角标题栏入口带未完成计数角标，点开是可拖拽缩放的浮动右侧面板；「未完成」「已完成」各自保留可折叠的吸顶分组，面板尺寸、草稿和分组状态按会话恢复。
-- **便笺：** 快速添加、编辑、完成、复制、转发到输入框、删除，以及带内联确认的清空已完成；输入框与编辑器会随换行自动增高。
+- **面板：** 右上角标题栏入口带未完成计数角标，点开是可拖拽缩放的浮动右侧面板；
+  「未完成」「已完成」各自保留可折叠的吸顶分组，面板尺寸、草稿和分组状态按会话恢复。
+- **便笺：** 快速添加、编辑、完成、复制、转发到输入框、删除，以及带内联确认的清空已完成；
+  输入框与编辑器会随换行自动增高。
 - **设置：** 发送/换行快捷键（识别 ⌘ 与 Ctrl）、一键转发前缀、关于区的版本与作者，以及由同一份词典提供的中英文文案。
-- **更新中心：** 设置 › 关于 会检查 npm（失败时回退 npmmirror，再到 GitHub Release），按版本从新到旧列出待更新说明，并通过插件市场就地更新、完成后提示刷新。
-- **安装工具：** `npx dsh-aside-note install`（`scripts/install.mjs`，随包发布为 `bin`）会定位 DSH profile（支持 `DSH_PROFILE_DIR`、`--profile`、`--profile-dir`）、备份清单与 lockfile、写入依赖和 `dsh.profile.bundles` 条目、执行 `pnpm install` 并校验安装后的 `client/client.js`；`--dry-run` 与 `--no-install` 便于先审阅，重复执行是幂等的。`docs/install-prompt.md` 提供可直接交给 agent 的安装提示词；安装或升级后刷新页面即可，无需重启。
+- **更新中心：** 设置 › 关于 会检查 npm（失败时回退 npmmirror，再到 GitHub Release），
+  按版本从新到旧列出待更新说明，并通过插件市场就地更新、完成后提示刷新。
+- **安装工具：** `npx dsh-aside-note install`（`scripts/install.mjs`，
+  随包发布为 `bin`）会定位 DSH profile（支持 `DSH_PROFILE_DIR`、`--profile`、`--profile-dir`）、
+  备份清单与 lockfile、写入依赖和 `dsh.profile.bundles` 条目、执行 `pnpm install` 并校验安装后的 `client/client.js`；
+  `--dry-run` 与 `--no-install` 便于先审阅，重复执行是幂等的。
+  `docs/install-prompt.md` 提供可直接交给 agent 的安装提示词；安装或升级后刷新页面即可，无需重启。
 
 ### 变更
-- **设计：** 面板改用 DSH 语义 token 重建——12/13/14 字号、字重不超过 500、0.5px 描边、统一圆角与投影、DSH 滚动条皮肤，悬停样式只在支持悬停的设备生效，操作反馈统一走 `shell.overlay` toast。
-- **命名：** 一点待办 → Memo → Notes → **AsideNote**（`dsh-aside-note`）；存储迁移到 `dsh.aside-notes.*.v2`，首次加载时复制 1.x 数据，旧键保留以便回退。
+- **设计：** 面板改用 DSH 语义 token 重建——12/13/14 字号、字重不超过 500、0.5px 描边、统一圆角与投影、
+  DSH 滚动条皮肤，悬停样式只在支持悬停的设备生效，操作反馈统一走 `shell.overlay` toast。
+- **命名：** 一点待办 → Memo → Notes → **AsideNote**（`dsh-aside-note`）；存储迁移到 `dsh.aside-notes.*.v2`，
+  首次加载时复制 1.x 数据，旧键保留以便回退。
 <!-- app-update-notes:zh:end -->

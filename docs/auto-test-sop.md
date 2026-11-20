@@ -1,8 +1,8 @@
 # 边记部（Sideby Note）自动化验收测试 SOP
 
 本文件固定「改完代码 → 独立 profile 验收 → 出报告」这一条流程：不碰正在用的 `desktop` profile，
-不复制任何凭据，测试产物全部落在工作树的 `.test/`（已 gitignore，不提交）。照此执行，任何 agent
-都能得到同一种报告和同一张 UI 证据图。
+不复制任何凭据，测试产物全部落在工作树的 `.test/`（已 gitignore，不提交）。
+照此执行，任何 agent 都能得到同一种报告和同一张 UI 证据图。
 
 **什么时候跑：** 每次要交给作者验收之前跑一遍；发版前再跑一遍，作为 `npm run release` 之前的一道闸。
 只跑 `npm test` 不够——它不验证「插件真的能被 DSH 加载、面板真的能开」。
@@ -85,7 +85,8 @@ npm test > "$OUT/logs/test.log" 2>&1; TEST_EXIT=$?
 grep -E "^ℹ (tests|pass|fail|duration_ms)" "$OUT/logs/test.log"
 ```
 
-判定：`test_exit=0` 且 `fail 0`。否则直接把 `logs/test.log` 末尾贴进报告，流程到此为止。
+判定：`test_exit=0` 且 `fail 0`。
+否则直接把 `logs/test.log` 末尾贴进报告，流程到此为止。
 
 ### 步骤 2：隔离 profile（不动 desktop）
 
@@ -105,8 +106,8 @@ JSON
 DSH_HOME="$WORK/dshhome" "$DSH_CLI" plugin --profile "$PROFILE" install --offline --store-dir "$WORK/pnpm-store" > "$WORK/install.log" 2>&1
 ```
 
-自检（写进报告）：`link:` 必须解析回工作树，且 profile 内 `client/client.js` 与工作树同名文件
-**sha256 一致**——这才能证明加载的是本分支产物，而不是 npm 上的同版本：
+自检（写进报告）：`link:` 必须解析回工作树，且 profile 内 `client/client.js` 与工作树同名文件 **sha256 一致**——
+这才能证明加载的是本分支产物，而不是 npm 上的同版本：
 
 ```bash
 P="$WORK/dshhome/profiles/$PROFILE"
@@ -157,13 +158,14 @@ REPO="$REPO" APP_URL="$APP_URL" OUT="$OUT/assets" LOGS="$OUT/logs" \
   node "$WORK/ui-smoke.mjs"; UI_EXIT=$?
 ```
 
-脚本走真实 UI：清空插件本地存储并重载 → 需要时发一条消息让对话头出现 → 点头部入口 →
-打开面板 → 在真实输入框写一条便笺并回车 → 断言列表/持久化/角标 → 整窗截图 → 按面板矩形裁特写。
+脚本走真实 UI：清空插件本地存储并重载 → 需要时发一条消息让对话头出现 → 点头部入口 → 打开面板 → 在真
+实输入框写一条便笺并回车 → 断言列表/持久化/角标 → 整窗截图 → 按面板矩形裁特写。
 7 项检查全部输出到 `logs/ui.log` 与 `assets/checks.json`。
 
 ### 步骤 6：写 `result.md`
 
-用第 6 节的模板，把环境、两条测试结论、截图引用写进去。**截图必须在报告里直接引用**，例如：
+用第 6 节的模板，把环境、两条测试结论、截图引用写进去。
+**截图必须在报告里直接引用**，例如：
 
 ```markdown
 ![UI 冒烟整窗截图](assets/snapshot.png)
@@ -192,8 +194,8 @@ rm -rf "$WORK/chrome" "$WORK/chrome.log"       # 浏览器现场约 80MB
 | 6 | 角标显示未完成数 `1` | 计数刷新时序或 `header.tooltip` 文案回归 |
 | 7 | 入口 `aria-label` 带计数 | i18n 文案缺 key |
 
-判定标准：`npm test` 100/100 且 UI 冒烟 7/7 才写「PASS」；任一项失败都要写「FAIL」并把失败项与日志
-位置写进报告，**不要**用「大部分通过」这类模糊结论。
+判定标准：`npm test` 100/100 且 UI 冒烟 7/7 才写「PASS」；任一项失败都要写「FAIL」并把失败项与日志位置写进报告，
+**不要**用「大部分通过」这类模糊结论。
 
 ## 6. `result.md` 模板
 

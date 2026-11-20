@@ -4,12 +4,18 @@
 
 ## 1. 形态与运行时契约
 
-边记部的**数据与界面全部在浏览器半侧**；宿主半侧只做浏览器做不到的一件事——把新版本装进 profile（见 §8）。`index.js` 因此仍然保留 `cordis.patch.yml` 需要的那一行，同时在宿主里注册两个更新端点，不读写任何便笺数据。
+边记部的**数据与界面全部在浏览器半侧**；宿主半侧只做浏览器做不到的一件事——把新版本装进 profile（见 §8）。
+`index.js` 因此仍然保留 `cordis.patch.yml` 需要的那一行，同时在宿主里注册两个更新端点，不读写任何便笺数据。
 
 - `package.json` 的 `dsh.bundle.patch` 指向 `cordis.patch.yml`，`dsh.client` 声明 `./client` 与需要预注入的宿主模块。
-- 壳把 `./client`（即 `client/client.js`）当 classic script 加载：`window.__ModuleLoader__.load({ id, factory })`。`factory(require)` 里的 `require` 绑定到冻结的模块表，只认 `react`、`react/jsx-runtime`、`react-dom`、`react-dom/client`、`@deepseek-ai/dsh-client-ui-primitives`；其余依赖全部内联。
-- 样式是 `import css from './styles/panel.css?inline'`，由入口在 `apply()` 里插入**一张** `<style data-dsh-plugin="dsh-sideby-note">`，dispose 时移除。面板与输入框 dock 不在同一棵 React 树里，所以不能做面板级 `<style>`。
-- 只依赖两个服务：`slots`（`conversation.composer.dock` 捕获当前会话、`conversation.hero.options` 捕获空白新会话、`shell.overlay` 承载全局 Toast）与 `locale`（注册字典、绑定 `t`，并订阅 `locale/change` 让已打开的面板就地换语言）。
+- 壳把 `./client`（即 `client/client.js`）当 classic script 加载：`window.__ModuleLoader__.load({ id, factory })`。
+  `factory(require)` 里的 `require` 绑定到冻结的模块表，只认 `react`、`react/jsx-runtime`、`react-dom`、
+  `react-dom/client`、`@deepseek-ai/dsh-client-ui-primitives`；其余依赖全部内联。
+- 样式是 `import css from './styles/panel.css?inline'`，
+  由入口在 `apply()` 里插入**一张** `<style data-dsh-plugin="dsh-sideby-note">`，dispose 时移除。
+  面板与输入框 dock 不在同一棵 React 树里，所以不能做面板级 `<style>`。
+- 只依赖两个服务：`slots`（`conversation.composer.dock` 捕获当前会话、`conversation.hero.options` 捕获空白新会话、
+  `shell.overlay` 承载全局 Toast）与 `locale`（注册字典、绑定 `t`，并订阅 `locale/change` 让已打开的面板就地换语言）。
 - 顶部入口是注入宿主 header 的原生 DOM 按钮，不是 React portal——宿主重渲染会回收 portal。
 
 ## 2. 目录
@@ -62,11 +68,14 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | UI hooks | `useSessionMemoStore` / `usePanelGeometry` / `useSections` / `useComposerDraft` / `useNoteActions` / `useRowReorder` / `useClearConfirm` / `useListEdge` / `useOutsideDismiss` | 把状态与副作用从 JSX 里分离；每个 hook 只做一件事 |
 | UI 基础设施 | `primitives` / `position` / `toastSeat` / `headerEntry` | 共享图标与 Tooltip、浮层定位与吸顶、跨面板 Toast、宿主 header 入口（空白新会话回落到 header corner） |
 
-约定：`domain/` 与 `storage/` 不 import React；需要 React 的状态放 `ui/use*.ts`。浏览器半侧不碰 Node 内置模块与 `process`（契约测试会拦）。
+约定：`domain/` 与 `storage/` 不 import React；需要 React 的状态放 `ui/use*.ts`。
+浏览器半侧不碰 Node 内置模块与 `process`（契约测试会拦）。
 
 ## 4. 数据模型
 
-所有数据在**当前浏览器**的 `localStorage`。同一个工作区默认共享一份清单与一份未提交草稿，面板头部可在工作区清单与当前会话清单之间切换；没有工作区的会话只有会话清单。空白新会话只有工作区清单：入口在右上角出现，面板不显示「会话」选项；首轮对话后才出现并解锁会话清单。
+所有数据在**当前浏览器**的 `localStorage`。同一个工作区默认共享一份清单与一份未提交草稿，
+面板头部可在工作区清单与当前会话清单之间切换；没有工作区的会话只有会话清单。
+空白新会话只有工作区清单：入口在右上角出现，面板不显示「会话」选项；首轮对话后才出现并解锁会话清单。
 
 | 键 | 内容 |
 | --- | --- |
@@ -79,20 +88,36 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | `dsh.aside-note.panel-width` / `panel-height` | 数字；高度 `0` 表示内容自适应 |
 | `dsh.aside-note.forward-prefix` | 已停用：旧版递入前缀。不再读取、写入或清理，留在浏览器里也不影响面板 |
 
-草稿按 `draftKey` 存放：会话属于工作区时，整个工作区共用一份新增草稿，切换会话或在「工作区 / 会话」之间切换都不丢字；没有工作区的会话按会话保存。提交草稿时仍按当前选中的范围写入 `dsh.aside-note.workspaces` 或 `dsh.aside-note`，草稿本身不区分范围。升级后首次打开工作区，会把当前会话的旧草稿并入共享键并清理成员会话的旧副本。
+草稿按 `draftKey` 存放：会话属于工作区时，整个工作区共用一份新增草稿，
+切换会话或在「工作区 / 会话」之间切换都不丢字；没有工作区的会话按会话保存。
+提交草稿时仍按当前选中的范围写入 `dsh.aside-note.workspaces` 或 `dsh.aside-note`，草稿本身不区分范围。
+升级后首次打开工作区，会把当前会话的旧草稿并入共享键并清理成员会话的旧副本。
 
-面板里只有顶部一个文字编辑区。点某行的「退回」会先把便笺从清单移除，再把正文放进顶部输入框（桌面端自动聚焦）；提交后作为一条新便笺重新加入。输入框已有未提交内容时不覆盖，改为提示先发送或清空。录入框的键位固定与主会话一致：Enter 发送，Shift+Enter 换行，输入法选词时的 Enter 交给浏览器。
+面板里只有顶部一个文字编辑区。
+点某行的「退回」会先把便笺从清单移除，再把正文放进顶部输入框（桌面端自动聚焦）；提交后作为一条新便笺重新加入。
+输入框已有未提交内容时不覆盖，改为提示先发送或清空。
+录入框的键位固定与主会话一致：Enter 发送，Shift+Enter 换行，输入法选词时的 Enter 交给浏览器。
 
-便笺没有手动勾选：「递入对话」把便笺作为纯文本写入会话输入框（已有内容时按换行接在后面），写入成功后同一步把它归档（`done: true` 与 `completedAt`，字段名沿用旧结构以便原样读取）；找不到输入框时不改任何数据。待续便笺的顺序就是存储数组里的顺序，`useRowReorder` 负责指针拖动与 ↑ / ↓ 键：拖动期间只改行的内联 `transform`，松手才经 `moveOpenItem` 写入一次，再在 layout effect 里把被拖行从松手处滑入新位置。
+便笺没有手动勾选：「递入对话」把便笺作为纯文本写入会话输入框（已有内容时按换行接在后面），
+写入成功后同一步把它归档（`done: true` 与 `completedAt`，字段名沿用旧结构以便原样读取）；找不到输入框时不改任何数据。
+待续便笺的顺序就是存储数组里的顺序，`useRowReorder` 负责指针拖动与 ↑ / ↓ 键：拖动期间只改行的内联 `transform`，
+松手才经 `moveOpenItem` 写入一次，再在 layout effect 里把被拖行从松手处滑入新位置。
 
-`Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，单份清单上限 300 条。会话数据继续使用 `dsh.aside-note` 的 v1 结构，工作区数据单独放在 `dsh.aside-note.workspaces`，因此新增范围不会改写旧键；首次进入工作区会把成员会话里已有的便笺合入一次，`seededSessionIds` 记住已合入的会话，之后删除不会因再次合并而复活。键名不带版本后缀；前缀沿用上游的 `dsh.aside-note`，因此包名与插件 id 改为 `dsh-sideby-note` 后，已有便笺和设置仍可直接读取。
+`Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，单份清单上限 300 条。
+会话数据继续使用 `dsh.aside-note` 的 v1 结构，工作区数据单独放在 `dsh.aside-note.workspaces`，因此新增范围不会改写旧键；
+首次进入工作区会把成员会话里已有的便笺合入一次，`seededSessionIds` 记住已合入的会话，之后删除不会因再次合并而复活。
+键名不带版本后缀；前缀沿用上游的 `dsh.aside-note`，因此包名与插件 id 改为 `dsh-sideby-note` 后，
+已有便笺和设置仍可直接读取。
 
 ## 5. 构建与产物
 
-- 源码是 TypeScript，`tsdown.config.ts` 用 rolldown 打包成**单个** CJS closure factory，`target: es2022`，不压缩、无 sourcemap，产物入库便于 review 与逐行合并。
+- 源码是 TypeScript，`tsdown.config.ts` 用 rolldown 打包成**单个** CJS closure factory，`target: es2022`，
+  不压缩、无 sourcemap，产物入库便于 review 与逐行合并。
 - CSS 通过一个 `?inline` 虚拟模块进来（虚拟 id 用相对路径，避免把本机绝对路径写进产物注释）。
 - 版本号在 `constants.ts`，契约测试保证与 `package.json` 一致。
-- CI（Node 22 / 24）：`npm ci` → `npm run build` → `git diff --exit-code client/`（产物必须与源码一致）→ lint → typecheck → test。`typecheck` 同时覆盖 `tsdown.config.ts`。
+- CI（Node 22 / 24）：
+  `npm ci` → `npm run build` → `git diff --exit-code client/`（产物必须与源码一致）→ lint → typecheck → test。
+  `typecheck` 同时覆盖 `tsdown.config.ts`。
 - `npm run check` 本地串起 lint、typecheck、测试与构建；发布走 `npm publish`（`prepack` 会重建产物）。
 
 ## 6. 测试
@@ -106,33 +131,49 @@ docs/assets/             # README 截图（preview-* 与 features/）
 
 ## 7. 扩展时先看这里
 
-- 新增文案：改 `src/client/i18n/*.ts` 的 8 种语言，键与占位符必须一致；插件列表文案同步改 `locale/*.json`；中文提示不加句号。
-- 新增持久化字段：`constants.ts` 加键 → `storage/` 对应模块读写 → 补契约/集成测试；读取旧形状时要原地升级，并在架构文档记录合并/迁移规则。
+- 新增文案：改 `src/client/i18n/*.ts` 的 8 种语言，键与占位符必须一致；插件列表文案同步改 `locale/*.json`；
+  中文提示不加句号。
+- 新增持久化字段：`constants.ts` 加键 → `storage/` 对应模块读写 → 补契约/集成测试；读取旧形状时要原地升级，
+  并在架构文档记录合并/迁移规则。
 - 新增面板状态：优先放 `ui/use*.ts`；纯逻辑放 `domain/`，不要 import React。
-- 改样式：只动 `src/client/styles/panel.css`，遵守 [面板 UI 规则](./panel-ui-rules.md)（语义别名、三档字号、0.5px 发丝线、hover 门控）。
+- 改样式：只动 `src/client/styles/panel.css`，遵守 [面板 UI 规则](./panel-ui-rules.md)（语义别名、三档字号、
+  0.5px 发丝线、hover 门控）。
 - 不要手改 `client/client.js`：改源码后 `npm run build`，把它和源码一起提交。
 
 ## 8. 更新路径
 
-自 1.1.2 起，更新走**宿主**，不走插件市场。市场的更新是「先移除 bundle 再安装」，而运行中的 Desktop 拒绝移除正被 fiber 使用的插件（`bundle-in-use`）——面板打开时它永远处于这个状态。宿主改为就地覆盖，三级降级：
+自 1.1.2 起，更新走**宿主**，不走插件市场。市场的更新是「先移除 bundle 再安装」，
+而运行中的 Desktop 拒绝移除正被 fiber 使用的插件（`bundle-in-use`）——面板打开时它永远处于这个状态。
+宿主改为就地覆盖，三级降级：
 
-1. `pluginManager.installBundle('dsh-sideby-note@<v>', { enabled: false })`（`enabled: false` 表示只换包，不动 profile 的 bundle 选择）
+1. `pluginManager.installBundle('dsh-sideby-note@<v>', { enabled: false })`（`enabled: false` 表示只换包，
+   不动 profile 的 bundle 选择）
 2. 若被拒为 `already-installed`：`dsh plugin add <spec> --save-exact`
 3. 仍不可用：用该 profile 自带的包管理器 `add <spec> --save-exact`
 
-装完回读 `node_modules/dsh-sideby-note/package.json`，必须等于目标版本，否则报 `RESOLVED_VERSION_MISMATCH`。成功返回 `restartRequired: true`——DSH 不重载已加载的包，新版本在下次启动生效。
+装完回读 `node_modules/dsh-sideby-note/package.json`，必须等于目标版本，否则报 `RESOLVED_VERSION_MISMATCH`。
+成功返回 `restartRequired: true`——DSH 不重载已加载的包，新版本在下次启动生效。
 
-端点只有两个，同源、POST 才可写：`GET /dsh-sideby-note/update/probe`、`POST /dsh-sideby-note/update/apply`（body `{ target }`）。`link:` 安装会被直接拒绝：覆盖 checkout 的依赖声明等于把工作副本悄悄换成 registry 版本。
+端点只有两个，同源、POST 才可写：`GET /dsh-sideby-note/update/probe`、
+`POST /dsh-sideby-note/update/apply`（body `{ target }`）。
+`link:` 安装会被直接拒绝：覆盖 checkout 的依赖声明等于把工作副本悄悄换成 registry 版本。
 
-自 1.1.2-beta.7 起，客户端不再保留插件市场客户端或探测：宿主没有路由、或拒绝码属于「终端命令能绕过」的一类时，卡片直接给出手动命令。命令由宿主生成，带目标版本与 profile 目录；预发布还会固定 `npx` 的 npmjs registry，避免装回稳定版。
+自 1.1.2-beta.7 起，客户端不再保留插件市场客户端或探测：宿主没有路由、
+或拒绝码属于「终端命令能绕过」的一类时，卡片直接给出手动命令。
+命令由宿主生成，带目标版本与 profile 目录；预发布还会固定 `npx` 的 npmjs registry，避免装回稳定版。
 
 ### 为何不查「有 agent 正在运行」
 
-DSH 插件市场在更新前会拒绝 `runningAgentsForGuard()` 非空的请求（除非显式 `confirmAgentsRunning`）。**本插件的更新端点刻意不做这项检查**，理由：
+DSH 插件市场在更新前会拒绝 `runningAgentsForGuard()` 非空的请求（除非显式 `confirmAgentsRunning`）。
+**本插件的更新端点刻意不做这项检查**，理由：
 
-- 便笺是纯 UI：agent 不 import 本包的任何文件；宿主半边只是两个路由函数，且随宿主启动就已在内存里。替换包文件不改变 agent 正在执行的代码。
+- 便笺是纯 UI：agent 不 import 本包的任何文件；宿主半边只是两个路由函数，且随宿主启动就已在内存里。
+  替换包文件不改变 agent 正在执行的代码。
 - 反过来，把「更新一个界面插件」挡在「别的 agent 正在跑」后面，会让用户在等待时无法升级，成本大于收益。
 
-所以这是**有意的行为差异，不是漏检**。审查时看到 apply 里没有 `agents` 判断，请先读本节，不要直接补检查。
+所以这是**有意的行为差异，不是漏检**。
+审查时看到 apply 里没有 `agents` 判断，请先读本节，不要直接补检查。
 
-**需要重新评估的条件**：一旦本包出现 agent 会加载的东西——tools、skills、agent 侧 provider，或宿主半边开始被 agent 调用——就必须补上与市场一致的守卫（含 `confirmAgentsRunning` 逃生阀），并让 `useUpdateCenter` 把该拒绝码交给 `UpdateNotice` 的命令兜底路径。
+**需要重新评估的条件**：一旦本包出现 agent 会加载的东西——tools、skills、agent 侧 provider，
+或宿主半边开始被 agent 调用——就必须补上与市场一致的守卫（含 `confirmAgentsRunning` 逃生阀），
+并让 `useUpdateCenter` 把该拒绝码交给 `UpdateNotice` 的命令兜底路径。
