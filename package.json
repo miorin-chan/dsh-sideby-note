@@ -45,8 +45,11 @@
     "icon.svg",
     "docs/assets",
     "docs/panel-ui-rules.md",
+    "docs/README.md",
     "README.md",
     "README.en.md",
+    "AGENTS.md",
+    "AGENTS.local.md",
     "LICENSE",
     "CHANGELOG.md"
   ],
