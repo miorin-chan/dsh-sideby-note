@@ -26,5 +26,5 @@
 
 ## Markdown
 
-- 重排修改过的英文 Markdown 时，在项目根目录运行 `docs/scripts/reflow md <path>`。命令需要 Python 3.11 或更新版本。
-- 在项目根运行 `prek install`，之后提交时会自动重排暂存的 Markdown。
+- 手工维护中英文 README 的排版。其余文档可在项目根目录用 `docs/scripts/reflow md <path>` 重排，需要 Python 3.11 或更新版本。
+- 在项目根运行 `prek install` 后，钩子会重排符合条件的暂存 Markdown，跳过两份 README 和通用 `AGENTS.md`。

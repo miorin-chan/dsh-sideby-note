@@ -7,4 +7,4 @@ name = "Reflow Markdown prose"
 entry = "python3 docs/scripts/reflow md"
 language = "system"
 files = '(?i)\.(md|markdown)$'
-exclude = '^AGENTS\.md$'
+exclude = '^(?:AGENTS|README(?:\.en)?)\.md$'
