@@ -1,11 +1,13 @@
-/** The add form: one growing textarea, the Enter hint and the submit button. */
+/** The add form: one growing textarea and its submit button. */
 import React from 'react'
 import { MAX_TEXT } from '../constants'
+import { Glyph, withTooltip } from './primitives'
 
 const h = React.createElement
 
 export function ComposerForm(props) {
   const { say, draft, isSubmitting, isRecalling, storageInUse, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit } = props
+  const addLabel = say('add.action')
   return h(
     'form',
     { className: 'dsh-an-add', onSubmit },
@@ -23,11 +25,15 @@ export function ComposerForm(props) {
       onCompositionEnd,
       onKeyDown,
     }),
-    h(
-      'div',
-      { className: 'dsh-an-addFoot' },
-      storageInUse ? null : h('span', { className: 'dsh-an-addShortcut' }, say('add.shortcut')),
-      h('button', { type: 'submit', className: 'dsh-an-addBtn', disabled: storageInUse || isSubmitting || isRecalling || !draft.trim() }, say('add.action')),
-    ),
+    withTooltip(addLabel, h(
+      'button',
+      {
+        type: 'submit',
+        className: 'dsh-an-addBtn',
+        'aria-label': addLabel,
+        disabled: storageInUse || isSubmitting || isRecalling || !draft.trim(),
+      },
+      h(Glyph, { name: 'IconPlusOutlineRegular', size: 16 }),
+    )),
   )
 }

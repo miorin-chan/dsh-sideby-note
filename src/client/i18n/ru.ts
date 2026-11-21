@@ -32,7 +32,6 @@ export const ru: Record<MessageKey, string> = {
   "settings.project": "Исходный код",
   "settings.storage": "Хранилище данных",
   "add.placeholder": "Записать",
-  "add.shortcut": "Enter отправляет · Shift+Enter — новая строка",
   "add.action": "Добавить",
   "list.open": "Открыто",
   "list.allArchived.title": "Открытых заметок нет",

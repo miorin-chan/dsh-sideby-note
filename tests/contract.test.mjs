@@ -262,7 +262,7 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /scope\.workspaceHint/)
   assert.match(client, /scope\.sessionHint/)
   assert.match(client, /scope\.newSessionHint/)
-  assert.match(client, /add\.shortcut/)
+  assert.doesNotMatch(client, /add\.shortcut/)
   assert.match(client, /data-sidebar-right-panel\]\[data-sidebar-right-open\]/)
   assert.match(client, /DRAFT_STORAGE_KEY/)
   assert.match(client, /saveAddDraft/)
@@ -942,10 +942,8 @@ test('the composer sends on Enter and breaks on Shift+Enter, like the main compo
   for (const id of LOCALE_IDS) {
     assert.equal(dict[id]['settings.shortcut'], undefined, `${id} must drop the shortcut setting`)
     assert.equal(dict[id]['add.shortcutEnter'], undefined, `${id} must drop the alternate hint`)
-    assert.match(dict[id]['add.shortcut'], /Shift\+Enter|Maj\+|Umschalt\+|Mayús\+/, `${id} hint names Shift+Enter`)
+    assert.equal(dict[id]['add.shortcut'], undefined, `${id} must drop the composer hint`)
   }
-  assert.equal(dict.zh['add.shortcut'], 'Enter 发送 · Shift+Enter 换行')
-  assert.equal(dict.en['add.shortcut'], 'Enter sends · Shift+Enter for a new line')
 })
 
 test('the checkbox is gone; open rows lead with a reorder grip', () => {

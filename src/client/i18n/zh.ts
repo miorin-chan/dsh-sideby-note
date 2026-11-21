@@ -30,7 +30,6 @@ export const zh = {
   "settings.project": "源代码",
   "settings.storage": "数据存储",
   "add.placeholder": "随手记一条",
-  "add.shortcut": "Enter 发送 · Shift+Enter 换行",
   "add.action": "添加",
   "list.open": "待续",
   "list.allArchived.title": "案头已空",

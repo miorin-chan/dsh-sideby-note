@@ -32,7 +32,6 @@ export const es: Record<MessageKey, string> = {
   "settings.project": "Código fuente",
   "settings.storage": "Almacenamiento de datos",
   "add.placeholder": "Anota una",
-  "add.shortcut": "Intro envía · Mayús+Intro para una nueva línea",
   "add.action": "Añadir",
   "list.open": "Abiertas",
   "list.allArchived.title": "No queda nada abierto",

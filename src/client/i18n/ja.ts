@@ -32,7 +32,6 @@ export const ja: Record<MessageKey, string> = {
   "settings.project": "ソース",
   "settings.storage": "データ保存",
   "add.placeholder": "ひとつメモする",
-  "add.shortcut": "Enter で送信 · Shift+Enter で改行",
   "add.action": "追加",
   "list.open": "書きかけ",
   "list.allArchived.title": "書きかけのメモはありません",

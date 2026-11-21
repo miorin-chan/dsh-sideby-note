@@ -149,7 +149,9 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     react: React,
     'react-dom': ReactDOM,
     'react-dom/client': ReactDOMClient,
-    '@deepseek-ai/dsh-client-ui-primitives': {},
+    '@deepseek-ai/dsh-client-ui-primitives': {
+      IconPlusOutlineRegular: () => React.createElement('svg', { 'data-icon': 'plus' }),
+    },
   }
   const requireShim = id => {
     if (!(id in moduleTable)) throw new Error(`module table cannot answer ${id}`)
@@ -261,7 +263,12 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     const addField = popover.querySelector('.dsh-an-input')
     assert.ok(addField, 'the panel must render the add field')
     assert.equal(addField.getAttribute('placeholder'), '随手记一条', 'the composer uses the finalized placeholder')
-    assert.equal(popover.querySelector('.dsh-an-addBtn').disabled, true)
+    const addButton = popover.querySelector('.dsh-an-addBtn')
+    assert.equal(addButton.disabled, true)
+    assert.equal(addButton.getAttribute('aria-label'), '添加')
+    assert.equal(addButton.textContent, '', 'the submit button shows only the icon')
+    assert.ok(addButton.querySelector('svg[data-icon="plus"]'), 'the submit button renders the shared plus icon')
+    assert.equal(addField.form.textContent.trim(), '', 'the composer has no visible keyboard hint')
     // Set the value through the prototype setter so React's value tracker sees a
     // change, then dispatch the input event React listens for. fireEvent would
     // resolve the prototype in the Node realm, not this jsdom one.
@@ -270,7 +277,6 @@ test('the built bundle boots, applies, and seats its slots', async t => {
       valueSetter.call(addField, '新的一条')
       addField.dispatchEvent(new window.Event('input', { bubbles: true }))
     })
-    const addButton = popover.querySelector('.dsh-an-addBtn')
     assert.equal(addButton.disabled, false, 'the add button enables once the draft has text')
     await act(async () => { addButton.click() })
     const written = JSON.parse(window.localStorage.getItem('dsh.aside-note'))

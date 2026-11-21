@@ -32,7 +32,6 @@ export const de: Record<MessageKey, string> = {
   "settings.project": "Quellcode",
   "settings.storage": "Datenspeicher",
   "add.placeholder": "Eine notieren",
-  "add.shortcut": "Enter sendet · Umschalt+Enter für eine neue Zeile",
   "add.action": "Hinzufügen",
   "list.open": "Offen",
   "list.allArchived.title": "Nichts mehr offen",
