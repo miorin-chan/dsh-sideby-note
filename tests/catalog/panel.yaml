@@ -47,9 +47,9 @@ cases:
     rules: [R-PANEL-FOOTER, R-PANEL-COPY]
     risk: ux
     expected:
-      - 正常页脚折叠时只显示「存储」，有新版本时另提供独立入口
+      - 正常页脚折叠时只显示「存储与更新」，有新版本时另提供独立入口
       - 展开后才显示存储信息、当前版本和手动检查更新
-      - 焦点位于「存储」时按 Escape 关闭面板并将焦点还给入口
+      - 焦点位于「存储与更新」时按 Escape 关闭面板并将焦点还给入口
       - 齿轮、设置卡、旧快捷键和转发前缀选项均已移除
     automation:
       - type: integration

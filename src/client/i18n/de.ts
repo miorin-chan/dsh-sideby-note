@@ -54,7 +54,7 @@ export const de: Record<MessageKey, string> = {
   "storage.failed": "Lokaler Speicher ist nicht verfügbar; Änderungen werden möglicherweise nicht gespeichert",
   "storage.whereHost": "Notizen werden in einer lokalen DSH-Datei gespeichert",
   "storage.loading": "Notizen werden gelesen…",
-  "storage.details": "Speicher",
+  "storage.details": "Speicher und Updates",
   "storage.failure": "Letzter Fehler: {code}",
   "storage.migrated": "{n} Notizen aus diesem Browser in die lokale DSH-Datei verschoben",
   "storage.keptLocal": "Host-Notizen werden verwendet; ältere Notizen dieses Browsers wurden nicht zusammengeführt",

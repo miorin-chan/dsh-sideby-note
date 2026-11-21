@@ -52,7 +52,7 @@ export const zh = {
   "storage.failed": "本地存储不可用，改动不会保留",
   "storage.whereHost": "便笺保存在 DSH 本地文件",
   "storage.loading": "正在读取便笺…",
-  "storage.details": "存储",
+  "storage.details": "存储与更新",
   "storage.failure": "最近失败：{code}",
   "storage.migrated": "已把本浏览器的 {n} 条便笺迁入 DSH 本地文件",
   "storage.keptLocal": "已使用宿主便笺；本浏览器的旧便笺未合并",

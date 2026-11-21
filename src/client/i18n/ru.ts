@@ -54,7 +54,7 @@ export const ru: Record<MessageKey, string> = {
   "storage.failed": "Локальное хранилище недоступно; изменения могут не сохраниться",
   "storage.whereHost": "Заметки сохраняются в локальном файле DSH",
   "storage.loading": "Чтение заметок…",
-  "storage.details": "Хранилище",
+  "storage.details": "Хранилище и обновления",
   "storage.failure": "Последняя ошибка: {code}",
   "storage.migrated": "Заметки этого браузера ({n}) перенесены в локальный файл DSH",
   "storage.keptLocal": "Используются заметки хоста; старые заметки этого браузера не объединены",

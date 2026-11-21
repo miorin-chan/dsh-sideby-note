@@ -29,7 +29,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - Notes move to the DSH host when its storage is available.
   The first start can import existing browser notes and keeps their original copy for recovery.
   Browsers connected to the same host share the host lists.
-- The footer’s **Storage** section starts collapsed.
+- The footer’s **Storage & updates** section starts collapsed.
   Open it to see the storage status, host file location, and installed version.
   You can also copy the path, reveal the file, or check for updates.
   If host storage becomes unavailable after the switch, the panel shows the reason and **Reconnect**.
@@ -54,7 +54,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 ### 变更
 - DSH 宿主存储可用时，便笺改存宿主文件。
   同一宿主的浏览器共享清单，首次启动可从浏览器导入旧便笺，并保留旧副本供恢复。
-- 面板页脚的「存储」默认折叠。
+- 面板页脚的「存储与更新」默认折叠。
   展开后可查看存储状态、宿主文件路径和当前版本，也可复制路径、在文件管理器中定位或手动检查更新。
   切换到宿主存储后若连接失效，面板直接显示原因与「重新连接」。
   草稿和面板布局仍随浏览器保存。

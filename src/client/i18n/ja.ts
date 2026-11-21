@@ -54,7 +54,7 @@ export const ja: Record<MessageKey, string> = {
   "storage.failed": "ローカルストレージを利用できません。変更は保存されない可能性があります",
   "storage.whereHost": "メモは DSH のローカルファイルに保存されます",
   "storage.loading": "メモを読み込み中…",
-  "storage.details": "保存先",
+  "storage.details": "保存先と更新",
   "storage.failure": "前回の失敗：{code}",
   "storage.migrated": "このブラウザのメモ {n} 件を DSH ローカルファイルに移行しました",
   "storage.keptLocal": "ホストのメモを使用中です。このブラウザの古いメモは統合していません",
