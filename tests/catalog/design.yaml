@@ -189,6 +189,7 @@ features:
           - kind: invalid
             text: 宿主文件已被另一个插件占用时写入浏览器便笺键，导致两处数据分叉
         technique: [不变量]
+        reviewed: { by: "LighghtEeloo", at: '2026-11-21', hash: '30c310f8861277f3' }
 
       - id: R-STORE-HOST-PATH
         statement: 设置页必须展示宿主存储文件的完整路径；用户可以拷贝该路径，或在宿主的文件管理器中定位文件；无法定位时必须说明原因，不得猜测。
