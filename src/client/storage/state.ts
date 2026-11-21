@@ -7,7 +7,7 @@
  * place that answers "which one is authoritative right now".
  */
 import { notifyTodoChange } from './events'
-import { fetchSnapshot, type HostSnapshot } from './host-client'
+import { fetchSnapshot, HostRequestError, type HostSnapshot } from './host-client'
 
 export type StorageMode = 'probing' | 'host' | 'local' | 'error'
 
@@ -44,13 +44,21 @@ export function setStorageMode(next: StorageMode) {
   if (next === 'host') void refreshHost()
 }
 
-/** The last host failure, for the settings surface. */
+/** The last host failure, for in-panel diagnostics. */
 export function storageFailure(): HostFailure | null {
   return failure
 }
 
 export function setStorageFailure(next: HostFailure | null) {
   failure = next
+}
+
+/** Connection failures are actionable even while the last host snapshot is readable. */
+export function isHostConnectionFailure(value: HostFailure | null): boolean {
+  return value != null && (
+    value.code === 'STORE_UNREACHABLE' || value.code === 'STORE_TIMEOUT' || value.code === 'STORE_IN_USE'
+    || value.status === 403 || value.status === 404 || value.status === 503
+  )
 }
 
 /** Replace the cache with a fresh host snapshot. */
@@ -104,15 +112,21 @@ async function refreshHost() {
   if (mode !== 'host' || pendingWrites !== 0 || refreshing || !refreshRequested) return
   refreshing = true
   refreshRequested = false
+  const previousFailure = failure
   try {
     const { data: snapshot } = await fetchSnapshot()
     // A write or notification during GET can make even a successful response stale.
     if (mode === 'host' && !refreshRequested) {
       hydrateHost(snapshot)
+      if (failure === previousFailure && isHostConnectionFailure(failure)) setStorageFailure(null)
       notifyTodoChange()
     }
-  } catch {
+  } catch (error) {
     // Keep the last usable view. The next notification can try again.
+    if (mode === 'host' && !refreshRequested && error instanceof HostRequestError && isHostConnectionFailure(error)) {
+      setStorageFailure(error)
+      notifyTodoChange()
+    }
   } finally {
     refreshing = false
     if (refreshRequested) void refreshHost()

@@ -185,16 +185,17 @@ gh release view v0.1.0 -R LighghtEeloo/dsh-sideby-note
 
 ## 更新提示的耦合
 
-更新卡片需要三样东西同时成立：
+检测到比当前版本更新的版本后，页脚显示「有新版本」。
+版本号优先来自 npm，失败时依次回退到 npmmirror 和 GitHub 最新 Release。
+展开后，更新说明的内容取决于 GitHub Release。
 
-1. **npm（或 GitHub Release）有新版本**：版本号来自 npm，npm 不可用时回退到 npmmirror，再回退到 GitHub 最新 Release。
-2. **对应的 GitHub Release 存在**：面板读取 `releases?per_page=50`，取出版本高于本地、且不高于最新版的 Release 正文；
+1. **对应的 GitHub Release 存在**：面板读取 `releases?per_page=50`，取出版本高于本地、且不高于最新版的 Release 正文；
    只打 tag 不建 Release 时列表为空，卡片会退化为「暂无更新说明 + 完整更新说明链接」。
    feed 不可用时回退到 `releases/tags/v<最新版本>` 单条。
    workflow 已经自动创建 Release 并上传 tgz。
-3. **Release 正文带 `app-update-notes` 标记**：没有标记的旧版本在该版本条目内提示「暂无更新说明」，
+2. **Release 正文带 `app-update-notes` 标记**：没有标记的旧版本在该版本条目内提示「暂无更新说明」，
    完整说明链接仍然可用；从本包首版 0.1.0 起由生成器保证标记存在。
-4. **多版本区间**：本地与最新版之间跨多个版本时，面板按版本从新到旧逐条展示，最新一条默认展开、其余折叠；
+3. **多版本区间**：本地与最新版之间跨多个版本时，面板按版本从新到旧逐条展示，最新一条默认展开、其余折叠；
    草稿和预发布被剔除，最多 6 条，更多时给出 releases 列表链接。
 
 `releases/latest` 会跳过 prerelease，所以预发布不会触发稳定用户的提示。

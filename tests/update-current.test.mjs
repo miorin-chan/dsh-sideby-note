@@ -119,10 +119,13 @@ test('an up-to-date manual check never offers the running version', async t => {
   // Quiet check on open: published === running, so there is nothing to offer.
   await act(async () => { await wait(window, 40) })
   assert.equal(popover.querySelector('.dsh-an-updateCard'), null, 'an up-to-date build has no update card')
-  assert.equal(popover.querySelector('.dsh-an-updateDot'), null, 'an up-to-date build has no gear dot')
+  assert.equal(popover.querySelector('.dsh-an-updateDetails'), null, 'an up-to-date build has no update disclosure')
 
-  await act(async () => { popover.querySelector('.dsh-an-settingsBtn').click() })
-  const checkButton = () => popover.querySelector('.dsh-an-updateCheck')
+  const footer = popover.querySelector('details.dsh-an-footerDetails')
+  await act(async () => { footer.querySelector('summary.dsh-an-storageToggle').click() })
+  await act(async () => { await wait(window, 20) })
+  assert.equal(footer.open, true)
+  const checkButton = () => footer.querySelector('.dsh-an-updateCheck')
   assert.equal(checkButton().textContent, '检查更新')
 
   // Manual check: hold the answer to inspect the "checking" render.
@@ -132,8 +135,8 @@ test('an up-to-date manual check never offers the running version', async t => {
   assert.equal(checkButton().textContent, '正在检查…', 'only the button reports progress')
   assert.equal(popover.querySelector('.dsh-an-updateCard'), null,
     'the running version must not be offered while the check is in flight')
-  assert.equal(popover.querySelector('.dsh-an-updateDot'), null,
-    'the gear must not gain a dot for the running version')
+  assert.equal(popover.querySelector('.dsh-an-updateDetails'), null,
+    'the running version must not gain an update disclosure')
   assert.doesNotMatch(popover.textContent, new RegExp(`有新版本\\s*v?${RUNNING.replace(/\./g, '\\.')}`),
     'the card must not announce the running version as new')
 
@@ -142,9 +145,9 @@ test('an up-to-date manual check never offers the running version', async t => {
   releaseManualCheck()
   await act(async () => { await wait(window, 3200) })
   assert.equal(popover.querySelector('.dsh-an-updateCard'), null, 'no card once the check settles')
-  assert.equal(popover.querySelector('.dsh-an-updateDot'), null, 'no gear dot once the check settles')
+  assert.equal(popover.querySelector('.dsh-an-updateDetails'), null, 'no update disclosure once the check settles')
   assert.ok(
-    [...popover.querySelectorAll('.dsh-an-updateHint')].some(node => node.textContent === '已是最新版本'),
+    [...footer.querySelectorAll('[role="status"]')].some(node => node.textContent === '已是最新版本'),
     'the settled check says the build is up to date',
   )
   assert.equal(checkButton().textContent, '检查更新', 'the button is idle again')
@@ -157,8 +160,8 @@ test('an up-to-date manual check never offers the running version', async t => {
   await act(async () => { await wait(window, 3200) })
   assert.equal(popover.querySelector('.dsh-an-updateCard'), null,
     'a failed check must not conjure an update card')
-  assert.equal(popover.querySelector('.dsh-an-updateDot'), null,
-    'a failed check must not add the gear dot')
+  assert.equal(popover.querySelector('.dsh-an-updateDetails'), null,
+    'a failed check must not add an update disclosure')
   assert.ok(
     [...popover.querySelectorAll('.dsh-an-updateHintError')].some(node => node.textContent === '检查失败，请稍后重试'),
     'the failure is reported beside the button',

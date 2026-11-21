@@ -76,10 +76,11 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 更新 | `update/releaseNotes.ts` | 提取 `app-update-notes` 标记块、按语言回退、压平 Markdown、上限兜底 |
 | 更新 | `update/releaseHistory.ts` | 从 releases feed 选出「本地 < 版本 ≤ 最新」的区间，剔除草稿/预发布，倒序与上限 |
 | 更新 | `ui/useUpdateCenter.ts` | 自动/手动检查、懒加载说明、更新状态机（starting/running/done/error）；只走宿主更新端点，没有市场分支 |
-| 更新 | `ui/UpdateNotice.ts` | 关于区里的更新卡片：说明展开、完整说明链接、立即更新/刷新，宿主没有路由或拒绝时改为带版本号的命令 + 拷贝更新提示词 |
+| 更新 | `ui/UpdateNotice.ts` | 页脚「有新版本」展开后的内容：说明、完整说明链接、立即更新与刷新，宿主没有路由或拒绝时提供带版本号的命令与拷贝更新提示词 |
 | 存储 | `storage/prefs.ts` | 范围选择在宿主模式写入 `global`，面板宽高与分区状态留在设备本地 |
-| UI 组件 | `ui/MemoPopover.ts` | 面板编排：组合 hook 与展示组件，portal 到 body |
-| UI 组件 | `PanelHead` / `ScopeSwitch` / `SettingsPanel` / `ComposerForm` / `NoteList` / `ClearConfirm` / `TodoRow` / `EmptyState` | 纯展示，数据与回调由面板传入 |
+| UI 组件 | `ui/MemoPopover.ts` | 面板编排：组合 hook 与展示组件，由挂在 `body` 下的插件根节点渲染 |
+| UI 组件 | `PanelHead` / `ScopeSwitch` / `ComposerForm` / `NoteList` / `ClearConfirm` / `TodoRow` / `EmptyState` | 纯展示，数据与回调由面板传入 |
+| UI 组件 | `PanelFooter` / `StorageDetails` | 组织页脚的两个原生折叠入口，展开存储详情时读取宿主文件路径 |
 | UI hooks | `useSessionMemoStore` / `usePanelGeometry` / `useSections` / `useComposerDraft` / `useNoteActions` / `useRowReorder` / `useClearConfirm` / `useListEdge` / `useOutsideDismiss` | 把状态与副作用从 JSX 里分离；每个 hook 只做一件事 |
 | UI 基础设施 | `primitives` / `position` / `toastSeat` / `headerEntry` | 共享图标与 Tooltip、浮层定位与吸顶、跨面板 Toast、宿主 header 入口（空白新会话回落到 header corner） |
 
@@ -110,7 +111,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 - 浏览器在宿主之外仍保留设备本地状态（`localStorage`）：面板宽高、分区展开、首次打开标记、
   未提交草稿（`dsh.aside-note.drafts`，按工作区/会话共享）。
 - 领域 `version` 是当前格式版本；读旧版本要配 `compatibleVersions`，删字段前必须重写所有记录（官方无值迁移 runner）。
-- 设置 › **数据存储**通过 `GET /store/location` 读取该文件的完整路径，可拷贝；
+- 页脚的「存储详情」通过 `GET /store/location` 读取该文件的完整路径，可复制路径。
   `POST /store/reveal` 让宿主在文件管理器中定位它。
   后端不是 JSON 文件时明确显示「无法定位」，不猜路径。
 - `Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，
@@ -125,7 +126,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 未切换 | 宿主可用且非空 | 写标记，不迁移；本地旧数据保留并提示 |
 | 未切换 | 宿主不可用 | 留在 `localStorage`，提示一次（24h 去重），下次启动重试，不写标记 |
 | 已切换 | 宿主可用 | 正常读写 |
-| 已切换 | 宿主不可用 | 错误态，只读本次快照或空清单，暂停写入 |
+| 已切换 | 宿主不可用 | 错误态，只读本次快照或空清单，暂停写入，面板内显示原因与「重新连接」 |
 | 任意 | `aside_note` 已由另一个插件打开 | 提示停用占用插件后重试，暂停写入，避免产生两份清单 |
 
 两个插件沿用同一宿主存储格式。DSH 在一个进程中只允许一个插件持有该存储领域，所以切换插件时先停用当前使用者。
@@ -176,7 +177,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | `tests/contract.test.mjs` | 清单与 patch 形状、工具链约定、样式令牌、无障碍与交互规则、字典完整性 |
 | `tests/resilience.test.mjs` | 排序与取消操作、无工作区/空白会话范围、存储读写失败、跨标签页刷新、宽度钳制、确认失效、未知语言回落、大清单 |
 | `tests/testkit/bundle.mjs` | 在 jsdom 里启动构建产物的测试装置：可注入存储故障、压缩定时器、locale 与 slot props |
-| `tests/bundle.test.mjs` | 在 jsdom 里执行**构建产物**：模块表、slot 注册、样式注入、入口注入，并驱动完整面板流程（添加、设置、方向键排序、填入并归档与找不到输入框时不变、清除确认、退回输入框、缩放、清空到空态、分区记忆）；另有工作区测试，验证两个会话共享清单、旧便笺只合入一次、工作区/会话切换与持久化、填入只写入当前会话输入框并归档、指针拖动排序与 Esc 取消；还有空白新会话测试，验证入口落在 header corner、只有工作区清单，以及首轮对话后入口移到 utilities 并解锁会话清单 |
+| `tests/bundle.test.mjs` | 在 jsdom 里执行**构建产物**：模块表、slot 注册、样式注入、入口注入，并驱动完整面板流程（添加、页脚入口、方向键排序、填入并归档与找不到输入框时不变、清除确认、退回输入框、缩放、清空到空态、分区记忆）；另有工作区测试，验证两个会话共享清单、旧便笺只合入一次、工作区/会话切换与持久化、填入只写入当前会话输入框并归档、指针拖动排序与 Esc 取消；还有空白新会话测试，验证入口落在 header corner、只有工作区清单，以及首轮对话后入口移到 utilities 并解锁会话清单 |
 | `tests/host-store.test.mjs` | 宿主 store 契约：快照、diff/顺序/删除、并发新增保留、工作区只合并一次、偏好、迁移两阶段与中断恢复、不可用/损坏错误码、路由鉴权与体积上限 |
 | `tests/host-bundle.test.mjs` | 构建产物 + 假宿主端点：首次迁移后只写宿主、不可用时留在浏览器、已切换后不可用进入错误态且不写 `localStorage` |
 

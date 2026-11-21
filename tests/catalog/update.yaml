@@ -13,8 +13,8 @@ cases:
     risk: ux
     expected:
       - npmjs 读失败后回退到镜像源
-      - 齿轮出现更新点，关于区展示更新卡片
-      - 发布说明默认展开，无需额外点击
+      - 有新版本时出现独立的更新折叠入口
+      - 展开更新入口后挂载卡片和发布说明，折叠后卸载卡片
     automation:
       - type: integration
         file: tests/bundle.test.mjs
@@ -30,8 +30,8 @@ cases:
     rules: [R-UPD-SOURCE]
     risk: ux
     expected:
-      - 手动检查重新读取注册表，不复用缓存
-      - 检查进行中卡片与更新点保持挂载
+      - 页脚手动检查重新读取注册表，不复用缓存
+      - 检查进行中已打开的更新折叠入口和卡片保持原状
       - 只有按钮显示进行中文案
     automation:
       - type: integration
@@ -85,7 +85,7 @@ cases:
     risk: ux
     expected:
       - 关闭再打开面板不重新请求注册表
-      - 更新点仍然显示
+      - 更新折叠入口仍出现，卡片默认收起
     automation:
       - type: integration
         file: tests/bundle.test.mjs

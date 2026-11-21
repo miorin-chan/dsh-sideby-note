@@ -249,6 +249,20 @@ test('PANEL-009 面板宽度夹在 280 到 720 之间', async t => {
   assert.ok(width() <= max, `width ${width()} must not exceed ${max}`)
   assert.ok(width() > 0)
 
+  const desktopWidth = app.window.innerWidth
+  const resizeViewport = async viewportWidth => {
+    await app.act(async () => {
+      app.window.innerWidth = viewportWidth
+      app.window.dispatchEvent(new app.window.Event('resize'))
+    })
+  }
+  await resizeViewport(390)
+  const panelWidth = Number.parseFloat(app.popover.style.width)
+  const rightInset = Number.parseFloat(app.popover.style.right)
+  assert.ok(rightInset >= 12, 'the narrow panel keeps its right margin')
+  assert.ok(390 - rightInset - panelWidth >= 12, 'the anchor offset must leave room for the panel and left margin')
+  await resizeViewport(desktopWidth)
+
   for (let i = 0; i < 80; i += 1) await press('ArrowRight')
   assert.ok(width() >= 280, `width ${width()} must not go below 280`)
   await app.dispose()

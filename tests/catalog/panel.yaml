@@ -1,6 +1,6 @@
 # 面板与入口（PANEL）
 #
-# 业务语义：用户能不能找到入口、面板开在哪儿、设置与可达性是否成立。
+# 业务语义：用户能不能找到入口、面板开在哪儿、页脚详情是否可达。
 domain: panel
 owner: panel
 
@@ -41,36 +41,41 @@ cases:
     tags: [panel, i18n]
 
   - id: PANEL-004
-    title: 设置卡片可打开并展示产品身份与存储状态
+    title: 页脚存储详情展示版本与检查入口
     priority: P1
     class: B
-    rules: [R-PANEL-SETTINGS, R-PANEL-COPY]
+    rules: [R-PANEL-FOOTER, R-PANEL-COPY]
     risk: ux
     expected:
-      - 齿轮打开设置卡片并标记面板进入设置态
-      - 「关于」展示产品身份
-      - 数据存储独立展示，旧快捷键与转发前缀选项不出现
+      - 面板页脚始终提供默认折叠的「存储详情」
+      - 展开后可以查看当前版本和手动检查更新
+      - 焦点位于「存储详情」时按 Escape 关闭面板并将焦点还给入口
+      - 齿轮、设置卡、旧快捷键和转发前缀选项均已移除
     automation:
       - type: integration
         file: tests/bundle.test.mjs
-        test: PANEL-004 设置卡片可打开并展示产品身份与存储状态
+        test: PANEL-004 页脚存储详情展示版本与检查入口
+        status: automated
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: Escape returns focus from the footer to the panel entry
         status: automated
     suites: [pr, nightly, release]
-    tags: [settings, persistence]
+    tags: [footer, storage]
 
   - id: PANEL-005
-    title: 使用面板和设置不会上报统计
+    title: 使用面板和存储详情不会上报统计
     priority: P1
     class: C
     rules: [R-PANEL-NO-ANALYTICS]
     risk: privacy
     expected:
-      - 设置没有匿名统计开关，也不写旧版统计偏好
-      - 打开面板与设置仅访问明确的更新与存储端点，不发送统计事件
+      - 存储详情没有匿名统计开关，也不写旧版统计偏好
+      - 打开面板与存储详情仅访问明确的更新与存储端点，不发送统计事件
     automation:
       - type: integration
         file: tests/bundle.test.mjs
-        test: PANEL-005 使用面板和设置不会上报统计
+        test: PANEL-005 使用面板和存储详情不会上报统计
         status: automated
     suites: [pr, nightly, release]
     tags: [privacy, analytics]
@@ -137,6 +142,7 @@ cases:
     expected:
       - 持续调大不超过 720，也不超过视口可用宽度
       - 持续调小不低于 280
+      - 视口缩到 390 时重新计算右侧偏移，保留两侧至少 12 的边距
     automation:
       - type: integration
         file: tests/resilience.test.mjs

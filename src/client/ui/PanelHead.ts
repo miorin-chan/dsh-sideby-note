@@ -1,6 +1,6 @@
-/** Panel title, counts, the list-scope switch and the settings/close actions. */
+/** Panel title, counts, the list-scope switch and close action. */
 import React from 'react'
-import { IconClose, IconGear, withTooltip } from './primitives'
+import { IconClose, withTooltip } from './primitives'
 import { ScopeSwitch } from './ScopeSwitch'
 
 const h = React.createElement
@@ -10,10 +10,7 @@ export function PanelHead(props) {
     say,
     openCount,
     total,
-    showSettings,
-    onToggleSettings,
     onClose,
-    newerVersion,
     scopeMode,
     canUseWorkspace,
     canUseSession,
@@ -34,24 +31,9 @@ export function PanelHead(props) {
     h(
       'div',
       { className: 'dsh-an-popActions' },
-      withTooltip(say('settings.open'), h(
-        'button',
-        {
-          type: 'button',
-          className: 'dsh-an-settingsBtn',
-          'data-active': showSettings ? 'true' : undefined,
-          'aria-label': newerVersion
-            ? `${say('settings.open')} · ${say('update.tip', { version: `v${newerVersion}` })}`
-            : say('settings.open'),
-          'aria-expanded': showSettings,
-          onClick: onToggleSettings,
-        },
-        h(IconGear, null),
-        newerVersion ? h('span', { className: 'dsh-an-updateDot', 'aria-hidden': true }) : null,
-      )),
       withTooltip(say('popover.close'), h(
         'button',
-        { type: 'button', className: 'dsh-an-popClose', 'aria-label': say('popover.close'), onClick: onClose },
+        { type: 'button', className: 'dsh-an-popClose', 'aria-label': say('popover.close'), onClick: () => onClose() },
         h(IconClose, null),
       )),
     ),

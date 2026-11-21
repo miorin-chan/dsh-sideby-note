@@ -19,7 +19,7 @@
 | `SCOPE` | 清单范围与归属（工作区 / 会话） | `scope.yaml` |
 | `STORE` | 存储、草稿、失败降级 | `store.yaml` |
 | `FWD` | 转发回输入框 | `forward.yaml` |
-| `PANEL` | 入口、面板、设置、可达性 | `panel.yaml` |
+| `PANEL` | 入口、面板、页脚详情、可达性 | `panel.yaml` |
 | `I18N` | 语言与文案 | `i18n.yaml` |
 | `UPD` | 更新中心 | `update.yaml` |
 | `PKG` | 包与构建产物 | `package.yaml` |

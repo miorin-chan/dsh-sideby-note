@@ -18,11 +18,8 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}
 .dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}
 .dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}
-.dsh-an-popClose,.dsh-an-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}
-.dsh-an-popClose:active,.dsh-an-settingsBtn:active{background:var(--an-active)}
-.dsh-an-settingsBtn[data-active="true"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
-.dsh-an-settingsBtn{position:relative}
-.dsh-an-updateDot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-brand-primary);box-shadow:0 0 0 2px var(--dsh-an-panelSurface)}
+.dsh-an-popClose{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}
+.dsh-an-popClose:active{background:var(--an-active)}
 /* The list-scope switch sits at the far right of the title line. */
 .dsh-an-scope{display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:24px;padding:1px;margin-left:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}
 .dsh-an-scopeBtn{display:inline-flex;align-items:center;justify-content:center;height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px;font-weight:500;cursor:pointer;transition:var(--an-transition)}
@@ -62,10 +59,6 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 .dsh-an-listViewport[data-bottom="true"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}
 /* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */
 .dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}
-/* The settings card rides the same rail as the list. When the panel is shorter than the card, the viewport takes the squeeze and scrolls instead of letting the card run under the popover's clipped bottom edge; the card keeps one content width in both states. */
-.dsh-an-settingsViewport{display:flex;flex-direction:column;flex:0 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1);padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}
-/* While settings is open the list yields its height first, so the card keeps its natural height until there is nothing left to take from the list. */
-.dsh-an-popover[data-settings="true"] .dsh-an-listViewport{flex-shrink:10000}
 .dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}
 .dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}
 .dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}
@@ -127,34 +120,15 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 .dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}
 .dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}
 
-/* ── 10 设置 · 分组 R16，链接走 --dsw-alias-link ─────────────────── */
-.dsh-an-settings{--dsh-an-settingIndent:var(--an-space-3);display:flex;flex-direction:column;gap:var(--an-space-2);margin:0;padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}
-.dsh-an-settingsHead{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}
-.dsh-an-settingGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}
-.dsh-an-settingLabel{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}
-.dsh-an-settingBody{display:flex;flex-direction:column;gap:var(--an-space-1);padding-left:var(--dsh-an-settingIndent)}
-.dsh-an-settingBrand{display:flex;flex-direction:column;gap:2px;min-width:0}
-.dsh-an-settingBrandName{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}
-.dsh-an-settingBrandTagline{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}
-.dsh-an-settingAbout{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}
-.dsh-an-settingAbout>span{flex:none}
-.dsh-an-settingAbout .dsh-an-updateHint{flex:0 1 auto;min-width:0}
-.dsh-an-settingMetaRow{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}
-.dsh-an-settingMetaRow>span{flex:none}
+/* ── 10 存储详情与更新 ─────────────────────────────────────────── */
 .dsh-an-storageBlock{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}
 .dsh-an-storagePathRow{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}
 .dsh-an-storagePath{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;user-select:all}
 .dsh-an-storageActions{display:flex;flex-wrap:wrap;gap:var(--an-space-1)}
-.dsh-an-storageAction{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}
-.dsh-an-storageAction:active{background:var(--an-active)}
-.dsh-an-storageAction:focus-visible{outline-offset:2px}
-.dsh-an-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}
-.dsh-an-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--an-transition)}
-.dsh-an-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}
 /* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */
 .dsh-an-updateCheck{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}
 .dsh-an-updateCheck:active{background:var(--an-active)}
-.dsh-an-updateCheck:disabled{color:var(--dsw-alias-label-tertiary);cursor:default}
+.dsh-an-updateCheck[aria-disabled="true"]{color:var(--dsw-alias-label-secondary);cursor:default}
 .dsh-an-updateCheck:focus-visible{outline-offset:2px}
 .dsh-an-updateHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}
 .dsh-an-updateHintError{color:var(--dsw-alias-state-error-primary)}
@@ -195,8 +169,25 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 .dsh-an-updateCopy:active{background:var(--an-active)}
 .dsh-an-updateCopy:focus-visible{outline-offset:2px}
 
-/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */
-.dsh-an-popFoot{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}
+/* ── 11 存储异常与面板底部入口 ─────────────────────────────────── */
+.dsh-an-storageStatus{display:flex;align-items:flex-start;flex-wrap:wrap;gap:var(--an-space-2);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);font-size:var(--an-fs-caption);overflow-wrap:anywhere}
+.dsh-an-storageStatus>div{flex:1 1 135px;min-width:0}
+.dsh-an-storageStatus p,.dsh-an-footerBody p{margin:0}
+.dsh-an-storageFailure{color:var(--dsw-alias-label-secondary)}
+.dsh-an-reconnect[aria-disabled="true"]{color:var(--dsw-alias-label-secondary);cursor:progress}
+.dsh-an-popFoot{flex:0 1 auto;min-height:24px;max-height:40dvh;margin:0;padding:2px;overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}
+.dsh-an-footerRow{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;column-gap:var(--an-space-2)}
+.dsh-an-footerDetails[open]{flex-basis:100%}
+.dsh-an-storageToggle,.dsh-an-updateToggle{width:fit-content;padding:2px var(--an-space-1);border-radius:var(--dsw-radius-sm);cursor:pointer}
+.dsh-an-storageToggle:focus-visible,.dsh-an-updateToggle:focus-visible{outline:2px solid var(--dsw-alias-label-primary)}
+.dsh-an-updateToggle{font-weight:500;color:var(--dsw-alias-label-primary)}
+.dsh-an-footerBody{display:grid;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}
+.dsh-an-versionRow{display:flex;align-items:center;flex-wrap:wrap;gap:var(--an-space-2)}
+.dsh-an-versionRow>span:empty{position:absolute}
+/* Keep controls reachable when errors or disclosures add more than the panel can fit. */
+.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]){overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}
+.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-listViewport{min-height:48px}
+.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-popFoot{flex-shrink:0}
 .dsh-an-error{color:var(--dsw-alias-state-error-primary)}
 
 /* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */
@@ -230,14 +221,13 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 .dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}
 .dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta{opacity:0}
 .dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
-.dsh-an-popClose:hover,.dsh-an-settingsBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
+.dsh-an-popClose:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-scopeBtn:hover:not([data-active="true"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-addBtn:hover:not(:disabled,:active),.dsh-an-attachBtn:hover:not(:disabled){background:var(--an-hover)}
 .dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}
 .dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}
 .dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
-.dsh-an-doneToggle:hover{background:var(--an-hover)}
-.dsh-an-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}
+.dsh-an-doneToggle:hover,.dsh-an-storageToggle:hover,.dsh-an-updateToggle:hover{background:var(--an-hover)}
 .dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}
 .dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}

@@ -1,5 +1,5 @@
 /**
- * Update centre state for the settings card.
+ * Update centre state for the panel footer.
  *
  * Three things are allowed to be independent here: the published version check
  * (auto on open, manual on demand), the release notes behind that version
@@ -32,8 +32,7 @@ export type RunPhase = 'idle' | 'starting' | 'running' | 'done' | 'error'
 export interface UpdateCheckState {
   status: CheckStatus
   /**
-   * The version being offered as an update; null when the running build is
-   * current, including while a check is in flight and after one fails.
+   * The version being offered as an update. Rechecking can retain an existing offer.
    */
   latestVersion: string | null
   checkedAt: number | null
@@ -110,14 +109,9 @@ export function useUpdateCenter(localeId: string) {
     }
   }, [])
 
-  // `latestVersion` is the version being *offered*, never the one already
-  // running: an up-to-date check stores null. That keeps the card and the gear
-  // dot mounted only while a real update exists — including across a manual
-  // re-check and a failed one — instead of briefly announcing the running
-  // version as new when the previous check had ended up to date.
   const latestVersion = check.latestVersion
 
-  // Quiet check on open: keeps the gear dot meaningful without a click. A local
+  // Quiet check on open so the update entry can appear automatically. A local
   // dev build (`2.1.0-dev`) never nags, but a build from a published channel
   // (`1.1.2-beta.1`) is one a tester installed on purpose and must be checked.
   React.useEffect(() => {

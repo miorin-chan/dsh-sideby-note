@@ -29,8 +29,11 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - Notes move to the DSH host when its storage is available.
   The first start can import existing browser notes and keeps their original copy for recovery.
   Browsers connected to the same host share the host lists.
-- Settings › Data storage shows the file location, with actions to copy the path and reveal the file.
+- Open **Storage details** in the panel footer to see the host file location, copy the path,
+  reveal the file, see the installed version, or check for updates.
+  If host storage becomes unavailable after the switch, the panel shows the reason and **Reconnect**.
   Drafts and panel layout stay with the browser.
+- The footer shows a separate update control only when a newer version is available.
 - Lists can hold more than 300 notes.
   Local fallback preserves unreadable payloads in a recovery copy.
 - Hand to chat is now Insert and uses the list-and-pen icon.
@@ -50,8 +53,10 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 ### 变更
 - DSH 宿主存储可用时，便笺改存宿主文件。
   同一宿主的浏览器共享清单，首次启动可从浏览器导入旧便笺，并保留旧副本供恢复。
-- 设置新增「数据存储」，可查看、复制文件路径并在文件管理器中定位。
+- 展开面板页脚的「存储详情」，可查看、复制文件路径并在文件管理器中定位，也可查看当前版本和手动检查更新。
+  切换到宿主存储后若连接失效，面板直接显示原因与「重新连接」。
   草稿和面板布局仍随浏览器保存。
+- 仅在检测到新版时，页脚才显示单独的更新入口。
 - 清单可超过 300 条。本地回落遇到无法读取的数据时会保留恢复副本。
 - 便笺的「递入对话」改为「填入」，换用列表加笔图标。
   「填入」移到正文左侧，直接拖动待续便笺即可排序。

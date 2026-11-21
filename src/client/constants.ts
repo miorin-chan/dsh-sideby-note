@@ -14,11 +14,9 @@ export const SESSION_STORAGE_KEY = 'dsh.aside-note'
 export const WORKSPACE_STORAGE_KEY = 'dsh.aside-note.workspaces'
 /** Unsaved composer drafts, restored when the panel is reopened. */
 export const DRAFT_STORAGE_KEY = 'dsh.aside-note.drafts'
-/** Shown in the in-panel settings; keep in sync with package.json. */
+/** Shown in the panel footer; keep in sync with package.json. */
 export const PLUGIN_VERSION = '0.1.0'
-export const PLUGIN_AUTHOR = '阿三石'
 export const PLUGIN_REPO_URL = 'https://github.com/LighghtEeloo/dsh-sideby-note'
-export const PLUGIN_REPO_LABEL = 'github.com/LighghtEeloo/dsh-sideby-note'
 /** Last chosen list scope: the workspace list or the session list. */
 export const SCOPE_MODE_KEY = 'dsh.aside-note.scope-mode'
 export const SCOPE_MODE_DEFAULT = 'workspace'
@@ -39,7 +37,7 @@ export const PANEL_MIN_HEIGHT = 240
 export const MAX_TEXT = 280
 /** Same-origin host endpoint owned by this package (keep in sync with host/store-route.js). */
 export const HOST_STORE_PATH = '/dsh-sideby-note/store'
-/** Absolute path of the host file, for Settings. */
+/** Absolute path of the host file, for storage details. */
 export const HOST_STORE_LOCATION_PATH = '/dsh-sideby-note/store/location'
 /** Ask the host to reveal the store file in its file manager. */
 export const HOST_STORE_REVEAL_PATH = '/dsh-sideby-note/store/reveal'

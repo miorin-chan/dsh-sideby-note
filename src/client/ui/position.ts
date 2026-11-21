@@ -59,7 +59,7 @@ export function memoPopoverStyle(anchor, placement, requestedWidth, requestedHei
     if (sidebar) {
       desiredRight = Math.min(desiredRight, sidebar.getBoundingClientRect().left - 8)
     }
-    const rightInset = Math.max(margin, Math.min(window.innerWidth - margin, window.innerWidth - desiredRight))
+    const rightInset = Math.max(margin, Math.min(window.innerWidth - width - margin, window.innerWidth - desiredRight))
     const top = rect && rect.width > 0 ? Math.max(topFloor, Math.round(rect.bottom + 8)) : topFloor
     const maxHeight = Math.max(160, window.innerHeight - top - margin)
     const height = requestedHeight

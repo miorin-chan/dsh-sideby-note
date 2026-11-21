@@ -33,11 +33,9 @@ let react_dom_client = require("react-dom/client");
 react_dom_client = __toESM(react_dom_client, 1);
 let _deepseek_ai_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
 _deepseek_ai_dsh_client_ui_primitives = __toESM(_deepseek_ai_dsh_client_ui_primitives, 1);
-let react_dom = require("react-dom");
-react_dom = __toESM(react_dom, 1);
 
 // \0dsh-css:src/client/styles/panel.css.mjs
-var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose,.dsh-an-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active,.dsh-an-settingsBtn:active{background:var(--an-active)}\n.dsh-an-settingsBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-settingsBtn{position:relative}\n.dsh-an-updateDot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-brand-primary);box-shadow:0 0 0 2px var(--dsh-an-panelSurface)}\n/* The list-scope switch sits at the far right of the title line. */\n.dsh-an-scope{display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:24px;padding:1px;margin-left:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-scopeBtn{display:inline-flex;align-items:center;justify-content:center;height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px;font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-scopeBtn[data-active=\"true\"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within,.dsh-an-add[data-file-drag]{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-composerTools{display:flex;align-items:center;gap:var(--an-space-1)}\n.dsh-an-attachBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}\n.dsh-an-attachBtn:disabled{cursor:not-allowed;opacity:.55}\n.dsh-an-attachmentStatus{grid-column:1/-1;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}\n.dsh-an-attachments{display:grid;gap:var(--an-space-1);padding:0;margin:0;list-style:none;min-width:0}\n.dsh-an-add>.dsh-an-attachments{grid-column:1/-1;max-height:128px;overflow:auto}\n.dsh-an-text+.dsh-an-attachments{margin-top:var(--an-space-1)}\n.dsh-an-attachment{min-width:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-attachmentBar{display:flex;align-items:center;gap:var(--an-space-1);min-height:28px;padding:0 var(--an-space-1)}\n.dsh-an-attachmentBar .dsh-an-iconBtn{flex:none;text-decoration:none}\n.dsh-an-attachmentName{flex:1;min-width:0;overflow:hidden;text-align:left;text-overflow:ellipsis;white-space:nowrap;padding:0 var(--an-space-1);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-row)}\nbutton.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-underline-offset:2px}\n.dsh-an-attachmentPreview{display:grid;justify-items:start;gap:var(--an-space-1);padding:var(--an-space-1);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption)}\n.dsh-an-attachmentPreview img,.dsh-an-attachmentPreview video{display:block;max-width:100%;max-height:160px;object-fit:contain}\n.dsh-an-attachmentPreview audio{width:100%;min-width:0}\n.dsh-an-rowBody{min-width:0}\n.dsh-an-input{display:block;align-self:center;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:focus-visible,.dsh-an-attachBtn:focus-visible,.dsh-an-attachmentName:focus-visible,.dsh-an-attachmentBar .dsh-an-iconBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n.dsh-an-addBtn:active:not(:disabled){background:var(--an-active)}\n.dsh-an-addBtn:disabled{color:var(--dsw-alias-label-secondary);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n/* The settings card rides the same rail as the list. When the panel is shorter than the card, the viewport takes the squeeze and scrolls instead of letting the card run under the popover's clipped bottom edge; the card keeps one content width in both states. */\n.dsh-an-settingsViewport{display:flex;flex-direction:column;flex:0 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1);padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}\n/* While settings is open the list yields its height first, so the card keeps its natural height until there is nothing left to take from the list. */\n.dsh-an-popover[data-settings=\"true\"] .dsh-an-listViewport{flex-shrink:10000}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;display:flex;flex-direction:column;gap:2px;margin:0;padding:0}\n/* The leading column keeps both sections aligned with the section label. */\n.dsh-an-row{position:relative;display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:start;column-gap:var(--an-space-1);padding:var(--an-space-1);border-radius:var(--dsw-radius-sm);transition:var(--an-transition)}\n\n/* ── 6 一行便笺 · 左侧填入，正文 13/20，尾格静置显示时间、悬停换成操作 ── */\n.dsh-an-leading{display:flex;justify-content:center;margin:-2px 0 0}\n.dsh-an-leading>.dsh-an-insert{flex:none}\n.dsh-an-row[data-sortable]{cursor:grab}\n/* Reserve the body for direct touch dragging and leave the side columns available for scrolling. */\n.dsh-an-row[data-sortable] .dsh-an-rowBody{touch-action:none}\n.dsh-an-row[data-sortable] .dsh-an-text{user-select:none;-webkit-user-select:none}\n.dsh-an-text{display:block;min-width:0;margin:0;padding:0;color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}\n.dsh-an-rowArchived .dsh-an-text{color:var(--dsw-alias-label-secondary)}\n/* Age and actions share one grid cell, so the swap never reflows the text. */\n.dsh-an-trail{display:grid;align-items:center;justify-items:end;min-height:24px;margin:-2px 0 0}\n.dsh-an-trail>*{grid-area:1/1}\n.dsh-an-meta{padding:0 var(--an-space-1);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;opacity:0;transition:opacity var(--an-dur-fast) var(--an-ease)}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:2px;transition:opacity var(--an-dur-fast) var(--an-ease)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-glyphFlip{transform:scaleX(-1)}\n\n/* ── 7b 拖拽排序 · 抬起的行跟手，其余行用 transform 让位 ─────────────── */\n.dsh-an-rows[data-dragging=\"true\"],.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row{cursor:grabbing}\n.dsh-an-row[data-dragging=\"true\"]{z-index:1;background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-prominent);transition:none}\n/* During a drag, show ages and keep row actions out of the way. */\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row :is(.dsh-an-actions,.dsh-an-insert){opacity:0;pointer-events:none}\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-meta{opacity:1}\n\n/* ── 8 紧凑文字按钮 · 清空确认 ─────────────────────────────────── */\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 设置 · 分组 R16，链接走 --dsw-alias-link ─────────────────── */\n.dsh-an-settings{--dsh-an-settingIndent:var(--an-space-3);display:flex;flex-direction:column;gap:var(--an-space-2);margin:0;padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-settingsHead{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-settingLabel{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingBody{display:flex;flex-direction:column;gap:var(--an-space-1);padding-left:var(--dsh-an-settingIndent)}\n.dsh-an-settingBrand{display:flex;flex-direction:column;gap:2px;min-width:0}\n.dsh-an-settingBrandName{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingBrandTagline{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-settingAbout{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingAbout>span{flex:none}\n.dsh-an-settingAbout .dsh-an-updateHint{flex:0 1 auto;min-width:0}\n.dsh-an-settingMetaRow{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-an-settingMetaRow>span{flex:none}\n.dsh-an-storageBlock{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-storagePathRow{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-storagePath{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;user-select:all}\n.dsh-an-storageActions{display:flex;flex-wrap:wrap;gap:var(--an-space-1)}\n.dsh-an-storageAction{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-storageAction:active{background:var(--an-active)}\n.dsh-an-storageAction:focus-visible{outline-offset:2px}\n.dsh-an-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}\n.dsh-an-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--an-transition)}\n.dsh-an-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n/* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */\n.dsh-an-updateCheck{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCheck:active{background:var(--an-active)}\n.dsh-an-updateCheck:disabled{color:var(--dsw-alias-label-tertiary);cursor:default}\n.dsh-an-updateCheck:focus-visible{outline-offset:2px}\n.dsh-an-updateHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-updateHintError{color:var(--dsw-alias-state-error-primary)}\n.dsh-an-updateCard{display:flex;flex-direction:column;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-updateTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-updateFull:focus-visible,.dsh-an-updateLinkBtn:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateFull{flex:none;color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}\n.dsh-an-updateNotes{display:flex;flex-direction:column;gap:var(--an-space-2);max-height:220px;overflow-y:auto;padding-right:0;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);scrollbar-gutter:stable}\n.dsh-an-updateNotes[data-fade=\"true\"]{--dsh-an-fadeHeight:var(--an-space-5);-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n.dsh-an-updateVersions{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion+.dsh-an-updateVersion{padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateVersionHead{display:flex;align-items:center;gap:var(--an-space-1);width:100%;padding:2px 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer}\n.dsh-an-updateVersionHead:active{background:var(--an-active)}\n.dsh-an-updateVersionHead:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateChevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-updateChevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-updateVersionLabel{font-variant-numeric:tabular-nums}\n.dsh-an-updateLatest{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500}\n.dsh-an-updateVersionBody{display:flex;flex-direction:column;gap:var(--an-space-2);padding-left:var(--an-space-4);min-width:0}\n.dsh-an-updateGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateGroupTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-updateItems{display:flex;flex-direction:column;gap:var(--an-space-1);margin:0;padding-left:var(--an-space-4);color:var(--dsw-alias-label-primary)}\n.dsh-an-updateItem{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);overflow-wrap:anywhere}\n.dsh-an-updateItem strong{font-weight:500}\n.dsh-an-updateActions{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updatePrimary{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-3);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updatePrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-updatePrimary:disabled{opacity:.55;cursor:default}\n.dsh-an-updatePrimary:focus-visible{outline-offset:2px}\n.dsh-an-updateDone{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateErrorRow{display:flex;align-items:baseline;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateError{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere}\n.dsh-an-updateLinkBtn{padding:0;border:0;background:transparent;color:var(--dsw-alias-link);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer}\n.dsh-an-updateFallback{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateFallback .dsh-an-updateHint{flex:1 1 100%;min-width:0}\n.dsh-an-updateCopy{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCopy:active{background:var(--an-active)}\n.dsh-an-updateCopy:focus-visible{outline-offset:2px}\n\n/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */\n.dsh-an-popFoot{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-meta{opacity:1}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta{opacity:0}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-popClose:hover,.dsh-an-settingsBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:hover:not([data-active=\"true\"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not(:disabled,:active),.dsh-an-attachBtn:hover:not(:disabled){background:var(--an-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover{background:var(--an-hover)}\n.dsh-an-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) backwards}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
+var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active{background:var(--an-active)}\n/* The list-scope switch sits at the far right of the title line. */\n.dsh-an-scope{display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:24px;padding:1px;margin-left:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-scopeBtn{display:inline-flex;align-items:center;justify-content:center;height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px;font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-scopeBtn[data-active=\"true\"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within,.dsh-an-add[data-file-drag]{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-composerTools{display:flex;align-items:center;gap:var(--an-space-1)}\n.dsh-an-attachBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}\n.dsh-an-attachBtn:disabled{cursor:not-allowed;opacity:.55}\n.dsh-an-attachmentStatus{grid-column:1/-1;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}\n.dsh-an-attachments{display:grid;gap:var(--an-space-1);padding:0;margin:0;list-style:none;min-width:0}\n.dsh-an-add>.dsh-an-attachments{grid-column:1/-1;max-height:128px;overflow:auto}\n.dsh-an-text+.dsh-an-attachments{margin-top:var(--an-space-1)}\n.dsh-an-attachment{min-width:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-attachmentBar{display:flex;align-items:center;gap:var(--an-space-1);min-height:28px;padding:0 var(--an-space-1)}\n.dsh-an-attachmentBar .dsh-an-iconBtn{flex:none;text-decoration:none}\n.dsh-an-attachmentName{flex:1;min-width:0;overflow:hidden;text-align:left;text-overflow:ellipsis;white-space:nowrap;padding:0 var(--an-space-1);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-row)}\nbutton.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-underline-offset:2px}\n.dsh-an-attachmentPreview{display:grid;justify-items:start;gap:var(--an-space-1);padding:var(--an-space-1);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption)}\n.dsh-an-attachmentPreview img,.dsh-an-attachmentPreview video{display:block;max-width:100%;max-height:160px;object-fit:contain}\n.dsh-an-attachmentPreview audio{width:100%;min-width:0}\n.dsh-an-rowBody{min-width:0}\n.dsh-an-input{display:block;align-self:center;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:focus-visible,.dsh-an-attachBtn:focus-visible,.dsh-an-attachmentName:focus-visible,.dsh-an-attachmentBar .dsh-an-iconBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n.dsh-an-addBtn:active:not(:disabled){background:var(--an-active)}\n.dsh-an-addBtn:disabled{color:var(--dsw-alias-label-secondary);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;display:flex;flex-direction:column;gap:2px;margin:0;padding:0}\n/* The leading column keeps both sections aligned with the section label. */\n.dsh-an-row{position:relative;display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:start;column-gap:var(--an-space-1);padding:var(--an-space-1);border-radius:var(--dsw-radius-sm);transition:var(--an-transition)}\n\n/* ── 6 一行便笺 · 左侧填入，正文 13/20，尾格静置显示时间、悬停换成操作 ── */\n.dsh-an-leading{display:flex;justify-content:center;margin:-2px 0 0}\n.dsh-an-leading>.dsh-an-insert{flex:none}\n.dsh-an-row[data-sortable]{cursor:grab}\n/* Reserve the body for direct touch dragging and leave the side columns available for scrolling. */\n.dsh-an-row[data-sortable] .dsh-an-rowBody{touch-action:none}\n.dsh-an-row[data-sortable] .dsh-an-text{user-select:none;-webkit-user-select:none}\n.dsh-an-text{display:block;min-width:0;margin:0;padding:0;color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}\n.dsh-an-rowArchived .dsh-an-text{color:var(--dsw-alias-label-secondary)}\n/* Age and actions share one grid cell, so the swap never reflows the text. */\n.dsh-an-trail{display:grid;align-items:center;justify-items:end;min-height:24px;margin:-2px 0 0}\n.dsh-an-trail>*{grid-area:1/1}\n.dsh-an-meta{padding:0 var(--an-space-1);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;opacity:0;transition:opacity var(--an-dur-fast) var(--an-ease)}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:2px;transition:opacity var(--an-dur-fast) var(--an-ease)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-glyphFlip{transform:scaleX(-1)}\n\n/* ── 7b 拖拽排序 · 抬起的行跟手，其余行用 transform 让位 ─────────────── */\n.dsh-an-rows[data-dragging=\"true\"],.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row{cursor:grabbing}\n.dsh-an-row[data-dragging=\"true\"]{z-index:1;background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-prominent);transition:none}\n/* During a drag, show ages and keep row actions out of the way. */\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row :is(.dsh-an-actions,.dsh-an-insert){opacity:0;pointer-events:none}\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-meta{opacity:1}\n\n/* ── 8 紧凑文字按钮 · 清空确认 ─────────────────────────────────── */\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 存储详情与更新 ─────────────────────────────────────────── */\n.dsh-an-storageBlock{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-storagePathRow{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-storagePath{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;user-select:all}\n.dsh-an-storageActions{display:flex;flex-wrap:wrap;gap:var(--an-space-1)}\n/* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */\n.dsh-an-updateCheck{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCheck:active{background:var(--an-active)}\n.dsh-an-updateCheck[aria-disabled=\"true\"]{color:var(--dsw-alias-label-secondary);cursor:default}\n.dsh-an-updateCheck:focus-visible{outline-offset:2px}\n.dsh-an-updateHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-updateHintError{color:var(--dsw-alias-state-error-primary)}\n.dsh-an-updateCard{display:flex;flex-direction:column;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-updateTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-updateFull:focus-visible,.dsh-an-updateLinkBtn:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateFull{flex:none;color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}\n.dsh-an-updateNotes{display:flex;flex-direction:column;gap:var(--an-space-2);max-height:220px;overflow-y:auto;padding-right:0;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);scrollbar-gutter:stable}\n.dsh-an-updateNotes[data-fade=\"true\"]{--dsh-an-fadeHeight:var(--an-space-5);-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n.dsh-an-updateVersions{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion+.dsh-an-updateVersion{padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateVersionHead{display:flex;align-items:center;gap:var(--an-space-1);width:100%;padding:2px 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer}\n.dsh-an-updateVersionHead:active{background:var(--an-active)}\n.dsh-an-updateVersionHead:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateChevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-updateChevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-updateVersionLabel{font-variant-numeric:tabular-nums}\n.dsh-an-updateLatest{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500}\n.dsh-an-updateVersionBody{display:flex;flex-direction:column;gap:var(--an-space-2);padding-left:var(--an-space-4);min-width:0}\n.dsh-an-updateGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateGroupTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-updateItems{display:flex;flex-direction:column;gap:var(--an-space-1);margin:0;padding-left:var(--an-space-4);color:var(--dsw-alias-label-primary)}\n.dsh-an-updateItem{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);overflow-wrap:anywhere}\n.dsh-an-updateItem strong{font-weight:500}\n.dsh-an-updateActions{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updatePrimary{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-3);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updatePrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-updatePrimary:disabled{opacity:.55;cursor:default}\n.dsh-an-updatePrimary:focus-visible{outline-offset:2px}\n.dsh-an-updateDone{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateErrorRow{display:flex;align-items:baseline;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateError{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere}\n.dsh-an-updateLinkBtn{padding:0;border:0;background:transparent;color:var(--dsw-alias-link);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer}\n.dsh-an-updateFallback{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateFallback .dsh-an-updateHint{flex:1 1 100%;min-width:0}\n.dsh-an-updateCopy{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCopy:active{background:var(--an-active)}\n.dsh-an-updateCopy:focus-visible{outline-offset:2px}\n\n/* ── 11 存储异常与面板底部入口 ─────────────────────────────────── */\n.dsh-an-storageStatus{display:flex;align-items:flex-start;flex-wrap:wrap;gap:var(--an-space-2);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);font-size:var(--an-fs-caption);overflow-wrap:anywhere}\n.dsh-an-storageStatus>div{flex:1 1 135px;min-width:0}\n.dsh-an-storageStatus p,.dsh-an-footerBody p{margin:0}\n.dsh-an-storageFailure{color:var(--dsw-alias-label-secondary)}\n.dsh-an-reconnect[aria-disabled=\"true\"]{color:var(--dsw-alias-label-secondary);cursor:progress}\n.dsh-an-popFoot{flex:0 1 auto;min-height:24px;max-height:40dvh;margin:0;padding:2px;overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-footerRow{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;column-gap:var(--an-space-2)}\n.dsh-an-footerDetails[open]{flex-basis:100%}\n.dsh-an-storageToggle,.dsh-an-updateToggle{width:fit-content;padding:2px var(--an-space-1);border-radius:var(--dsw-radius-sm);cursor:pointer}\n.dsh-an-storageToggle:focus-visible,.dsh-an-updateToggle:focus-visible{outline:2px solid var(--dsw-alias-label-primary)}\n.dsh-an-updateToggle{font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-footerBody{display:grid;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-versionRow{display:flex;align-items:center;flex-wrap:wrap;gap:var(--an-space-2)}\n.dsh-an-versionRow>span:empty{position:absolute}\n/* Keep controls reachable when errors or disclosures add more than the panel can fit. */\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]){overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-listViewport{min-height:48px}\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-popFoot{flex-shrink:0}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-meta{opacity:1}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta{opacity:0}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-popClose:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:hover:not([data-active=\"true\"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not(:disabled,:active),.dsh-an-attachBtn:hover:not(:disabled){background:var(--an-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover,.dsh-an-storageToggle:hover,.dsh-an-updateToggle:hover{background:var(--an-hover)}\n.dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) backwards}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
 
 // src/client/constants.ts
 /**
@@ -56,11 +54,9 @@ const SESSION_STORAGE_KEY = "dsh.aside-note";
 const WORKSPACE_STORAGE_KEY = "dsh.aside-note.workspaces";
 /** Unsaved composer drafts, restored when the panel is reopened. */
 const DRAFT_STORAGE_KEY = "dsh.aside-note.drafts";
-/** Shown in the in-panel settings; keep in sync with package.json. */
+/** Shown in the panel footer; keep in sync with package.json. */
 const PLUGIN_VERSION = "0.1.0";
-const PLUGIN_AUTHOR = "阿三石";
 const PLUGIN_REPO_URL = "https://github.com/LighghtEeloo/dsh-sideby-note";
-const PLUGIN_REPO_LABEL = "github.com/LighghtEeloo/dsh-sideby-note";
 /** Last chosen list scope: the workspace list or the session list. */
 const SCOPE_MODE_KEY = "dsh.aside-note.scope-mode";
 const SCOPE_MODE_DEFAULT = "workspace";
@@ -78,7 +74,7 @@ const PANEL_WIDTH_KEY = "dsh.aside-note.panel-width";
 const PANEL_HEIGHT_KEY = "dsh.aside-note.panel-height";
 /** Same-origin host endpoint owned by this package (keep in sync with host/store-route.js). */
 const HOST_STORE_PATH = "/dsh-sideby-note/store";
-/** Absolute path of the host file, for Settings. */
+/** Absolute path of the host file, for storage details. */
 const HOST_STORE_LOCATION_PATH = "/dsh-sideby-note/store/location";
 /** Ask the host to reveal the store file in its file manager. */
 const HOST_STORE_REVEAL_PATH = "/dsh-sideby-note/store/reveal";
@@ -115,17 +111,7 @@ const de = {
 	"scope.newSessionHint": "Vorerst ist nur die Liste des Arbeitsbereichs verfügbar; die Sitzungsliste erscheint, sobald die Sitzung beginnt",
 	"popover.empty.title": "Noch keine Notizen",
 	"popover.empty.body": "Ideen entwerfen, während der Agent arbeitet",
-	"settings.open": "Einstellungen",
-	"settings.title": "Einstellungen",
 	"shortcut.toggle": "Sideby Note ein- oder ausblenden",
-	"settings.about": "Info",
-	"settings.tagline": "Ideen entwerfen, während der Agent arbeitet.",
-	"settings.version": "Version",
-	"settings.author": "Autor",
-	"settings.improver": "Verbesserungen",
-	"settings.improverName": "LighghtEeloo",
-	"settings.project": "Quellcode",
-	"settings.storage": "Datenspeicher",
 	"add.placeholder": "Eine notieren",
 	"add.action": "Hinzufügen",
 	"attachment.add": "Anhänge hinzufügen",
@@ -159,16 +145,15 @@ const de = {
 	"storage.failed": "Lokaler Speicher ist nicht verfügbar; Änderungen werden möglicherweise nicht gespeichert",
 	"storage.whereHost": "Notizen werden in einer lokalen DSH-Datei gespeichert",
 	"storage.loading": "Notizen werden gelesen…",
-	"storage.modeHost": "Lokale DSH-Datei (aside_note.json)",
-	"storage.modeLocal": "Dieser Browser (localStorage)",
-	"storage.settingsLabel": "Speicher",
+	"storage.details": "Speicherdetails",
 	"storage.failure": "Letzter Fehler: {code}",
 	"storage.migrated": "{n} Notizen aus diesem Browser in die lokale DSH-Datei verschoben",
 	"storage.keptLocal": "Host-Notizen werden verwendet; ältere Notizen dieses Browsers wurden nicht zusammengeführt",
 	"storage.notSwitched": "Host-Speicher ist nicht verfügbar; Notizen bleiben in diesem Browser und werden beim nächsten Start erneut versucht",
 	"storage.hostError": "Notizspeicher ist nicht verfügbar",
-	"storage.inUse": "AsideNote verwendet den Notizspeicher. Deaktiviere AsideNote und wähle Einstellungen › Datenspeicher › Erneut verbinden.",
+	"storage.inUse": "AsideNote verwendet den Notizspeicher. Deaktiviere AsideNote und stelle die Verbindung erneut her.",
 	"storage.retry": "Erneut verbinden",
+	"storage.reconnecting": "Verbindung wird hergestellt…",
 	"storage.copyPath": "Pfad kopieren",
 	"storage.reveal": "Im Ordner zeigen",
 	"storage.pathLoading": "Speicherort wird gelesen…",
@@ -192,8 +177,8 @@ const de = {
 	"toast.recallBlocked": "Im Eingabefeld steht bereits Text – zuerst senden oder leeren",
 	"toast.cleared": "Archiv geleert",
 	"toast.saveFailed": "Speichern fehlgeschlagen — nichts geändert",
+	"update.version": "Version",
 	"update.label": "Update verfügbar",
-	"update.tip": "Version {version} ist jetzt verfügbar — Versionshinweise öffnen",
 	"update.check": "Nach Updates suchen",
 	"update.checking": "Prüfen…",
 	"update.retryCheck": "Prüfung wiederholen",
@@ -256,17 +241,7 @@ const en = {
 	"scope.newSessionHint": "Only the workspace list is available for now; the session list appears once the session starts",
 	"popover.empty.title": "No notes yet",
 	"popover.empty.body": "Asynchronously draft your ideas while the agent is working",
-	"settings.open": "Settings",
-	"settings.title": "Settings",
 	"shortcut.toggle": "Toggle Sideby Note",
-	"settings.about": "About",
-	"settings.tagline": "Asynchronously draft your ideas while the agent is working.",
-	"settings.version": "Version",
-	"settings.author": "Author",
-	"settings.improver": "Improver",
-	"settings.improverName": "LighghtEeloo",
-	"settings.project": "Source",
-	"settings.storage": "Data storage",
 	"add.placeholder": "Jot one down",
 	"add.action": "Add",
 	"attachment.add": "Add attachments",
@@ -300,16 +275,15 @@ const en = {
 	"storage.failed": "Local storage is unavailable; changes may not persist",
 	"storage.whereHost": "Notes are saved in a DSH local file",
 	"storage.loading": "Reading notes…",
-	"storage.modeHost": "DSH local file (aside_note.json)",
-	"storage.modeLocal": "This browser (localStorage)",
-	"storage.settingsLabel": "Storage",
+	"storage.details": "Storage details",
 	"storage.failure": "Last failure: {code}",
 	"storage.migrated": "Moved {n} notes from this browser into the DSH local file",
 	"storage.keptLocal": "Using host notes; this browser's older notes were left unmerged",
 	"storage.notSwitched": "Host storage is unavailable, so notes stay in this browser and will be retried on next start",
 	"storage.hostError": "Notes storage is unavailable",
-	"storage.inUse": "AsideNote is using the notes store. Disable AsideNote, then choose Settings › Data storage › Reconnect.",
+	"storage.inUse": "AsideNote is using the notes store. Disable AsideNote, then reconnect.",
 	"storage.retry": "Reconnect",
+	"storage.reconnecting": "Reconnecting…",
 	"storage.copyPath": "Copy path",
 	"storage.reveal": "Show in folder",
 	"storage.pathLoading": "Reading storage location…",
@@ -333,8 +307,8 @@ const en = {
 	"toast.recallBlocked": "The input already has text — send or clear it first",
 	"toast.cleared": "Archive cleared",
 	"toast.saveFailed": "Save failed — nothing changed",
+	"update.version": "Version",
 	"update.label": "Update available",
-	"update.tip": "Version {version} is now available — open the release notes",
 	"update.check": "Check for updates",
 	"update.checking": "Checking…",
 	"update.retryCheck": "Retry check",
@@ -397,17 +371,7 @@ const es = {
 	"scope.newSessionHint": "Por ahora solo está disponible la lista del espacio de trabajo; la lista de la sesión aparecerá cuando se inicie la sesión",
 	"popover.empty.title": "Aún no hay notas",
 	"popover.empty.body": "Esboza tus ideas de forma asíncrona mientras el agente trabaja",
-	"settings.open": "Ajustes",
-	"settings.title": "Ajustes",
 	"shortcut.toggle": "Mostrar u ocultar Sideby Note",
-	"settings.about": "Acerca de",
-	"settings.tagline": "Esboza tus ideas de forma asíncrona mientras el agente trabaja.",
-	"settings.version": "Versión",
-	"settings.author": "Autor",
-	"settings.improver": "Mejoras",
-	"settings.improverName": "LighghtEeloo",
-	"settings.project": "Código fuente",
-	"settings.storage": "Almacenamiento de datos",
 	"add.placeholder": "Anota una",
 	"add.action": "Añadir",
 	"attachment.add": "Añadir adjuntos",
@@ -441,16 +405,15 @@ const es = {
 	"storage.failed": "El almacenamiento local no está disponible; es posible que los cambios no se guarden",
 	"storage.whereHost": "Las notas se guardan en un archivo local de DSH",
 	"storage.loading": "Leyendo notas…",
-	"storage.modeHost": "Archivo local de DSH (aside_note.json)",
-	"storage.modeLocal": "Este navegador (localStorage)",
-	"storage.settingsLabel": "Almacenamiento",
+	"storage.details": "Detalles del almacenamiento",
 	"storage.failure": "Último fallo: {code}",
 	"storage.migrated": "Se movieron {n} notas de este navegador al archivo local de DSH",
 	"storage.keptLocal": "Se usan las notas del host; las notas antiguas de este navegador quedaron sin combinar",
 	"storage.notSwitched": "El almacenamiento del host no está disponible; las notas siguen en este navegador y se reintentará al iniciar",
 	"storage.hostError": "El almacenamiento de notas no está disponible",
-	"storage.inUse": "AsideNote está usando el almacén de notas. Desactiva AsideNote y elige Ajustes › Almacenamiento de datos › Volver a conectar.",
+	"storage.inUse": "AsideNote está usando el almacén de notas. Desactiva AsideNote y vuelve a conectar.",
 	"storage.retry": "Volver a conectar",
+	"storage.reconnecting": "Volviendo a conectar…",
 	"storage.copyPath": "Copiar ruta",
 	"storage.reveal": "Mostrar en carpeta",
 	"storage.pathLoading": "Leyendo la ubicación…",
@@ -474,8 +437,8 @@ const es = {
 	"toast.recallBlocked": "El cuadro de texto ya tiene contenido; envíalo o bórralo primero",
 	"toast.cleared": "Archivo borrado",
 	"toast.saveFailed": "Error al guardar — nada cambió",
+	"update.version": "Versión",
 	"update.label": "Actualización disponible",
-	"update.tip": "La versión {version} ya está disponible — abre las notas de la versión",
 	"update.check": "Buscar actualizaciones",
 	"update.checking": "Comprobando…",
 	"update.retryCheck": "Reintentar comprobación",
@@ -538,17 +501,7 @@ const fr = {
 	"scope.newSessionHint": "Seule la liste de l'espace de travail est disponible pour l'instant ; la liste de la session apparaîtra au démarrage de la session",
 	"popover.empty.title": "Aucune note pour l'instant",
 	"popover.empty.body": "Rédigez vos idées de façon asynchrone pendant que l'agent travaille",
-	"settings.open": "Paramètres",
-	"settings.title": "Paramètres",
 	"shortcut.toggle": "Afficher ou masquer Sideby Note",
-	"settings.about": "À propos",
-	"settings.tagline": "Rédigez vos idées de façon asynchrone pendant que l'agent travaille.",
-	"settings.version": "Version",
-	"settings.author": "Auteur",
-	"settings.improver": "Améliorations",
-	"settings.improverName": "LighghtEeloo",
-	"settings.project": "Source",
-	"settings.storage": "Stockage des données",
 	"add.placeholder": "Notez-en une",
 	"add.action": "Ajouter",
 	"attachment.add": "Joindre des fichiers",
@@ -582,16 +535,15 @@ const fr = {
 	"storage.failed": "Le stockage local n'est pas disponible ; les modifications peuvent ne pas être conservées",
 	"storage.whereHost": "Les notes sont enregistrées dans un fichier local DSH",
 	"storage.loading": "Lecture des notes…",
-	"storage.modeHost": "Fichier local DSH (aside_note.json)",
-	"storage.modeLocal": "Ce navigateur (localStorage)",
-	"storage.settingsLabel": "Stockage",
+	"storage.details": "Détails du stockage",
 	"storage.failure": "Dernier échec : {code}",
 	"storage.migrated": "{n} notes de ce navigateur ont été déplacées vers le fichier local DSH",
 	"storage.keptLocal": "Notes de l'hôte utilisées ; les anciennes notes de ce navigateur n'ont pas été fusionnées",
 	"storage.notSwitched": "Le stockage de l'hôte est indisponible ; les notes restent dans ce navigateur et seront réessayées au prochain démarrage",
 	"storage.hostError": "Le stockage des notes est indisponible",
-	"storage.inUse": "AsideNote utilise le stockage des notes. Désactivez AsideNote, puis choisissez Paramètres › Stockage des données › Se reconnecter.",
+	"storage.inUse": "AsideNote utilise le stockage des notes. Désactivez AsideNote, puis reconnectez-vous.",
 	"storage.retry": "Se reconnecter",
+	"storage.reconnecting": "Reconnexion…",
 	"storage.copyPath": "Copier le chemin",
 	"storage.reveal": "Afficher dans le dossier",
 	"storage.pathLoading": "Lecture de l'emplacement…",
@@ -615,8 +567,8 @@ const fr = {
 	"toast.recallBlocked": "La zone de saisie contient déjà du texte ; envoyez-le ou effacez-le d'abord",
 	"toast.cleared": "Archive effacée",
 	"toast.saveFailed": "Échec de l'enregistrement — rien n'a changé",
+	"update.version": "Version",
 	"update.label": "Mise à jour disponible",
-	"update.tip": "La version {version} est disponible — ouvrez les notes de version",
 	"update.check": "Rechercher des mises à jour",
 	"update.checking": "Vérification…",
 	"update.retryCheck": "Réessayer la vérification",
@@ -679,17 +631,7 @@ const ja = {
 	"scope.newSessionHint": "現在はワークスペースのリストのみ利用できます。セッションを開始するとセッションのリストが表示されます",
 	"popover.empty.title": "メモはまだありません",
 	"popover.empty.body": "エージェントが作業している間に、アイデアを非同期で書き留める",
-	"settings.open": "設定",
-	"settings.title": "設定",
 	"shortcut.toggle": "Sideby Note の表示を切り替え",
-	"settings.about": "このプラグインについて",
-	"settings.tagline": "エージェントが作業している間に、アイデアを非同期で書き留める。",
-	"settings.version": "バージョン",
-	"settings.author": "作者",
-	"settings.improver": "改良者",
-	"settings.improverName": "LighghtEeloo",
-	"settings.project": "ソース",
-	"settings.storage": "データ保存",
 	"add.placeholder": "ひとつメモする",
 	"add.action": "追加",
 	"attachment.add": "添付ファイルを追加",
@@ -723,16 +665,15 @@ const ja = {
 	"storage.failed": "ローカルストレージを利用できません。変更は保存されない可能性があります",
 	"storage.whereHost": "メモは DSH のローカルファイルに保存されます",
 	"storage.loading": "メモを読み込み中…",
-	"storage.modeHost": "DSH ローカルファイル（aside_note.json）",
-	"storage.modeLocal": "このブラウザ（localStorage）",
-	"storage.settingsLabel": "保存先",
+	"storage.details": "保存先の詳細",
 	"storage.failure": "前回の失敗：{code}",
 	"storage.migrated": "このブラウザのメモ {n} 件を DSH ローカルファイルに移行しました",
 	"storage.keptLocal": "ホストのメモを使用中です。このブラウザの古いメモは統合していません",
 	"storage.notSwitched": "ホストのストレージを利用できないため、メモはこのブラウザに保存され、次回起動時に再試行します",
 	"storage.hostError": "メモのストレージを利用できません",
-	"storage.inUse": "AsideNote がノートの保存先を使用しています。AsideNote を無効にし、設定 › データ保存 › 再接続を選んでください。",
+	"storage.inUse": "AsideNote がメモの保存先を使用しています。AsideNote を無効にしてから再接続してください。",
 	"storage.retry": "再接続",
+	"storage.reconnecting": "再接続中…",
 	"storage.copyPath": "パスをコピー",
 	"storage.reveal": "フォルダで表示",
 	"storage.pathLoading": "保存先を読み込み中…",
@@ -756,8 +697,8 @@ const ja = {
 	"toast.recallBlocked": "入力欄に文字があります。送信するかクリアしてください",
 	"toast.cleared": "アーカイブを削除しました",
 	"toast.saveFailed": "保存に失敗しました — 変更はありません",
+	"update.version": "バージョン",
 	"update.label": "更新があります",
-	"update.tip": "バージョン {version} が利用可能です — リリースノートを開く",
 	"update.check": "更新を確認",
 	"update.checking": "確認中…",
 	"update.retryCheck": "確認を再試行",
@@ -820,17 +761,7 @@ const pt = {
 	"scope.newSessionHint": "Por enquanto, apenas a lista do espaço de trabalho está disponível; a lista da sessão aparece quando a sessão começar",
 	"popover.empty.title": "Nenhuma nota ainda",
 	"popover.empty.body": "Esboce suas ideias de forma assíncrona enquanto o agente trabalha",
-	"settings.open": "Configurações",
-	"settings.title": "Configurações",
 	"shortcut.toggle": "Mostrar ou ocultar Sideby Note",
-	"settings.about": "Sobre",
-	"settings.tagline": "Esboce suas ideias de forma assíncrona enquanto o agente trabalha.",
-	"settings.version": "Versão",
-	"settings.author": "Autor",
-	"settings.improver": "Melhorias",
-	"settings.improverName": "LighghtEeloo",
-	"settings.project": "Código-fonte",
-	"settings.storage": "Armazenamento de dados",
 	"add.placeholder": "Anote uma",
 	"add.action": "Adicionar",
 	"attachment.add": "Adicionar anexos",
@@ -864,16 +795,15 @@ const pt = {
 	"storage.failed": "O armazenamento local não está disponível; as alterações podem não ser salvas",
 	"storage.whereHost": "As notas são salvas em um arquivo local do DSH",
 	"storage.loading": "Lendo notas…",
-	"storage.modeHost": "Arquivo local do DSH (aside_note.json)",
-	"storage.modeLocal": "Este navegador (localStorage)",
-	"storage.settingsLabel": "Armazenamento",
+	"storage.details": "Detalhes do armazenamento",
 	"storage.failure": "Última falha: {code}",
 	"storage.migrated": "{n} notas deste navegador foram movidas para o arquivo local do DSH",
 	"storage.keptLocal": "Usando as notas do host; as notas antigas deste navegador não foram mescladas",
 	"storage.notSwitched": "O armazenamento do host está indisponível; as notas ficam neste navegador e serão tentadas novamente na próxima inicialização",
 	"storage.hostError": "O armazenamento de notas está indisponível",
-	"storage.inUse": "O AsideNote está usando o armazenamento de notas. Desative o AsideNote e escolha Configurações › Armazenamento de dados › Reconectar.",
+	"storage.inUse": "O AsideNote está usando o armazenamento de notas. Desative o AsideNote e reconecte.",
 	"storage.retry": "Reconectar",
+	"storage.reconnecting": "Reconectando…",
 	"storage.copyPath": "Copiar caminho",
 	"storage.reveal": "Mostrar na pasta",
 	"storage.pathLoading": "Lendo o local…",
@@ -897,8 +827,8 @@ const pt = {
 	"toast.recallBlocked": "A caixa de texto já tem conteúdo; envie ou limpe primeiro",
 	"toast.cleared": "Arquivo limpo",
 	"toast.saveFailed": "Falha ao salvar — nada mudou",
+	"update.version": "Versão",
 	"update.label": "Atualização disponível",
-	"update.tip": "A versão {version} já está disponível — abra as notas da versão",
 	"update.check": "Verificar atualizações",
 	"update.checking": "Verificando…",
 	"update.retryCheck": "Tentar verificação novamente",
@@ -961,17 +891,7 @@ const ru = {
 	"scope.newSessionHint": "Пока доступен только список рабочей области; список сеанса появится после начала сеанса",
 	"popover.empty.title": "Заметок пока нет",
 	"popover.empty.body": "Набрасывайте идеи асинхронно, пока агент работает",
-	"settings.open": "Настройки",
-	"settings.title": "Настройки",
 	"shortcut.toggle": "Показать или скрыть Sideby Note",
-	"settings.about": "О плагине",
-	"settings.tagline": "Набрасывайте идеи асинхронно, пока агент работает.",
-	"settings.version": "Версия",
-	"settings.author": "Автор",
-	"settings.improver": "Улучшения",
-	"settings.improverName": "LighghtEeloo",
-	"settings.project": "Исходный код",
-	"settings.storage": "Хранилище данных",
 	"add.placeholder": "Записать",
 	"add.action": "Добавить",
 	"attachment.add": "Прикрепить файлы",
@@ -1005,16 +925,15 @@ const ru = {
 	"storage.failed": "Локальное хранилище недоступно; изменения могут не сохраниться",
 	"storage.whereHost": "Заметки сохраняются в локальном файле DSH",
 	"storage.loading": "Чтение заметок…",
-	"storage.modeHost": "Локальный файл DSH (aside_note.json)",
-	"storage.modeLocal": "Этот браузер (localStorage)",
-	"storage.settingsLabel": "Хранилище",
+	"storage.details": "Сведения о хранилище",
 	"storage.failure": "Последняя ошибка: {code}",
 	"storage.migrated": "Заметки этого браузера ({n}) перенесены в локальный файл DSH",
 	"storage.keptLocal": "Используются заметки хоста; старые заметки этого браузера не объединены",
 	"storage.notSwitched": "Хранилище хоста недоступно; заметки остаются в этом браузере, повтор при следующем запуске",
 	"storage.hostError": "Хранилище заметок недоступно",
-	"storage.inUse": "AsideNote использует хранилище заметок. Отключите AsideNote и выберите «Настройки › Хранилище данных › Подключиться снова».",
+	"storage.inUse": "AsideNote использует хранилище заметок. Отключите AsideNote, затем подключитесь снова.",
 	"storage.retry": "Подключиться снова",
+	"storage.reconnecting": "Повторное подключение…",
 	"storage.copyPath": "Скопировать путь",
 	"storage.reveal": "Показать в папке",
 	"storage.pathLoading": "Чтение расположения…",
@@ -1038,8 +957,8 @@ const ru = {
 	"toast.recallBlocked": "В поле ввода уже есть текст — сначала отправьте или очистите его",
 	"toast.cleared": "Архив очищен",
 	"toast.saveFailed": "Не удалось сохранить — ничего не изменено",
+	"update.version": "Версия",
 	"update.label": "Доступно обновление",
-	"update.tip": "Доступна версия {version} — откройте примечания к выпуску",
 	"update.check": "Проверить обновления",
 	"update.checking": "Проверка…",
 	"update.retryCheck": "Повторить проверку",
@@ -1102,17 +1021,7 @@ const zh = {
 	"scope.newSessionHint": "当前只能记到工作区，会话开始后可切换",
 	"popover.empty.title": "边记摸鱼中..",
 	"popover.empty.body": "趁 agent 工作时，异步记下你的想法",
-	"settings.open": "设置",
-	"settings.title": "设置",
 	"shortcut.toggle": "打开或收起边记部",
-	"settings.about": "关于",
-	"settings.tagline": "趁 agent 工作时，异步记下你的想法",
-	"settings.version": "版本",
-	"settings.author": "作者",
-	"settings.improver": "改良者",
-	"settings.improverName": "光吟",
-	"settings.project": "源代码",
-	"settings.storage": "数据存储",
 	"add.placeholder": "随手记一条",
 	"add.action": "添加",
 	"attachment.add": "添加附件",
@@ -1146,16 +1055,15 @@ const zh = {
 	"storage.failed": "本地存储不可用，改动不会保留",
 	"storage.whereHost": "便笺保存在 DSH 本地文件",
 	"storage.loading": "正在读取便笺…",
-	"storage.modeHost": "DSH 本地文件（aside_note.json）",
-	"storage.modeLocal": "当前浏览器（localStorage）",
-	"storage.settingsLabel": "存储",
+	"storage.details": "存储详情",
 	"storage.failure": "最近失败：{code}",
 	"storage.migrated": "已把本浏览器的 {n} 条便笺迁入 DSH 本地文件",
 	"storage.keptLocal": "已使用宿主便笺；本浏览器的旧便笺未合并",
 	"storage.notSwitched": "宿主存储暂不可用，便笺仍保存在本浏览器，下次启动会重试",
 	"storage.hostError": "便笺存储暂不可用",
-	"storage.inUse": "旁边记（AsideNote）正在使用便笺存储。请停用旁边记，再选择「设置 › 数据存储 › 重新连接」",
+	"storage.inUse": "旁边记（AsideNote）正在使用便笺存储。请停用旁边记，再重新连接",
 	"storage.retry": "重新连接",
+	"storage.reconnecting": "正在重新连接…",
 	"storage.copyPath": "拷贝路径",
 	"storage.reveal": "在文件夹中显示",
 	"storage.pathLoading": "正在读取存储位置…",
@@ -1179,8 +1087,8 @@ const zh = {
 	"toast.recallBlocked": "输入框已有内容，请先发送或清空",
 	"toast.cleared": "归档已清空",
 	"toast.saveFailed": "保存失败，内容没有改动",
+	"update.version": "版本",
 	"update.label": "有新版本",
-	"update.tip": "新版本 {version} 已发布，点击查看更新说明",
 	"update.check": "检查更新",
 	"update.checking": "正在检查…",
 	"update.retryCheck": "重试检查",
@@ -1719,12 +1627,16 @@ function setStorageMode(next) {
 	mode = next;
 	if (next === "host") refreshHost();
 }
-/** The last host failure, for the settings surface. */
+/** The last host failure, for in-panel diagnostics. */
 function storageFailure() {
 	return failure;
 }
 function setStorageFailure(next) {
 	failure = next;
+}
+/** Connection failures are actionable even while the last host snapshot is readable. */
+function isHostConnectionFailure(value) {
+	return value != null && (value.code === "STORE_UNREACHABLE" || value.code === "STORE_TIMEOUT" || value.code === "STORE_IN_USE" || value.status === 403 || value.status === 404 || value.status === 503);
 }
 /** Replace the cache with a fresh host snapshot. */
 function hydrateHost(next) {
@@ -1769,13 +1681,20 @@ async function refreshHost() {
 	if (mode !== "host" || pendingWrites !== 0 || refreshing || !refreshRequested) return;
 	refreshing = true;
 	refreshRequested = false;
+	const previousFailure = failure;
 	try {
 		const { data: snapshot } = await fetchSnapshot();
 		if (mode === "host" && !refreshRequested) {
 			hydrateHost(snapshot);
+			if (failure === previousFailure && isHostConnectionFailure(failure)) setStorageFailure(null);
 			notifyTodoChange();
 		}
-	} catch {} finally {
+	} catch (error) {
+		if (mode === "host" && !refreshRequested && error instanceof HostRequestError && isHostConnectionFailure(error)) {
+			setStorageFailure(error);
+			notifyTodoChange();
+		}
+	} finally {
 		refreshing = false;
 		if (refreshRequested) refreshHost();
 	}
@@ -1836,10 +1755,12 @@ function report(error) {
 		code: typeof error?.code === "string" ? error.code : "STORE_FAILED",
 		message: error instanceof Error ? error.message : String(error)
 	};
-	setStorageFailure({
+	const detail = {
 		...failure,
 		status: error?.status
-	});
+	};
+	setStorageFailure(detail);
+	if (isHostConnectionFailure(detail)) notifyTodoChange();
 	notifyStoreError(failure);
 }
 function tableFor(kind) {
@@ -1871,6 +1792,7 @@ async function commitList(kind, listKey, nextItems) {
 	if (upserts.length === 0 && deletes.length === 0 && sameOrder) return true;
 	try {
 		await serialize(`${table}:${listKey}`, async () => {
+			const previousFailure = storageFailure();
 			const result = await postOp({
 				op: "list.patch",
 				kind,
@@ -1879,6 +1801,7 @@ async function commitList(kind, listKey, nextItems) {
 				upserts,
 				deletes
 			});
+			if (storageFailure() === previousFailure && isHostConnectionFailure(previousFailure)) setStorageFailure(null);
 			applyHostRecord(table, listKey, result.record);
 			broadcastHostChange({
 				kind: "record",
@@ -1890,14 +1813,13 @@ async function commitList(kind, listKey, nextItems) {
 		});
 		return true;
 	} catch (error) {
-		const failure = {
+		const detail = {
 			code: typeof error?.code === "string" ? error.code : "STORE_FAILED",
-			message: error instanceof Error ? error.message : String(error)
-		};
-		setStorageFailure({
-			...failure,
+			message: error instanceof Error ? error.message : String(error),
 			status: error?.status
-		});
+		};
+		setStorageFailure(detail);
+		if (isHostConnectionFailure(detail)) notifyTodoChange();
 		return false;
 	}
 }
@@ -2245,7 +2167,7 @@ function bootStorage() {
 	if (!booting) return startBoot();
 	return booting;
 }
-/** Force a new probe (settings retry button). */
+/** Force a new probe from the panel's reconnect action. */
 function retryStorage() {
 	if (inFlight) return bootStorage();
 	if (storageMode() === "local") setStorageMode("probing");
@@ -2257,10 +2179,6 @@ function startBoot() {
 		inFlight = false;
 	});
 	return booting;
-}
-/** Current mode without waiting. */
-function currentStorageMode() {
-	return storageMode();
 }
 
 // host/attachment-metadata.ts
@@ -3021,10 +2939,6 @@ const IconInsert = () => h$13(Glyph, {
 	name: "IconListPenOutlineRegular",
 	size: 14
 });
-const IconGear = () => h$13(Glyph, {
-	name: "IconSettingsOutlineRegular",
-	size: 14
-});
 /**
 * Rewind is the product refresh arc mirrored to run counter-clockwise (↺):
 * the set has no undo glyph, and flipping keeps the shell's stroke and size.
@@ -3320,10 +3234,16 @@ function useMemoStore(scope) {
 			setRecord(readScope(scopeRef.current));
 		};
 		const onLocal = () => setRecord(readScope(scopeRef.current));
+		const onReady = () => {
+			onLocal();
+			if (storageMode() === "host") setSyncError(false);
+		};
 		TODO_LISTENERS.add(onLocal);
+		STORE_READY_LISTENERS.add(onReady);
 		window.addEventListener("storage", onStorage);
 		return () => {
 			TODO_LISTENERS.delete(onLocal);
+			STORE_READY_LISTENERS.delete(onReady);
 			window.removeEventListener("storage", onStorage);
 		};
 	}, []);
@@ -3404,7 +3324,7 @@ function memoPopoverStyle(anchor, placement, requestedWidth, requestedHeight) {
 			return box.width > 24 && box.left > 0 && box.left < window.innerWidth - 24;
 		});
 		if (sidebar) desiredRight = Math.min(desiredRight, sidebar.getBoundingClientRect().left - 8);
-		const rightInset = Math.max(margin, Math.min(window.innerWidth - margin, window.innerWidth - desiredRight));
+		const rightInset = Math.max(margin, Math.min(window.innerWidth - width - margin, window.innerWidth - desiredRight));
 		const top = rect && rect.width > 0 ? Math.max(topFloor, Math.round(rect.bottom + 8)) : topFloor;
 		const maxHeight = Math.max(160, window.innerHeight - top - margin);
 		const height = requestedHeight ? Math.max(Math.min(240, maxHeight), Math.min(maxHeight, requestedHeight)) : 0;
@@ -4162,7 +4082,7 @@ async function copyText(text) {
 
 // src/client/ui/useUpdateCenter.ts
 /**
-* Update centre state for the settings card.
+* Update centre state for the panel footer.
 *
 * Three things are allowed to be independent here: the published version check
 * (auto on open, manual on demand), the release notes behind that version
@@ -5031,7 +4951,7 @@ function useOutsideDismiss(panelRef, anchorRef, onClose) {
 		const onPointerDown = (event) => {
 			if (panelRef.current && panelRef.current.contains(event.target)) return;
 			if (anchorRef.current && anchorRef.current.contains(event.target)) return;
-			onClose();
+			onClose(false);
 		};
 		const onKeyDown = (event) => {
 			if (event.key === "Escape") onClose();
@@ -5228,10 +5148,10 @@ function ScopeSwitch(props) {
 }
 
 // src/client/ui/PanelHead.ts
-/** Panel title, counts, the list-scope switch and the settings/close actions. */
+/** Panel title, counts, the list-scope switch and close action. */
 const h$9 = react.default.createElement;
 function PanelHead(props) {
-	const { say, openCount, total, showSettings, onToggleSettings, onClose, newerVersion, scopeMode, canUseWorkspace, canUseSession, onScopeChange } = props;
+	const { say, openCount, total, onClose, scopeMode, canUseWorkspace, canUseSession, onScopeChange } = props;
 	return h$9("div", { className: "dsh-an-popHead" }, h$9("div", { className: "dsh-an-popTitleLine" }, h$9("div", { className: "dsh-an-popTitle" }, say("popover.title")), h$9("p", { className: "dsh-an-popMeta" }, say("popover.count", {
 		open: openCount,
 		total
@@ -5240,27 +5160,57 @@ function PanelHead(props) {
 		mode: scopeMode,
 		canUseSession,
 		onChange: onScopeChange
-	}) : null), h$9("div", { className: "dsh-an-popActions" }, withTooltip(say("settings.open"), h$9("button", {
-		type: "button",
-		className: "dsh-an-settingsBtn",
-		"data-active": showSettings ? "true" : void 0,
-		"aria-label": newerVersion ? `${say("settings.open")} · ${say("update.tip", { version: `v${newerVersion}` })}` : say("settings.open"),
-		"aria-expanded": showSettings,
-		onClick: onToggleSettings
-	}, h$9(IconGear, null), newerVersion ? h$9("span", {
-		className: "dsh-an-updateDot",
-		"aria-hidden": true
-	}) : null)), withTooltip(say("popover.close"), h$9("button", {
+	}) : null), h$9("div", { className: "dsh-an-popActions" }, withTooltip(say("popover.close"), h$9("button", {
 		type: "button",
 		className: "dsh-an-popClose",
 		"aria-label": say("popover.close"),
-		onClick: onClose
+		onClick: () => onClose()
 	}, h$9(IconClose, null)))));
+}
+
+// src/client/ui/StorageDetails.ts
+const h$8 = react.default.createElement;
+function HostLocation({ say, onToast }) {
+	const [location, setLocation] = react.default.useState();
+	react.default.useEffect(() => {
+		let open = true;
+		fetchStoreLocation().then((next) => {
+			if (open) setLocation(next);
+		});
+		return () => {
+			open = false;
+		};
+	}, []);
+	if (location === void 0) return h$8("p", null, say("storage.pathLoading"));
+	if (!location?.path) return h$8("p", null, say("storage.pathUnavailable"));
+	const path = location.path;
+	return h$8("div", { className: "dsh-an-storagePathRow" }, h$8("code", {
+		className: "dsh-an-storagePath",
+		title: path
+	}, path), h$8("div", { className: "dsh-an-storageActions" }, h$8("button", {
+		type: "button",
+		className: "dsh-an-mini dsh-an-storageAction",
+		onClick: async () => onToast(await copyText(path) ? "pathCopied" : "copyFailed")
+	}, say("storage.copyPath")), h$8("button", {
+		type: "button",
+		className: "dsh-an-mini dsh-an-storageAction",
+		onClick: async () => {
+			if (!await revealStoreFile()) onToast("revealFailed");
+		}
+	}, say("storage.reveal"))), !location.exists && h$8("p", null, say("storage.pathMissing")));
+}
+function StorageDetails({ say, mode, onToast }) {
+	const failure = storageFailure();
+	if (mode === "error" || mode === "probing") return null;
+	return h$8("div", { className: "dsh-an-storageBlock" }, mode === "host" ? h$8(HostLocation, {
+		say,
+		onToast
+	}) : h$8("p", null, say("storage.notSwitched")), failure && h$8("p", null, say("storage.failure", { code: failure.code })));
 }
 
 // src/client/ui/UpdateNotice.ts
 /**
-* Settings › About › update centre.
+* Release notes and update actions behind the panel's update entry.
 *
 * One compact card: the published version, the release notes it ships with, and
 * the update action. The notes load and show as soon as an update is offered —
@@ -5278,7 +5228,7 @@ function PanelHead(props) {
 * upgrading to 2.3.0 can read 2.1.0, 2.2.0 and 2.3.0 in order. The full release
 * page opens from the link beside the update button.
 */
-const h$8 = react.default.createElement;
+const h$7 = react.default.createElement;
 const NOTES_ID = "dsh-an-update-notes";
 const UPDATE_PACKAGE = "dsh-sideby-note";
 /** Failure codes the card can explain without echoing the host's message. */
@@ -5384,167 +5334,79 @@ function UpdateNotice(props) {
 			if (typeof props.onToast === "function") props.onToast(ok ? "copied" : "copyFailed");
 		});
 	};
-	const noteGroups = (list) => list.map((group, index) => h$8("div", {
+	const noteGroups = (list) => list.map((group, index) => h$7("div", {
 		key: `${group.title}-${index}`,
 		className: "dsh-an-updateGroup"
-	}, group.title ? h$8("div", { className: "dsh-an-updateGroupTitle" }, group.title) : null, h$8("ul", { className: "dsh-an-updateItems" }, group.items.map((item, itemIndex) => h$8("li", {
+	}, group.title ? h$7("div", { className: "dsh-an-updateGroupTitle" }, group.title) : null, h$7("ul", { className: "dsh-an-updateItems" }, group.items.map((item, itemIndex) => h$7("li", {
 		key: itemIndex,
 		className: "dsh-an-updateItem"
-	}, item.lead ? h$8("strong", null, item.lead) : null, item.lead ? " " : null, item.body)))));
-	const entryBody = (entry) => entry.groups.length > 0 ? noteGroups(entry.groups) : h$8("p", { className: "dsh-an-updateHint" }, say("update.notesMissing"));
-	const notesBody = notes.status === "loading" ? h$8("p", { className: "dsh-an-updateHint" }, say("update.notesLoading")) : notes.status === "error" ? h$8("p", { className: "dsh-an-updateHint" }, say("update.notesFailed")) : notes.status === "ready" && notes.entries.length === 1 ? entryBody(notes.entries[0]) : notes.status === "ready" ? h$8("div", { className: "dsh-an-updateVersions" }, h$8("p", { className: "dsh-an-updateHint" }, say("update.historyCount", { n: notes.entries.length })), notes.entries.map((entry, index) => {
+	}, item.lead ? h$7("strong", null, item.lead) : null, item.lead ? " " : null, item.body)))));
+	const entryBody = (entry) => entry.groups.length > 0 ? noteGroups(entry.groups) : h$7("p", { className: "dsh-an-updateHint" }, say("update.notesMissing"));
+	const notesBody = notes.status === "loading" ? h$7("p", { className: "dsh-an-updateHint" }, say("update.notesLoading")) : notes.status === "error" ? h$7("p", { className: "dsh-an-updateHint" }, say("update.notesFailed")) : notes.status === "ready" && notes.entries.length === 1 ? entryBody(notes.entries[0]) : notes.status === "ready" ? h$7("div", { className: "dsh-an-updateVersions" }, h$7("p", { className: "dsh-an-updateHint" }, say("update.historyCount", { n: notes.entries.length })), notes.entries.map((entry, index) => {
 		const open = expandedVersions[entry.version] === true;
-		return h$8("div", {
+		return h$7("div", {
 			key: entry.version,
 			className: "dsh-an-updateVersion"
-		}, h$8("button", {
+		}, h$7("button", {
 			type: "button",
 			className: "dsh-an-updateVersionHead",
 			"aria-expanded": open,
 			"aria-controls": `${NOTES_ID}-${entry.version}`,
 			onClick: () => props.onToggleVersion(entry.version)
-		}, h$8("span", {
+		}, h$7("span", {
 			className: "dsh-an-updateChevron",
 			"data-open": open ? "true" : "false",
 			"aria-hidden": true
-		}, "▸"), h$8("span", { className: "dsh-an-updateVersionLabel" }, `v${entry.version}`), index === 0 ? h$8("span", { className: "dsh-an-updateLatest" }, say("update.latest")) : null), open ? h$8("div", {
+		}, "▸"), h$7("span", { className: "dsh-an-updateVersionLabel" }, `v${entry.version}`), index === 0 ? h$7("span", { className: "dsh-an-updateLatest" }, say("update.latest")) : null), open ? h$7("div", {
 			id: `${NOTES_ID}-${entry.version}`,
 			className: "dsh-an-updateVersionBody"
 		}, entryBody(entry)) : null);
-	}), notes.truncated ? h$8("a", {
+	}), notes.truncated ? h$7("a", {
 		className: "dsh-an-updateFull",
 		href: props.releasesUrl,
 		target: "_blank",
 		rel: "noreferrer"
 	}, say("update.olderNotes")) : null) : null;
-	return h$8("div", { className: "dsh-an-updateCard" }, h$8("div", { className: "dsh-an-updateTitle" }, say("update.available", { version: `v${latestVersion}` })), h$8("div", {
+	return h$7("div", { className: "dsh-an-updateCard" }, h$7("div", { className: "dsh-an-updateTitle" }, say("update.available", { version: `v${latestVersion}` })), h$7("div", {
 		id: NOTES_ID,
 		ref: notesRef,
 		className: "dsh-an-updateNotes",
 		role: "region",
 		"aria-label": say("update.notesTitle"),
 		"data-fade": fade ? "true" : void 0
-	}, notesBody), h$8("div", { className: "dsh-an-updateActions" }, phase === "done" ? h$8("div", { className: "dsh-an-updateDone" }, h$8("span", { className: "dsh-an-updateHint" }, say("update.updated", { version: run.installedVersion ? `v${run.installedVersion}` : `v${latestVersion}` })), h$8("button", {
+	}, notesBody), h$7("div", { className: "dsh-an-updateActions" }, phase === "done" ? h$7("div", { className: "dsh-an-updateDone" }, h$7("span", { className: "dsh-an-updateHint" }, say("update.updated", { version: run.installedVersion ? `v${run.installedVersion}` : `v${latestVersion}` })), h$7("button", {
 		type: "button",
 		className: "dsh-an-updatePrimary",
 		onClick: props.onRefresh
-	}, say("update.refresh"))) : h$8("button", {
+	}, say("update.refresh"))) : h$7("button", {
 		type: "button",
 		className: "dsh-an-updatePrimary",
 		disabled: busy,
 		"aria-busy": busy,
 		onClick: () => props.onStartUpdate()
-	}, busy ? phase === "running" ? say("update.updating") : say("update.starting") : say("update.now")), fullReleaseUrl ? h$8("a", {
+	}, busy ? phase === "running" ? say("update.updating") : say("update.starting") : say("update.now")), fullReleaseUrl ? h$7("a", {
 		className: "dsh-an-updateFull",
 		href: fullReleaseUrl,
 		target: "_blank",
 		rel: "noreferrer"
-	}, say("update.full")) : null), phase === "error" ? h$8("div", { className: "dsh-an-updateErrorRow" }, h$8("p", {
+	}, say("update.full")) : null), phase === "error" ? h$7("div", { className: "dsh-an-updateErrorRow" }, h$7("p", {
 		className: "dsh-an-updateError",
 		role: "status"
-	}, failureKey ? say(failureKey) : say("update.failed", { reason: run.message || run.failureCode || "" }))) : null, manual ? h$8("div", { className: "dsh-an-updateFallback" }, h$8("p", { className: "dsh-an-updateHint" }, say("update.manualHint", { command: manualCommand })), h$8("button", {
+	}, failureKey ? say(failureKey) : say("update.failed", { reason: run.message || run.failureCode || "" }))) : null, manual ? h$7("div", { className: "dsh-an-updateFallback" }, h$7("p", { className: "dsh-an-updateHint" }, say("update.manualHint", { command: manualCommand })), h$7("button", {
 		type: "button",
 		className: "dsh-an-updateCopy",
 		onClick: copyPrompt
-	}, say("update.copyPrompt"))) : null, run.phase === "done" && run.restartRequired ? h$8("p", { className: "dsh-an-updateHint" }, say("update.restartHint")) : null);
+	}, say("update.copyPrompt"))) : null, run.phase === "done" && run.restartRequired ? h$7("p", { className: "dsh-an-updateHint" }, say("update.restartHint")) : null);
 }
 
-// src/client/ui/StorageSettings.ts
-/** Settings › Data storage: the medium, the host file path and its actions. */
-const h$7 = react.default.createElement;
-/**
-* The storage decision can change after this block mounts (retry, or a probe
-* finishing late); refresh on the same ready channel the entry uses. The path
-* is host-owned state and is fetched only while host storage is in use.
-*/
-function StorageSettings(props) {
-	const { say } = props;
-	const [storage, setStorage] = react.default.useState(() => ({
-		mode: currentStorageMode(),
-		failure: storageFailure()
-	}));
-	react.default.useEffect(() => {
-		const onReady = () => setStorage({
-			mode: currentStorageMode(),
-			failure: storageFailure()
-		});
-		STORE_READY_LISTENERS.add(onReady);
-		return () => {
-			STORE_READY_LISTENERS.delete(onReady);
-		};
-	}, []);
-	const [location, setLocation] = react.default.useState(null);
-	const [locating, setLocating] = react.default.useState(false);
-	react.default.useEffect(() => {
-		if (storage.mode !== "host") {
-			setLocation(null);
-			setLocating(false);
-			return;
-		}
-		let alive = true;
-		setLocating(true);
-		fetchStoreLocation().then((next) => {
-			if (!alive) return;
-			setLocation(next);
-			setLocating(false);
-		});
-		return () => {
-			alive = false;
-		};
-	}, [storage.mode]);
-	const notify = typeof props.onToast === "function" ? props.onToast : () => {};
-	const copyStorePath = async () => {
-		if (!location || !location.path) return;
-		notify(await copyText(location.path) ? "pathCopied" : "copyFailed");
-	};
-	const showStoreFile = async () => {
-		if (!await revealStoreFile()) notify("revealFailed");
-	};
-	const modeLabel = storage.mode === "host" ? say("storage.modeHost") : storage.mode === "local" ? say("storage.modeLocal") : storage.mode === "probing" ? say("storage.loading") : say(storage.failure?.code === "STORE_IN_USE" ? "storage.inUse" : "storage.hostError");
-	return h$7("div", { className: "dsh-an-storageBlock" }, h$7("div", { className: "dsh-an-settingMetaRow" }, h$7("span", null, modeLabel), storage.mode === "error" ? h$7("button", {
-		type: "button",
-		className: "dsh-an-updateCheck",
-		onClick: () => {
-			retryStorage();
-		}
-	}, say("storage.retry")) : null), storage.mode === "host" ? locating ? h$7("p", { className: "dsh-an-settingHint" }, say("storage.pathLoading")) : location && location.path ? h$7("div", { className: "dsh-an-storagePathRow" }, h$7("code", {
-		className: "dsh-an-storagePath",
-		title: location.path
-	}, location.path), h$7("div", { className: "dsh-an-storageActions" }, h$7("button", {
-		type: "button",
-		className: "dsh-an-storageAction",
-		onClick: () => {
-			copyStorePath();
-		}
-	}, say("storage.copyPath")), h$7("button", {
-		type: "button",
-		className: "dsh-an-storageAction",
-		onClick: () => {
-			showStoreFile();
-		}
-	}, say("storage.reveal"))), location.exists ? null : h$7("p", { className: "dsh-an-settingHint" }, say("storage.pathMissing"))) : h$7("p", { className: "dsh-an-settingHint" }, say("storage.pathUnavailable")) : storage.mode === "local" ? h$7("p", { className: "dsh-an-settingHint" }, say("storage.notSwitched")) : null, storage.failure ? h$7("p", { className: "dsh-an-settingHint" }, say("storage.failure").replace("{code}", storage.failure.code)) : null);
-}
-
-// src/client/ui/SettingsPanel.ts
-/** Settings card: about and updates. */
+// src/client/ui/PanelFooter.ts
 const h$6 = react.default.createElement;
-function SettingsPanel(props) {
-	const { say, update } = props;
-	return h$6("div", { className: "dsh-an-settings" }, h$6("div", { className: "dsh-an-settingsHead" }, say("settings.title")), h$6("div", { className: "dsh-an-settingGroup" }, h$6("div", { className: "dsh-an-settingLabel" }, say("settings.storage")), h$6("div", { className: "dsh-an-settingBody" }, h$6(StorageSettings, {
-		say,
-		onToast: props.onToast
-	}))), h$6("div", { className: "dsh-an-settingGroup" }, h$6("div", { className: "dsh-an-settingLabel" }, say("settings.about")), h$6("div", { className: "dsh-an-settingBody" }, h$6("div", { className: "dsh-an-settingBrand" }, h$6("span", { className: "dsh-an-settingBrandName" }, say("title")), h$6("span", { className: "dsh-an-settingBrandTagline" }, say("settings.tagline"))), h$6("div", { className: "dsh-an-settingAbout" }, h$6("span", { className: "dsh-an-settingAboutVersion" }, `${say("settings.version")} ${PLUGIN_VERSION}`), h$6("button", {
-		type: "button",
-		className: "dsh-an-updateCheck",
-		disabled: update.check.status === "checking",
-		onClick: update.checkNow
-	}, say(update.check.status === "checking" ? "update.checking" : update.check.status === "error" ? "update.retryCheck" : "update.check")), update.check.status === "current" ? h$6("span", {
-		className: "dsh-an-updateHint",
-		role: "status"
-	}, say("update.current")) : null, update.check.status === "error" ? h$6("span", {
-		className: "dsh-an-updateHint dsh-an-updateHintError",
-		role: "status"
-	}, say("update.checkFailed")) : null), update.latestVersion ? h$6(UpdateNotice, {
+function UpdateDetails({ say, update, onToast }) {
+	const [open, setOpen] = react.default.useState(false);
+	return h$6("details", {
+		className: "dsh-an-updateDetails",
+		onToggle: (event) => setOpen(event.currentTarget.open)
+	}, h$6("summary", { className: "dsh-an-updateToggle" }, say("update.label")), open && h$6(UpdateNotice, {
 		say,
 		latestVersion: update.latestVersion,
 		notes: update.notes,
@@ -5556,23 +5418,41 @@ function SettingsPanel(props) {
 		onStartUpdate: update.startUpdate,
 		onRefresh: update.refreshPage,
 		onCopyPrompt: update.copyPrompt,
-		onToast: props.onToast
-	}) : null, h$6("div", { className: "dsh-an-settingMetaRow" }, h$6("span", null, say("settings.author")), h$6("span", {
-		className: "dsh-an-settingDot",
-		"aria-hidden": true
-	}, "·"), h$6("span", null, PLUGIN_AUTHOR)), h$6("div", { className: "dsh-an-settingMetaRow" }, h$6("span", null, say("settings.improver")), h$6("span", {
-		className: "dsh-an-settingDot",
-		"aria-hidden": true
-	}, "·"), h$6("span", null, say("settings.improverName"))), h$6("div", { className: "dsh-an-settingMetaRow" }, h$6("span", null, say("settings.project")), h$6("span", {
-		className: "dsh-an-settingDot",
-		"aria-hidden": true
-	}, "·"), h$6("a", {
-		className: "dsh-an-settingLink",
-		href: PLUGIN_REPO_URL,
-		target: "_blank",
-		rel: "noreferrer",
-		title: PLUGIN_REPO_URL
-	}, PLUGIN_REPO_LABEL)))));
+		onToast
+	}));
+}
+function PanelFooter({ say, mode, syncError, update, onToast }) {
+	const [detailsOpen, setDetailsOpen] = react.default.useState(false);
+	const { check, latestVersion } = update;
+	const status = mode === "error" ? null : syncError ? mode === "host" ? "toast.saveFailed" : "storage.failed" : mode === "host" ? "storage.whereHost" : mode === "probing" ? "storage.loading" : "popover.local";
+	const checkResult = check.status === "current" ? say("update.current") : check.status === "error" ? say("update.checkFailed") : check.status === "available" ? say("update.available", { version: `v${latestVersion}` }) : null;
+	const checking = check.status === "checking";
+	const installing = update.run.phase === "starting" || update.run.phase === "running";
+	return h$6("footer", { className: "dsh-an-popFoot" }, h$6("div", { className: "dsh-an-footerRow" }, status && h$6("span", {
+		role: "status",
+		className: syncError ? "dsh-an-error" : void 0
+	}, say(status)), h$6("details", {
+		className: "dsh-an-footerDetails",
+		onToggle: (event) => setDetailsOpen(event.currentTarget.open)
+	}, h$6("summary", { className: "dsh-an-storageToggle" }, say("storage.details")), detailsOpen && h$6("div", { className: "dsh-an-footerBody" }, h$6(StorageDetails, {
+		say,
+		mode,
+		onToast
+	}), h$6("div", { className: "dsh-an-versionRow" }, h$6("span", null, `${say("update.version")} ${"0.1.0"}`), h$6("button", {
+		type: "button",
+		className: "dsh-an-updateCheck",
+		"aria-disabled": checking || installing,
+		onClick: () => {
+			if (!checking && !installing) update.checkNow();
+		}
+	}, say(checking ? "update.checking" : check.status === "error" ? "update.retryCheck" : "update.check")), h$6("span", {
+		role: "status",
+		className: check.status === "error" ? "dsh-an-updateHintError" : void 0
+	}, checkResult))))), latestVersion && h$6(UpdateDetails, {
+		say,
+		update,
+		onToast
+	}));
 }
 
 // src/client/ui/ComposerForm.ts
@@ -5775,6 +5655,14 @@ function NoteList(props) {
 * useSessionMemoStore.
 */
 const h$1 = react.default.createElement;
+function subscribeStorageStatus(callback) {
+	STORE_READY_LISTENERS.add(callback);
+	TODO_LISTENERS.add(callback);
+	return () => {
+		STORE_READY_LISTENERS.delete(callback);
+		TODO_LISTENERS.delete(callback);
+	};
+}
 function MemoPopover(props) {
 	const say = props.say;
 	const localeService = props.locale;
@@ -5820,13 +5708,15 @@ function MemoPopover(props) {
 	/** Settled outcomes go to the frame-wide toast host, not to inline marks. */
 	const report = typeof props.onToast === "function" ? props.onToast : () => {};
 	const { record, syncError, commit } = useMemoStore(scope);
-	const storageInUse = storageMode() === "error" && storageFailure()?.code === "STORE_IN_USE";
+	const storeMode = react.default.useSyncExternalStore(subscribeStorageStatus, storageMode, storageMode);
+	const failure = react.default.useSyncExternalStore(subscribeStorageStatus, storageFailure, storageFailure);
+	const connectionError = storeMode === "error" || storeMode === "host" && isHostConnectionFailure(failure);
+	const storageInUse = connectionError && failure?.code === "STORE_IN_USE";
+	const [retrying, setRetrying] = react.default.useState(false);
 	const { sectionsRef, showOpen, showDone, toggleOpen, toggleDone, applySections } = useSections();
-	const [showSettings, setShowSettings] = react.default.useState(false);
 	const update = useUpdateCenter(localeId);
-	const newerVersion = update.latestVersion;
 	const inserting = react.default.useRef(/* @__PURE__ */ new Set());
-	const canUpload = storageMode() === "host";
+	const canUpload = storeMode === "host";
 	const { draft, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown } = useComposerDraft({
 		draftKey,
 		commit,
@@ -5932,11 +5822,10 @@ function MemoPopover(props) {
 		dragProps: item.done ? void 0 : reorder.dragProps(item.id),
 		onReorderKey: item.done ? void 0 : reorder.reorderKey(item.id)
 	});
-	const content = h$1("div", {
+	return h$1("div", {
 		ref: panelRef,
 		className: props.placement === "right" ? "dsh-an-popover dsh-an-popoverRight" : "dsh-an-popover",
 		style,
-		"data-settings": showSettings ? "true" : void 0,
 		role: "dialog",
 		"aria-label": say("popover.title")
 	}, props.placement === "right" ? h$1("div", {
@@ -5963,19 +5852,28 @@ function MemoPopover(props) {
 		say,
 		openCount,
 		total,
-		showSettings,
-		onToggleSettings: () => setShowSettings((value) => !value),
 		onClose: props.onClose,
-		newerVersion,
 		scopeMode: effectiveMode,
 		canUseWorkspace,
 		canUseSession,
 		onScopeChange: chooseScope
-	}), showSettings ? h$1("div", { className: "dsh-an-settingsViewport" }, h$1(SettingsPanel, {
-		say,
-		update,
-		onToast: report
-	})) : null, h$1(ComposerForm, {
+	}), connectionError && h$1("div", { className: "dsh-an-storageStatus" }, h$1("div", { role: "status" }, h$1("p", null, say(storageInUse ? "storage.inUse" : "storage.hostError")), failure && h$1("p", { className: "dsh-an-storageFailure" }, say("storage.failure", { code: failure.code }))), h$1("button", {
+		type: "button",
+		className: "dsh-an-mini dsh-an-reconnect",
+		"aria-disabled": retrying,
+		"aria-busy": retrying,
+		onClick: async (event) => {
+			if (retrying) return;
+			const button = event.currentTarget;
+			const hadFocus = document.activeElement === button;
+			setRetrying(true);
+			try {
+				if (await retryStorage() === "host" && hadFocus && (document.activeElement === button || document.activeElement === document.body)) addRef.current?.focus({ preventScroll: true });
+			} finally {
+				setRetrying(false);
+			}
+		}
+	}, say(retrying ? "storage.reconnecting" : "storage.retry"))), h$1(ComposerForm, {
 		say,
 		draft: draft.add,
 		attachments: draft.attachments,
@@ -6022,11 +5920,13 @@ function MemoPopover(props) {
 		askClearConfirm,
 		dismissClearConfirm,
 		confirmClearDone
-	}), h$1("div", {
-		className: "dsh-an-popFoot",
-		role: "status"
-	}, h$1("span", { className: syncError || storageMode() === "error" ? "dsh-an-error" : void 0 }, say(storageMode() === "error" ? storageInUse ? "storage.inUse" : "storage.hostError" : syncError ? "storage.failed" : storageMode() === "host" ? "storage.whereHost" : storageMode() === "probing" ? "storage.loading" : "popover.local"))));
-	return react_dom.default.createPortal(content, document.body);
+	}), h$1(PanelFooter, {
+		say,
+		mode: connectionError ? "error" : storeMode,
+		syncError,
+		update,
+		onToast: report
+	}));
 }
 
 // src/client/index.ts
@@ -6102,11 +6002,11 @@ function apply(ctx) {
 			STORE_ERROR_LISTENERS.delete(onError);
 		};
 	}, "dsh-sideby-note: storage notices");
-	const closeMemoPopover = () => {
+	const closeMemoPopover = (restoreFocus = true) => {
 		const current = activePopover;
 		activePopover = null;
 		if (!current) return;
-		const hadFocus = current.container.contains(document.activeElement);
+		const hadFocus = restoreFocus && current.container.contains(document.activeElement);
 		try {
 			current.root.unmount();
 		} catch {}

@@ -6,7 +6,7 @@ export function useOutsideDismiss(panelRef, anchorRef, onClose) {
     const onPointerDown = event => {
       if (panelRef.current && panelRef.current.contains(event.target)) return
       if (anchorRef.current && anchorRef.current.contains(event.target)) return
-      onClose()
+      onClose(false)
     }
     const onKeyDown = event => {
       if (event.key === 'Escape') onClose()

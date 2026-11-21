@@ -202,17 +202,6 @@ test('the built bundle boots, applies, and seats its slots', async t => {
       ['de', 'en', 'es', 'fr', 'ja', 'pt', 'ru', 'zh'],
       'the built bundle must carry every DSH-official locale',
     )
-    // The improver is credited by Chinese name in Chinese only; every other
-    // language carries the GitHub handle instead.
-    const dict = dictionaries[0].dict
-    assert.equal(dict.zh['settings.improverName'], '光吟')
-    for (const language of ['de', 'en', 'es', 'fr', 'ja', 'pt', 'ru']) {
-      assert.equal(
-        dict[language]['settings.improverName'],
-        'LighghtEeloo',
-        `${language} must credit the improver by handle`,
-      )
-    }
   })
 
   await t.test('STORE-001 宿主不可用时启动保留既有便笺且不切换', async () => {
@@ -287,74 +276,90 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(document.querySelector('.dsh-an-headerCount').textContent, '2')
   })
 
-  await t.test('PANEL-004 设置卡片可打开并展示产品身份与存储状态', async () => {
-    await act(async () => { popover.querySelector('.dsh-an-settingsBtn').click() })
-    assert.ok(popover.querySelector('.dsh-an-settings'), 'the gear must open the settings card')
-    const settingsViewport = popover.querySelector('.dsh-an-settingsViewport')
-    assert.ok(settingsViewport, 'the settings card must sit in its own scroll viewport')
-    assert.ok(settingsViewport.contains(popover.querySelector('.dsh-an-settings')), 'the viewport wraps the card')
-    assert.equal(popover.dataset.settings, 'true', 'the panel marks the settings state for the layout rules')
-    const brand = popover.querySelector('.dsh-an-settingBrand')
-    assert.ok(brand, 'About must show the product identity')
-    assert.match(brand.textContent, /边记部/)
-    assert.match(brand.textContent, /趁 agent 工作时，异步记下你的想法/)
-    // Credits: the author first, then the improver, each as its own key/value row.
-    const metaRows = [...popover.querySelectorAll('.dsh-an-settingMetaRow')].map(row => row.textContent)
-    assert.ok(metaRows.includes('作者·阿三石'), 'About credits the author')
-    assert.ok(metaRows.includes('改良者·光吟'), 'About credits the improver')
-    assert.equal(
-      metaRows.indexOf('改良者·光吟'),
-      metaRows.indexOf('作者·阿三石') + 1,
-      'the improver row sits right after the author',
-    )
-    assert.equal(popover.querySelectorAll('input[type="radio"]').length, 0, 'the shortcut radios are gone')
-    assert.doesNotMatch(popover.querySelector('.dsh-an-settings').textContent, /发送快捷键/, 'no shortcut setting remains')
-    assert.ok(popover.querySelector('.dsh-an-storageBlock'), 'the settings card displays storage status')
-    assert.equal(popover.querySelector('#dsh-an-forward-prefix'), null, 'the forward prefix field is gone')
+  const footer = () => popover.querySelector('.dsh-an-popFoot details.dsh-an-footerDetails')
+  const storageToggle = () => footer().querySelector(':scope > summary.dsh-an-storageToggle')
+
+  await t.test('PANEL-004 页脚存储详情展示版本与检查入口', async () => {
+    assert.ok(footer(), 'the panel footer always offers storage details')
+    assert.equal(footer().open, false)
+    assert.equal(storageToggle().textContent.trim(), '存储详情')
+    assert.equal(popover.querySelector('.dsh-an-settingsBtn, .dsh-an-settings, .dsh-an-settingsViewport'), null)
+    assert.equal(popover.hasAttribute('data-settings'), false)
+
+    await act(async () => { storageToggle().click() })
+    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
+    assert.equal(footer().open, true)
+    assert.ok(footer().textContent.includes(RUNNING), 'the footer displays the running version')
+    assert.equal(footer().querySelector('button.dsh-an-updateCheck').textContent, '检查更新')
+    assert.equal(popover.querySelector('#dsh-an-forward-prefix, input[type="radio"]'), null)
+
+    await act(async () => { storageToggle().click() })
   })
 
-  await t.test('PANEL-005 使用面板和设置不会上报统计', async () => {
-    assert.equal(popover.querySelector('#dsh-an-analytics-hint'), null)
-    assert.equal(popover.querySelector('input[role="switch"]'), null)
+  await t.test('PANEL-005 使用面板和存储详情不会上报统计', async () => {
+    await act(async () => { storageToggle().click() })
+    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
+    assert.equal(footer().open, true)
+    assert.equal(popover.querySelector('#dsh-an-analytics-hint, input[role="switch"]'), null)
     assert.equal(window.localStorage.getItem('dsh.aside-note.analytics'), null)
-    await act(async () => { popover.querySelector('.dsh-an-settingsBtn').click() })
-    await act(async () => { popover.querySelector('.dsh-an-settingsBtn').click() })
+    await act(async () => { storageToggle().click() })
     const allowed = new Set([...REGISTRY_URLS, '/dsh-sideby-note/store',
       '/dsh-sideby-note/store/location', 'https://api.github.com/repos/LighghtEeloo/dsh-sideby-note/releases?per_page=50'])
     assert.deepEqual(calls.filter(call => call.method !== 'GET' || !allowed.has(call.url)), [],
-      'opening the panel and settings only reads storage and update endpoints')
+      'opening the panel and storage details only reads storage and update endpoints')
   })
 
+  const updateDetails = () => popover.querySelector('details.dsh-an-updateDetails')
+
   await t.test('UPD-001 npm 失败回退镜像并显示更新卡片与说明', async () => {
-    // The npmjs read fails, the mirror answers with a newer version: the gear
-    // gains a dot and About shows the update card.
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
     assert.deepEqual(registryCalls().map(call => call.url), REGISTRY_URLS, 'the npmjs miss must fall back to the npmmirror host')
-    assert.ok(popover.querySelector('.dsh-an-updateDot'), 'the gear carries the update dot')
-    const updateCard = popover.querySelector('.dsh-an-updateCard')
-    assert.ok(updateCard, 'a newer version must surface in Settings > About')
-    assert.ok(updateCard.textContent.includes(IN_BETWEEN), 'gap | html=' + updateCard.outerHTML.replace(/\\s+/g, ' ').slice(0, 900))
-    // Notes are part of the card, loaded without a disclosure click.
+    const details = updateDetails()
+    assert.ok(details, 'a newer version gives the panel an update disclosure')
+    const summary = details.querySelector(':scope > summary.dsh-an-updateToggle')
+    assert.ok(summary.textContent.trim(), 'the available update has a visible label')
+    assert.equal(details.open, false)
+    assert.equal(popover.querySelector('.dsh-an-updateCard'), null)
+
+    await act(async () => { summary.click() })
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 80)) })
-    assert.ok(popover.querySelector('.dsh-an-updateNotes'), 'release notes must load by default')
+    assert.equal(details.open, true)
+    assert.ok(details.querySelector('.dsh-an-updateCard .dsh-an-updateNotes'), 'release notes load inside the open disclosure')
+
+    await act(async () => { summary.click() })
+    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
+    assert.equal(details.open, false)
+    assert.equal(popover.querySelector('.dsh-an-updateCard'), null, 'closing the disclosure unmounts the update card')
+    await act(async () => { summary.click() })
+    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
   })
 
   await t.test('UPD-002 手动检查绕过缓存且卡片不卸载', async () => {
     // The manual check bypasses the hourly cache and reads the registry again.
     // Hold its answer to assert the card does not unmount while the check runs.
+    await act(async () => { storageToggle().click() })
+    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
+    const updateCard = updateDetails().querySelector('.dsh-an-updateCard')
+    assert.ok(updateCard)
+    const check = footer().querySelector('.dsh-an-updateCheck')
     beforeCheck = registryCalls().length
     holdManualCheck = true
-    await act(async () => { popover.querySelector('.dsh-an-updateCheck').click() })
+    check.focus()
+    await act(async () => { check.click() })
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 60)) })
-    assert.ok(popover.querySelector('.dsh-an-updateCard'), 'the card must stay mounted while a manual check runs')
-    assert.ok(popover.querySelector('.dsh-an-updateDot'), 'the update dot must stay while checking')
-    assert.equal(popover.querySelector('.dsh-an-updateCheck').textContent, '正在检查…', 'only the button reports progress')
+    assert.equal(updateDetails().open, true)
+    assert.equal(updateDetails().querySelector('.dsh-an-updateCard'), updateCard, 'the card must stay mounted while a manual check runs')
+    assert.equal(check.textContent, '正在检查…', 'the manual check button reports progress')
+    assert.equal(check.getAttribute('aria-disabled'), 'true')
+    assert.equal(document.activeElement, check, 'a pending check keeps keyboard focus on the button')
     releaseManualCheck()
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 80)) })
     assert.equal(registryCalls().length, beforeCheck + REGISTRY_URLS.length, 'a manual check must bypass the cache')
     // The checking state is deliberately held for at least three seconds; wait it
     // out before expecting an available release again.
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 3200)) })
+    assert.ok(footer().textContent.includes(`有新版本 v${LATEST}`), 'the footer reports the result of the manual check')
+    await act(async () => { storageToggle().click() })
   })
 
   await t.test('UPD-003 更新说明列出区间版本并支持展开', async () => {
@@ -595,8 +600,21 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
     assert.equal(registryCalls().length, beforeCheck + REGISTRY_URLS.length, 'the cached answer must be reused by a reopened panel')
     const reopened = document.querySelector('.dsh-an-popover')
-    assert.ok(reopened.querySelector('.dsh-an-updateDot'))
+    const update = reopened.querySelector('details.dsh-an-updateDetails')
+    assert.ok(update.querySelector('summary.dsh-an-updateToggle'))
+    assert.equal(update.open, false)
     assert.equal(reopened.querySelector('.dsh-an-sectionHead .dsh-an-doneToggle').getAttribute('aria-expanded'), 'false')
+  })
+
+  await t.test('Escape returns focus from the footer to the panel entry', async () => {
+    const summary = document.querySelector('.dsh-an-popover summary.dsh-an-storageToggle')
+    summary.focus()
+    assert.equal(document.activeElement, summary)
+    await act(async () => {
+      summary.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))
+    })
+    assert.equal(document.querySelector('.dsh-an-popover'), null)
+    assert.equal(document.activeElement, button)
   })
 
   await t.test('PKG-002 卸载时移除注入的样式', async () => {

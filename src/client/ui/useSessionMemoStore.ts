@@ -2,7 +2,8 @@
 import React from 'react'
 import { SESSION_STORAGE_KEY, WORKSPACE_STORAGE_KEY } from '../constants'
 import { normalizeItems } from '../domain/items'
-import { TODO_LISTENERS } from '../storage/events'
+import { STORE_READY_LISTENERS, TODO_LISTENERS } from '../storage/events'
+import { storageMode } from '../storage/state'
 import { readSessionRecord, writeSessionRecord } from '../storage/session'
 import { readWorkspaceRecord, writeWorkspaceRecord } from '../storage/workspace'
 
@@ -44,10 +45,16 @@ export function useMemoStore(scope) {
       setRecord(readScope(scopeRef.current))
     }
     const onLocal = () => setRecord(readScope(scopeRef.current))
+    const onReady = () => {
+      onLocal()
+      if (storageMode() === 'host') setSyncError(false)
+    }
     TODO_LISTENERS.add(onLocal)
+    STORE_READY_LISTENERS.add(onReady)
     window.addEventListener('storage', onStorage)
     return () => {
       TODO_LISTENERS.delete(onLocal)
+      STORE_READY_LISTENERS.delete(onReady)
       window.removeEventListener('storage', onStorage)
     }
   }, [])

@@ -163,13 +163,13 @@ function apply(ctx: DshClientCtx) {
     }
   }, 'dsh-sideby-note: storage notices')
 
-  const closeMemoPopover = () => {
+  const closeMemoPopover = (restoreFocus = true) => {
     const current = activePopover
     activePopover = null
     if (!current) return
     // Only hand focus back to the entry when the panel itself had it; a click
     // elsewhere must leave focus where the user put it.
-    const hadFocus = current.container.contains(document.activeElement)
+    const hadFocus = restoreFocus && current.container.contains(document.activeElement)
     try {
       current.root.unmount()
     } catch {

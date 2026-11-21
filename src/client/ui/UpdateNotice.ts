@@ -1,5 +1,5 @@
 /**
- * Settings › About › update centre.
+ * Release notes and update actions behind the panel's update entry.
  *
  * One compact card: the published version, the release notes it ships with, and
  * the update action. The notes load and show as soon as an update is offered —

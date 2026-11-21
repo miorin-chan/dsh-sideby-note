@@ -203,7 +203,7 @@ features:
         reviewed: { by: "LighghtEeloo", at: '2026-11-21', hash: '30c310f8861277f3' }
 
       - id: R-STORE-HOST-PATH
-        statement: 设置页必须展示宿主存储文件的完整路径；用户可以拷贝该路径，或在宿主的文件管理器中定位文件；无法定位时必须说明原因，不得猜测。
+        statement: 展开页脚「存储详情」后才请求并展示宿主存储文件的完整路径，可拷贝或在宿主文件管理器中定位；无法定位时须说明原因。
         failure: 想备份或排查却找不到文件，只能猜默认目录；或显示一个实际不存在的路径。
         kind: presentation
         branches:
@@ -212,7 +212,6 @@ features:
           - kind: invalid
             text: 后端无路径或路径未知——说明不可定位，不展示猜测路径
         technique: [等价类, 故障注入]
-        reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: '17100762309354c1' }
 
       - id: R-STORE-HOST-ATTACHMENTS
         statement: 宿主校验上传和读取请求的权限。附件以内容哈希去重，在实际 JSON 便笺存储旁完整发布；便笺保存附件元数据。
@@ -456,15 +455,15 @@ features:
         technique: [边界值]
         reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: '25d0468e3383a6ee' }
 
-      - id: R-PANEL-SETTINGS
-        statement: 齿轮打开设置，提供产品身份和数据存储状态；不提供旧版发送快捷键或转发前缀设置。
-        failure: 用户无法查看设置，或误以为已退役的选项仍可配置。
-        kind: persistence
+      - id: R-PANEL-FOOTER
+        statement: 面板页脚始终提供「存储详情」；展开后可查看存储信息和当前版本，并可手动检查更新。
+        failure: 用户无法查看存储信息或找到手动检查入口，或仍要通过齿轮和设置卡进入。
+        kind: presentation
         branches:
           - kind: valid
-            text: 进入设置时可阅读产品身份和数据存储状态
+            text: 展开页脚「存储详情」后可以查看版本和手动检查更新
           - kind: invalid
-            text: 设置控件中不出现旧快捷键或转发前缀
+            text: 页脚详情缺失，或面板仍展示旧版设置控件
         technique: [等价类]
 
       - id: R-PANEL-NO-ANALYTICS
@@ -473,7 +472,7 @@ features:
         kind: privacy
         branches:
           - kind: valid
-            text: 打开面板与设置时不发送使用数据
+            text: 打开面板与存储详情时不发送使用数据
           - kind: invalid
             text: 任何匿名使用数据上报或统计开关都违反约定
         technique: [状态迁移]
@@ -495,7 +494,7 @@ features:
     owner: panel
     rules:
       - id: R-PANEL-COPY
-        statement: 面板的标题、输入占位、页脚隐私说明与关于区身份都来自当前语言词典；页脚说明便笺仅保存在本地，关于区展示产品名与标语。
+        statement: 面板标题、输入占位、页脚数据保存说明和「存储详情」均使用当前语言；页脚说明便笺数据保存在哪里。
         failure: 用户看不到「数据只在本地」的说明，或界面冒出另一种语言的文案。
         kind: presentation
         branches:
@@ -504,7 +503,6 @@ features:
           - kind: n-a
             reason: 文案缺失由 i18n 回落处理，这里没有需要拒绝的输入
         technique: [等价类]
-        reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: 'a43096db50760d5a' }
 
   - id: i18n
     title: 语言与文案

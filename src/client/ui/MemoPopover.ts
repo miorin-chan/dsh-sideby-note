@@ -6,13 +6,13 @@
  * useSessionMemoStore.
  */
 import React from 'react'
-import ReactDOM from 'react-dom'
 import { PANEL_DEFAULT_WIDTH, SCOPE_MODE_KEY } from '../constants'
 import { canUseSessionScope, draftKeyForSession, scopeForSession, scopeVersion, subscribeScope, workspaceScopeForSession } from '../scope'
-import { TODO_LISTENERS, notifyTodoChange } from '../storage/events'
+import { STORE_READY_LISTENERS, TODO_LISTENERS, notifyTodoChange } from '../storage/events'
+import { retryStorage } from '../storage/boot'
 import { readScopeMode, writeScopeMode } from '../storage/prefs'
 import { ensureWorkspaceRecord } from '../storage/workspace'
-import { storageFailure, storageMode } from '../storage/state'
+import { isHostConnectionFailure, storageFailure, storageMode } from '../storage/state'
 import { useMemoStore } from './useSessionMemoStore'
 import { usePanelGeometry } from './usePanelGeometry'
 
@@ -29,11 +29,20 @@ import { appendToConversation } from '../domain/forward'
 
 import { TodoRow } from './TodoRow'
 import { PanelHead } from './PanelHead'
-import { SettingsPanel } from './SettingsPanel'
+import { PanelFooter } from './PanelFooter'
 import { ComposerForm } from './ComposerForm'
 import { NoteList } from './NoteList'
 
 const h = React.createElement
+
+function subscribeStorageStatus(callback: () => void) {
+  STORE_READY_LISTENERS.add(callback)
+  TODO_LISTENERS.add(callback)
+  return () => {
+    STORE_READY_LISTENERS.delete(callback)
+    TODO_LISTENERS.delete(callback)
+  }
+}
 
 export function MemoPopover(props) {
   const say = props.say
@@ -92,15 +101,17 @@ export function MemoPopover(props) {
   /** Settled outcomes go to the frame-wide toast host, not to inline marks. */
   const report = typeof props.onToast === 'function' ? props.onToast : () => {}
   const { record, syncError, commit } = useMemoStore(scope)
-  const storageInUse = storageMode() === 'error' && storageFailure()?.code === 'STORE_IN_USE'
+  const storeMode = React.useSyncExternalStore(subscribeStorageStatus, storageMode, storageMode)
+  const failure = React.useSyncExternalStore(subscribeStorageStatus, storageFailure, storageFailure)
+  const connectionError = storeMode === 'error' || (storeMode === 'host' && isHostConnectionFailure(failure))
+  const storageInUse = connectionError && failure?.code === 'STORE_IN_USE'
+  const [retrying, setRetrying] = React.useState(false)
   const { sectionsRef, showOpen, showDone, toggleOpen, toggleDone, applySections } = useSections()
-  const [showSettings, setShowSettings] = React.useState(false)
   // Version check, release notes and the in-app update share one hook; the
   // registry answer is cached for an hour across panel opens.
   const update = useUpdateCenter(localeId)
-  const newerVersion = update.latestVersion
   const inserting = React.useRef(new Set<string>())
-  const canUpload = storageMode() === 'host'
+  const canUpload = storeMode === 'host'
   const { draft, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown } = useComposerDraft({
     draftKey,
     commit,
@@ -219,7 +230,6 @@ export function MemoPopover(props) {
       ref: panelRef,
       className: props.placement === 'right' ? 'dsh-an-popover dsh-an-popoverRight' : 'dsh-an-popover',
       style,
-      'data-settings': showSettings ? 'true' : undefined,
       role: 'dialog',
       'aria-label': say('popover.title'),
     },
@@ -253,28 +263,38 @@ export function MemoPopover(props) {
       say,
       openCount,
       total,
-      showSettings,
-      onToggleSettings: () => setShowSettings(value => !value),
       onClose: props.onClose,
-      newerVersion,
       scopeMode: effectiveMode,
       canUseWorkspace,
       canUseSession,
       onScopeChange: chooseScope,
     }),
-    showSettings
-      // The card scrolls on its own rail when the panel is shorter than the
-      // settings, so nothing falls below the popover's clipped bottom edge.
-      ? h(
-          'div',
-          { className: 'dsh-an-settingsViewport' },
-          h(SettingsPanel, {
-            say,
-            update,
-            onToast: report,
-          }),
-        )
-      : null,
+    connectionError && h('div', { className: 'dsh-an-storageStatus' },
+      h('div', { role: 'status' },
+        h('p', null, say(storageInUse ? 'storage.inUse' : 'storage.hostError')),
+        failure && h('p', { className: 'dsh-an-storageFailure' }, say('storage.failure', { code: failure.code })),
+      ),
+      h('button', {
+        type: 'button',
+        className: 'dsh-an-mini dsh-an-reconnect',
+        'aria-disabled': retrying,
+        'aria-busy': retrying,
+        onClick: async (event: React.MouseEvent<HTMLButtonElement>) => {
+          if (retrying) return
+          const button = event.currentTarget
+          const hadFocus = document.activeElement === button
+          setRetrying(true)
+          try {
+            const restored = await retryStorage() === 'host'
+            if (restored && hadFocus && (document.activeElement === button || document.activeElement === document.body)) {
+              addRef.current?.focus({ preventScroll: true })
+            }
+          } finally {
+            setRetrying(false)
+          }
+        },
+      }, say(retrying ? 'storage.reconnecting' : 'storage.retry')),
+    ),
     h(ComposerForm, {
       say,
       draft: draft.add,
@@ -320,20 +340,8 @@ export function MemoPopover(props) {
       dismissClearConfirm,
       confirmClearDone,
     }),
-    h(
-      'div',
-      { className: 'dsh-an-popFoot', role: 'status' },
-      h('span', { className: syncError || storageMode() === 'error' ? 'dsh-an-error' : undefined }, say(storageMode() === 'error'
-        ? (storageInUse ? 'storage.inUse' : 'storage.hostError')
-        : syncError
-          ? 'storage.failed'
-          : storageMode() === 'host'
-            ? 'storage.whereHost'
-            : storageMode() === 'probing'
-              ? 'storage.loading'
-              : 'popover.local')),
-    ),
+    h(PanelFooter, { say, mode: connectionError ? 'error' : storeMode, syncError, update, onToast: report }),
   )
 
-  return ReactDOM.createPortal(content, document.body)
+  return content
 }

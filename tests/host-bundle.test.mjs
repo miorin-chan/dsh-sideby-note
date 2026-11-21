@@ -223,8 +223,6 @@ test('STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记'
     .find(row => row.querySelector('.dsh-an-text').textContent === '旧便笺')
   assert.ok(migratedRow.querySelector('.dsh-an-insert'), 'compatibility marks do not disable the fork insert action')
   assert.equal(migratedRow.querySelector('[data-forwarded]'), null)
-  await ctx.act(async () => { popover.querySelector('.dsh-an-settingsBtn').click() })
-  assert.equal(popover.querySelector('#dsh-an-forward-prefix, input[type="radio"]'), null)
 })
 
 test('STORE-020 宿主不可用时不切换并保留浏览器写入', async t => {
@@ -246,7 +244,15 @@ test('STORE-020 宿主不可用时不切换并保留浏览器写入', async t =>
 })
 
 test('STORE-022 已切换后宿主不可用进入错误态且不改写浏览器', async t => {
-  const ctx = await setup({ legacyNote: true, markedHost: true, storeDown: true })
+  const hostNote = { id: 'host-1', text: '宿主便笺', done: false, createdAt: 2, updatedAt: 2 }
+  const options = {
+    legacyNote: true,
+    markedHost: true,
+    storeDown: true,
+    storeCode: 'STORE_OPEN_FAILED',
+    hostSeed: { sessions: { 'session-1': [hostNote] } },
+  }
+  const ctx = await setup(options)
   t.after(() => ctx.window.close())
   await ctx.settle(400)
 
@@ -254,9 +260,17 @@ test('STORE-022 已切换后宿主不可用进入错误态且不改写浏览器'
   assert.equal(button.querySelector('.dsh-an-headerCount'), null, 'legacy notes are not shown once the host is authoritative')
   await ctx.act(async () => { button.click() })
   const popover = ctx.window.document.querySelector('.dsh-an-popover')
-  assert.match(popover.querySelector('.dsh-an-popFoot').textContent, /便笺存储暂不可用/)
+  const status = popover.querySelector('.dsh-an-storageStatus')
+  assert.match(status.textContent, /便笺存储暂不可用/)
+  assert.match(status.textContent, /STORE_OPEN_FAILED/)
+  assert.equal(popover.querySelector('details.dsh-an-footerDetails').open, false)
+  assert.doesNotMatch(popover.textContent, /旧便笺/)
+  const reconnect = status.querySelector('button.dsh-an-reconnect')
+  assert.ok(reconnect, 'reconnection is available directly in the panel')
 
   const field = popover.querySelector('.dsh-an-input')
+  assert.ok(status.compareDocumentPosition(field) & ctx.window.Node.DOCUMENT_POSITION_FOLLOWING,
+    'the failure appears above the note composer')
   const setter = Object.getOwnPropertyDescriptor(ctx.window.HTMLTextAreaElement.prototype, 'value').set
   await ctx.act(async () => {
     setter.call(field, '不应写入')
@@ -265,8 +279,67 @@ test('STORE-022 已切换后宿主不可用进入错误态且不改写浏览器'
   await ctx.act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
   await ctx.settle(40)
 
-  const legacy = JSON.parse(ctx.window.localStorage.getItem(SESSION_KEY))
-  assert.equal(legacy.sessions['session-1'].items.length, 1, 'a failed host mode does not spill into localStorage')
+  const legacy = ctx.window.localStorage.getItem(SESSION_KEY)
+  assert.deepEqual(JSON.parse(legacy).sessions['session-1'].items.map(item => item.text), ['旧便笺'])
+  assert.equal(ctx.calls.some(call => call.url === STORE_PATH && call.method === 'POST'), false)
+
+  options.storeDown = false
+  const count = ctx.calls.length
+  await ctx.act(async () => { reconnect.click() })
+  await ctx.settle()
+  assert.ok(ctx.calls.slice(count).some(call => call.url === STORE_PATH && call.method === 'GET'))
+  assert.equal(popover.querySelector('.dsh-an-storageStatus, .dsh-an-reconnect'), null)
+  assert.equal(popover.querySelector('details.dsh-an-footerDetails').open, false)
+  assert.deepEqual([...popover.querySelectorAll('.dsh-an-text')].map(row => row.textContent), ['宿主便笺'])
+  assert.equal(field.value, '不应写入', 'the failed draft stays available after reconnection')
+  assert.equal(ctx.window.localStorage.getItem(MODE_KEY), 'host')
+
+  await ctx.act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
+  await ctx.settle()
+  const snapshot = await ctx.store.snapshot()
+  assert.deepEqual(snapshot.data.sessions['session-1'].items.map(item => item.text), ['不应写入', '宿主便笺'])
+  assert.equal(ctx.window.localStorage.getItem(SESSION_KEY), legacy)
+})
+
+test('STORE-022 已连接宿主写入失败后可重新连接', async t => {
+  const options = { markedHost: true, legacyNote: true }
+  const ctx = await setup(options)
+  t.after(() => ctx.window.close())
+  const { button } = await ctx.openPanel()
+  await ctx.act(async () => { button.click() })
+  const popover = ctx.window.document.querySelector('.dsh-an-popover')
+  assert.equal(popover.querySelector('.dsh-an-storageStatus'), null)
+  const legacy = ctx.window.localStorage.getItem(SESSION_KEY)
+
+  options.storeDown = true
+  const beforeWrite = ctx.calls.length
+  await ctx.addNote('连接中断期间的草稿')
+  // A 503 gets one retry before the store reports the failed write.
+  await ctx.settle(350)
+  assert.ok(ctx.calls.slice(beforeWrite).some(call => call.url === STORE_PATH && call.method === 'POST'))
+  const status = popover.querySelector('.dsh-an-storageStatus')
+  assert.match(status.textContent, /STORE_UNAVAILABLE/)
+  const input = popover.querySelector('.dsh-an-input')
+  assert.equal(input.value, '连接中断期间的草稿')
+  assert.deepEqual((await ctx.store.snapshot()).data.sessions, {})
+  assert.equal(ctx.window.localStorage.getItem(SESSION_KEY), legacy)
+
+  options.storeDown = false
+  const count = ctx.calls.length
+  const reconnect = status.querySelector('button.dsh-an-reconnect')
+  reconnect.focus()
+  await ctx.act(async () => { reconnect.click() })
+  await ctx.settle()
+  assert.ok(ctx.calls.slice(count).some(call => call.url === STORE_PATH && call.method === 'GET'))
+  assert.equal(popover.querySelector('.dsh-an-storageStatus'), null)
+  assert.equal(ctx.window.document.activeElement, input, 'reconnection returns focus to the preserved draft')
+  assert.equal(input.value, '连接中断期间的草稿')
+
+  await ctx.act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
+  await ctx.settle()
+  const saved = (await ctx.store.snapshot()).data.sessions['session-1'].items
+  assert.deepEqual(saved.map(item => item.text), ['连接中断期间的草稿'])
+  assert.equal(ctx.window.localStorage.getItem(SESSION_KEY), legacy)
 })
 
 test('STORE-021 宿主已有数据时不迁移并保留本地旧副本', async t => {
@@ -305,9 +378,10 @@ test('STORE-025 宿主文件打不开时不切换并提示', async t => {
   assert.deepEqual(snapshot.data.sessions, {}, 'no host write happened')
 })
 
-test('STORE-028 设置中可拷贝存储路径', async t => {
+test('STORE-028 存储详情按需加载路径并支持拷贝与定位', async t => {
   const file = '/Users/me/.dsh/storages/aside_note.json'
-  const ctx = await setup({ legacyNote: true, storePath: file })
+  const options = { legacyNote: true, storePath: file }
+  const ctx = await setup(options)
   t.after(() => ctx.window.close())
   const copied = []
   Object.defineProperty(ctx.window.navigator, 'clipboard', {
@@ -318,20 +392,20 @@ test('STORE-028 设置中可拷贝存储路径', async t => {
   const { button } = await ctx.openPanel()
   await ctx.act(async () => { button.click() })
   const popover = ctx.window.document.querySelector('.dsh-an-popover')
-  await ctx.act(async () => { popover.querySelector('.dsh-an-settingsBtn').click() })
-  await ctx.settle(60)
+  const details = popover.querySelector('.dsh-an-popFoot details.dsh-an-footerDetails')
+  const summary = details.querySelector(':scope > summary.dsh-an-storageToggle')
+  const locationCalls = () => ctx.calls.filter(call => call.url === LOCATION_PATH)
+  await ctx.settle()
+  assert.equal(details.open, false)
+  assert.equal(details.querySelector('.dsh-an-storagePath'), null)
+  assert.deepEqual(locationCalls(), [], 'opening the panel does not fetch a file path')
 
-  const pathElement = popover.querySelector('.dsh-an-storagePath')
-  assert.equal(pathElement.textContent, file)
-  const groups = [...popover.querySelectorAll('.dsh-an-settingGroup')]
-  const storageGroup = groups.find(group => group.contains(pathElement))
-  assert.equal(storageGroup.querySelector('.dsh-an-settingLabel').textContent, '数据存储')
-  const aboutGroup = groups.find(group => group.querySelector('.dsh-an-settingLabel')?.textContent === '关于')
-  assert.ok(aboutGroup, 'the About group still exists')
-  assert.equal(aboutGroup.contains(pathElement), false, 'storage lives in its own group, not in About')
-  assert.ok(groups.indexOf(storageGroup) < groups.indexOf(aboutGroup), 'storage sits above About')
-  assert.equal(groups.some(group => group.querySelector('.dsh-an-settingLabel')?.textContent === '隐私'), false)
-  const actions = [...popover.querySelectorAll('.dsh-an-storageAction')]
+  await ctx.act(async () => { summary.click() })
+  await ctx.settle()
+  assert.equal(details.open, true)
+  assert.deepEqual(locationCalls(), [{ url: LOCATION_PATH, method: 'GET' }])
+  assert.equal(details.querySelector('.dsh-an-storagePath').textContent, file)
+  const actions = [...details.querySelectorAll('button.dsh-an-storageAction')]
   assert.equal(actions.length, 2)
 
   await ctx.act(async () => { actions[0].click() })
@@ -341,6 +415,19 @@ test('STORE-028 设置中可拷贝存储路径', async t => {
   await ctx.act(async () => { actions[1].click() })
   await ctx.settle(10)
   assert.ok(ctx.calls.some(call => call.url === REVEAL_PATH && call.method === 'POST'))
+
+  await ctx.act(async () => { summary.click() })
+  await ctx.settle()
+  assert.equal(details.open, false)
+  assert.equal(details.querySelector('.dsh-an-storagePath'), null)
+  assert.equal(locationCalls().length, 1, 'closing the disclosure does not fetch the path again')
+
+  options.storePath = null
+  await ctx.act(async () => { summary.click() })
+  await ctx.settle()
+  assert.equal(locationCalls().length, 2)
+  assert.match(details.textContent, /无法定位存储文件/)
+  assert.equal(details.querySelector('.dsh-an-storagePath, .dsh-an-storageAction'), null)
 })
 
 test('STORE-029 共用宿主文件已被占用时停止写入', async t => {
@@ -354,11 +441,17 @@ test('STORE-029 共用宿主文件已被占用时停止写入', async t => {
   assert.equal(button.querySelector('.dsh-an-headerCount'), null)
   await ctx.act(async () => { button.click() })
   const popover = ctx.window.document.querySelector('.dsh-an-popover')
-  assert.match(popover.querySelector('.dsh-an-popFoot').textContent, /AsideNote.*重新连接/)
+  const status = () => popover.querySelector('.dsh-an-storageStatus')
+  assert.match(status().textContent, /AsideNote/)
+  assert.match(status().textContent, /STORE_IN_USE/)
   assert.doesNotMatch(popover.textContent, /旧便笺/)
   await ctx.addNote('不得改写浏览器便笺')
 
-  assert.match(popover.querySelector('.dsh-an-popFoot').textContent, /AsideNote.*重新连接/)
+  const count = ctx.calls.length
+  await ctx.act(async () => { status().querySelector('button.dsh-an-reconnect').click() })
+  await ctx.settle(400)
+  assert.ok(ctx.calls.slice(count).some(call => call.url === STORE_PATH && call.method === 'GET'))
+  assert.match(status().textContent, /STORE_IN_USE/, 'the status stays visible if reconnection fails')
   assert.equal(popover.querySelector('.dsh-an-addBtn').disabled, true)
   assert.equal(popover.querySelector('.dsh-an-empty, .dsh-an-row'), null)
   assert.equal(ctx.window.localStorage.getItem(SESSION_KEY), legacy)

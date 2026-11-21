@@ -121,7 +121,7 @@ export function bootStorage(): Promise<StorageMode> {
   return booting
 }
 
-/** Force a new probe (settings retry button). */
+/** Force a new probe from the panel's reconnect action. */
 export function retryStorage(): Promise<StorageMode> {
   if (inFlight) return bootStorage()
   if (storageMode() === 'local') setStorageMode('probing')
@@ -134,9 +134,4 @@ function startBoot(): Promise<StorageMode> {
     .catch(error => refuse(failureOf(error)))
     .finally(() => { inFlight = false })
   return booting
-}
-
-/** Current mode without waiting. */
-export function currentStorageMode(): StorageMode {
-  return storageMode()
 }

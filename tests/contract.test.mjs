@@ -131,9 +131,7 @@ test('the client checks for a newer release, reads its notes inline and falls ba
   assert.match(client, /npx -y\$\{registry\}/)
   assert.match(client, /--version \$\{latestVersion\}/)
   assert.match(client, /PLUGIN_VERSION\.includes\('-'\)/)
-  assert.match(css, /\.dsh-an-updateDot\{/)
   assert.match(css, /\.dsh-an-updateCard\{/)
-  assert.doesNotMatch(css, /\.dsh-an-updateToggle\{/)
   assert.match(css, /\.dsh-an-updateVersionHead\{/)
   assert.match(css, /--dsh-scrollbar-width:var\(--dsh-an-scrollRail\)/)
   assert.match(css, /\.dsh-an-updateNotes\[data-fade="true"\]\{/)
@@ -296,7 +294,6 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /item\.insert/)
   assert.doesNotMatch(client, /IconForward|item\.forward\b|'item\.mark(?:Done|Open)'/)
   assert.match(client, /PLUGIN_VERSION/)
-  assert.match(client, /settings\.open/)
   assert.doesNotMatch(clientWithoutMigration, /SEND_SHORTCUT|sendShortcut|settings\.shortcut/, 'the send shortcut setting is gone')
   assert.match(client, /conversation\.session\.header\.utilities|_headerUtilities/)
   assert.match(client, /placement === 'right'|placement === "right"/)
@@ -315,7 +312,6 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /toast\.copied/)
   assert.match(client, /time\.createdArchived/)
   assert.match(client, /sort\(compareDoneItems\)/)
-  assert.match(client, /'settings\.project'/)
   assert.match(client, /PLUGIN_REPO_URL/)
   assert.match(client, /SESSION_STORAGE_KEY/)
   const storageKeys = read('src/client/constants.ts')
@@ -357,11 +353,9 @@ test('locale files carry metadata and the dictionary stays in sync', () => {
   assert.equal(dict.zh['add.placeholder'], '随手记一条')
   assert.equal(dict.zh['popover.empty.title'], '边记摸鱼中..')
   assert.equal(dict.zh['popover.empty.body'], '趁 agent 工作时，异步记下你的想法')
-  assert.equal(dict.zh['settings.tagline'], '趁 agent 工作时，异步记下你的想法')
   assert.equal(dict.en['nav.label'], 'Sideby Note')
   assert.equal(dict.en['add.placeholder'], 'Jot one down')
   assert.match(dict.en['popover.empty.body'], /while the agent is working/)
-  assert.match(dict.en['settings.tagline'], /while the agent is working/)
   const placeholders = text => [...text.matchAll(/\{(\w+)\}/g)].map(m => m[1]).sort()
   for (const id of LOCALE_IDS) {
     assert.deepEqual(Object.keys(dict[id]).sort(), Object.keys(dict.zh).sort(), `${id} and zh drifted apart`)
@@ -666,26 +660,11 @@ test('the rail grows into the popover padding without shrinking the cards', () =
   assert.match(list[1], /scrollbar-gutter:stable/)
 })
 
-test('the settings card scrolls instead of being clipped by the popover edge', () => {
-  const css = readCss()
-  const viewport = /\.dsh-an-settingsViewport\{([^}]*)\}/.exec(css)
-  assert.ok(viewport, 'missing settings scroll viewport')
-  // The same rail geometry as the list, but only when the card needs it.
-  assert.match(viewport[1], /flex:0 1 auto/)
-  assert.match(viewport[1], /min-height:0/)
-  assert.match(viewport[1], /overflow-y:auto/)
-  assert.match(viewport[1], /margin-right:calc\(var\(--dsh-an-listGutter\) \* -1\)/)
-  assert.match(viewport[1], /padding-right:calc\(var\(--dsh-an-listGutter\) - var\(--dsh-an-scrollRail\)\)/)
-  assert.match(viewport[1], /scrollbar-gutter:stable/)
-  assert.match(viewport[1], /--dsh-scrollbar-width:var\(--dsh-an-scrollRail\)/)
-  assert.match(viewport[1], /--dsh-scrollbar-thumb-border:var\(--dsh-an-scrollInset\)/)
-  assert.doesNotMatch(viewport[1], /::-webkit-scrollbar|(?:^|[;{])scrollbar-(?:width|color):/)
-  // The list yields its height first; the card only starts scrolling once the
-  // list has nothing left to give, so a tall panel keeps the whole card.
-  assert.match(css, /\.dsh-an-popover\[data-settings="true"\] \.dsh-an-listViewport\{flex-shrink:10000\}/)
-  const client = read('src/client/ui/MemoPopover.ts') + read('src/client/ui/SettingsPanel.ts')
-  assert.match(client, /'data-settings': showSettings \? 'true' : undefined/)
-  assert.match(client, /className: 'dsh-an-settingsViewport'[\s\S]{0,160}h\(SettingsPanel/)
+test('the retired settings surface leaves no settings styles or panel state', () => {
+  const retiredSelectors = /dsh-an-setting[\w-]*|dsh-an-updateDot|data-settings/
+  assert.doesNotMatch(readCss(), retiredSelectors)
+  assert.doesNotMatch(readClientTree(), retiredSelectors)
+  assert.equal(exists('src/client/ui/SettingsPanel.ts'), false)
 })
 
 test('the bottom edge fades only while notes sit below the fold', () => {
@@ -931,8 +910,6 @@ test('the composer sends on Enter and breaks on Shift+Enter, like the main compo
   assert.match(composer, /if \(composing\) return/)
   // The old configurable chord path is gone.
   assert.doesNotMatch(composer, /sendShortcut|insertDraftNewline|isSendModifier/)
-  // Settings only carries About now.
-  assert.doesNotMatch(read('src/client/ui/SettingsPanel.ts'), /shortcut/i)
   assert.doesNotMatch(read('src/client/constants.ts'), /SEND_SHORTCUT|MOD_LABEL|isSendModifier/)
   const dict = readDict()
   for (const id of LOCALE_IDS) {
@@ -1095,9 +1072,6 @@ test('the forward prefix prompt and its storage are gone', () => {
   }
   assert.doesNotMatch(read('src/client/constants.ts'), /FORWARD_PREFIX|forward-prefix/)
   assert.doesNotMatch(read('src/client/storage/prefs.ts'), /ForwardPrefix|FORWARD_PREFIX/)
-  const settings = read('src/client/ui/SettingsPanel.ts')
-  assert.doesNotMatch(settings, /forward-prefix|forwardPrefix|settingInput|settingTextarea|settingReset/)
-  assert.doesNotMatch(settings, /say\('settings\.forward'\)/, 'the hand-to-chat group is gone')
   const popover = read('src/client/ui/MemoPopover.ts')
   assert.doesNotMatch(popover, /forwardPrefix|appendToConversation\(item\.text,/)
   assert.ok(!exists('src/client/ui/usePanelSettings.ts'), 'the prefix-only settings hook is gone')

@@ -28,7 +28,6 @@ export function Glyph(props) {
 
 export const IconCopy = () => h(Glyph, { name: 'IconCopyOutlineRegular', size: 14 })
 export const IconInsert = () => h(Glyph, { name: 'IconListPenOutlineRegular', size: 14 })
-export const IconGear = () => h(Glyph, { name: 'IconSettingsOutlineRegular', size: 14 })
 /**
  * Rewind is the product refresh arc mirrored to run counter-clockwise (↺):
  * the set has no undo glyph, and flipping keeps the shell's stroke and size.

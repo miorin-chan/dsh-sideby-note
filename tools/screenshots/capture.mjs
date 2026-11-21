@@ -118,13 +118,25 @@ async function captureFeatures() {
   await isolate()
   await capture('panel')
 
-  // Settings card on a compact panel.
+  // Keep the existing asset basename for the README and marketplace links.
   await collapseAll()
   await sleep(500)
-  await evaluate(session, `(() => { document.querySelector('.dsh-an-settingsBtn')?.click(); return true })()`)
-  await sleep(700)
+  const openStorage = await evaluate(session, `(() => {
+    const toggle = document.querySelector('.dsh-an-storageToggle')
+    if (!toggle) return false
+    toggle.click()
+    return toggle.parentElement.open
+  })()`)
+  if (!openStorage) throw new Error('could not open Storage details')
+  let pathVisible = false
+  for (let attempt = 0; attempt < 20; attempt++) {
+    pathVisible = await evaluate(session, `!!document.querySelector('.dsh-an-storagePath')?.textContent`)
+    if (pathVisible) break
+    await sleep(100)
+  }
+  if (!pathVisible) throw new Error('Storage details did not show the demo host file path')
   await capture('settings')
-  await evaluate(session, `(() => { document.querySelector('.dsh-an-settingsBtn')?.click(); return true })()`)
+  await evaluate(session, `document.querySelector('.dsh-an-storageToggle').click()`)
   await sleep(400)
   await expandAll()
   await sleep(500)

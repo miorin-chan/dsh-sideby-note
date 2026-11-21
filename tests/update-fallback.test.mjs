@@ -26,7 +26,7 @@ const json = (status, body) => ({ ok: status >= 200 && status < 300, status, jso
 const wait = (window, ms) => new Promise(resolve => window.setTimeout(resolve, ms))
 
 /**
- * Boot the shipped bundle in jsdom, open the panel and its settings card, and
+ * Boot the shipped bundle in jsdom, open the panel and its update disclosure, and
  * hand back the pieces a test needs. `apply` decides what the host's update
  * route answers; every market URL is recorded and must stay unused.
  */
@@ -104,7 +104,6 @@ async function boot(t, apply) {
   await act(async () => { document.querySelector('._headerUtilities > .dsh-an-headerBtn').click() })
   const popover = document.querySelector('.dsh-an-popover')
   assert.ok(popover, 'clicking the entry opens the panel')
-  await act(async () => { popover.querySelector('.dsh-an-settingsBtn').click() })
 
   const until = async (probe, timeout) => {
     const startedAt = Date.now()
@@ -116,6 +115,9 @@ async function boot(t, apply) {
       await act(async () => { await wait(window, 60) })
     }
   }
+
+  const toggle = await until(() => popover.querySelector('details.dsh-an-updateDetails > summary.dsh-an-updateToggle'), 4000)
+  await act(async () => { toggle.click() })
 
   const dispose = async () => {
     await act(async () => { reactRoot.unmount() })

@@ -7,7 +7,7 @@
  * optimistic and rolls back on failure.
  */
 import { postOp, type HostOpResult } from './host-client'
-import { notifyStoreError } from './events'
+import { notifyStoreError, notifyTodoChange } from './events'
 import {
   applyHostPrefs,
   applyHostRecord,
@@ -16,7 +16,9 @@ import {
   endPending,
   hostPrefs,
   hostRecord,
+  isHostConnectionFailure,
   setStorageFailure,
+  storageFailure,
 } from './state'
 
 type TableName = 'sessions' | 'workspaces'
@@ -36,7 +38,9 @@ function report(error: unknown) {
     code: typeof (error as any)?.code === 'string' ? (error as any).code : 'STORE_FAILED',
     message: error instanceof Error ? error.message : String(error),
   }
-  setStorageFailure({ ...failure, status: (error as any)?.status })
+  const detail = { ...failure, status: (error as any)?.status }
+  setStorageFailure(detail)
+  if (isHostConnectionFailure(detail)) notifyTodoChange()
   notifyStoreError(failure)
 }
 
@@ -74,18 +78,22 @@ export async function commitList(kind: 'workspace' | 'session', listKey: string,
 
   try {
     await serialize(`${table}:${listKey}`, async () => {
+      const previousFailure = storageFailure()
       const result = await postOp({ op: 'list.patch', kind, listKey, order, upserts, deletes })
+      if (storageFailure() === previousFailure && isHostConnectionFailure(previousFailure)) setStorageFailure(null)
       applyHostRecord(table, listKey, result.record)
       broadcastHostChange({ kind: 'record', name: table, key: listKey, value: result.record, rev: result.rev })
     })
     return true
   } catch (error) {
-    // The caller already shows `saveFailed`; record the reason for Settings.
+    // The caller already shows `saveFailed`; record the reason for storage details.
     const failure = {
       code: typeof (error as any)?.code === 'string' ? (error as any).code : 'STORE_FAILED',
       message: error instanceof Error ? error.message : String(error),
     }
-    setStorageFailure({ ...failure, status: (error as any)?.status })
+    const detail = { ...failure, status: (error as any)?.status }
+    setStorageFailure(detail)
+    if (isHostConnectionFailure(detail)) notifyTodoChange()
     return false
   }
 }

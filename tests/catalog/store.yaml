@@ -332,12 +332,18 @@ cases:
     rules: [R-STORE-HOST-UNAVAILABLE, R-STORE-READ-FAIL]
     risk: data_loss
     expected:
-      - 面板显示存储错误，不展示浏览器旧便笺
-      - 新增失败，不写浏览器便笺键
+      - 面板顶部显示存储错误代码，不展示浏览器旧便笺
+      - 新增失败保留草稿，不向宿主或浏览器写入便笺
+      - 宿主恢复后可直接重新连接，读取宿主便笺并提交保留的草稿
+      - 已连接的宿主写入失败后也可重新连接，键盘焦点回到保留的草稿
     automation:
       - type: integration
         file: tests/host-bundle.test.mjs
         test: STORE-022 已切换后宿主不可用进入错误态且不改写浏览器
+        status: automated
+      - type: integration
+        file: tests/host-bundle.test.mjs
+        test: STORE-022 已连接宿主写入失败后可重新连接
         status: automated
     suites: [pr, nightly, release]
     tags: [host, fallback, failure-injection]
@@ -436,13 +442,13 @@ cases:
     tags: [host, capacity, boundary]
 
   - id: STORE-028
-    title: 设置中展示存储文件路径并支持拷贝与定位
+    title: 存储详情按需加载路径并支持拷贝与定位
     priority: P1
     class: A
     rules: [R-STORE-HOST-PATH, R-STORE-HOST-FILE]
     risk: ux
     expected:
-      - 设置 › 数据存储分组显示完整路径，而不是藏在「关于」里、也不只有文件名
+      - 展开页脚「存储详情」后才请求并展示完整路径
       - 拷贝按钮把完整路径写入剪贴板
       - 显示按钮请求宿主在文件管理器中定位该文件
       - 后端无文件路径时说明不可定位，不猜路径
@@ -453,10 +459,10 @@ cases:
         status: automated
       - type: integration
         file: tests/host-bundle.test.mjs
-        test: STORE-028 设置中可拷贝存储路径
+        test: STORE-028 存储详情按需加载路径并支持拷贝与定位
         status: automated
     suites: [pr, nightly, release]
-    tags: [host, settings, path, clipboard]
+    tags: [host, footer, path, clipboard]
 
   - id: STORE-029
     title: 共用宿主文件已被占用时停止写入
@@ -465,8 +471,8 @@ cases:
     rules: [R-STORE-HOST-FILE]
     risk: data_loss
     expected:
-      - 检测到共用文件已被占用时提示用户，并且不显示浏览器旧清单
-      - 即使没有模式标记，也不迁移或继续写入浏览器便笺
+      - 检测到共用文件已被占用时显示错误代码和重新连接按钮，不显示浏览器旧清单
+      - 重新连接仍失败时继续显示错误，不迁移或写入浏览器便笺
     automation:
       - type: unit
         file: tests/host-store.test.mjs
