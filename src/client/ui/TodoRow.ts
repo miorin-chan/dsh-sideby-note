@@ -5,12 +5,16 @@
 import React from 'react'
 import { copyText } from '../domain/clipboard'
 import { metaLabel, rowAge } from '../domain/items'
-import { IconCopy, IconGrip, IconInsert, IconRewind, withTooltip } from './primitives'
+import { AttachmentList } from './AttachmentList'
+import { Glyph, IconCopy, IconGrip, IconInsert, IconRewind, icon, withTooltip } from './primitives'
 
 const h = React.createElement
 
 export function TodoRow(props) {
   const { item, archived, say, localeId, onToast, onInsert, onRecall, grip } = props
+  const attachments = item.attachments ?? []
+  const hasText = Boolean(item.text)
+  const insertLabel = say(hasText ? (attachments.length ? 'attachment.insertText' : 'item.insert') : 'attachment.archive')
   const [pending, setPending] = React.useState('')
   const mountedRef = React.useRef(true)
 
@@ -55,7 +59,10 @@ export function TodoRow(props) {
           h(IconGrip, null),
         )
       : h('span', { className: 'dsh-an-gripSpacer', 'aria-hidden': true }),
-    h('div', { className: 'dsh-an-text' }, item.text),
+    h('div', { className: 'dsh-an-rowBody' },
+      hasText ? h('div', { className: 'dsh-an-text' }, item.text) : null,
+      h(AttachmentList, { attachments, say }),
+    ),
     h(
       'div',
       { className: 'dsh-an-trail' },
@@ -63,7 +70,7 @@ export function TodoRow(props) {
       h(
         'div',
         { className: 'dsh-an-actions' },
-        withTooltip(say('item.copy'), h(
+        hasText ? withTooltip(say('item.copy'), h(
           'button',
           {
             type: 'button',
@@ -74,7 +81,7 @@ export function TodoRow(props) {
             onClick: copy,
           },
           h(IconCopy, null),
-        )),
+        )) : null,
         // Rewind moves the note back to the panel's editor.
         withTooltip(say('item.recall'), h(
           'button',
@@ -88,15 +95,17 @@ export function TodoRow(props) {
         )),
         // Putting a note into the chat is what archives it, so an archived
         // row has nothing left to hand over: the action is absent, not disabled.
-        archived ? null : withTooltip(say('item.insert'), h(
+        archived ? null : withTooltip(insertLabel, h(
           'button',
           {
             type: 'button',
             className: 'dsh-an-iconBtn dsh-an-insert',
-            'aria-label': say('item.insert'),
+            'aria-label': insertLabel,
             onClick: () => onInsert(item),
           },
-          h(IconInsert, null),
+          hasText ? h(IconInsert) : icon('IconArchiveOutlineRegular')
+            ? h(Glyph, { name: 'IconArchiveOutlineRegular', size: 14 })
+            : h('span', { 'aria-hidden': true }, '✓'),
         )),
       ),
     ),

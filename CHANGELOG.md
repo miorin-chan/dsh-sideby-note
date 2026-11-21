@@ -20,6 +20,10 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   Change or clear the binding in DSH’s keyboard shortcut settings.
   macOS and Windows browsers use `Mod+Alt+E` by default.
   Linux browsers start with no binding.
+- Pick, paste, or drop attachments into a note.
+  Preview supported images, audio, and video, or download the original files.
+  Attachments survive draft recovery and recall.
+  To bring a file into chat, add the downloaded file through DSH’s composer.
 
 ### Changed
 - Notes move to the DSH host when its storage is available.
@@ -38,6 +42,9 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 ### 新增
 - 桌面版可用 `Mod+E` 打开或收起面板，可在 DSH 快捷键设置里改键或停用。
   macOS 和 Windows 浏览器版默认用 `Mod+Alt+E`，Linux 浏览器版默认未绑定。
+- 便笺可通过选择、粘贴或拖放添加附件，支持预览常见图片、音频和视频，也可下载原文件。
+  重开面板或退回便笺时会恢复附件。
+  要把原文件带进对话，可下载后通过 DSH 输入框添加。
 
 ### 变更
 - DSH 宿主存储可用时，便笺改存宿主文件。

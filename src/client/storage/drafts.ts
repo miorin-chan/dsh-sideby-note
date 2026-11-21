@@ -10,8 +10,26 @@
  */
 import { DRAFT_STORAGE_KEY, MAX_TEXT } from '../constants'
 import { setAsideUnreadable, storage } from './codec'
+import { normalizeAttachments, type NoteAttachment } from '../domain/attachments'
 
 const keyOf = value => (value ? String(value) : '')
+const attachmentChanges = new Set<(key: string) => void>()
+
+export function notifyDraftAttachments(key: string) {
+  for (const listener of attachmentChanges) listener(key)
+}
+
+export function subscribeDraftAttachments(listener: (key: string) => void) {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === DRAFT_STORAGE_KEY || event.key === null) listener('')
+  }
+  attachmentChanges.add(listener)
+  window.addEventListener('storage', onStorage)
+  return () => {
+    attachmentChanges.delete(listener)
+    window.removeEventListener('storage', onStorage)
+  }
+}
 
 /** Empty unsaved-draft store. */
 export function emptyDraftStore() {
@@ -57,11 +75,12 @@ function bucketOf(value) {
 
 export function writeDraftStore(store) {
   const ls = storage()
-  if (!ls) return
+  if (!ls) return false
   try {
     ls.setItem(DRAFT_STORAGE_KEY, JSON.stringify(store))
+    return true
   } catch {
-    /* storage is best effort */
+    return false
   }
 }
 
@@ -69,34 +88,40 @@ export function writeDraftStore(store) {
 export function readScopeDrafts(key) {
   const id = keyOf(key)
   const record = id ? readDraftStore().sessions[id] : null
-  if (!record || typeof record !== 'object' || Array.isArray(record)) return { add: '' }
-  return { add: typeof record.add === 'string' ? record.add : '' }
+  return {
+    add: typeof record?.add === 'string' ? record.add : '',
+    attachments: normalizeAttachments(record?.attachments),
+  }
 }
 
 export function pruneDraftScope(store, key) {
   const record = store.sessions[key]
   if (!record) return
   const hasAdd = typeof record.add === 'string' && record.add.length > 0
-  if (!hasAdd) delete store.sessions[key]
+  if (!hasAdd && normalizeAttachments(record.attachments).length === 0) delete store.sessions[key]
 }
 
-export function saveAddDraft(key, text) {
+export function saveAddDraft(key: string, text: string, attachments?: NoteAttachment[]) {
   const id = keyOf(key)
-  if (!id) return
+  if (!id) return false
   const store = readDraftStore()
   const record = store.sessions[id] || {}
   const value = String(text || '').slice(0, MAX_TEXT)
   if (value) record.add = value
   else delete record.add
+  if (attachments?.length) record.attachments = attachments
+  else if (attachments) delete record.attachments
   // Inline editing is gone; retire an edit map left by an older version.
   delete record.edits
   store.sessions[id] = record
   pruneDraftScope(store, id)
-  writeDraftStore(store)
+  const written = writeDraftStore(store)
+  if (written && attachments) notifyDraftAttachments(id)
+  return written
 }
 
-export function clearAddDraft(key) {
-  saveAddDraft(key, '')
+export function clearAddDraft(key: string) {
+  return saveAddDraft(key, '', [])
 }
 
 /**
@@ -118,13 +143,13 @@ export function ensureDraftScope(key, sessionId, sessionIds) {
   if (!legacy || typeof legacy !== 'object' || Array.isArray(legacy)) return false
 
   const add = typeof legacy.add === 'string' ? legacy.add.slice(0, MAX_TEXT) : ''
-  if (!add) return false
+  const attachments = normalizeAttachments(legacy.attachments)
+  if (!add && attachments.length === 0) return false
 
-  store.sessions[target] = { add }
+  store.sessions[target] = { ...(add ? { add } : {}), ...(attachments.length ? { attachments } : {}) }
   for (const member of members) delete store.sessions[member]
   // A stale workspace binding may not list the source; retire it regardless so
   // it cannot seed the shared key a second time.
   delete store.sessions[source]
-  writeDraftStore(store)
-  return true
+  return writeDraftStore(store)
 }

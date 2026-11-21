@@ -59,6 +59,10 @@ async function setup(options = {}) {
   const domain = fakeDomain()
   const store = createStore(fakeCtx(domain))
   const calls = []
+  const attachments = new Map()
+  const previewUrls = []
+  window.URL.createObjectURL = blob => `blob:https://example.test/preview-${previewUrls.push(blob.type)}`
+  window.URL.revokeObjectURL = () => {}
   if (options.hostSeed) {
     for (const [sessionId, items] of Object.entries(options.hostSeed.sessions || {})) {
       await store.apply({
@@ -88,6 +92,17 @@ async function setup(options = {}) {
       }
       const result = await store.apply(JSON.parse(init.body))
       return json(200, { ok: true, ...result })
+    }
+    if (url === '/dsh-sideby-note/attachments' && method === 'POST') {
+      if (options.uploadDown) return json(502, { ok: false })
+      const id = String(attachments.size + 1).padStart(64, '0')
+      attachments.set(id, init.body)
+      return json(200, { ok: true, id })
+    }
+    if (url.startsWith('/dsh-sideby-note/attachments?')) {
+      const id = new window.URL(url, window.location.href).searchParams.get('id')
+      const blob = attachments.get(id)
+      return { ok: Boolean(blob), blob: async () => blob }
     }
     if (url === LOCATION_PATH) {
       return json(200, {
@@ -179,7 +194,7 @@ async function setup(options = {}) {
     return popover
   }
 
-  return { window, dom, domain, store, calls, openPanel, addNote, settle, act }
+  return { window, dom, domain, store, calls, previewUrls, openPanel, addNote, settle, act }
 }
 
 test('STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记', async t => {
@@ -349,4 +364,77 @@ test('STORE-029 共用宿主文件已被占用时停止写入', async t => {
   assert.equal(ctx.window.localStorage.getItem(SESSION_KEY), legacy)
   assert.equal(ctx.window.localStorage.getItem(MODE_KEY), null)
   assert.equal(ctx.calls.some(call => call.url === STORE_PATH && call.method === 'POST'), false)
+})
+
+function transferFiles(window, target, eventType, files) {
+  const event = new window.Event(eventType, { bubbles: true, cancelable: true })
+  const transfer = { types: ['Files'], files, getData: () => '' }
+  Object.defineProperty(event, eventType === 'paste' ? 'clipboardData' : 'dataTransfer', { value: transfer })
+  target.dispatchEvent(event)
+  assert.equal(event.defaultPrevented, true)
+}
+
+test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
+  const ctx = await setup()
+  const { window, act, store } = ctx
+  t.after(() => window.close())
+  const { button } = await ctx.openPanel()
+  const panel = () => window.document.querySelector('.dsh-an-popover')
+  const toggle = () => act(async () => { button.click() })
+  await toggle()
+
+  const select = (name, type) => {
+    const picker = panel().querySelector('input[type=file]')
+    Object.defineProperty(picker, 'files', { configurable: true, value: [new window.File(['file'], name, { type })] })
+    picker.dispatchEvent(new window.Event('change', { bubbles: true }))
+  }
+  await act(async () => select('截图.png', 'image/png'))
+  await act(async () => transferFiles(window, panel().querySelector('textarea'), 'paste', [new window.File(['audio'], '语音.wav', { type: 'audio/wav' })]))
+  await act(async () => transferFiles(window, panel().querySelector('form'), 'drop', [new window.File(['video'], '录屏.mp4', { type: 'video/mp4' })]))
+  await act(async () => select('数据.csv', 'text/csv'))
+  const draftNames = () => [...panel().querySelectorAll('form .dsh-an-attachmentName')].map(node => node.textContent)
+  assert.deepEqual(draftNames(), ['截图.png', '语音.wav', '录屏.mp4', '数据.csv'])
+  await toggle()
+  await toggle()
+  assert.deepEqual(draftNames(), ['截图.png', '语音.wav', '录屏.mp4', '数据.csv'])
+  await act(async () => { panel().querySelector('[aria-label="移除 数据.csv"]').click() })
+  await act(async () => { panel().querySelector('.dsh-an-addBtn').click() })
+  assert.deepEqual(draftNames(), [])
+  const note = (await store.snapshot()).data.sessions['session-1'].items[0]
+  assert.equal(note.text, '')
+  assert.deepEqual(note.attachments.map(attachment => attachment.name), ['截图.png', '语音.wav', '录屏.mp4'])
+  const row = panel().querySelector('.dsh-an-row')
+  await act(async () => { for (const preview of row.querySelectorAll('.dsh-an-attachmentName')) preview.click() })
+  assert.deepEqual(ctx.previewUrls, ['image/png', 'audio/wav', 'video/mp4'])
+  assert.ok(row.querySelector('img[alt="截图.png"]'))
+  assert.ok(row.querySelector('audio[controls]'))
+  assert.ok(row.querySelector('video[controls]'))
+  const download = row.querySelector('[download="截图.png"]')
+  assert.equal(new window.URL(download.href).searchParams.get('id'), note.attachments[0].id)
+  await act(async () => { row.querySelector('[aria-label="退回"]').click() })
+  assert.deepEqual(draftNames(), ['截图.png', '语音.wav', '录屏.mp4'])
+  assert.deepEqual((await store.snapshot()).data.sessions['session-1'].items, [])
+})
+
+test('NOTE-012 拒绝无效附件并保留上传失败前的草稿', async t => {
+  const ctx = await setup({ uploadDown: true })
+  const { window, act, calls } = ctx
+  t.after(() => window.close())
+  const { button } = await ctx.openPanel()
+  await act(async () => { button.click() })
+  const textarea = window.document.querySelector('.dsh-an-input')
+  const form = textarea.closest('form')
+  const uploads = () => calls.filter(call => call.url === '/dsh-sideby-note/attachments' && call.method === 'POST')
+  await act(async () => {
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set
+    setter.call(textarea, '先留在这里')
+    textarea.dispatchEvent(new window.Event('input', { bubbles: true }))
+    transferFiles(window, form, 'drop', [new window.File([], '空文件.txt')])
+  })
+  assert.equal(uploads().length, 0)
+  await act(async () => transferFiles(window, form, 'drop', [new window.File(['data'], '读不到.txt')]))
+  assert.equal(uploads().length, 1)
+  assert.equal(textarea.value, '先留在这里')
+  assert.equal(form.querySelector('.dsh-an-attachments'), null)
+  assert.equal(form.querySelector('.dsh-an-addBtn').disabled, false)
 })

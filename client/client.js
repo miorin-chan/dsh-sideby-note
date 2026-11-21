@@ -37,7 +37,7 @@ let react_dom = require("react-dom");
 react_dom = __toESM(react_dom, 1);
 
 // \0dsh-css:src/client/styles/panel.css.mjs
-var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose,.dsh-an-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active,.dsh-an-settingsBtn:active{background:var(--an-active)}\n.dsh-an-settingsBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-settingsBtn{position:relative}\n.dsh-an-updateDot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-brand-primary);box-shadow:0 0 0 2px var(--dsh-an-panelSurface)}\n/* The list-scope switch sits at the far right of the title line. */\n.dsh-an-scope{display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:24px;padding:1px;margin-left:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-scopeBtn{display:inline-flex;align-items:center;justify-content:center;height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px;font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-scopeBtn[data-active=\"true\"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-input{display:block;align-self:center;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n.dsh-an-addBtn:active:not(:disabled){background:var(--an-active)}\n.dsh-an-addBtn:disabled{color:var(--dsw-alias-label-secondary);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n/* The settings card rides the same rail as the list. When the panel is shorter than the card, the viewport takes the squeeze and scrolls instead of letting the card run under the popover's clipped bottom edge; the card keeps one content width in both states. */\n.dsh-an-settingsViewport{display:flex;flex-direction:column;flex:0 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1);padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}\n/* While settings is open the list yields its height first, so the card keeps its natural height until there is nothing left to take from the list. */\n.dsh-an-popover[data-settings=\"true\"] .dsh-an-listViewport{flex-shrink:10000}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;display:flex;flex-direction:column;gap:2px;margin:0;padding:0}\n/* A note is a bare line on the panel surface: no card, no divider. Grip, text and one trailing cell; the grip column keeps the text on the section label's edge. */\n.dsh-an-row{position:relative;display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:start;column-gap:var(--an-space-1);padding:var(--an-space-1);border-radius:var(--dsw-radius-sm);transition:var(--an-transition)}\n\n/* ── 6 一行便笺 · 把手 16 列，正文 13/20，尾格静置显示时间、悬停换成操作 ── */\n/* The grip is a drag handle and a keyboard control (↑/↓). Touch keeps it visible in the quiet non-text ink; pointer devices reveal it on hover. */\n.dsh-an-grip{display:flex;align-items:center;justify-content:center;width:16px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-tertiary);font:inherit;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:var(--an-transition)}\n.dsh-an-gripSpacer{width:16px}\n.dsh-an-text{display:block;min-width:0;margin:0;padding:0;color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}\n.dsh-an-rowArchived .dsh-an-text{color:var(--dsw-alias-label-secondary)}\n/* Age and actions share one grid cell, so the swap never reflows the text. */\n.dsh-an-trail{display:grid;align-items:center;justify-items:end;min-height:24px;margin:-2px 0 0}\n.dsh-an-trail>*{grid-area:1/1}\n.dsh-an-meta{padding:0 var(--an-space-1);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;opacity:0;transition:opacity var(--an-dur-fast) var(--an-ease)}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:2px;transition:opacity var(--an-dur-fast) var(--an-ease)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-glyphFlip{transform:scaleX(-1)}\n\n/* ── 7b 拖拽排序 · 抬起的行跟手，其余行用 transform 让位 ─────────────── */\n.dsh-an-rows[data-dragging=\"true\"],.dsh-an-rows[data-dragging=\"true\"] .dsh-an-grip{cursor:grabbing}\n.dsh-an-row[data-dragging=\"true\"]{z-index:1;background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-prominent);transition:none}\n.dsh-an-row[data-dragging=\"true\"] .dsh-an-grip{opacity:1;color:var(--dsw-alias-label-primary)}\n/* While a row is held the trail stays at rest: the age shows, the actions stay out of the way. */\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-meta{opacity:1}\n\n/* ── 8 紧凑文字按钮 · 清空确认 ─────────────────────────────────── */\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 设置 · 分组 R16，链接走 --dsw-alias-link ─────────────────── */\n.dsh-an-settings{--dsh-an-settingIndent:var(--an-space-3);display:flex;flex-direction:column;gap:var(--an-space-2);margin:0;padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-settingsHead{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-settingLabel{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingBody{display:flex;flex-direction:column;gap:var(--an-space-1);padding-left:var(--dsh-an-settingIndent)}\n.dsh-an-settingBrand{display:flex;flex-direction:column;gap:2px;min-width:0}\n.dsh-an-settingBrandName{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingBrandTagline{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-settingAbout{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingAbout>span{flex:none}\n.dsh-an-settingAbout .dsh-an-updateHint{flex:0 1 auto;min-width:0}\n.dsh-an-settingMetaRow{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-an-settingMetaRow>span{flex:none}\n.dsh-an-storageBlock{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-storagePathRow{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-storagePath{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;user-select:all}\n.dsh-an-storageActions{display:flex;flex-wrap:wrap;gap:var(--an-space-1)}\n.dsh-an-storageAction{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-storageAction:active{background:var(--an-active)}\n.dsh-an-storageAction:focus-visible{outline-offset:2px}\n.dsh-an-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}\n.dsh-an-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--an-transition)}\n.dsh-an-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n/* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */\n.dsh-an-updateCheck{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCheck:active{background:var(--an-active)}\n.dsh-an-updateCheck:disabled{color:var(--dsw-alias-label-tertiary);cursor:default}\n.dsh-an-updateCheck:focus-visible{outline-offset:2px}\n.dsh-an-updateHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-updateHintError{color:var(--dsw-alias-state-error-primary)}\n.dsh-an-updateCard{display:flex;flex-direction:column;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-updateTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-updateFull:focus-visible,.dsh-an-updateLinkBtn:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateFull{flex:none;color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}\n.dsh-an-updateNotes{display:flex;flex-direction:column;gap:var(--an-space-2);max-height:220px;overflow-y:auto;padding-right:0;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);scrollbar-gutter:stable}\n.dsh-an-updateNotes[data-fade=\"true\"]{--dsh-an-fadeHeight:var(--an-space-5);-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n.dsh-an-updateVersions{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion+.dsh-an-updateVersion{padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateVersionHead{display:flex;align-items:center;gap:var(--an-space-1);width:100%;padding:2px 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer}\n.dsh-an-updateVersionHead:active{background:var(--an-active)}\n.dsh-an-updateVersionHead:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateChevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-updateChevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-updateVersionLabel{font-variant-numeric:tabular-nums}\n.dsh-an-updateLatest{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500}\n.dsh-an-updateVersionBody{display:flex;flex-direction:column;gap:var(--an-space-2);padding-left:var(--an-space-4);min-width:0}\n.dsh-an-updateGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateGroupTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-updateItems{display:flex;flex-direction:column;gap:var(--an-space-1);margin:0;padding-left:var(--an-space-4);color:var(--dsw-alias-label-primary)}\n.dsh-an-updateItem{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);overflow-wrap:anywhere}\n.dsh-an-updateItem strong{font-weight:500}\n.dsh-an-updateActions{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updatePrimary{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-3);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updatePrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-updatePrimary:disabled{opacity:.55;cursor:default}\n.dsh-an-updatePrimary:focus-visible{outline-offset:2px}\n.dsh-an-updateDone{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateErrorRow{display:flex;align-items:baseline;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateError{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere}\n.dsh-an-updateLinkBtn{padding:0;border:0;background:transparent;color:var(--dsw-alias-link);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer}\n.dsh-an-updateFallback{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateFallback .dsh-an-updateHint{flex:1 1 100%;min-width:0}\n.dsh-an-updateCopy{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCopy:active{background:var(--an-active)}\n.dsh-an-updateCopy:focus-visible{outline-offset:2px}\n\n/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */\n.dsh-an-popFoot{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-grip{opacity:0}\n.dsh-an-row:hover .dsh-an-grip,.dsh-an-grip:focus-visible{opacity:1;color:var(--dsw-alias-label-secondary)}\n.dsh-an-grip:hover{color:var(--dsw-alias-label-primary)}\n.dsh-an-meta{opacity:1}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta{opacity:0}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-popClose:hover,.dsh-an-settingsBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:hover:not([data-active=\"true\"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not(:disabled,:active){background:var(--an-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover{background:var(--an-hover)}\n.dsh-an-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) backwards}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-grip,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
+var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose,.dsh-an-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active,.dsh-an-settingsBtn:active{background:var(--an-active)}\n.dsh-an-settingsBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-settingsBtn{position:relative}\n.dsh-an-updateDot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-brand-primary);box-shadow:0 0 0 2px var(--dsh-an-panelSurface)}\n/* The list-scope switch sits at the far right of the title line. */\n.dsh-an-scope{display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:24px;padding:1px;margin-left:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-scopeBtn{display:inline-flex;align-items:center;justify-content:center;height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px;font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-scopeBtn[data-active=\"true\"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within,.dsh-an-add[data-file-drag]{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-composerTools{display:flex;align-items:center;gap:var(--an-space-1)}\n.dsh-an-attachBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}\n.dsh-an-attachBtn:disabled{cursor:not-allowed;opacity:.55}\n.dsh-an-attachmentStatus{grid-column:1/-1;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}\n.dsh-an-attachments{display:grid;gap:var(--an-space-1);padding:0;margin:0;list-style:none;min-width:0}\n.dsh-an-add>.dsh-an-attachments{grid-column:1/-1;max-height:128px;overflow:auto}\n.dsh-an-text+.dsh-an-attachments{margin-top:var(--an-space-1)}\n.dsh-an-attachment{min-width:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-attachmentBar{display:flex;align-items:center;gap:var(--an-space-1);min-height:28px;padding:0 var(--an-space-1)}\n.dsh-an-attachmentBar .dsh-an-iconBtn{flex:none;text-decoration:none}\n.dsh-an-attachmentName{flex:1;min-width:0;overflow:hidden;text-align:left;text-overflow:ellipsis;white-space:nowrap;padding:0 var(--an-space-1);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-row)}\nbutton.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-underline-offset:2px}\n.dsh-an-attachmentPreview{display:grid;justify-items:start;gap:var(--an-space-1);padding:var(--an-space-1);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption)}\n.dsh-an-attachmentPreview img,.dsh-an-attachmentPreview video{display:block;max-width:100%;max-height:160px;object-fit:contain}\n.dsh-an-attachmentPreview audio{width:100%;min-width:0}\n.dsh-an-rowBody{min-width:0}\n.dsh-an-input{display:block;align-self:center;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:focus-visible,.dsh-an-attachBtn:focus-visible,.dsh-an-attachmentName:focus-visible,.dsh-an-attachmentBar .dsh-an-iconBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n.dsh-an-addBtn:active:not(:disabled){background:var(--an-active)}\n.dsh-an-addBtn:disabled{color:var(--dsw-alias-label-secondary);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n/* The settings card rides the same rail as the list. When the panel is shorter than the card, the viewport takes the squeeze and scrolls instead of letting the card run under the popover's clipped bottom edge; the card keeps one content width in both states. */\n.dsh-an-settingsViewport{display:flex;flex-direction:column;flex:0 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1);padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}\n/* While settings is open the list yields its height first, so the card keeps its natural height until there is nothing left to take from the list. */\n.dsh-an-popover[data-settings=\"true\"] .dsh-an-listViewport{flex-shrink:10000}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;display:flex;flex-direction:column;gap:2px;margin:0;padding:0}\n/* A note is a bare line on the panel surface: no card, no divider. Grip, text and one trailing cell; the grip column keeps the text on the section label's edge. */\n.dsh-an-row{position:relative;display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:start;column-gap:var(--an-space-1);padding:var(--an-space-1);border-radius:var(--dsw-radius-sm);transition:var(--an-transition)}\n\n/* ── 6 一行便笺 · 把手 16 列，正文 13/20，尾格静置显示时间、悬停换成操作 ── */\n/* The grip is a drag handle and a keyboard control (↑/↓). Touch keeps it visible in the quiet non-text ink; pointer devices reveal it on hover. */\n.dsh-an-grip{display:flex;align-items:center;justify-content:center;width:16px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-tertiary);font:inherit;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:var(--an-transition)}\n.dsh-an-gripSpacer{width:16px}\n.dsh-an-text{display:block;min-width:0;margin:0;padding:0;color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}\n.dsh-an-rowArchived .dsh-an-text{color:var(--dsw-alias-label-secondary)}\n/* Age and actions share one grid cell, so the swap never reflows the text. */\n.dsh-an-trail{display:grid;align-items:center;justify-items:end;min-height:24px;margin:-2px 0 0}\n.dsh-an-trail>*{grid-area:1/1}\n.dsh-an-meta{padding:0 var(--an-space-1);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;opacity:0;transition:opacity var(--an-dur-fast) var(--an-ease)}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:2px;transition:opacity var(--an-dur-fast) var(--an-ease)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-glyphFlip{transform:scaleX(-1)}\n\n/* ── 7b 拖拽排序 · 抬起的行跟手，其余行用 transform 让位 ─────────────── */\n.dsh-an-rows[data-dragging=\"true\"],.dsh-an-rows[data-dragging=\"true\"] .dsh-an-grip{cursor:grabbing}\n.dsh-an-row[data-dragging=\"true\"]{z-index:1;background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-prominent);transition:none}\n.dsh-an-row[data-dragging=\"true\"] .dsh-an-grip{opacity:1;color:var(--dsw-alias-label-primary)}\n/* While a row is held the trail stays at rest: the age shows, the actions stay out of the way. */\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-meta{opacity:1}\n\n/* ── 8 紧凑文字按钮 · 清空确认 ─────────────────────────────────── */\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 设置 · 分组 R16，链接走 --dsw-alias-link ─────────────────── */\n.dsh-an-settings{--dsh-an-settingIndent:var(--an-space-3);display:flex;flex-direction:column;gap:var(--an-space-2);margin:0;padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-settingsHead{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-settingLabel{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingBody{display:flex;flex-direction:column;gap:var(--an-space-1);padding-left:var(--dsh-an-settingIndent)}\n.dsh-an-settingBrand{display:flex;flex-direction:column;gap:2px;min-width:0}\n.dsh-an-settingBrandName{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingBrandTagline{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-settingAbout{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingAbout>span{flex:none}\n.dsh-an-settingAbout .dsh-an-updateHint{flex:0 1 auto;min-width:0}\n.dsh-an-settingMetaRow{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-an-settingMetaRow>span{flex:none}\n.dsh-an-storageBlock{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-storagePathRow{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-storagePath{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;user-select:all}\n.dsh-an-storageActions{display:flex;flex-wrap:wrap;gap:var(--an-space-1)}\n.dsh-an-storageAction{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-storageAction:active{background:var(--an-active)}\n.dsh-an-storageAction:focus-visible{outline-offset:2px}\n.dsh-an-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}\n.dsh-an-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--an-transition)}\n.dsh-an-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n/* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */\n.dsh-an-updateCheck{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCheck:active{background:var(--an-active)}\n.dsh-an-updateCheck:disabled{color:var(--dsw-alias-label-tertiary);cursor:default}\n.dsh-an-updateCheck:focus-visible{outline-offset:2px}\n.dsh-an-updateHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-updateHintError{color:var(--dsw-alias-state-error-primary)}\n.dsh-an-updateCard{display:flex;flex-direction:column;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-updateTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-updateFull:focus-visible,.dsh-an-updateLinkBtn:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateFull{flex:none;color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}\n.dsh-an-updateNotes{display:flex;flex-direction:column;gap:var(--an-space-2);max-height:220px;overflow-y:auto;padding-right:0;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);scrollbar-gutter:stable}\n.dsh-an-updateNotes[data-fade=\"true\"]{--dsh-an-fadeHeight:var(--an-space-5);-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n.dsh-an-updateVersions{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion+.dsh-an-updateVersion{padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateVersionHead{display:flex;align-items:center;gap:var(--an-space-1);width:100%;padding:2px 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer}\n.dsh-an-updateVersionHead:active{background:var(--an-active)}\n.dsh-an-updateVersionHead:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateChevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-updateChevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-updateVersionLabel{font-variant-numeric:tabular-nums}\n.dsh-an-updateLatest{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500}\n.dsh-an-updateVersionBody{display:flex;flex-direction:column;gap:var(--an-space-2);padding-left:var(--an-space-4);min-width:0}\n.dsh-an-updateGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateGroupTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-updateItems{display:flex;flex-direction:column;gap:var(--an-space-1);margin:0;padding-left:var(--an-space-4);color:var(--dsw-alias-label-primary)}\n.dsh-an-updateItem{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);overflow-wrap:anywhere}\n.dsh-an-updateItem strong{font-weight:500}\n.dsh-an-updateActions{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updatePrimary{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-3);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updatePrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-updatePrimary:disabled{opacity:.55;cursor:default}\n.dsh-an-updatePrimary:focus-visible{outline-offset:2px}\n.dsh-an-updateDone{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateErrorRow{display:flex;align-items:baseline;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateError{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere}\n.dsh-an-updateLinkBtn{padding:0;border:0;background:transparent;color:var(--dsw-alias-link);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer}\n.dsh-an-updateFallback{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateFallback .dsh-an-updateHint{flex:1 1 100%;min-width:0}\n.dsh-an-updateCopy{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCopy:active{background:var(--an-active)}\n.dsh-an-updateCopy:focus-visible{outline-offset:2px}\n\n/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */\n.dsh-an-popFoot{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-grip{opacity:0}\n.dsh-an-row:hover .dsh-an-grip,.dsh-an-grip:focus-visible{opacity:1;color:var(--dsw-alias-label-secondary)}\n.dsh-an-grip:hover{color:var(--dsw-alias-label-primary)}\n.dsh-an-meta{opacity:1}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta{opacity:0}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-popClose:hover,.dsh-an-settingsBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:hover:not([data-active=\"true\"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not(:disabled,:active),.dsh-an-attachBtn:hover:not(:disabled){background:var(--an-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover{background:var(--an-hover)}\n.dsh-an-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) backwards}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-grip,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
 
 // src/client/constants.ts
 /**
@@ -128,6 +128,22 @@ const de = {
 	"settings.storage": "Datenspeicher",
 	"add.placeholder": "Eine notieren",
 	"add.action": "Hinzufügen",
+	"attachment.add": "Anhänge hinzufügen",
+	"attachment.list": "Anhänge",
+	"attachment.download": "{name} herunterladen",
+	"attachment.remove": "{name} entfernen",
+	"attachment.uploading": "Wird hochgeladen…",
+	"attachment.loading": "Vorschau wird geladen…",
+	"attachment.previewFailed": "Vorschau nicht verfügbar. Die Originaldatei kann heruntergeladen werden.",
+	"attachment.limit": "Bis zu 10 Anhänge pro Notiz. Jede Datei muss Inhalt haben und darf höchstens 25 MiB groß sein.",
+	"attachment.unavailable": "Anhänge benötigen DSH-Hostspeicher.",
+	"attachment.uploadFailed": "Upload fehlgeschlagen. Bitte erneut versuchen.",
+	"attachment.busy": "Warte, bis der aktuelle Vorgang abgeschlossen ist, bevor du Dateien hinzufügst.",
+	"attachment.draftChanged": "Die Anhänge des Entwurfs wurden geändert. Prüfe sie und versuche es erneut.",
+	"attachment.textInserted": "Text eingefügt. Lade die Anhänge aus dem Archiv herunter und füge sie der Unterhaltung hinzu.",
+	"attachment.insertText": "Nur Text einfügen und archivieren",
+	"attachment.archive": "Notiz archivieren",
+	"attachment.archived": "Notiz archiviert",
 	"list.open": "Offen",
 	"list.allArchived.title": "Nichts mehr offen",
 	"list.allArchived.body": "Noch eine Notiz hinzufügen oder unten das Archiv aufklappen",
@@ -253,6 +269,22 @@ const en = {
 	"settings.storage": "Data storage",
 	"add.placeholder": "Jot one down",
 	"add.action": "Add",
+	"attachment.add": "Add attachments",
+	"attachment.list": "Attachments",
+	"attachment.download": "Download {name}",
+	"attachment.remove": "Remove {name}",
+	"attachment.uploading": "Uploading…",
+	"attachment.loading": "Loading preview…",
+	"attachment.previewFailed": "Preview unavailable. Download the original file.",
+	"attachment.limit": "Add up to 10 attachments per note. Each file must be nonempty and at most 25 MiB.",
+	"attachment.unavailable": "Attachments require DSH host storage.",
+	"attachment.uploadFailed": "Upload failed. Please try again.",
+	"attachment.busy": "Wait for the current action to finish before adding files.",
+	"attachment.draftChanged": "The draft attachments changed. Review them and try again.",
+	"attachment.textInserted": "Text inserted. Download the attachments from Archived and add them to the conversation.",
+	"attachment.insertText": "Insert text only and archive",
+	"attachment.archive": "Archive note",
+	"attachment.archived": "Note archived",
 	"list.open": "Open",
 	"list.allArchived.title": "Nothing left open",
 	"list.allArchived.body": "Add another, or expand archived to look back",
@@ -378,6 +410,22 @@ const es = {
 	"settings.storage": "Almacenamiento de datos",
 	"add.placeholder": "Anota una",
 	"add.action": "Añadir",
+	"attachment.add": "Añadir adjuntos",
+	"attachment.list": "Adjuntos",
+	"attachment.download": "Descargar {name}",
+	"attachment.remove": "Quitar {name}",
+	"attachment.uploading": "Subiendo…",
+	"attachment.loading": "Cargando vista previa…",
+	"attachment.previewFailed": "Vista previa no disponible. Descarga el archivo original.",
+	"attachment.limit": "Hasta 10 adjuntos por nota. Cada archivo debe tener contenido y pesar como máximo 25 MiB.",
+	"attachment.unavailable": "Los adjuntos requieren el almacenamiento del host de DSH.",
+	"attachment.uploadFailed": "La subida falló. Vuelve a intentarlo.",
+	"attachment.busy": "Espera a que termine la operación actual para añadir archivos.",
+	"attachment.draftChanged": "Los adjuntos del borrador han cambiado. Revísalos y vuelve a intentarlo.",
+	"attachment.textInserted": "Se insertó el texto. Descarga los adjuntos del archivo y añádelos a la conversación.",
+	"attachment.insertText": "Insertar solo el texto y archivar",
+	"attachment.archive": "Archivar nota",
+	"attachment.archived": "Nota archivada",
 	"list.open": "Abiertas",
 	"list.allArchived.title": "No queda nada abierto",
 	"list.allArchived.body": "Añade otra o despliega las archivadas para revisarlas",
@@ -503,6 +551,22 @@ const fr = {
 	"settings.storage": "Stockage des données",
 	"add.placeholder": "Notez-en une",
 	"add.action": "Ajouter",
+	"attachment.add": "Joindre des fichiers",
+	"attachment.list": "Pièces jointes",
+	"attachment.download": "Télécharger {name}",
+	"attachment.remove": "Retirer {name}",
+	"attachment.uploading": "Envoi en cours…",
+	"attachment.loading": "Chargement de l’aperçu…",
+	"attachment.previewFailed": "Aperçu indisponible. Téléchargez le fichier d’origine.",
+	"attachment.limit": "Jusqu’à 10 pièces jointes par note. Chaque fichier doit être non vide et peser au plus 25 Mio.",
+	"attachment.unavailable": "Les pièces jointes nécessitent le stockage de l’hôte DSH.",
+	"attachment.uploadFailed": "Échec de l’envoi. Réessayez.",
+	"attachment.busy": "Attendez la fin de l’opération en cours avant de joindre des fichiers.",
+	"attachment.draftChanged": "Les pièces jointes du brouillon ont changé. Vérifiez-les et réessayez.",
+	"attachment.textInserted": "Texte inséré. Téléchargez les pièces jointes depuis les archives et ajoutez-les à la conversation.",
+	"attachment.insertText": "Insérer le texte seul et archiver",
+	"attachment.archive": "Archiver la note",
+	"attachment.archived": "Note archivée",
 	"list.open": "Ouvertes",
 	"list.allArchived.title": "Plus rien d'ouvert",
 	"list.allArchived.body": "Ajoutez-en une autre ou dépliez les archivées pour les revoir",
@@ -628,6 +692,22 @@ const ja = {
 	"settings.storage": "データ保存",
 	"add.placeholder": "ひとつメモする",
 	"add.action": "追加",
+	"attachment.add": "添付ファイルを追加",
+	"attachment.list": "添付ファイル",
+	"attachment.download": "{name} をダウンロード",
+	"attachment.remove": "{name} を削除",
+	"attachment.uploading": "アップロード中…",
+	"attachment.loading": "プレビューを読み込み中…",
+	"attachment.previewFailed": "プレビューできません。元のファイルをダウンロードできます。",
+	"attachment.limit": "添付はメモごとに10件までです。空でない25 MiB以下のファイルを選んでください。",
+	"attachment.unavailable": "添付ファイルには DSH ホストのストレージが必要です。",
+	"attachment.uploadFailed": "アップロードに失敗しました。再試行してください。",
+	"attachment.busy": "現在の操作が終わってからファイルを添付してください。",
+	"attachment.draftChanged": "下書きの添付が更新されました。確認してから再試行してください。",
+	"attachment.textInserted": "本文を入力しました。添付はアーカイブからダウンロードして会話に追加できます。",
+	"attachment.insertText": "本文のみ入力してアーカイブ",
+	"attachment.archive": "メモをアーカイブ",
+	"attachment.archived": "アーカイブしました",
 	"list.open": "書きかけ",
 	"list.allArchived.title": "書きかけのメモはありません",
 	"list.allArchived.body": "さらに書き足すか、アーカイブを開いて振り返れます",
@@ -753,6 +833,22 @@ const pt = {
 	"settings.storage": "Armazenamento de dados",
 	"add.placeholder": "Anote uma",
 	"add.action": "Adicionar",
+	"attachment.add": "Adicionar anexos",
+	"attachment.list": "Anexos",
+	"attachment.download": "Baixar {name}",
+	"attachment.remove": "Remover {name}",
+	"attachment.uploading": "Enviando…",
+	"attachment.loading": "Carregando prévia…",
+	"attachment.previewFailed": "Prévia indisponível. Baixe o arquivo original.",
+	"attachment.limit": "Até 10 anexos por nota. Cada arquivo deve ter conteúdo e no máximo 25 MiB.",
+	"attachment.unavailable": "Os anexos precisam do armazenamento do host do DSH.",
+	"attachment.uploadFailed": "Falha no envio. Tente novamente.",
+	"attachment.busy": "Aguarde a operação atual terminar antes de adicionar arquivos.",
+	"attachment.draftChanged": "Os anexos do rascunho mudaram. Revise-os e tente novamente.",
+	"attachment.textInserted": "Texto inserido. Baixe os anexos dos arquivados e adicione-os à conversa.",
+	"attachment.insertText": "Inserir apenas o texto e arquivar",
+	"attachment.archive": "Arquivar nota",
+	"attachment.archived": "Nota arquivada",
 	"list.open": "Abertas",
 	"list.allArchived.title": "Nada mais em aberto",
 	"list.allArchived.body": "Adicione outra ou expanda as arquivadas para revisar",
@@ -878,6 +974,22 @@ const ru = {
 	"settings.storage": "Хранилище данных",
 	"add.placeholder": "Записать",
 	"add.action": "Добавить",
+	"attachment.add": "Прикрепить файлы",
+	"attachment.list": "Вложения",
+	"attachment.download": "Скачать {name}",
+	"attachment.remove": "Удалить {name}",
+	"attachment.uploading": "Отправка…",
+	"attachment.loading": "Загрузка предпросмотра…",
+	"attachment.previewFailed": "Предпросмотр недоступен. Скачайте исходный файл.",
+	"attachment.limit": "До 10 вложений на заметку. Каждый файл должен быть непустым и не больше 25 МиБ.",
+	"attachment.unavailable": "Для вложений нужно хранилище хоста DSH.",
+	"attachment.uploadFailed": "Не удалось загрузить файлы. Попробуйте ещё раз.",
+	"attachment.busy": "Дождитесь завершения текущего действия, чтобы добавить файлы.",
+	"attachment.draftChanged": "Вложения черновика изменились. Проверьте их и повторите попытку.",
+	"attachment.textInserted": "Текст вставлен. Скачайте вложения из архива и добавьте их в беседу.",
+	"attachment.insertText": "Вставить только текст и архивировать",
+	"attachment.archive": "Архивировать заметку",
+	"attachment.archived": "Заметка в архиве",
 	"list.open": "Открыто",
 	"list.allArchived.title": "Открытых заметок нет",
 	"list.allArchived.body": "Добавьте заметку или раскройте архив, чтобы вспомнить",
@@ -1003,6 +1115,22 @@ const zh = {
 	"settings.storage": "数据存储",
 	"add.placeholder": "随手记一条",
 	"add.action": "添加",
+	"attachment.add": "添加附件",
+	"attachment.list": "附件",
+	"attachment.download": "下载 {name}",
+	"attachment.remove": "移除 {name}",
+	"attachment.uploading": "上传中…",
+	"attachment.loading": "正在加载预览…",
+	"attachment.previewFailed": "无法预览，可下载原文件",
+	"attachment.limit": "每条便笺最多 10 个附件，每个文件须大于 0 字节且不超过 25 MiB",
+	"attachment.unavailable": "附件需要 DSH 宿主存储",
+	"attachment.uploadFailed": "附件上传失败，请重试",
+	"attachment.busy": "操作进行中，请稍后再添加附件",
+	"attachment.draftChanged": "附件草稿已更新，请确认后重试",
+	"attachment.textInserted": "正文已填入。附件可在归档中下载，再添加到对话",
+	"attachment.insertText": "仅填入正文并归档",
+	"attachment.archive": "归档便笺",
+	"attachment.archived": "已归档",
 	"list.open": "待续",
 	"list.allArchived.title": "案头已空",
 	"list.allArchived.body": "再添一笔，或展开归档回看",
@@ -2135,6 +2263,106 @@ function currentStorageMode() {
 	return storageMode();
 }
 
+// host/attachment-metadata.ts
+const MAX_ATTACHMENT_BYTES = 26214400;
+const MAX_ATTACHMENTS = 10;
+const MAX_ATTACHMENT_NAME = 255;
+const MAX_ATTACHMENT_MIME = 127;
+const ATTACHMENT_ID = /^[a-f0-9]{64}$/;
+const ATTACHMENT_MIME = /^(?:[a-z0-9][a-z0-9!#$&^_.+-]*\/[a-z0-9][a-z0-9!#$&^_.+-]*)?$/;
+function normalizeAttachment(raw) {
+	if (!raw || typeof raw !== "object" || Array.isArray(raw)) return;
+	const { id, name, type, size } = raw;
+	if (typeof id !== "string" || !ATTACHMENT_ID.test(id)) return;
+	if (typeof name !== "string" || !name || name.length > 255) return;
+	if (typeof type !== "string" || type.length > 127 || !ATTACHMENT_MIME.test(type)) return;
+	if (typeof size !== "number" || !Number.isInteger(size) || size < 1 || size > 26214400) return;
+	return {
+		id,
+		name,
+		type,
+		size
+	};
+}
+function normalizeAttachments(raw) {
+	if (!Array.isArray(raw)) return [];
+	const attachments = [];
+	for (const candidate of raw) {
+		const attachment = normalizeAttachment(candidate);
+		if (attachment) attachments.push(attachment);
+		if (attachments.length === 10) break;
+	}
+	return attachments;
+}
+
+// src/client/domain/attachments.ts
+const ATTACHMENT_PATH = "/dsh-sideby-note/attachments";
+async function uploadAttachment(file, signal) {
+	const response = await fetch(ATTACHMENT_PATH, {
+		method: "POST",
+		headers: { "Content-Type": "application/octet-stream" },
+		body: file,
+		signal
+	});
+	if (!response.ok) throw new Error("Attachment upload failed");
+	const result = await response.json();
+	if (!result || typeof result !== "object" || !("ok" in result) || result.ok !== true || !("id" in result)) throw new Error("Invalid attachment upload response");
+	const type = file.type.toLowerCase();
+	const [attachment] = normalizeAttachments([{
+		id: result.id,
+		name: file.name.slice(0, 255),
+		type: type.length <= 127 && ATTACHMENT_MIME.test(type) ? type : "",
+		size: file.size
+	}]);
+	if (!attachment) throw new Error("Invalid attachment metadata");
+	return attachment;
+}
+function attachmentUrl(attachment) {
+	const query = new URLSearchParams({
+		id: attachment.id,
+		name: attachment.name
+	});
+	return `${ATTACHMENT_PATH}?${query}`;
+}
+async function readAttachment(attachment, signal) {
+	const response = await fetch(attachmentUrl(attachment), { signal });
+	if (!response.ok) throw new Error("Attachment download failed");
+	const blob = await response.blob();
+	if (blob.size !== attachment.size) throw new Error("Attachment size mismatch");
+	return blob.slice(0, blob.size, attachment.type);
+}
+const imageTypes = /* @__PURE__ */ new Set([
+	"image/png",
+	"image/jpeg",
+	"image/webp",
+	"image/gif",
+	"image/avif",
+	"image/bmp"
+]);
+const audioTypes = /* @__PURE__ */ new Set([
+	"audio/aac",
+	"audio/flac",
+	"audio/mp4",
+	"audio/mpeg",
+	"audio/ogg",
+	"audio/wav",
+	"audio/webm",
+	"audio/x-wav",
+	"audio/x-m4a"
+]);
+const videoTypes = /* @__PURE__ */ new Set([
+	"video/mp4",
+	"video/ogg",
+	"video/quicktime",
+	"video/webm"
+]);
+function previewKind(type) {
+	if (imageTypes.has(type)) return "img";
+	if (audioTypes.has(type)) return "audio";
+	if (videoTypes.has(type)) return "video";
+	return null;
+}
+
 // src/client/storage/drafts.ts
 /**
 * The unsaved composer draft, so closing the panel never loses text.
@@ -2147,6 +2375,21 @@ function currentStorageMode() {
 * store keeps its shape.
 */
 const keyOf = (value) => value ? String(value) : "";
+const attachmentChanges = /* @__PURE__ */ new Set();
+function notifyDraftAttachments(key) {
+	for (const listener of attachmentChanges) listener(key);
+}
+function subscribeDraftAttachments(listener) {
+	const onStorage = (event) => {
+		if (event.key === "dsh.aside-note.drafts" || event.key === null) listener("");
+	};
+	attachmentChanges.add(listener);
+	window.addEventListener("storage", onStorage);
+	return () => {
+		attachmentChanges.delete(listener);
+		window.removeEventListener("storage", onStorage);
+	};
+}
 /** Empty unsaved-draft store. */
 function emptyDraftStore() {
 	return {
@@ -2192,38 +2435,47 @@ function bucketOf(value) {
 }
 function writeDraftStore(store) {
 	const ls = storage();
-	if (!ls) return;
+	if (!ls) return false;
 	try {
 		ls.setItem(DRAFT_STORAGE_KEY, JSON.stringify(store));
-	} catch {}
+		return true;
+	} catch {
+		return false;
+	}
 }
 /** The unsaved composer draft of one scope (a workspace or a lone session). */
 function readScopeDrafts(key) {
 	const id = keyOf(key);
 	const record = id ? readDraftStore().sessions[id] : null;
-	if (!record || typeof record !== "object" || Array.isArray(record)) return { add: "" };
-	return { add: typeof record.add === "string" ? record.add : "" };
+	return {
+		add: typeof record?.add === "string" ? record.add : "",
+		attachments: normalizeAttachments(record?.attachments)
+	};
 }
 function pruneDraftScope(store, key) {
 	const record = store.sessions[key];
 	if (!record) return;
-	if (!(typeof record.add === "string" && record.add.length > 0)) delete store.sessions[key];
+	if (!(typeof record.add === "string" && record.add.length > 0) && normalizeAttachments(record.attachments).length === 0) delete store.sessions[key];
 }
-function saveAddDraft(key, text) {
+function saveAddDraft(key, text, attachments) {
 	const id = keyOf(key);
-	if (!id) return;
+	if (!id) return false;
 	const store = readDraftStore();
 	const record = store.sessions[id] || {};
 	const value = String(text || "").slice(0, 280);
 	if (value) record.add = value;
 	else delete record.add;
+	if (attachments?.length) record.attachments = attachments;
+	else if (attachments) delete record.attachments;
 	delete record.edits;
 	store.sessions[id] = record;
 	pruneDraftScope(store, id);
-	writeDraftStore(store);
+	const written = writeDraftStore(store);
+	if (written && attachments) notifyDraftAttachments(id);
+	return written;
 }
 function clearAddDraft(key) {
-	saveAddDraft(key, "");
+	return saveAddDraft(key, "", []);
 }
 /**
 * Move a conversation's pre-workspace draft under the shared workspace key.
@@ -2243,12 +2495,15 @@ function ensureDraftScope(key, sessionId, sessionIds) {
 	const legacy = store.sessions[source];
 	if (!legacy || typeof legacy !== "object" || Array.isArray(legacy)) return false;
 	const add = typeof legacy.add === "string" ? legacy.add.slice(0, 280) : "";
-	if (!add) return false;
-	store.sessions[target] = { add };
+	const attachments = normalizeAttachments(legacy.attachments);
+	if (!add && attachments.length === 0) return false;
+	store.sessions[target] = {
+		...add ? { add } : {},
+		...attachments.length ? { attachments } : {}
+	};
 	for (const member of members) delete store.sessions[member];
 	delete store.sessions[source];
-	writeDraftStore(store);
-	return true;
+	return writeDraftStore(store);
 }
 
 // src/client/domain/id.ts
@@ -2287,7 +2542,8 @@ function normalizeItems(items) {
 	for (const raw of items) {
 		if (!raw || typeof raw !== "object") continue;
 		const text = String(raw.text || "").trim().slice(0, 280);
-		if (!text) continue;
+		const attachments = normalizeAttachments(raw.attachments);
+		if (!text && attachments.length === 0) continue;
 		let id = typeof raw.id === "string" && raw.id ? raw.id : legacyId(text, raw.createdAt, raw.updatedAt);
 		if (seen.has(id)) id = legacyId(text, raw.createdAt, raw.updatedAt);
 		if (seen.has(id)) id = uid();
@@ -2298,6 +2554,7 @@ function normalizeItems(items) {
 		normalized.push({
 			id,
 			text,
+			...attachments.length ? { attachments } : {},
 			done,
 			createdAt,
 			updatedAt,
@@ -2820,6 +3077,19 @@ const TOAST_COPY = {
 		key: "toast.inserted",
 		tone: "success"
 	},
+	archived: {
+		key: "attachment.archived",
+		tone: "success"
+	},
+	attachmentLimit: { key: "attachment.limit" },
+	attachmentBusy: { key: "attachment.busy" },
+	attachmentDraftChanged: { key: "attachment.draftChanged" },
+	attachmentTextInserted: {
+		key: "attachment.textInserted",
+		tone: "success"
+	},
+	attachmentUnavailable: { key: "attachment.unavailable" },
+	attachmentUploadFailed: { key: "attachment.uploadFailed" },
 	recalled: {
 		key: "toast.recalled",
 		tone: "success"
@@ -4142,11 +4412,27 @@ function useUpdateCenter(localeId) {
 
 // src/client/ui/useComposerDraft.ts
 /** The add box: draft persistence, auto-grow and the composer key gestures. */
-function useComposerDraft({ draftKey, commit, report, storageInUse }) {
+const uploadsByDraft = /* @__PURE__ */ new Set();
+const sameAttachments = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+function useComposerDraft({ draftKey, commit, report, storageInUse, canUpload }) {
 	const key = draftKey ? String(draftKey) : "";
-	const [draft, setDraft] = react.default.useState(() => readScopeDrafts(key).add);
-	const draftRef = react.default.useRef({ value: draft });
+	const [draft, setDraft] = react.default.useState(() => readScopeDrafts(key));
+	const draftRef = react.default.useRef(draft);
+	const [isUploading, setIsUploading] = react.default.useState(() => uploadsByDraft.has(key));
 	const pendingAction = react.default.useRef(false);
+	react.default.useEffect(() => subscribeDraftAttachments((changedKey) => {
+		if (changedKey && changedKey !== key) return;
+		setIsUploading(uploadsByDraft.has(key));
+		if (pendingAction.current) return;
+		const saved = readScopeDrafts(key);
+		if (sameAttachments(saved.attachments, draftRef.current.attachments)) return;
+		const next = {
+			...draftRef.current,
+			attachments: saved.attachments
+		};
+		draftRef.current = next;
+		setDraft(next);
+	}), [key]);
 	const [isSubmitting, setIsSubmitting] = react.default.useState(false);
 	const [isRecalling, setIsRecalling] = react.default.useState(false);
 	const addRef = react.default.useRef(null);
@@ -4158,7 +4444,7 @@ function useComposerDraft({ draftKey, commit, report, storageInUse }) {
 	};
 	react.default.useEffect(() => {
 		resizeAdd(addRef.current);
-	}, [draft]);
+	}, [draft.add]);
 	const hasFinePointer = () => typeof window.matchMedia !== "function" || window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 	react.default.useLayoutEffect(() => {
 		const node = addRef.current;
@@ -4170,33 +4456,91 @@ function useComposerDraft({ draftKey, commit, report, storageInUse }) {
 			node.setSelectionRange(end, end);
 		} catch {}
 	}, []);
-	const updateDraft = (value) => {
-		draftRef.current = { value };
-		setDraft(value);
-		saveAddDraft(key, value);
+	const hasContent = (value) => Boolean(value.add.trim() || value.attachments.length);
+	const showDraft = (next) => {
+		draftRef.current = next;
+		setDraft(next);
+	};
+	const addFiles = async (files) => {
+		if (!files.length || !canUpload || pendingAction.current || uploadsByDraft.has(key)) return;
+		if (files.length + readScopeDrafts(key).attachments.length > 10 || files.some((file) => file.size < 1 || file.size > 26214400)) {
+			report("attachmentLimit");
+			return;
+		}
+		uploadsByDraft.add(key);
+		notifyDraftAttachments(key);
+		try {
+			const attachments = [];
+			for (const file of files) attachments.push(await uploadAttachment(file, AbortSignal.timeout(12e4)));
+			const latest = readScopeDrafts(key);
+			const next = [...latest.attachments, ...attachments];
+			if (next.length > 10) report("attachmentLimit");
+			else if (!saveAddDraft(key, latest.add, next)) report("saveFailed");
+		} catch {
+			report("attachmentUploadFailed");
+		} finally {
+			uploadsByDraft.delete(key);
+			notifyDraftAttachments(key);
+		}
+	};
+	const removeAttachment = (index) => {
+		if (pendingAction.current || uploadsByDraft.has(key)) return;
+		const latest = readScopeDrafts(key);
+		if (!sameAttachments(latest.attachments, draftRef.current.attachments)) {
+			notifyDraftAttachments(key);
+			report("attachmentDraftChanged");
+			return;
+		}
+		if (!saveAddDraft(key, latest.add, latest.attachments.filter((_, position) => position !== index))) report("saveFailed");
 	};
 	const add = async () => {
 		const submitted = draftRef.current;
-		const text = submitted.value.trim().slice(0, 280);
-		if (!text || pendingAction.current || storageInUse) return;
+		const text = submitted.add.trim().slice(0, 280);
+		const { attachments } = submitted;
+		if (!hasContent(submitted) || pendingAction.current || uploadsByDraft.has(key) || storageInUse) return;
+		if (!sameAttachments(attachments, readScopeDrafts(key).attachments)) {
+			notifyDraftAttachments(key);
+			report("attachmentDraftChanged");
+			return;
+		}
+		if (attachments.length && !canUpload) {
+			report("attachmentUploadFailed");
+			return;
+		}
 		pendingAction.current = true;
 		setIsSubmitting(true);
 		try {
 			const now = Date.now();
-			if (!await commit((currentItems) => [{
+			const item = {
 				id: uid(),
 				text,
+				...attachments.length ? { attachments } : {},
 				done: false,
 				createdAt: now,
 				updatedAt: now
-			}, ...currentItems])) {
+			};
+			if (!await commit((currentItems) => [item, ...currentItems])) {
 				report("saveFailed");
 				return;
 			}
+			const saved = readScopeDrafts(key);
+			const sameFiles = sameAttachments(saved.attachments, attachments);
+			const remaining = sameFiles ? [] : saved.attachments;
 			if (draftRef.current === submitted) {
-				draftRef.current = { value: "" };
-				setDraft("");
-				if (readScopeDrafts(key).add === submitted.value.slice(0, 280)) clearAddDraft(key);
+				showDraft({
+					add: "",
+					attachments: remaining
+				});
+				if (saved.add === submitted.add.slice(0, 280)) {
+					if (sameFiles) clearAddDraft(key);
+					else saveAddDraft(key, "");
+				}
+			} else if (attachments.length) {
+				showDraft({
+					...draftRef.current,
+					attachments: remaining
+				});
+				if (sameFiles) saveAddDraft(key, saved.add, []);
 			}
 		} finally {
 			pendingAction.current = false;
@@ -4210,15 +4554,28 @@ function useComposerDraft({ draftKey, commit, report, storageInUse }) {
 	* text lands here, where the user can change it and submit it again.
 	*/
 	const recall = async (item, takeBack) => {
-		if (pendingAction.current || draftRef.current.value.trim() || readScopeDrafts(key).add.trim()) {
+		if (pendingAction.current || uploadsByDraft.has(key) || hasContent(draftRef.current) || hasContent(readScopeDrafts(key))) {
 			report("recallBlocked");
 			return;
 		}
 		pendingAction.current = true;
 		setIsRecalling(true);
 		try {
-			if (!await takeBack(item)) return;
-			updateDraft(String(item.text || "").slice(0, 280));
+			const before = readScopeDrafts(key);
+			const next = {
+				add: String(item.text || "").slice(0, 280),
+				attachments: item.attachments ?? []
+			};
+			if (next.attachments.length && !saveAddDraft(key, next.add, next.attachments)) {
+				report("saveFailed");
+				return;
+			}
+			if (!await takeBack(item)) {
+				if (next.attachments.length && JSON.stringify(readScopeDrafts(key)) === JSON.stringify(next)) saveAddDraft(key, before.add, before.attachments);
+				return;
+			}
+			if (!next.attachments.length) saveAddDraft(key, next.add);
+			showDraft(next);
 			report("recalled");
 		} finally {
 			pendingAction.current = false;
@@ -4239,7 +4596,12 @@ function useComposerDraft({ draftKey, commit, report, storageInUse }) {
 	};
 	const onDraftChange = (event) => {
 		if (isRecalling) return;
-		updateDraft(event.target.value);
+		const next = {
+			...draftRef.current,
+			add: event.target.value
+		};
+		showDraft(next);
+		saveAddDraft(key, next.add);
 		resizeAdd(event.target);
 	};
 	/**
@@ -4248,7 +4610,7 @@ function useComposerDraft({ draftKey, commit, report, storageInUse }) {
 	* pick is left to the browser. A held Enter must not add note after note.
 	*/
 	const onDraftKeyDown = (event) => {
-		const composing = event.isComposing || event.nativeEvent && event.nativeEvent.isComposing;
+		const composing = composingRef.current || event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229;
 		if (event.key === "Escape") {
 			event.currentTarget.blur();
 			return;
@@ -4268,10 +4630,13 @@ function useComposerDraft({ draftKey, commit, report, storageInUse }) {
 		draft,
 		isSubmitting,
 		isRecalling,
+		isUploading,
 		addRef,
 		composingRef,
 		add,
 		recall,
+		addFiles,
+		removeAttachment,
 		onDraftChange,
 		onDraftKeyDown
 	};
@@ -4680,6 +5045,97 @@ function useOutsideDismiss(panelRef, anchorRef, onClose) {
 	}, [onClose, anchorRef]);
 }
 
+// src/client/ui/AttachmentList.tsx
+/** @jsxRuntime classic */
+function DownloadIcon() {
+	return icon("IconDownloadOutlineRegular") ? /* @__PURE__ */ react.default.createElement(Glyph, {
+		name: "IconDownloadOutlineRegular",
+		size: 14
+	}) : /* @__PURE__ */ react.default.createElement("span", { "aria-hidden": "true" }, "↓");
+}
+function AttachmentEntry({ attachment, say, onRemove, disabled }) {
+	const kind = previewKind(attachment.type);
+	const [open, setOpen] = react.default.useState(false);
+	const [preview, setPreview] = react.default.useState({});
+	const previewId = react.default.useId();
+	react.default.useEffect(() => {
+		if (!open) return;
+		const controller = new AbortController();
+		let url;
+		setPreview({});
+		readAttachment(attachment, controller.signal).then((blob) => {
+			if (controller.signal.aborted) return;
+			url = URL.createObjectURL(blob);
+			setPreview({ url });
+		}).catch(() => {
+			if (!controller.signal.aborted) setPreview({ failed: true });
+		});
+		return () => {
+			controller.abort();
+			if (url) URL.revokeObjectURL(url);
+		};
+	}, [
+		attachment.id,
+		attachment.name,
+		attachment.size,
+		attachment.type,
+		open
+	]);
+	const download = say("attachment.download", { name: attachment.name });
+	const remove = say("attachment.remove", { name: attachment.name });
+	return /* @__PURE__ */ react.default.createElement("li", { className: "dsh-an-attachment" }, /* @__PURE__ */ react.default.createElement("div", { className: "dsh-an-attachmentBar" }, kind ? /* @__PURE__ */ react.default.createElement("button", {
+		type: "button",
+		className: "dsh-an-attachmentName",
+		title: attachment.name,
+		"aria-expanded": open,
+		"aria-controls": open ? previewId : void 0,
+		onClick: () => {
+			setPreview({});
+			setOpen(!open);
+		}
+	}, attachment.name) : /* @__PURE__ */ react.default.createElement("span", {
+		className: "dsh-an-attachmentName",
+		title: attachment.name
+	}, attachment.name), withTooltip(download, /* @__PURE__ */ react.default.createElement("a", {
+		className: "dsh-an-iconBtn",
+		href: attachmentUrl(attachment),
+		download: attachment.name,
+		"aria-label": download
+	}, /* @__PURE__ */ react.default.createElement(DownloadIcon, null))), onRemove && withTooltip(remove, /* @__PURE__ */ react.default.createElement("button", {
+		type: "button",
+		className: "dsh-an-iconBtn",
+		disabled,
+		"aria-label": remove,
+		onClick: onRemove
+	}, /* @__PURE__ */ react.default.createElement(IconClose, null)))), open && /* @__PURE__ */ react.default.createElement("div", {
+		id: previewId,
+		className: "dsh-an-attachmentPreview"
+	}, preview.failed ? /* @__PURE__ */ react.default.createElement("span", { role: "status" }, say("attachment.previewFailed")) : !preview.url ? /* @__PURE__ */ react.default.createElement("span", { role: "status" }, say("attachment.loading")) : kind === "img" ? /* @__PURE__ */ react.default.createElement("img", {
+		src: preview.url,
+		alt: attachment.name,
+		onError: () => setPreview({ failed: true })
+	}) : react.default.createElement(kind, {
+		src: preview.url,
+		controls: true,
+		preload: "metadata",
+		"aria-label": attachment.name,
+		onError: () => setPreview({ failed: true })
+	})));
+}
+function AttachmentList({ attachments, say, onRemove, disabled }) {
+	if (!attachments.length) return null;
+	return /* @__PURE__ */ react.default.createElement("ul", {
+		className: "dsh-an-attachments",
+		"aria-label": say("attachment.list")
+	}, attachments.map((attachment, index) => /* @__PURE__ */ react.default.createElement(AttachmentEntry, {
+		key: `${attachment.id}:${attachment.name}:${index}`,
+		attachment,
+		say,
+		disabled,
+		onRemove: onRemove && (() => onRemove(index))
+	})));
+}
+
 // src/client/ui/TodoRow.ts
 /**
 * One note, kept light: a reorder grip, the text, and one trailing cell where
@@ -4688,6 +5144,9 @@ function useOutsideDismiss(panelRef, anchorRef, onClose) {
 const h$11 = react.default.createElement;
 function TodoRow(props) {
 	const { item, archived, say, localeId, onToast, onInsert, onRecall, grip } = props;
+	const attachments = item.attachments ?? [];
+	const hasText = Boolean(item.text);
+	const insertLabel = say(hasText ? attachments.length ? "attachment.insertText" : "item.insert" : "attachment.archive");
 	const [pending, setPending] = react.default.useState("");
 	const mountedRef = react.default.useRef(true);
 	react.default.useEffect(() => {
@@ -4719,27 +5178,33 @@ function TodoRow(props) {
 	}, h$11(IconGrip, null)) : h$11("span", {
 		className: "dsh-an-gripSpacer",
 		"aria-hidden": true
-	}), h$11("div", { className: "dsh-an-text" }, item.text), h$11("div", { className: "dsh-an-trail" }, h$11("span", {
+	}), h$11("div", { className: "dsh-an-rowBody" }, hasText ? h$11("div", { className: "dsh-an-text" }, item.text) : null, h$11(AttachmentList, {
+		attachments,
+		say
+	})), h$11("div", { className: "dsh-an-trail" }, h$11("span", {
 		className: "dsh-an-meta",
 		title: metaLabel(item, say, localeId)
-	}, rowAge(item, say, localeId)), h$11("div", { className: "dsh-an-actions" }, withTooltip(say("item.copy"), h$11("button", {
+	}, rowAge(item, say, localeId)), h$11("div", { className: "dsh-an-actions" }, hasText ? withTooltip(say("item.copy"), h$11("button", {
 		type: "button",
 		className: "dsh-an-iconBtn",
 		"aria-label": say("item.copy"),
 		"aria-busy": pending === "copy" ? "true" : "false",
 		"data-loading": pending === "copy" ? "true" : void 0,
 		onClick: copy
-	}, h$11(IconCopy, null))), withTooltip(say("item.recall"), h$11("button", {
+	}, h$11(IconCopy, null))) : null, withTooltip(say("item.recall"), h$11("button", {
 		type: "button",
 		className: "dsh-an-iconBtn",
 		"aria-label": say("item.recall"),
 		onClick: () => onRecall(item)
-	}, h$11(IconRewind, null))), archived ? null : withTooltip(say("item.insert"), h$11("button", {
+	}, h$11(IconRewind, null))), archived ? null : withTooltip(insertLabel, h$11("button", {
 		type: "button",
 		className: "dsh-an-iconBtn dsh-an-insert",
-		"aria-label": say("item.insert"),
+		"aria-label": insertLabel,
 		onClick: () => onInsert(item)
-	}, h$11(IconInsert, null))))));
+	}, hasText ? h$11(IconInsert) : icon("IconArchiveOutlineRegular") ? h$11(Glyph, {
+		name: "IconArchiveOutlineRegular",
+		size: 14
+	}) : h$11("span", { "aria-hidden": true }, "✓"))))));
 }
 
 // src/client/ui/ScopeSwitch.tsx
@@ -5120,12 +5585,58 @@ function SettingsPanel(props) {
 /** The add form: one growing textarea and its submit button. */
 const h$5 = react.default.createElement;
 function ComposerForm(props) {
-	const { say, draft, isSubmitting, isRecalling, storageInUse, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit } = props;
+	const { say, draft, attachments, isSubmitting, isRecalling, isUploading, canUpload, storageInUse, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit, onFiles, onRemove, onUnavailable, onBusy } = props;
+	const pickerRef = react.default.useRef(null);
+	const attachRef = react.default.useRef(null);
+	const dragDepth = react.default.useRef(0);
+	const [dropping, setDropping] = react.default.useState(false);
+	const busy = isSubmitting || isRecalling || isUploading;
 	const addLabel = say("add.action");
+	const attachLabel = say("attachment.add");
+	const takeFiles = (files) => {
+		if (!files.length) return;
+		if (!canUpload) onUnavailable();
+		else if (busy) onBusy();
+		else onFiles(files);
+	};
 	return h$5("form", {
 		className: "dsh-an-add",
-		onSubmit
-	}, h$5("textarea", {
+		"data-file-drag": dropping ? "true" : void 0,
+		"aria-busy": isUploading,
+		onSubmit,
+		onDragEnter: (event) => {
+			if (!event.dataTransfer.types.includes("Files")) return;
+			event.preventDefault();
+			dragDepth.current++;
+			setDropping(true);
+		},
+		onDragOver: (event) => {
+			if (!event.dataTransfer.types.includes("Files")) return;
+			event.preventDefault();
+			event.stopPropagation();
+			event.dataTransfer.dropEffect = canUpload && !busy ? "copy" : "none";
+		},
+		onDragLeave: () => {
+			dragDepth.current = Math.max(0, dragDepth.current - 1);
+			if (!dragDepth.current) setDropping(false);
+		},
+		onDrop: (event) => {
+			dragDepth.current = 0;
+			setDropping(false);
+			if (!event.dataTransfer.types.includes("Files")) return;
+			event.preventDefault();
+			event.stopPropagation();
+			takeFiles(Array.from(event.dataTransfer.files));
+		}
+	}, h$5(AttachmentList, {
+		attachments,
+		say,
+		onRemove: (index) => {
+			if (document.activeElement?.closest(".dsh-an-attachment")) attachRef.current?.focus();
+			onRemove(index);
+		},
+		disabled: busy
+	}), h$5("textarea", {
 		ref: inputRef,
 		className: "dsh-an-input",
 		value: draft,
@@ -5137,12 +5648,40 @@ function ComposerForm(props) {
 		onChange: onDraftChange,
 		onCompositionStart,
 		onCompositionEnd,
-		onKeyDown
-	}), withTooltip(addLabel, h$5("button", {
+		onKeyDown,
+		onPaste: (event) => {
+			const transfer = event.clipboardData;
+			const files = Array.from(transfer.files);
+			if (!files.length) return;
+			event.stopPropagation();
+			if (!transfer.getData("text/plain")) event.preventDefault();
+			takeFiles(files);
+		}
+	}), h$5("input", {
+		ref: pickerRef,
+		type: "file",
+		hidden: true,
+		multiple: true,
+		onChange: (event) => {
+			const files = Array.from(event.currentTarget.files ?? []);
+			event.currentTarget.value = "";
+			if (files.length) takeFiles(files);
+		}
+	}), h$5("div", { className: "dsh-an-composerTools" }, withTooltip(attachLabel, h$5("button", {
+		type: "button",
+		ref: attachRef,
+		className: "dsh-an-attachBtn",
+		"aria-label": attachLabel,
+		disabled: busy,
+		onClick: () => canUpload ? pickerRef.current?.click() : onUnavailable()
+	}, icon("IconPaperclipOutlineRegular") ? h$5(Glyph, {
+		name: "IconPaperclipOutlineRegular",
+		size: 16
+	}) : h$5("span", { "aria-hidden": true }, "+"))), withTooltip(addLabel, h$5("button", {
 		type: "submit",
 		className: "dsh-an-addBtn",
 		"aria-label": addLabel,
-		disabled: storageInUse || isSubmitting || isRecalling || !draft.trim()
+		disabled: storageInUse || busy || !draft.trim() && !attachments.length
 	}, h$5("svg", {
 		width: 16,
 		height: 16,
@@ -5153,7 +5692,10 @@ function ComposerForm(props) {
 		strokeLinecap: "round",
 		strokeLinejoin: "round",
 		"aria-hidden": true
-	}, h$5("path", { d: "M13 4v3a2 2 0 0 1-2 2H3m0 0 3-3m-3 3 3 3" })))));
+	}, h$5("path", { d: "M13 4v3a2 2 0 0 1-2 2H3m0 0 3-3m-3 3 3 3" }))))), isUploading ? h$5("span", {
+		className: "dsh-an-attachmentStatus",
+		role: "status"
+	}, say("attachment.uploading")) : null);
 }
 
 // src/client/ui/ClearConfirm.ts
@@ -5290,11 +5832,13 @@ function MemoPopover(props) {
 	const update = useUpdateCenter(localeId);
 	const newerVersion = update.latestVersion;
 	const inserting = react.default.useRef(/* @__PURE__ */ new Set());
-	const { draft, isSubmitting, isRecalling, addRef, composingRef, add, recall, onDraftChange, onDraftKeyDown } = useComposerDraft({
+	const canUpload = storageMode() === "host";
+	const { draft, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown } = useComposerDraft({
 		draftKey,
 		commit,
 		report,
-		storageInUse
+		storageInUse,
+		canUpload
 	});
 	const { archive, move, takeBack } = useNoteActions({
 		commit,
@@ -5360,13 +5904,16 @@ function MemoPopover(props) {
 			report("saveFailed");
 			return;
 		}
-		if (!appendToConversation(item.text)) {
+		const hasText = Boolean(item.text);
+		if (hasText && !appendToConversation(item.text)) {
 			report("insertFailed");
 			return;
 		}
 		inserting.current.add(item.id);
 		try {
-			report(await archive(item) ? "inserted" : "archiveFailed");
+			const ok = await archive(item);
+			if (ok && hasText && item.attachments?.length) report("attachmentTextInserted");
+			else report(hasText ? ok ? "inserted" : "archiveFailed" : ok ? "archived" : "saveFailed");
 		} finally {
 			inserting.current.delete(item.id);
 		}
@@ -5435,10 +5982,17 @@ function MemoPopover(props) {
 		onToast: report
 	})) : null, h$1(ComposerForm, {
 		say,
-		draft,
+		draft: draft.add,
+		attachments: draft.attachments,
 		isSubmitting,
 		isRecalling,
+		isUploading,
+		canUpload,
 		storageInUse,
+		onFiles: addFiles,
+		onRemove: removeAttachment,
+		onUnavailable: () => report("attachmentUnavailable"),
+		onBusy: () => report("attachmentBusy"),
 		inputRef: addRef,
 		onDraftChange,
 		onCompositionStart: () => {

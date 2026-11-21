@@ -16,18 +16,37 @@ import {
   MAX_TEXT,
 } from './normalize.js'
 import { DOMAIN_NAME, DOMAIN_VERSION, TABLES } from './constants.js'
+import {
+  ATTACHMENT_ID,
+  ATTACHMENT_MIME,
+  MAX_ATTACHMENTS,
+  MAX_ATTACHMENT_MIME,
+  MAX_ATTACHMENT_NAME,
+  MAX_ATTACHMENT_BYTES,
+} from './attachment-metadata.js'
 
 export { DOMAIN_NAME, DOMAIN_VERSION, TABLES }
 
 const UNIT_NAME_RE = /^[a-z][a-z0-9_]*$/
 
+const attachmentSchema = z.object({
+  id: z.string().regex(ATTACHMENT_ID),
+  name: z.string().min(1).max(MAX_ATTACHMENT_NAME),
+  type: z.string().max(MAX_ATTACHMENT_MIME).regex(ATTACHMENT_MIME),
+  size: z.number().int().min(1).max(MAX_ATTACHMENT_BYTES),
+})
+
 export const noteSchema = z.object({
   id: z.string().min(1),
-  text: z.string().min(1).max(MAX_TEXT),
+  text: z.string().max(MAX_TEXT),
   done: z.boolean(),
   createdAt: z.number(),
   updatedAt: z.number(),
   completedAt: z.number().optional(),
+  attachments: z.array(attachmentSchema).max(MAX_ATTACHMENTS).optional(),
+}).refine(note => note.text.trim().length > 0 || Boolean(note.attachments?.length), {
+  path: ['text'],
+  message: 'a note requires text or an attachment',
 })
 
 export const sessionSchema = z.object({

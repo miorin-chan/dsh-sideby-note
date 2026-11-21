@@ -7,6 +7,13 @@ const h = React.createElement
 const TOAST_COPY = {
   copied: { key: 'toast.copied', tone: 'success' },
   inserted: { key: 'toast.inserted', tone: 'success' },
+  archived: { key: 'attachment.archived', tone: 'success' },
+  attachmentLimit: { key: 'attachment.limit' },
+  attachmentBusy: { key: 'attachment.busy' },
+  attachmentDraftChanged: { key: 'attachment.draftChanged' },
+  attachmentTextInserted: { key: 'attachment.textInserted', tone: 'success' },
+  attachmentUnavailable: { key: 'attachment.unavailable' },
+  attachmentUploadFailed: { key: 'attachment.uploadFailed' },
   recalled: { key: 'toast.recalled', tone: 'success' },
   recallBlocked: { key: 'toast.recallBlocked' },
   cleared: { key: 'toast.cleared', tone: 'success' },

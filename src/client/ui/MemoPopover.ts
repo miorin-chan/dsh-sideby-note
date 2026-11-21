@@ -100,11 +100,13 @@ export function MemoPopover(props) {
   const update = useUpdateCenter(localeId)
   const newerVersion = update.latestVersion
   const inserting = React.useRef(new Set<string>())
-  const { draft, isSubmitting, isRecalling, addRef, composingRef, add, recall, onDraftChange, onDraftKeyDown } = useComposerDraft({
+  const canUpload = storageMode() === 'host'
+  const { draft, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown } = useComposerDraft({
     draftKey,
     commit,
     report,
     storageInUse,
+    canUpload,
   })
   const { archive, move, takeBack } = useNoteActions({ commit, report })
   const { confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = useClearConfirm({
@@ -173,14 +175,17 @@ export function MemoPopover(props) {
       report('saveFailed')
       return
     }
-    // The note lands as plain text; repeated hand-overs stack on new lines.
-    if (!appendToConversation(item.text)) {
+    // Attachment-only notes use the archive action after a manual hand-off.
+    const hasText = Boolean(item.text)
+    if (hasText && !appendToConversation(item.text)) {
       report('insertFailed')
       return
     }
     inserting.current.add(item.id)
     try {
-      report((await archive(item)) ? 'inserted' : 'archiveFailed')
+      const ok = await archive(item)
+      if (ok && hasText && item.attachments?.length) report('attachmentTextInserted')
+      else report(hasText ? (ok ? 'inserted' : 'archiveFailed') : (ok ? 'archived' : 'saveFailed'))
     } finally {
       inserting.current.delete(item.id)
     }
@@ -272,10 +277,17 @@ export function MemoPopover(props) {
       : null,
     h(ComposerForm, {
       say,
-      draft,
+      draft: draft.add,
+      attachments: draft.attachments,
       isSubmitting,
       isRecalling,
+      isUploading,
+      canUpload,
       storageInUse,
+      onFiles: addFiles,
+      onRemove: removeAttachment,
+      onUnavailable: () => report('attachmentUnavailable'),
+      onBusy: () => report('attachmentBusy'),
       inputRef: addRef,
       onDraftChange,
       onCompositionStart: () => { composingRef.current = true },

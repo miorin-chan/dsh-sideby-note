@@ -179,3 +179,37 @@ cases:
         status: automated
     suites: [pr, nightly, release]
     tags: [ordering, keyboard, drag]
+
+  - id: NOTE-011
+    title: 附件可选择粘贴拖放并随便笺恢复
+    priority: P1
+    class: B
+    rules: [R-NOTE-ATTACHMENTS]
+    risk: data_loss
+    expected:
+      - 选取、粘贴与拖放的文件按顺序进入草稿，面板重开后可恢复
+      - 附件可以单独提交、预览、下载、移除与退回
+    automation:
+      - type: integration
+        file: tests/host-bundle.test.mjs
+        test: NOTE-011 附件可选择粘贴拖放并随便笺恢复
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [attachment, persistence]
+
+  - id: NOTE-012
+    title: 拒绝无效附件并保留上传失败前的草稿
+    priority: P1
+    class: D
+    rules: [R-NOTE-ATTACHMENTS]
+    risk: data_loss
+    expected:
+      - 空文件在请求宿主前被拒绝
+      - 宿主上传失败后不产生附件，原草稿仍可提交
+    automation:
+      - type: integration
+        file: tests/host-bundle.test.mjs
+        test: NOTE-012 拒绝无效附件并保留上传失败前的草稿
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [attachment, validation]

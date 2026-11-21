@@ -7,6 +7,7 @@
  * `src/client/domain/items.ts`; the contract test keeps the two in step.
  */
 import { randomUUID } from 'node:crypto'
+import { normalizeAttachments } from './attachment-metadata.js'
 
 /** A note is meant to stay brief. */
 export const MAX_TEXT = 280
@@ -31,7 +32,8 @@ export function normalizeItems(items) {
   for (const raw of items) {
     if (!raw || typeof raw !== 'object') continue
     const value = String(raw.text || '').trim().slice(0, MAX_TEXT)
-    if (!value) continue
+    const attachments = normalizeAttachments(raw.attachments)
+    if (!value && attachments.length === 0) continue
     let id = typeof raw.id === 'string' && raw.id ? raw.id : newId()
     if (seen.has(id)) id = newId()
     seen.add(id)
@@ -45,6 +47,7 @@ export function normalizeItems(items) {
       createdAt,
       updatedAt,
       ...(done && Number.isFinite(raw.completedAt) ? { completedAt: raw.completedAt } : {}),
+      ...(attachments.length > 0 ? { attachments } : {}),
     })
   }
   return normalized

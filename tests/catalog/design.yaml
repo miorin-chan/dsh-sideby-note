@@ -35,6 +35,17 @@ features:
         technique: [等价类, 边界值]
         reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: '7735d0c52aa7591c' }
 
+      - id: R-NOTE-ATTACHMENTS
+        statement: 宿主存储可用时，便笺可通过选择、粘贴或拖放附上文件；草稿恢复与退回应保留附件。
+        failure: 用户以为已留存的媒体在关面板、提交或退回后丢失。
+        kind: state
+        branches:
+          - kind: valid
+            text: 附件单独成条，图片、音频和视频可预览，附件可下载、移除与退回
+          - kind: invalid
+            text: 空文件被拒绝，上传失败时已有草稿保留
+        technique: [状态迁移, 故障注入]
+
       - id: R-NOTE-ORDER
         statement: 新便笺加入待续区首位；待续便笺可以用键盘或拖动重新排序，归档便笺按归档时间倒序排列。
         failure: 新便笺沉到底部、刚完成的找不到，用户重复记录同一件事。
@@ -202,6 +213,19 @@ features:
             text: 后端无路径或路径未知——说明不可定位，不展示猜测路径
         technique: [等价类, 故障注入]
         reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: '17100762309354c1' }
+
+      - id: R-STORE-HOST-ATTACHMENTS
+        statement: 宿主校验上传和读取请求的权限。附件以内容哈希去重，在实际 JSON 便笺存储旁完整发布；便笺保存附件元数据。
+        failure: 其他网页可以访问附件，或下载到半个文件；附件和便笺分开迁移后，便笺遗失其内容。
+        kind: persistence
+        branches:
+          - kind: valid
+            text: 经鉴权的上传与重试返回同一内容哈希；读取以下载形式返回原始字节
+          - kind: boundary
+            text: 宿主接收 1 字节到 25 MiB 的附件，一条便笺可引用最多 10 个附件
+          - kind: invalid
+            text: 拒绝未授权请求、空文件、超限文件与无效哈希；空正文需至少一个有效附件
+        technique: [边界值, 不变量, 故障注入]
 
       - id: R-STORE-HOST-SWITCH
         statement: 升级后首次启动探测宿主存储：可用时把浏览器旧数据迁移一次并写一次性模式标记，之后单向使用宿主；不可用时不切换、保留浏览器数据、提示并在下次启动重试；迁移中断后重启应补完且不重复。

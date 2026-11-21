@@ -478,3 +478,55 @@ cases:
         status: automated
     suites: [pr, nightly, release]
     tags: [host, ownership, failure-injection]
+
+  - id: STORE-030
+    title: 宿主附件并发上传和重试按内容去重
+    priority: P1
+    class: F
+    rules: [R-STORE-HOST-ATTACHMENTS]
+    risk: data_loss
+    expected:
+      - 相同内容上传返回同一个哈希，在实际宿主存储旁只留下一个完整文件
+      - 未完成上传无法下载；完成后以下载形式返回原始字节
+    automation:
+      - type: integration
+        file: tests/host-attachments.test.mjs
+        test: STORE-030 宿主附件并发上传和重试按内容去重
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [host, attachments, concurrency]
+
+  - id: STORE-031
+    title: 宿主拒绝未授权请求和无效附件
+    priority: P1
+    class: D
+    rules: [R-STORE-HOST-ATTACHMENTS]
+    risk: privacy
+    expected:
+      - 未通过鉴权时无法读取或保存附件
+      - 无效哈希、错误类型、空文件、超限文件和中断上传不生成可下载文件；25 MiB 文件可保存
+      - 无 JSON 存储路径时报告不可用
+    automation:
+      - type: integration
+        file: tests/host-attachments.test.mjs
+        test: STORE-031 宿主拒绝未授权请求和无效附件
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [host, attachments, validation]
+
+  - id: STORE-032
+    title: 宿主清单兼容纯文本与仅附件便笺
+    priority: P1
+    class: C
+    rules: [R-STORE-HOST-ATTACHMENTS]
+    risk: data_loss
+    expected:
+      - 旧便笺的纯文本格式保持原样；仅附件便笺可以写入和读取
+      - 附件元数据经过校验，一条便笺至多保留 10 个附件；无内容的便笺不保存
+    automation:
+      - type: contract
+        file: tests/host-attachments.test.mjs
+        test: STORE-032 宿主清单兼容纯文本与仅附件便笺
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [host, attachments, schema]

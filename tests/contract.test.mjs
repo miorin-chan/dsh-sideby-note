@@ -267,8 +267,10 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /DRAFT_STORAGE_KEY/)
   assert.match(client, /saveAddDraft/)
   const composer = read('src/client/ui/useComposerDraft.ts')
-  assert.match(composer, /if \(!\(await takeBack\(item\)\)\) return\n\s+updateDraft\(String\(item\.text/,
-    'the top composer receives text after the row is durably removed')
+  const recall = composer.slice(composer.indexOf('const recall ='), composer.indexOf('const onDraftChange'))
+  assert.ok(recall.includes('if (!(await takeBack(item)))'))
+  assert.ok(recall.indexOf('await takeBack(item)') < recall.indexOf('showDraft(next)'),
+    'the top composer displays the draft after the row is durably removed')
   assert.match(client, /item\.recall/)
   assert.doesNotMatch(client, /saveEditDraft|readEditDraft|item\.edit|item\.delete/, 'the inline editor is gone')
   assert.match(client, /dsh-an-listArea/)
@@ -795,8 +797,8 @@ test('icon-only controls use the shared tooltip', () => {
   const client = read('src/client/index.ts') + read('src/client/ui/primitives.ts') + read('src/client/ui/TodoRow.ts')
   assert.match(client, /function withTooltip\(/)
   assert.match(client, /h\(Tooltip, \{ label, side: 'top'/)
-  const iconButtons = [...client.matchAll(/className: 'dsh-an-iconBtn[^']*',\n\s+'aria-label': say\(([^)]+)\)/g)]
-  assert.equal(iconButtons.length, 3, 'rewind, copy and insert are the three icon actions')
+  const iconButtons = [...client.matchAll(/className: 'dsh-an-iconBtn[^']*',\n\s+'aria-label': (?:say\([^)]+\)|insertLabel)/g)]
+  assert.equal(iconButtons.length, 3, 'rewind, copy and insert or archive are icon actions')
   const buttonTitles = [...client.matchAll(/'aria-label': say\('[^']+'\),\n\s+title:/g)]
   assert.deepEqual(buttonTitles, [], 'aria-labelled buttons must not carry a second native title')
 })
@@ -818,12 +820,11 @@ test('archived notes drop the insert action and keep rewind plus copy', () => {
   const actions = client.slice(start)
   // Inserting is what archives a note, so an archived row has nothing left to
   // hand over: the action disappears instead of rendering disabled.
-  assert.match(actions, /archived \? null : withTooltip\(say\('item\.insert'\)/)
-  assert.equal([...actions.matchAll(/\? null : withTooltip/g)].length, 1, 'insert is the only conditional action')
-  assert.match(actions, /withTooltip\(say\('item\.copy'\)/)
+  assert.match(actions, /archived \? null : withTooltip\(insertLabel/)
+  assert.match(actions, /hasText \? withTooltip\(say\('item\.copy'\)/, 'copy appears when the note has text')
   assert.match(actions, /withTooltip\(say\('item\.recall'\)/)
   // Copy, rewind, then the primary insert at the trailing edge.
-  const order = ["withTooltip(say('item.copy')", "withTooltip(say('item.recall')", "withTooltip(say('item.insert')"]
+  const order = ["withTooltip(say('item.copy')", "withTooltip(say('item.recall')", 'withTooltip(insertLabel']
     .map(snippet => actions.indexOf(snippet))
   assert.ok(order.every(index => index > 0), 'row action order drifted')
   assert.deepEqual([...order].sort((a, b) => a - b), order, 'row action order drifted')
@@ -1015,8 +1016,9 @@ test('putting a note into the chat archives it in the same step', () => {
   // The note is written bare; no prompt and no list marker.
   assert.doesNotMatch(handler, /prefix|forward\.prefix|`- /)
   // No composer on screen: nothing changes and the note stays open.
-  assert.match(handler, /if \(!appendToConversation\(item\.text\)\) \{\n\s+report\('insertFailed'\)\n\s+return\n\s+\}/)
-  assert.match(handler, /report\(\(await archive\(item\)\) \? 'inserted' : 'archiveFailed'\)/)
+  assert.match(handler, /if \(hasText && !appendToConversation\(item\.text\)\) \{\n\s+report\('insertFailed'\)\n\s+return\n\s+\}/)
+  assert.match(handler, /const ok = await archive\(item\)/)
+  assert.match(handler, /'inserted'[^\n]*'archiveFailed'/)
   assert.ok(handler.indexOf('appendToConversation') < handler.indexOf('archive(item)'), 'archive only after the text landed')
   const actions = read('src/client/ui/useNoteActions.ts')
   assert.match(actions, /if \(candidate\.id !== item\.id \|\| candidate\.done\) return candidate/, 'archiving is one-way')

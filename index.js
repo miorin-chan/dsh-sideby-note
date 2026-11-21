@@ -12,6 +12,7 @@
  * 503 so the browser can tell "this host has no storage" apart from "this host
  * is too old to know the route" without guessing from the SPA fallback.
  */
+import { registerAttachmentRoute } from './host/attachment-route.js'
 import { registerUpdateRoutes } from './host/route.js'
 import { createStore } from './host/store.js'
 import { registerStoreRoutes } from './host/store-route.js'
@@ -37,6 +38,7 @@ export function apply(ctx, config) {
   // older hosts), and the route answers 503 in that case instead of failing
   // activation. Closing the domain belongs to the effect that opened it.
   ctx.inject(['webServer'], hostCtx => {
+    hostCtx.effect(() => registerAttachmentRoute(hostCtx.webServer, hostCtx), 'dsh-sideby-note: attachments')
     hostCtx.effect(() => {
       const store = createStore(hostCtx)
       const dispose = registerStoreRoutes(hostCtx.webServer, { ctx: hostCtx, store })

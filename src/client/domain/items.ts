@@ -1,6 +1,7 @@
 /** Note shape, ordering and relative time copy. */
 import { MAX_TEXT } from '../constants'
 import { uid } from './id'
+import { normalizeAttachments } from './attachments'
 
 /**
  * Stable id for a legacy record that never had one.
@@ -30,7 +31,8 @@ export function normalizeItems(items) {
   for (const raw of items) {
     if (!raw || typeof raw !== 'object') continue
     const text = String(raw.text || '').trim().slice(0, MAX_TEXT)
-    if (!text) continue
+    const attachments = normalizeAttachments(raw.attachments)
+    if (!text && attachments.length === 0) continue
     let id = typeof raw.id === 'string' && raw.id ? raw.id : legacyId(text, raw.createdAt, raw.updatedAt)
     // A duplicated id must not become a random one, or every read would mint a
     // new identity and the next merge would keep both copies.
@@ -43,6 +45,7 @@ export function normalizeItems(items) {
     normalized.push({
       id,
       text,
+      ...(attachments.length ? { attachments } : {}),
       done,
       createdAt,
       updatedAt,

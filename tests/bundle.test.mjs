@@ -266,7 +266,9 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(addButton.getAttribute('aria-label'), '添加')
     assert.equal(addButton.textContent, '', 'the submit button shows only the icon')
     assert.ok(addButton.querySelector('svg[aria-hidden="true"] path'), 'the submit button renders a decorative icon')
-    assert.equal(addField.form.textContent.trim(), '', 'the composer has no visible keyboard hint')
+    const formCopy = addField.form.cloneNode(true)
+    formCopy.querySelector('.dsh-an-attachBtn').remove()
+    assert.equal(formCopy.textContent.trim(), '', 'the composer has no visible keyboard hint')
     // Set the value through the prototype setter so React's value tracker sees a
     // change, then dispatch the input event React listens for. fireEvent would
     // resolve the prototype in the Node realm, not this jsdom one.
