@@ -149,9 +149,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     react: React,
     'react-dom': ReactDOM,
     'react-dom/client': ReactDOMClient,
-    '@deepseek-ai/dsh-client-ui-primitives': {
-      IconPlusOutlineRegular: () => React.createElement('svg', { 'data-icon': 'plus' }),
-    },
+    '@deepseek-ai/dsh-client-ui-primitives': {},
   }
   const requireShim = id => {
     if (!(id in moduleTable)) throw new Error(`module table cannot answer ${id}`)
@@ -267,7 +265,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(addButton.disabled, true)
     assert.equal(addButton.getAttribute('aria-label'), '添加')
     assert.equal(addButton.textContent, '', 'the submit button shows only the icon')
-    assert.ok(addButton.querySelector('svg[data-icon="plus"]'), 'the submit button renders the shared plus icon')
+    assert.ok(addButton.querySelector('svg[aria-hidden="true"] path'), 'the submit button renders a decorative icon')
     assert.equal(addField.form.textContent.trim(), '', 'the composer has no visible keyboard hint')
     // Set the value through the prototype setter so React's value tracker sees a
     // change, then dispatch the input event React listens for. fireEvent would

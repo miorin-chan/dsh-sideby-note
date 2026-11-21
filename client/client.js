@@ -5121,10 +5121,17 @@ function ComposerForm(props) {
 		className: "dsh-an-addBtn",
 		"aria-label": addLabel,
 		disabled: storageInUse || isSubmitting || isRecalling || !draft.trim()
-	}, h$5(Glyph, {
-		name: "IconPlusOutlineRegular",
-		size: 16
-	}))));
+	}, h$5("svg", {
+		width: 16,
+		height: 16,
+		viewBox: "0 0 16 16",
+		fill: "none",
+		stroke: "currentColor",
+		strokeWidth: 1.5,
+		strokeLinecap: "round",
+		strokeLinejoin: "round",
+		"aria-hidden": true
+	}, h$5("path", { d: "M13 3v5a2 2 0 0 1-2 2H3m0 0 3-3m-3 3 3 3" })))));
 }
 
 // src/client/ui/ClearConfirm.ts

@@ -25,7 +25,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   Local fallback preserves unreadable payloads in a recovery copy.
 - Hand to chat is now Insert and uses the list-and-pen icon.
   Copy is the leftmost row action.
-- The note composer uses a plus button and removes the visible keyboard hint.
+- The note composer uses a return icon for the add button and removes the visible keyboard hint.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
@@ -37,7 +37,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - 清单可超过 300 条。本地回落遇到无法读取的数据时会保留恢复副本。
 - 便笺的「递入对话」改为「填入」，换用列表加笔图标。
   「复制」移到行操作组最左侧。
-- 便笺录入区移除键盘说明，改用加号按钮添加便笺。
+- 便笺录入区移除键盘说明，添加按钮改用回车图标。
 <!-- app-update-notes:zh:end -->
 
 <!-- app-update-notes:en:start -->

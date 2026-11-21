@@ -173,7 +173,7 @@ Feedback reuses product surfaces too: copy, rewind, insert, clear-archived, and 
 ## Usage
 
 1. Click the **Sideby Note** button at the top right of the conversation to open the right-side panel. Its badge shows the open count when there are open notes; the **Workspace / Session** switch in the panel header moves between the whole workspace and the current conversation.
-2. Write one concrete follow-up in the panel, then click the plus button beside the input or press Enter to add it. Press Shift+Enter for a new line.
+2. Write one concrete follow-up in the panel, then click the return button (↵) beside the input or press Enter to add it. Press Shift+Enter for a new line.
 3. To change a note, click its **Rewind** button (↺): the text goes back into the top composer, ready to edit and submit again. Clearing that composer removes the note.
 4. To change the order, drag a note by the grip on its left (or focus the grip and press ↑ / ↓).
 5. When you are ready to continue, click the note's **Insert** button: the text is appended to the chat input and the note is archived; review and send it yourself. Expand **Archived** to look back.
