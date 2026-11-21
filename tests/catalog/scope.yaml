@@ -1,0 +1,232 @@
+# 清单范围与归属（SCOPE）
+#
+# 业务语义：一条便笺属于工作区还是某个会话，切换时看到什么。
+# 这是本插件最容易出错、也最伤用户信任的一块。
+domain: scope
+owner: scope
+
+cases:
+  - id: SCOPE-001
+    title: 首次见到工作区时一次性并入成员会话便笺
+    priority: P0
+    class: B
+    rules: [R-SCOPE-SEED]
+    risk: data_loss
+    expected:
+      - 第一次捕获工作区时创建共享清单
+      - 成员会话的既有便笺全部并入，且每个会话只并入一次
+      - 会话键保持原结构，不写入工作区数据
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: SCOPE-001 首次见到工作区时一次性并入成员会话便笺
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [migration, workspace]
+
+  - id: SCOPE-002
+    title: 面板默认工作区范围并显示本地存储提示
+    priority: P1
+    class: C
+    rules: [R-SCOPE-DEFAULT, R-PANEL-COPY]
+    risk: ux
+    expected:
+      - 范围开关有「工作区」「会话」两项，默认选中工作区
+      - 页脚始终说明数据仅保存在本地
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: SCOPE-002 面板默认工作区范围并显示本地存储提示
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [scope-switch]
+
+  - id: SCOPE-003
+    title: 切到会话范围只显示本会话便笺
+    priority: P1
+    class: B
+    rules: [R-SCOPE-DEFAULT]
+    risk: ux
+    expected:
+      - 会话范围只列出当前会话的便笺
+      - 选择写入存储，入口角标跟随所选范围
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: SCOPE-003 切到会话范围只显示本会话便笺
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [scope-switch, badge]
+
+  - id: SCOPE-004
+    title: 切回工作区恢复共享清单并记住选择
+    priority: P1
+    class: B
+    rules: [R-SCOPE-DEFAULT]
+    risk: ux
+    expected:
+      - 切回后恢复共享清单内容
+      - 选择持久化，重开面板保持
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: SCOPE-004 切回工作区恢复共享清单并记住选择
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [scope-switch]
+
+  - id: SCOPE-005
+    title: 工作区范围新增便笺落在共享清单
+    priority: P0
+    class: B
+    rules: [R-SCOPE-SAVE, R-DRAFT-SCOPE]
+    risk: data_loss
+    expected:
+      - 新增条目进入工作区清单
+      - 会话键不被再次写入
+      - 提交后共享草稿被消费
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: SCOPE-005 工作区范围新增便笺落在共享清单
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [persistence, workspace]
+
+  - id: SCOPE-006
+    title: 另一个会话打开同一工作区读到同一清单
+    priority: P0
+    class: B
+    rules: [R-SCOPE-DEFAULT]
+    risk: data_loss
+    expected:
+      - 同一工作区的另一个会话看到同样的条目
+      - 新写入的条目对另一会话可见
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: SCOPE-006 另一个会话打开同一工作区读到同一清单
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [workspace, sharing]
+
+  - id: SCOPE-007
+    title: 会话范围提交落到会话清单
+    priority: P1
+    class: B
+    rules: [R-SCOPE-SAVE, R-DRAFT-SCOPE]
+    risk: data_loss
+    expected:
+      - 在会话范围提交时写入当前会话清单
+      - 工作区清单条数不变
+      - 提交后共享草稿被消费
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: SCOPE-007 会话范围提交落到会话清单
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [persistence, scope-switch]
+
+  - id: SCOPE-008
+    title: 空白会话只提供工作区范围并可写入
+    priority: P1
+    class: C
+    rules: [R-SCOPE-BLANK]
+    risk: ux
+    expected:
+      - 空白新会话只显示「工作区」选项，并解释原因
+      - 此时写入的便笺进入工作区清单
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: SCOPE-008 空白会话只提供工作区范围并可写入
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [blank-session]
+
+  - id: SCOPE-009
+    title: 首轮对话后入口迁移并解锁会话范围
+    priority: P1
+    class: B
+    rules: [R-SCOPE-BLANK, R-PANEL-ENTRY]
+    risk: ux
+    expected:
+      - 面板保持打开，入口从 header 角落移到对话工具行
+      - 「会话」选项出现，会话清单可写
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: SCOPE-009 首轮对话后入口迁移并解锁会话范围
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [blank-session, header-entry]
+
+  # —— 由 R-SCOPE-NOWORKSPACE / R-SCOPE-DEFAULT 推导，尚无实现 ——
+  - id: SCOPE-010
+    title: 不在工作区的会话只有会话清单
+    priority: P1
+    class: D
+    rules: [R-SCOPE-NOWORKSPACE]
+    risk: data_loss
+    expected:
+      - 没有工作区的会话打开面板时不出现「工作区」选项
+      - 写入只进入该会话自己的清单
+    automation:
+      - type: integration
+        file: tests/resilience.test.mjs
+        test: SCOPE-010 不在工作区的会话只有会话清单
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [scope, fallback]
+
+  - id: SCOPE-011
+    title: 空白会话忽略遗留的会话范围选择
+    priority: P1
+    class: D
+    rules: [R-SCOPE-DEFAULT]
+    risk: data_loss
+    expected:
+      - 打开空白新会话时展示工作区清单
+      - 已保存的范围选择不被改写
+    automation:
+      - type: integration
+        file: tests/resilience.test.mjs
+        test: SCOPE-011 空白会话忽略遗留的会话范围选择
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [scope, blank-session]
+
+  - id: SCOPE-012
+    title: 重复打开工作区不产生重复条目
+    priority: P2
+    class: C
+    rules: [R-SCOPE-SEED]
+    risk: data_loss
+    expected:
+      - 第一次打开时成员会话的便笺各并入一次
+      - 再次打开同一工作区，条目数与已并入会话列表都不变
+    automation:
+      - type: integration
+        file: tests/resilience.test.mjs
+        test: SCOPE-012 重复打开工作区不产生重复条目
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [idempotent, workspace]
+
+  - id: SCOPE-013
+    title: 切换范围本身不写入任何清单
+    priority: P2
+    class: C
+    rules: [R-SCOPE-SAVE]
+    risk: ux
+    expected:
+      - 只在范围之间切换、不提交时，两份清单的条目数都不变
+      - 草稿在往返切换后仍在输入框里
+    automation:
+      - type: integration
+        file: tests/resilience.test.mjs
+        test: SCOPE-013 切换范围本身不写入任何清单
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [scope-switch, draft]

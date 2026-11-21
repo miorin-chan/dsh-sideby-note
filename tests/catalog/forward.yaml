@@ -1,0 +1,105 @@
+# 转发回输入框（FWD）
+#
+# 业务语义：把便笺原文追加到当前会话的输入框，成功后归档。
+domain: forward
+owner: forward
+
+cases:
+  - id: FWD-001
+    title: 旧前缀偏好不会影响递入
+    priority: P1
+    class: B
+    rules: [R-FWD-PLAIN]
+    risk: ux
+    expected:
+      - 已有前缀偏好时仍只递入原文，且不改写该偏好
+    automation:
+      - type: integration
+        file: tests/resilience.test.mjs
+        test: FWD-001 旧前缀偏好不会影响递入
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [legacy, plain-text]
+
+  - id: FWD-002
+    title: 递入只写当前可见会话且归档到原工作区
+    priority: P0
+    class: C
+    rules: [R-FWD-TARGET]
+    risk: data_loss
+    expected:
+      - 文本只进入当前可见会话的输入框
+      - 另一个会话的输入框保持为空
+      - 递入成功后条目在其工作区清单归档
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: FWD-002 递入只写当前可见会话且归档到原工作区
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [forward, workspace]
+
+  - id: FWD-003
+    title: 第二条便笺另起一行追加
+    priority: P2
+    class: B
+    rules: [R-FWD-PLAIN]
+    risk: ux
+    expected:
+      - 第二条便笺追加在第一条后，两条原文之间恰好一个换行
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: FWD-003 第二条便笺另起一行追加
+        status: automated
+    suites: [nightly, release]
+    tags: [plain-text, append]
+
+  - id: FWD-004
+    title: 递入保留会话现有草稿
+    priority: P2
+    class: C
+    rules: [R-FWD-PLAIN]
+    risk: ux
+    expected:
+      - 现有会话草稿保持原样，随后换行追加便笺原文
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: FWD-004 递入保留会话现有草稿
+        status: automated
+    suites: [nightly, release]
+    tags: [plain-text, append]
+
+  - id: FWD-005
+    title: 草稿末尾已有换行时直接追加
+    priority: P2
+    class: C
+    rules: [R-FWD-PLAIN]
+    risk: ux
+    expected:
+      - 在已有换行之后追加便笺，不产生额外空行
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: FWD-005 草稿末尾已有换行时直接追加
+        status: automated
+    suites: [nightly, release]
+    tags: [plain-text, append]
+
+  - id: FWD-006
+    title: 归档条目没有再次递入操作
+    priority: P2
+    class: C
+    rules: [R-FWD-ARCHIVE]
+    risk: ux
+    expected:
+      - 第一次递入追加原文并归档便笺
+      - 归档条目不再提供递入操作，也不写转发标记
+    automation:
+      - type: integration
+        file: tests/resilience.test.mjs
+        test: FWD-006 归档条目没有再次递入操作
+        status: automated
+    suites: [nightly, release]
+    tags: [forward, archive]

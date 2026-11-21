@@ -11,4 +11,6 @@
 - [自动化验收 SOP](auto-test-sop.md)说明隔离 DSH profile 和 UI 冒烟检查。
 - [截图与预览图 SOP](screenshot-sop.md)说明演示数据、截取流程与素材产出。
 - [发布与版本迭代](release.md)记录分支、构建、发版和更新说明约定。
+- [测试工程](testing.md)记录业务规则、用例目录、执行记录和 CI 门禁。
+- [上游存储迁移设计](design/host-storage-migration.md)记录 `dsh-aside-note` 1.2.0 的设计背景。
 - [运营记录](../CHANGELOG-OPS.md)记录文档、截图、上架与工程基建变化。

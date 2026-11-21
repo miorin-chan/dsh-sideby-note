@@ -7,12 +7,13 @@
  * This route runs inside the host, where DSH's installer and the profile's
  * package manager are both reachable.
  *
- * The surface is deliberately tiny and same-origin: one read, one mutation.
+ * Both endpoints require DSH request authentication.
  */
 import { UpdateError, applyUpdate, manualCommand } from './apply-update.js'
 import { runProcess } from './exec.js'
 import { PACKAGE, dependencySpec, installMode, installedVersion, isProfileDir, profileDirOf } from './profile.js'
 import { compareVersions, isExactVersion, isPrerelease } from './versions.js'
+import { requestRejection, sendJson } from './http.js'
 
 export const PROBE_PATH = '/dsh-sideby-note/update/probe'
 export const APPLY_PATH = '/dsh-sideby-note/update/apply'
@@ -84,36 +85,6 @@ export async function fetchLatestVersion(current) {
     if (best !== undefined) return best
   }
   return undefined
-}
-
-/**
- * @param {import('node:http').ServerResponse} response
- * @param {number} status
- * @param {unknown} body
- */
-function sendJson(response, status, body) {
-  response.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' })
-  response.end(JSON.stringify(body))
-}
-
-/**
- * Reject requests that a page other than this host's could have made.
- *
- * Same rule the plugin market applies: a cross-site hint is refused outright, a
- * present Origin must name this Host, and an absent Origin is allowed because
- * the Desktop shell's proxy strips it (#648).
- * @param {import('node:http').IncomingMessage} request
- * @returns {boolean}
- */
-export function sameOrigin(request) {
-  if (request.headers['sec-fetch-site'] === 'cross-site') return false
-  const origin = request.headers.origin
-  if (origin === undefined) return true
-  try {
-    return new URL(origin).host === request.headers.host
-  } catch {
-    return false
-  }
 }
 
 /**
@@ -226,8 +197,9 @@ export function registerUpdateRoutes(server, options) {
         sendJson(response, 405, { ok: false, code: 'METHOD_NOT_ALLOWED' })
         return
       }
-      if (!sameOrigin(request)) {
-        sendJson(response, 403, { ok: false, code: 'UPDATE_FORBIDDEN' })
+      const rejection = requestRejection(ctx, request)
+      if (rejection !== undefined) {
+        sendJson(response, rejection, { ok: false, code: 'UPDATE_FORBIDDEN' })
         return
       }
       const dir = resolveProfile()
@@ -269,8 +241,9 @@ export function registerUpdateRoutes(server, options) {
         sendJson(response, 405, { ok: false, code: 'METHOD_NOT_ALLOWED' })
         return
       }
-      if (!sameOrigin(request)) {
-        sendJson(response, 403, { ok: false, code: 'UPDATE_FORBIDDEN' })
+      const rejection = requestRejection(ctx, request)
+      if (rejection !== undefined) {
+        sendJson(response, rejection, { ok: false, code: 'UPDATE_FORBIDDEN' })
         return
       }
       if (state.promise !== undefined) {

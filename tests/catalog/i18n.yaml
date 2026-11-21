@@ -1,0 +1,42 @@
+# 语言与文案（I18N）
+#
+# 业务语义：界面跟随 DSH 当前语言，递入的便笺保持原文。
+domain: i18n
+owner: i18n
+
+cases:
+  - id: I18N-001
+    title: 面板文案跟随当前语言且递入保留原文
+    priority: P1
+    class: C
+    rules: [R-I18N-LIVE, R-FWD-PLAIN]
+    risk: ux
+    expected:
+      - 面板打开时显示当前语言的标题与顶部输入框占位
+      - 切换语言后标题与占位文案立即跟随
+      - 点击递入时只添加便笺原文
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: I18N-001 面板文案跟随当前语言且递入保留原文
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [i18n, forward]
+
+  # —— 由 R-I18N-FALLBACK 推导，尚无实现 ——
+  - id: I18N-002
+    title: 未知语言回落英文
+    priority: P2
+    class: D
+    rules: [R-I18N-FALLBACK]
+    risk: ux
+    expected:
+      - 传入未知语言代码时界面显示英文
+      - 不显示字典 key，也不回落到中文
+    automation:
+      - type: integration
+        file: tests/resilience.test.mjs
+        test: I18N-002 未知语言回落英文
+        status: automated
+    suites: [nightly, release]
+    tags: [i18n, fallback]

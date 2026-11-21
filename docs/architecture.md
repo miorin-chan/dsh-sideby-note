@@ -4,8 +4,10 @@
 
 ## 1. 形态与运行时契约
 
-边记部的**数据与界面全部在浏览器半侧**；宿主半侧只做浏览器做不到的一件事——把新版本装进 profile（见 §8）。
-`index.js` 因此仍然保留 `cordis.patch.yml` 需要的那一行，同时在宿主里注册两个更新端点，不读写任何便笺数据。
+边记部的**界面在浏览器半侧，数据在宿主半侧的本地文件**：浏览器拿不到 `$DSH_HOME`，
+所以宿主用 DSH 官方存储（`ctx.storageDomain` + JSON 后端）维护 `~/.dsh/storages/aside_note.json`，
+浏览器经同源 `fetch` 访问；宿主另外承担浏览器做不到的「把新版本装进 profile」（见 §8）。
+`index.js` 负责注册这两组端点，浏览器的同步读由启动时 hydrate 的内存快照兜住。
 
 - `package.json` 的 `dsh.bundle.patch` 指向 `cordis.patch.yml`，`dsh.client` 声明 `./client` 与需要预注入的宿主模块。
 - 壳把 `./client`（即 `client/client.js`）当 classic script 加载：`window.__ModuleLoader__.load({ id, factory })`。
@@ -14,8 +16,13 @@
 - 样式是 `import css from './styles/panel.css?inline'`，
   由入口在 `apply()` 里插入**一张** `<style data-dsh-plugin="dsh-sideby-note">`，dispose 时移除。
   面板与输入框 dock 不在同一棵 React 树里，所以不能做面板级 `<style>`。
-- 只依赖两个服务：`slots`（`conversation.composer.dock` 捕获当前会话、`conversation.hero.options` 捕获空白新会话、
-  `shell.overlay` 承载全局 Toast）与 `locale`（注册字典、绑定 `t`，并订阅 `locale/change` 让已打开的面板就地换语言）。
+- 浏览器侧只依赖两个服务：`slots`（`conversation.composer.dock` 捕获当前会话、
+  `conversation.hero.options` 捕获空白新会话、`shell.overlay` 承载全局 Toast）与 `locale`（注册字典、
+  绑定 `t`，并订阅 `locale/change` 让已打开的面板就地换语言）。
+  宿主侧使用 `webServer`（路由）、`connection`（校验 Web 请求）与 `storageDomain`（存储领域），
+  存储服务缺失时路由返回 503，客户端据此不切换。
+- 存储切换是**一次性**的：启动探测宿主 → 可用则迁移后单向使用，不可用则留在 `localStorage` 并提示；
+  标记只在成功后写，之后不再回退（见 [上游存储迁移设计 §7](./design/host-storage-migration.md)）。
 - 顶部入口是注入宿主 header 的原生 DOM 按钮，不是 React portal——宿主重渲染会回收 portal。
 
 ## 2. 目录
@@ -23,24 +30,28 @@
 ```text
 src/client/
 ├─ index.ts              # apply(ctx)：样式、locale、slot 注册、入口、Toast 座位
-├─ constants.ts          # 包身份、存储键、上限、平台相关常量
+├─ constants.ts          # 包身份、存储键、平台相关常量
 ├─ scope.ts              # 会话 → 工作区绑定；按工作区/会话选择解析清单，工作区外回落会话
 ├─ dsh.d.ts              # 宿主 ctx / locale / slots 的最小 ambient 类型
 ├─ i18n/                 # zh.ts（键的唯一来源）、其余 7 种 DSH 官方语言、index.ts（fill / makeSay）
 ├─ domain/               # id、clipboard、forward（写入会话输入框）、items（归一化/排序/时间/手排移动）
-├─ storage/              # codec、events（同标签页总线）、session、workspace、drafts、prefs
+├─ storage/              # 设备本地：codec（含损坏备份）、merge（本地回落时的并发合并）、drafts、设备级 prefs；
+│                        # 宿主：host-client（HTTP）、state（缓存/模式）、boot（探测/迁移）、
+│                        # ops（diff 写）、legacy（迁移来源与标记）；session/workspace/prefs 双介质分发
 ├─ ui/                   # 面板外壳与纯展示组件、hooks、primitives、定位
 │                        # 更新中心：useUpdateCenter（检查/说明/更新与命令兜底）、UpdateNotice
 ├─ update/               # latest（版本与 Release 探测）、releaseNotes（标记解析）、
 │                        # releaseHistory（多版本区间）、
 │                        # host（宿主更新端点客户端）
 └─ styles/panel.css      # 全局 .dsh-an-* 规则与 --an-* 尺度
-host/                    # 宿主半边：route（两个更新端点）、apply-update（三级安装）、
-                         # profile（定位与版本读取）、versions（版本比较）、exec（进程）
+host/                    # 宿主半边：
+                         # route（两个更新端点）、apply-update（三级安装）、profile、versions、exec
+                         # store-spec（aside_note 领域与 zod schema）、store（懒打开/快照/原子变更/迁移）、
+                         # store-route（GET/POST /dsh-sideby-note/store、GET /store/location、POST /store/reveal）、normalize、http
 client/client.js         # tsdown 产物，入库，CI 校验与源码一致
-index.js                 # 宿主半侧：只注册更新端点，无状态
+index.js                 # 宿主半侧：注册更新端点与便笺存储端点
 cordis.patch.yml         # profile 组合里的一行
-tests/                   # contract.test.mjs（契约）+ bundle.test.mjs（jsdom 集成）
+tests/                   # catalog/（业务规则与用例）、*.test.mjs（契约 / 集成 / 韧性）、testkit/（jsdom 启动器）
 tools/screenshots/       # 截图流水线（见 screenshot-sop.md）
 docs/assets/             # README 截图（preview-* 与 features/）
 ```
@@ -52,17 +63,21 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 入口 | `index.ts` | 注入样式 → 注册字典 → 座位入口/Toast/slot |
 | 身份 | `constants.ts` | 包与插件的 id、`dsh-an-*` 相关的键与上限 |
 | 文案 | `i18n/` | `zh.ts` 定义键集合与 `MessageKey`；其余 7 种 DSH 官方语言用 `Record<MessageKey, string>`，缺键编译失败；运行时未知语言或缺键一律回退英文 |
-| 领域 | `domain/items.ts` | `normalizeItems`（防御性清洗、去重、上限）、归档排序、`moveOpenItem`（只重排待续，归档留在原槽位）、相对时间文案 |
+| 领域 | `domain/items.ts` | `normalizeItems`（防御性清洗、去重）、归档排序、`moveOpenItem`（只重排待续，归档留在原槽位）、相对时间文案 |
 | 领域 | `domain/forward.ts` | 「递入对话」：把便笺作为纯文本写进**当前会话**的 Lexical contenteditable 或 textarea，按换行接在已有内容后面；按 `[data-conversation-session]` 限定输入框。写入成功后由面板把该便笺归档 |
-| 存储 | `storage/session.ts` | 会话便笺库（`sessions`）的读写；保持原 `dsh.aside-note` 的 v1 键与结构，写失败返回 `false`，由调用方保留 UI 原状并报 Toast |
-| 存储 | `storage/workspace.ts` | 工作区清单（`dsh.aside-note.workspaces`）读写；首次见到工作区时把成员会话的旧便笺一次性并入，`seededSessionIds` 防重复 |
+| 存储 | `storage/session.ts` | 会话便笺的读写；宿主模式走缓存 + `list.patch` diff（宿主原子合并），本地复用 v1 键并做损坏备份与并发合并；失败返回 `false`，由调用方保留 UI 原状 |
+| 存储 | `storage/workspace.ts` | 工作区清单读写；首次见到工作区时把成员会话的旧便笺并入一次（宿主侧 `list.ensure` 原子完成），`seededSessionIds` 防重复 |
+| 存储 | `storage/merge.ts` | 本地回落模式的按 id 合并：双方新增都保留，同一条目取较新的 `updatedAt`，本页相对上次读取删除的条目不再复活 |
+| 存储 | `storage/boot.ts` | 启动探测、一次性迁移、模式标记与提示；不可用不切换，成功后单向 host |
+| 存储 | `storage/state.ts` / `host-client.ts` / `ops.ts` | 内存快照、同标签广播、同源 HTTP、按 key 串行与乐观/回滚策略 |
+| 存储 | `storage/legacy.ts` | 旧 `localStorage` 快照（迁移来源）、兼容上游的 `dsh.aside-note.storage-mode` 切换标记与 `dsh.aside-note.storage-notice` 提示去重 |
 | 范围 | `scope.ts` | 记录 dock 当前会话的归属；按保存的「工作区 / 会话」选择解析清单，工作区外始终回落到会话 |
 | 更新 | `update/latest.ts` | npm → npmmirror → GitHub Release 的版本探测（1 小时缓存），按版本读取 Release 正文 |
 | 更新 | `update/releaseNotes.ts` | 提取 `app-update-notes` 标记块、按语言回退、压平 Markdown、上限兜底 |
 | 更新 | `update/releaseHistory.ts` | 从 releases feed 选出「本地 < 版本 ≤ 最新」的区间，剔除草稿/预发布，倒序与上限 |
 | 更新 | `ui/useUpdateCenter.ts` | 自动/手动检查、懒加载说明、更新状态机（starting/running/done/error）；只走宿主更新端点，没有市场分支 |
 | 更新 | `ui/UpdateNotice.ts` | 关于区里的更新卡片：说明展开、完整说明链接、立即更新/刷新，宿主没有路由或拒绝时改为带版本号的命令 + 拷贝更新提示词 |
-| 存储 | `storage/prefs.ts` | 面板宽高、工作区/会话范围、分区状态 |
+| 存储 | `storage/prefs.ts` | 范围选择在宿主模式写入 `global`，面板宽高与分区状态留在设备本地 |
 | UI 组件 | `ui/MemoPopover.ts` | 面板编排：组合 hook 与展示组件，portal 到 body |
 | UI 组件 | `PanelHead` / `ScopeSwitch` / `SettingsPanel` / `ComposerForm` / `NoteList` / `ClearConfirm` / `TodoRow` / `EmptyState` | 纯展示，数据与回调由面板传入 |
 | UI hooks | `useSessionMemoStore` / `usePanelGeometry` / `useSections` / `useComposerDraft` / `useNoteActions` / `useRowReorder` / `useClearConfirm` / `useListEdge` / `useOutsideDismiss` | 把状态与副作用从 JSX 里分离；每个 hook 只做一件事 |
@@ -73,24 +88,62 @@ docs/assets/             # README 截图（preview-* 与 features/）
 
 ## 4. 数据模型
 
-所有数据在**当前浏览器**的 `localStorage`。同一个工作区默认共享一份清单与一份未提交草稿，
-面板头部可在工作区清单与当前会话清单之间切换；没有工作区的会话只有会话清单。
-空白新会话只有工作区清单：入口在右上角出现，面板不显示「会话」选项；首轮对话后才出现并解锁会话清单。
+便笺以 DSH 官方存储的领域写进宿主的 **`$DSH_HOME/storages/aside_note.json`**（`single` 布局，整文件原子替换）：
 
-| 键 | 内容 |
-| --- | --- |
-| `dsh.aside-note` | `{ version: 1, sessions: { [sessionId]: { sessionId, updatedAt, items: Note[] } } }`（会话键保持原结构） |
-| `dsh.aside-note.workspaces` | `{ version: 1, workspaces: { [workspaceId]: { workspaceId, updatedAt, items: Note[], seededSessionIds: string[] } } }` |
-| `dsh.aside-note.scope-mode` | `workspace`（工作区，默认）或 `session`（当前会话） |
-| `dsh.aside-note.drafts` | `{ version: 1, sessions: { [draftKey]: { add } } }`；`draftKey` 为 `ws:<workspaceId>`（工作区共享）或会话 ID；旧版就地编辑留下的 `edits` 会被忽略并在下次写入草稿时清理 |
-| `dsh.aside-note.forwarded` | 已停用：旧版转发标识。不再读取、写入或清理，留在浏览器里也不影响面板 |
-| `dsh.aside-note.sections` | `{ open, done }` |
-| `dsh.aside-note.panel-width` / `panel-height` | 数字；高度 `0` 表示内容自适应 |
-| `dsh.aside-note.forward-prefix` | 已停用：旧版递入前缀。不再读取、写入或清理，留在浏览器里也不影响面板 |
+```json
+{
+  "unit": { "name": "aside_note", "version": 1 },
+  "global": { "version": 1, "scopeMode": "workspace", "sendShortcut": "enter", "forwardPrefix": "…" },
+  "tables": {
+    "sessions": { "<sessionId>": { "sessionId": "…", "updatedAt": 0, "items": [] } },
+    "workspaces": { "<workspaceId>": { "workspaceId": "…", "updatedAt": 0, "items": [], "seededSessionIds": [] } },
+    "forwarded": { "ws:<workspaceId>": { "<itemId>": true } }
+  }
+}
+```
+
+- `sessions` 与 `workspaces` 是**平级两张表**：会话属于哪个工作区由 DSH 的工作区注册表提供，文件不存归属；
+  工作区清单是独立副本，首次见到工作区时把成员会话已有的便笺并入一次（`seededSessionIds` 防复活）。
+- `global` 存范围选择与迁移标记。
+  上游的 `sendShortcut`、`forwardPrefix` 与 `forwarded` 表保留在宿主格式中，供换回上游时继续使用。
+  边记部界面按自己的快捷键与归档规则运行。
+- 浏览器在宿主之外仍保留设备本地状态（`localStorage`）：面板宽高、分区展开、首次打开标记、
+  未提交草稿（`dsh.aside-note.drafts`，按工作区/会话共享）。
+- 领域 `version` 是当前格式版本；读旧版本要配 `compatibleVersions`，删字段前必须重写所有记录（官方无值迁移 runner）。
+- 设置 › **数据存储**通过 `GET /store/location` 读取该文件的完整路径，可拷贝；
+  `POST /store/reveal` 让宿主在文件管理器中定位它。
+  后端不是 JSON 文件时明确显示「无法定位」，不猜路径。
+- `Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，
+  **清单条数不设上限**（400 条仍可展示与新增，见 `STORE-018`）。
+- 每次写入整文件替换；数据量远小于文件系统压力，写入排队由领域写链串行化。
+
+**切换状态机**（[上游存储迁移设计 §7](./design/host-storage-migration.md)）：
+
+| 状态 | 触发 | 行为 |
+| --- | --- | --- |
+| 未切换 | 宿主可用且为空 | 有浏览器旧数据则执行两阶段 `migrate`，成功后写浏览器切换标记 |
+| 未切换 | 宿主可用且非空 | 写标记，不迁移；本地旧数据保留并提示 |
+| 未切换 | 宿主不可用 | 留在 `localStorage`，提示一次（24h 去重），下次启动重试，不写标记 |
+| 已切换 | 宿主可用 | 正常读写 |
+| 已切换 | 宿主不可用 | 错误态，只读本次快照或空清单，暂停写入 |
+| 任意 | `aside_note` 已由另一个插件打开 | 提示停用占用插件后重试，暂停写入，避免产生两份清单 |
+
+两个插件沿用同一宿主存储格式。DSH 在一个进程中只允许一个插件持有该存储领域，所以切换插件时先停用当前使用者。
+
+**本地回落模式**（尚未切换或宿主不可用时的 `localStorage` 路径）：
+
+- `dsh.aside-note`、`.workspaces`、`.drafts` 读取前先校验；解析失败或字段类型不对，
+  原始字符串先写到 `<键>.corrupt`（同一键只保留最后一份损坏内容），再把该键当作空清单继续，下一次写入不会静默覆盖证据。
+- 写入不是整份覆盖：`writeSessionRecord` / `writeWorkspaceRecord` 先读回最新记录，再按 id 合并（`storage/merge.ts`）。
+  两个标签页同时记便笺时双方新增都保留；同一条目冲突取 `updatedAt` 较新的一方；
+  本页相对上次读取删除的条目不被并发写入复活（反向可能复活，宁可复活不丢）。
+- 本地存储按浏览器 origin 隔离：桌面端与 `http://127.0.0.1:<port>` 是不同 origin 的两份数据；
+  仅当整站存储被拒绝时 `storage()` 才返回 `null`，更常见的是写失败（配额/磁盘/profile 只读）返回 `false`。
+  迁移到宿主后这一层只作为回退与恢复来源。
 
 草稿按 `draftKey` 存放：会话属于工作区时，整个工作区共用一份新增草稿，
 切换会话或在「工作区 / 会话」之间切换都不丢字；没有工作区的会话按会话保存。
-提交草稿时仍按当前选中的范围写入 `dsh.aside-note.workspaces` 或 `dsh.aside-note`，草稿本身不区分范围。
+提交草稿时按面板当前范围写入对应清单，草稿本身按工作区或会话共享。
 升级后首次打开工作区，会把当前会话的旧草稿并入共享键并清理成员会话的旧副本。
 
 面板里只有顶部一个文字编辑区。
@@ -103,29 +156,29 @@ docs/assets/             # README 截图（preview-* 与 features/）
 待续便笺的顺序就是存储数组里的顺序，`useRowReorder` 负责指针拖动与 ↑ / ↓ 键：拖动期间只改行的内联 `transform`，
 松手才经 `moveOpenItem` 写入一次，再在 layout effect 里把被拖行从松手处滑入新位置。
 
-`Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，单份清单上限 300 条。
-会话数据继续使用 `dsh.aside-note` 的 v1 结构，工作区数据单独放在 `dsh.aside-note.workspaces`，因此新增范围不会改写旧键；
-首次进入工作区会把成员会话里已有的便笺合入一次，`seededSessionIds` 记住已合入的会话，之后删除不会因再次合并而复活。
-键名不带版本后缀；前缀沿用上游的 `dsh.aside-note`，因此包名与插件 id 改为 `dsh-sideby-note` 后，
-已有便笺和设置仍可直接读取。
-
 ## 5. 构建与产物
 
 - 源码是 TypeScript，`tsdown.config.ts` 用 rolldown 打包成**单个** CJS closure factory，`target: es2022`，
   不压缩、无 sourcemap，产物入库便于 review 与逐行合并。
 - CSS 通过一个 `?inline` 虚拟模块进来（虚拟 id 用相对路径，避免把本机绝对路径写进产物注释）。
 - 版本号在 `constants.ts`，契约测试保证与 `package.json` 一致。
-- CI（Node 22 / 24）：
-  `npm ci` → `npm run build` → `git diff --exit-code client/`（产物必须与源码一致）→ lint → typecheck → test。
+- CI（Node 22 / 24）：`npm ci` → `npm run build` → `git diff --exit-code client/`（产物必
+  须与源码一致）→ lint → typecheck → `test:run`（逐用例记录）→ `catalog:check` → `design:review --strict`。
   `typecheck` 同时覆盖 `tsdown.config.ts`。
-- `npm run check` 本地串起 lint、typecheck、测试与构建；发布走 `npm publish`（`prepack` 会重建产物）。
+- `npm run check` 本地串起 lint、typecheck、构建、测试与用例校验；发布走 `npm publish`（`prepack` 会重建产物）。
 
 ## 6. 测试
 
 | 文件 | 覆盖 |
 | --- | --- |
+| `tests/catalog/design.yaml` | 业务规则与不变量（用例的唯一设计来源），字段见 [测试工程](./testing.md) |
+| `tests/catalog/*.yaml` | 测试用例目录：稳定 ID、优先级、规则引用、自动化指针 |
 | `tests/contract.test.mjs` | 清单与 patch 形状、工具链约定、样式令牌、无障碍与交互规则、字典完整性 |
+| `tests/resilience.test.mjs` | 排序与取消操作、无工作区/空白会话范围、存储读写失败、跨标签页刷新、宽度钳制、确认失效、未知语言回落、大清单 |
+| `tests/testkit/bundle.mjs` | 在 jsdom 里启动构建产物的测试装置：可注入存储故障、压缩定时器、locale 与 slot props |
 | `tests/bundle.test.mjs` | 在 jsdom 里执行**构建产物**：模块表、slot 注册、样式注入、入口注入，并驱动完整面板流程（添加、设置、方向键排序、递入对话并归档与找不到输入框时不变、清除确认、退回输入框、缩放、清空到空态、分区记忆）；另有工作区测试，验证两个会话共享清单、旧便笺只合入一次、工作区/会话切换与持久化、递入对话只写入当前会话输入框并归档、指针拖动排序与 Esc 取消；还有空白新会话测试，验证入口落在 header corner、只有工作区清单，以及首轮对话后入口移到 utilities 并解锁会话清单 |
+| `tests/host-store.test.mjs` | 宿主 store 契约：快照、diff/顺序/删除、并发新增保留、工作区只合并一次、偏好、迁移两阶段与中断恢复、不可用/损坏错误码、路由鉴权与体积上限 |
+| `tests/host-bundle.test.mjs` | 构建产物 + 假宿主端点：首次迁移后只写宿主、不可用时留在浏览器、已切换后不可用进入错误态且不写 `localStorage` |
 
 契约测试按模块读取源码（需要时读 bundle 或 CSS），断言的是约束而不是实现细节；集成测试提供行为兜底。
 
@@ -133,8 +186,9 @@ docs/assets/             # README 截图（preview-* 与 features/）
 
 - 新增文案：改 `src/client/i18n/*.ts` 的 8 种语言，键与占位符必须一致；插件列表文案同步改 `locale/*.json`；
   中文提示不加句号。
-- 新增持久化字段：`constants.ts` 加键 → `storage/` 对应模块读写 → 补契约/集成测试；读取旧形状时要原地升级，
-  并在架构文档记录合并/迁移规则。
+- 新增便笺字段（宿主数据）：`host/store-spec.js` 扩 zod schema（必要时升 `version` 并声明 `compatibleVersions`）→
+  `host/store.js`/`host/normalize.js` 处理 → 浏览器 `storage/` 模块 → 补宿主与集成测试。
+- 新增设备状态：`constants.ts` 加键 → `storage/prefs.ts`/`drafts.ts` 读写 → 补契约测试；不要放进宿主领域。
 - 新增面板状态：优先放 `ui/use*.ts`；纯逻辑放 `domain/`，不要 import React。
 - 改样式：只动 `src/client/styles/panel.css`，遵守 [面板 UI 规则](./panel-ui-rules.md)（语义别名、三档字号、
   0.5px 发丝线、hover 门控）。
@@ -154,7 +208,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 装完回读 `node_modules/dsh-sideby-note/package.json`，必须等于目标版本，否则报 `RESOLVED_VERSION_MISMATCH`。
 成功返回 `restartRequired: true`——DSH 不重载已加载的包，新版本在下次启动生效。
 
-端点只有两个，同源、POST 才可写：`GET /dsh-sideby-note/update/probe`、
+更新有两个同源端点，请求须通过 DSH 会话校验，写入使用 POST：`GET /dsh-sideby-note/update/probe`、
 `POST /dsh-sideby-note/update/apply`（body `{ target }`）。
 `link:` 安装会被直接拒绝：覆盖 checkout 的依赖声明等于把工作副本悄悄换成 registry 版本。
 
@@ -167,7 +221,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 DSH 插件市场在更新前会拒绝 `runningAgentsForGuard()` 非空的请求（除非显式 `confirmAgentsRunning`）。
 **本插件的更新端点刻意不做这项检查**，理由：
 
-- 便笺是纯 UI：agent 不 import 本包的任何文件；宿主半边只是两个路由函数，且随宿主启动就已在内存里。
+- 便笺是纯 UI：agent 不 import 本包的任何文件；宿主半边只是更新与存储端点及一个存储领域，且随宿主启动就已在内存里。
   替换包文件不改变 agent 正在执行的代码。
 - 反过来，把「更新一个界面插件」挡在「别的 agent 正在跑」后面，会让用户在等待时无法升级，成本大于收益。
 

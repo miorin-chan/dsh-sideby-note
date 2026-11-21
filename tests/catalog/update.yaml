@@ -1,0 +1,147 @@
+# 更新中心（UPD）
+#
+# 业务语义：能否发现新版本、能否看清更新内容、能否安全地装上去。
+domain: update
+owner: update
+
+cases:
+  - id: UPD-001
+    title: npm 失败回退镜像并显示更新卡片与说明
+    priority: P1
+    class: E
+    rules: [R-UPD-SOURCE]
+    risk: ux
+    expected:
+      - npmjs 读失败后回退到镜像源
+      - 齿轮出现更新点，关于区展示更新卡片
+      - 发布说明默认展开，无需额外点击
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: UPD-001 npm 失败回退镜像并显示更新卡片与说明
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [update, fallback]
+
+  - id: UPD-002
+    title: 手动检查绕过缓存且卡片不卸载
+    priority: P2
+    class: C
+    rules: [R-UPD-SOURCE]
+    risk: ux
+    expected:
+      - 手动检查重新读取注册表，不复用缓存
+      - 检查进行中卡片与更新点保持挂载
+      - 只有按钮显示进行中文案
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: UPD-002 手动检查绕过缓存且卡片不卸载
+        status: automated
+    suites: [nightly, release]
+    tags: [update, cache]
+
+  - id: UPD-003
+    title: 更新说明列出区间版本并支持展开
+    priority: P1
+    class: C
+    rules: [R-UPD-NOTES]
+    risk: ux
+    expected:
+      - 只列出本版本到最新之间的发布，草稿与预发布不出现
+      - 最新版本默认展开，旧版本点击后展开
+      - 完整说明链接指向对应 Release 并新开标签页
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: UPD-003 更新说明列出区间版本并支持展开
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [update, release-notes]
+
+  - id: UPD-004
+    title: 立即更新只走宿主端点并落到刷新
+    priority: P1
+    class: C
+    rules: [R-UPD-APPLY]
+    risk: crash
+    expected:
+      - 点击「立即更新」只向宿主发一次请求，不再探测插件市场
+      - 请求带上被提供的版本号
+      - 成功后提供「刷新页面」而不是命令行兜底
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: UPD-004 立即更新只走宿主端点并落到刷新
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [update, host-route]
+
+  - id: UPD-005
+    title: 重开面板复用探测缓存
+    priority: P2
+    class: C
+    rules: [R-UPD-SOURCE]
+    risk: ux
+    expected:
+      - 关闭再打开面板不重新请求注册表
+      - 更新点仍然显示
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: UPD-005 重开面板复用探测缓存
+        status: automated
+    suites: [nightly, release]
+    tags: [update, cache]
+
+  # —— 由 R-UPD-FAILURE 推导 ——
+  - id: UPD-007
+    title: 宿主没有更新路由时给命令兜底
+    priority: P1
+    class: E
+    rules: [R-UPD-FAILURE]
+    risk: ux
+    expected:
+      - 宿主不提供更新端点时展示可复制的安装命令
+      - 不显示「更新中」或「已更新」
+    automation:
+      - type: integration
+        file: tests/update-fallback.test.mjs
+        test: UPD-007 宿主没有更新路由时给命令兜底
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [update, fallback]
+
+  - id: UPD-006
+    title: 缓存 1 小时后重新探测
+    priority: P2
+    class: C
+    rules: [R-UPD-SOURCE]
+    risk: ux
+    expected:
+      - 距上次探测不足 1 小时时不重新请求
+      - 超过 1 小时后再次请求并刷新结果
+    automation:
+      - type: unit
+        file: tests/update-channel.test.mjs
+        test: UPD-006 缓存 1 小时后重新探测
+        status: automated
+    suites: [nightly, release]
+    tags: [timing, cache]
+
+  - id: UPD-008
+    title: 两个注册表都失败时回退 GitHub Release
+    priority: P2
+    class: E
+    rules: [R-UPD-SOURCE]
+    risk: ux
+    expected:
+      - npm 与镜像都失败时读取 GitHub Release 的 tag
+      - 返回去掉 v 前缀的版本号
+    automation:
+      - type: unit
+        file: tests/update-channel.test.mjs
+        test: UPD-008 两个注册表都失败时回退 GitHub Release
+        status: automated
+    suites: [nightly, release]
+    tags: [update, fallback]

@@ -319,9 +319,10 @@ await pressEnter()
 await sleep(2500)
 
 check('note rendered in the list', await evaluate(s, `[...document.querySelectorAll('.dsh-an-row')].some(r => r.innerText.includes(${JSON.stringify(NOTE)}))`))
-check('note persisted to localStorage', await evaluate(s, `(localStorage.getItem('dsh.aside-note.workspaces') || '').includes(${JSON.stringify(NOTE)})`))
+const store = await evaluate(s, `fetch('/dsh-sideby-note/store', { credentials: 'same-origin' }).then(async r => ({ ok: r.ok, text: await r.text() }))`)
+check('note persisted to host storage', store.ok && store.text.includes(NOTE))
 check('header badge shows the open count', await evaluate(s, `document.querySelector('.dsh-an-headerCount')?.textContent?.trim() === '1'`))
-check('entry tooltip carries the count', await evaluate(s, `/1 项未完成/.test(document.querySelector('.dsh-an-headerBtn')?.getAttribute('aria-label') || '')`))
+check('entry tooltip carries the count', await evaluate(s, `/1 项待续/.test(document.querySelector('.dsh-an-headerBtn')?.getAttribute('aria-label') || '')`))
 
 await sleep(500)
 await shot(s, path.join(out, 'snapshot.png'))

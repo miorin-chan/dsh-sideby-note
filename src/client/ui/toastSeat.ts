@@ -12,6 +12,9 @@ const TOAST_COPY = {
   cleared: { key: 'toast.cleared', tone: 'success' },
   copyFailed: { key: 'toast.copyFailed' },
   insertFailed: { key: 'toast.insertFailed' },
+  archiveFailed: { key: 'toast.archiveFailed' },
+  pathCopied: { key: 'toast.pathCopied', tone: 'success' },
+  revealFailed: { key: 'toast.revealFailed' },
   saveFailed: { key: 'toast.saveFailed' },
 }
 
@@ -44,6 +47,11 @@ export function createToastSeat(tr) {
         sequence += 1
         publish({ kind, sequence })
       },
+      /** Localized text chosen at call time (storage notices carry variables). */
+      showText(text, tone = 'success') {
+        sequence += 1
+        publish({ text, tone, sequence })
+      },
       dismiss() {
         publish(null)
       },
@@ -57,10 +65,10 @@ export function createToastSeat(tr) {
       source.hooks.notice.getSnapshot,
     )
     if (!notice || !Toast) return null
-    const copy = TOAST_COPY[notice.kind] || TOAST_COPY.saveFailed
-    const bound = props && typeof props.t === 'function' ? props.t(copy.key) : ''
+    const copy = notice.text ? { tone: notice.tone } : TOAST_COPY[notice.kind] || TOAST_COPY.saveFailed
+    const bound = !notice.text && props && typeof props.t === 'function' ? props.t(copy.key) : ''
     // The slot's `t` falls back to the key when the namespace is not bound yet.
-    const text = bound && bound !== copy.key ? bound : tr(copy.key)
+    const text = notice.text || (bound && bound !== copy.key ? bound : tr(copy.key))
     return h(Toast, {
       key: notice.sequence,
       text,
@@ -70,5 +78,5 @@ export function createToastSeat(tr) {
     })
   }
 
-  return { show: source.show, ToastHost }
+  return { show: source.show, showText: source.showText, ToastHost }
 }

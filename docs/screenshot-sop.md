@@ -200,7 +200,7 @@ Windows 上把 `python3` 换成 `PYTHON` 指向的解释器，并带上 `SHOT_VI
 | 页面出现 `Failed to load plugins` | 偶发的 client bundle 加载失败；`capture.mjs` 的 `waitApp()` 会检测并重载，最多 5 次 |
 | 面板没出现 | 当前会话不是演示会话。`run.sh` 用新 profile，刷新后会自动恢复到最近会话；手工调试时确认 `dsh.sessions.current` |
 | 悬停不出现行操作 | 必须用 CDP `Input.dispatchMouseEvent` 真实移动鼠标；`element.hover()` 不触发 `:hover` |
-| 便笺时间显示「刚刚」 | `bootstrap.mjs` 的回拨发生在写 localStorage 之后没有刷新；`capture.mjs` 开头会 reload，手工操作时要手动刷新 |
+| 便笺时间显示「刚刚」 | `bootstrap.mjs` 写入演示便笺的宿主时间戳后，`capture.mjs` 会重新读取并刷新页面；手工操作时请刷新 |
 | 端口占用 | `PORT` / `CDP_PORT` 换一个；`run.sh` / `run.ps1` 退出时会按端口清理残留进程 |
 | 功能图四周留白不对 / 面板比预期窄 | 内容区不是 1440×900。Windows 上 headless 的 `--window-size` 会被边框吃掉像素，`run.ps1` 已用 `SHOT_VIEWPORT=1440x900@4` 固定；手工跑时记得也带上这个变量 |
 | 入口特写裁歪了 | 头部图标不再右对齐，或窗口不是 1440 宽；调整 `crop.py` 的 `BADGE_BOX`，必要时重拍头部条 |

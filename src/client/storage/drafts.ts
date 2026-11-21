@@ -9,7 +9,7 @@
  * store keeps its shape.
  */
 import { DRAFT_STORAGE_KEY, MAX_TEXT } from '../constants'
-import { storage } from './codec'
+import { setAsideUnreadable, storage } from './codec'
 
 const keyOf = value => (value ? String(value) : '')
 
@@ -18,21 +18,41 @@ export function emptyDraftStore() {
   return { version: 1, sessions: {} }
 }
 
-/** Read the unsaved composer draft; corrupt or unavailable reads as empty. */
+/**
+ * Read the unsaved composer drafts; corrupt or unavailable reads as empty.
+ * An unreadable payload is parked under `<key>.corrupt` first, so half-typed
+ * text is never destroyed by the next write.
+ */
 export function readDraftStore() {
   const ls = storage()
   if (!ls) return emptyDraftStore()
+  let raw
   try {
-    const raw = ls.getItem(DRAFT_STORAGE_KEY)
-    if (!raw) return emptyDraftStore()
-    const parsed = JSON.parse(raw)
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return emptyDraftStore()
-    const sessions = parsed.sessions
-    if (!sessions || typeof sessions !== 'object' || Array.isArray(sessions)) return emptyDraftStore()
-    return { version: 1, sessions }
+    raw = ls.getItem(DRAFT_STORAGE_KEY)
   } catch {
     return emptyDraftStore()
   }
+  if (!raw) return emptyDraftStore()
+  let parsed
+  try {
+    parsed = JSON.parse(raw)
+  } catch {
+    setAsideUnreadable(DRAFT_STORAGE_KEY, raw)
+    return emptyDraftStore()
+  }
+  const sessions = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed.sessions : undefined
+  const broken = !parsed || typeof parsed !== 'object' || Array.isArray(parsed)
+    || (sessions !== undefined && (!sessions || typeof sessions !== 'object' || Array.isArray(sessions)))
+  if (broken) {
+    setAsideUnreadable(DRAFT_STORAGE_KEY, raw)
+    return emptyDraftStore()
+  }
+  return { version: 1, sessions: bucketOf(sessions) }
+}
+
+/** The stored map, or an empty one when the field is absent. */
+function bucketOf(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {}
 }
 
 export function writeDraftStore(store) {

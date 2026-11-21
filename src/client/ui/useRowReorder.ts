@@ -121,15 +121,23 @@ export function useRowReorder({ ids, scrollRef, onMove }) {
       if (commit && drag.to !== drag.from) {
         // Remember where the lifted row hangs now; the layout effect lands it
         // after React has rendered the new order.
-        settleRef.current = { id: drag.id, top: drag.rows[drag.from].top + drag.dy }
-        if (onMoveRef.current(drag.id, drag.to)) return
-        settleRef.current = null
+        const settle = { id: drag.id, top: drag.rows[drag.from].top + drag.dy }
+        settleRef.current = settle
+        const cancelSettle = () => {
+          if (settleRef.current !== settle) return
+          settleRef.current = null
+          release(drag)
+        }
+        void onMoveRef.current(drag.id, drag.to).then(ok => {
+          if (!ok) cancelSettle()
+        }, cancelSettle)
+        return
       }
       release(drag)
     }
 
     const start = (id, event) => {
-      if (event.button !== 0 || dragRef.current) return
+      if (event.button !== 0 || dragRef.current || settleRef.current) return
       const list = listRef.current
       const all = rows()
       const from = all.findIndex(node => node.dataset.rowId === id)
@@ -192,7 +200,12 @@ export function useRowReorder({ ids, scrollRef, onMove }) {
       const to = index + (event.key === 'ArrowUp' ? -1 : 1)
       if (index < 0 || to < 0 || to >= order.length) return
       focusRef.current = id
-      if (!onMoveRef.current(id, to)) focusRef.current = ''
+      const clearFocus = () => {
+        if (focusRef.current === id) focusRef.current = ''
+      }
+      void onMoveRef.current(id, to).then(ok => {
+        if (!ok) clearFocus()
+      }, clearFocus)
     }
 
     return { rows, start, move, finish, key }

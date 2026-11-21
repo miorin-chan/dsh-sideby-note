@@ -9,9 +9,10 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { PANEL_DEFAULT_WIDTH, SCOPE_MODE_KEY } from '../constants'
 import { canUseSessionScope, draftKeyForSession, scopeForSession, scopeVersion, subscribeScope, workspaceScopeForSession } from '../scope'
-import { notifyTodoChange } from '../storage/events'
+import { TODO_LISTENERS, notifyTodoChange } from '../storage/events'
 import { readScopeMode, writeScopeMode } from '../storage/prefs'
 import { ensureWorkspaceRecord } from '../storage/workspace'
+import { storageFailure, storageMode } from '../storage/state'
 import { useMemoStore } from './useSessionMemoStore'
 import { usePanelGeometry } from './usePanelGeometry'
 
@@ -66,8 +67,16 @@ export function MemoPopover(props) {
     const onStorage = event => {
       if (event && event.key === SCOPE_MODE_KEY) setMode(readScopeMode())
     }
+    const onStoreChange = () => {
+      const current = storageMode()
+      if (current === 'host' || current === 'error') setMode(readScopeMode())
+    }
+    TODO_LISTENERS.add(onStoreChange)
     window.addEventListener('storage', onStorage)
-    return () => window.removeEventListener('storage', onStorage)
+    return () => {
+      TODO_LISTENERS.delete(onStoreChange)
+      window.removeEventListener('storage', onStorage)
+    }
   }, [])
   // Readiness lives in the module binding, not in React state: the header
   // entry and the panel must agree without a parent component between them.
@@ -83,16 +92,19 @@ export function MemoPopover(props) {
   /** Settled outcomes go to the frame-wide toast host, not to inline marks. */
   const report = typeof props.onToast === 'function' ? props.onToast : () => {}
   const { record, syncError, commit } = useMemoStore(scope)
+  const storageInUse = storageMode() === 'error' && storageFailure()?.code === 'STORE_IN_USE'
   const { sectionsRef, showOpen, showDone, toggleOpen, toggleDone, applySections } = useSections()
   const [showSettings, setShowSettings] = React.useState(false)
   // Version check, release notes and the in-app update share one hook; the
   // registry answer is cached for an hour across panel opens.
   const update = useUpdateCenter(localeId)
   const newerVersion = update.latestVersion
-  const { draft, addRef, composingRef, add, recall, onDraftChange, onDraftKeyDown } = useComposerDraft({
+  const inserting = React.useRef(new Set<string>())
+  const { draft, isSubmitting, isRecalling, addRef, composingRef, add, recall, onDraftChange, onDraftKeyDown } = useComposerDraft({
     draftKey,
     commit,
     report,
+    storageInUse,
   })
   const { archive, move, takeBack } = useNoteActions({ commit, report })
   const { confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = useClearConfirm({
@@ -129,7 +141,7 @@ export function MemoPopover(props) {
     // session list was selected; fold member notes in before reading it.
     if (next === 'workspace') {
       const workspace = scopeForSession(sessionId, 'workspace')
-      if (workspace.kind === 'workspace') ensureWorkspaceRecord(workspace.id, workspace.sessionIds)
+      if (workspace.kind === 'workspace') void ensureWorkspaceRecord(workspace.id, workspace.sessionIds)
     }
     // Leaving a list discards a pending clear confirmation; the composer
     // draft belongs to the workspace, so it survives the switch.
@@ -139,8 +151,8 @@ export function MemoPopover(props) {
     notifyTodoChange()
   }
 
-  const clearDone = () => {
-    const ok = commit(currentItems => currentItems.filter(item => !item.done))
+  const clearDone = async () => {
+    const ok = await commit(currentItems => currentItems.filter(item => !item.done))
     if (!ok) {
       report('saveFailed')
       return
@@ -154,13 +166,24 @@ export function MemoPopover(props) {
    * conversation composer and the row moves to the archive in the same step.
    * When no composer is on screen nothing changes, so the note stays open.
    */
-  const insertItem = item => {
+  const insertItem = async item => {
+    if (inserting.current.has(item.id)) return
+    const mode = storageMode()
+    if (mode === 'probing' || mode === 'error') {
+      report('saveFailed')
+      return
+    }
     // The note lands as plain text; repeated hand-overs stack on new lines.
     if (!appendToConversation(item.text)) {
       report('insertFailed')
       return
     }
-    if (archive(item)) report('inserted')
+    inserting.current.add(item.id)
+    try {
+      report((await archive(item)) ? 'inserted' : 'archiveFailed')
+    } finally {
+      inserting.current.delete(item.id)
+    }
   }
 
   /**
@@ -169,13 +192,7 @@ export function MemoPopover(props) {
    * would silently destroy it; ask the user to send or clear it first instead.
    */
   const recallItem = item => {
-    if (draft.trim()) {
-      report('recallBlocked')
-      return
-    }
-    if (!takeBack(item)) return
-    recall(item.text)
-    report('recalled')
+    if (!inserting.current.has(item.id)) void recall(item, takeBack)
   }
 
   const row = item => h(TodoRow, {
@@ -256,6 +273,9 @@ export function MemoPopover(props) {
     h(ComposerForm, {
       say,
       draft,
+      isSubmitting,
+      isRecalling,
+      storageInUse,
       inputRef: addRef,
       onDraftChange,
       onCompositionStart: () => { composingRef.current = true },
@@ -276,6 +296,7 @@ export function MemoPopover(props) {
       toggleOpen,
       openItems,
       openListRef: reorder.listRef,
+      hideEmptyState: storageInUse,
       openCount,
       total,
       row,
@@ -290,9 +311,15 @@ export function MemoPopover(props) {
     h(
       'div',
       { className: 'dsh-an-popFoot', role: 'status' },
-      h('span', { className: syncError ? 'dsh-an-error' : undefined }, say(syncError
-        ? 'storage.failed'
-        : 'popover.local')),
+      h('span', { className: syncError || storageMode() === 'error' ? 'dsh-an-error' : undefined }, say(storageMode() === 'error'
+        ? (storageInUse ? 'storage.inUse' : 'storage.hostError')
+        : syncError
+          ? 'storage.failed'
+          : storageMode() === 'host'
+            ? 'storage.whereHost'
+            : storageMode() === 'probing'
+              ? 'storage.loading'
+              : 'popover.local')),
     ),
   )
 

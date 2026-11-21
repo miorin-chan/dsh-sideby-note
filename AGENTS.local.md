@@ -19,8 +19,8 @@
 - 公开 npm 包、插件 id 和更新通道统一为 `dsh-sideby-note`。
   界面名称为「边记部 / Sideby Note」。
   保留上游的 `dsh.aside-note` 存储键及兼容格式，具体契约见架构文档。
-- 本插件可以独立安装、启用与停用。
-  `index.js` 与 `host/` 承载 Host 更新端点，便笺数据留在浏览器。
+- 本插件可以独立安装、启用与停用。`index.js` 与 `host/` 承载宿主存储和更新端点。
+  便笺优先保存在与上游共用的宿主 `aside_note` 领域，草稿和面板布局留在浏览器。
 - 客户端源码在 `src/client/`，用 `npm run build` 生成 `client/client.js`。
   产物随对应源码提交，CI 会逐字节对照。
 - `locale/*.json` 提供插件列表文案，`src/client/i18n/` 提供界面文案。

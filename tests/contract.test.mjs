@@ -266,7 +266,9 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /data-sidebar-right-panel\]\[data-sidebar-right-open\]/)
   assert.match(client, /DRAFT_STORAGE_KEY/)
   assert.match(client, /saveAddDraft/)
-  assert.match(client, /const recall = text =>/)
+  const composer = read('src/client/ui/useComposerDraft.ts')
+  assert.match(composer, /if \(!\(await takeBack\(item\)\)\) return\n\s+updateDraft\(String\(item\.text/,
+    'the top composer receives text after the row is durably removed')
   assert.match(client, /item\.recall/)
   assert.doesNotMatch(client, /saveEditDraft|readEditDraft|item\.edit|item\.delete/, 'the inline editor is gone')
   assert.match(client, /dsh-an-listArea/)
@@ -275,13 +277,14 @@ test('host and browser entries use the package identity', () => {
   // surface while pinned, so no differently coloured block sits at rest.
   assert.match(readCss(), /\.dsh-an-sectionHead,\.dsh-an-doneHead\{[^}]*position:sticky[^}]*top:0[^}]*background:transparent/)
   assert.match(readCss(), /\[data-stuck\][^{]*\{[^}]*background:var\(--dsh-an-panelSurface,var\(--dsw-alias-bg-layer-2\)\)/)
-  // Forward marks are gone: putting a note into the chat archives it instead.
-  assert.doesNotMatch(client, /FORWARDED_STORAGE_KEY|dsh-an-forwardMark|item\.forwarded|useForwardMarks|readForwardedIds/)
+  // Legacy metadata can travel in the one-time migration only.
+  const clientWithoutMigration = client.replace(read('src/client/storage/legacy.ts'), '')
+  assert.doesNotMatch(clientWithoutMigration, /FORWARDED_STORAGE_KEY|dsh-an-forwardMark|item\.forwarded|useForwardMarks|readForwardedIds|forward\.set/)
   assert.ok(!exists('src/client/storage/forwarded.ts'), 'the forward-mark store is removed')
   assert.ok(!exists('src/client/ui/useForwardMarks.ts'), 'the forward-mark hook is removed')
   assert.doesNotMatch(client, /dsh-an-checkHalf|dsh-an-checkForwarded|HALF_DONE_|item\.pendingCountdown|settings\.halfCheck/)
   assert.match(client, /h\(IconRewind, null\)/)
-  assert.doesNotMatch(client, /settings\.forward(?:Check|Mark|Prefix)|forward\.prefix|FORWARD_PREFIX|readForwardPrefix/, 'the forward prefix prompt is gone')
+  assert.doesNotMatch(clientWithoutMigration, /settings\.forward(?:Check|Mark|Prefix)|forward\.prefix|FORWARD_PREFIX|readForwardPrefix/, 'the forward prefix prompt is gone')
   assert.match(client, /SECTION_STATE_KEY/)
   assert.match(client, /readSectionState/)
   assert.doesNotMatch(client, /const bullet = |- \$\{note\}/, 'notes are no longer written as list items')
@@ -292,7 +295,7 @@ test('host and browser entries use the package identity', () => {
   assert.doesNotMatch(client, /IconForward|item\.forward\b|'item\.mark(?:Done|Open)'/)
   assert.match(client, /PLUGIN_VERSION/)
   assert.match(client, /settings\.open/)
-  assert.doesNotMatch(client, /SEND_SHORTCUT|sendShortcut|settings\.shortcut/, 'the send shortcut setting is gone')
+  assert.doesNotMatch(clientWithoutMigration, /SEND_SHORTCUT|sendShortcut|settings\.shortcut/, 'the send shortcut setting is gone')
   assert.match(client, /conversation\.session\.header\.utilities|_headerUtilities/)
   assert.match(client, /placement === 'right'|placement === "right"/)
   assert.match(client, /BoundSessionCapture/)
@@ -759,9 +762,33 @@ test('transient outcomes go to the frame-wide toast seat', () => {
 
 test('a failed write keeps the row and says so', () => {
   const client = read('src/client/index.ts') + read('src/client/ui/useSessionMemoStore.ts') + read('src/client/ui/MemoPopover.ts') + read('src/client/ui/useNoteActions.ts') + read('src/client/ui/useComposerDraft.ts')
-  assert.match(client, /if \(!ok\) return false/)
+  // The store writer returns a promise now; a rejection becomes `false`, and
+  // only a successful durable write may replace the rendered record.
+  assert.match(client, /setSyncError\(!ok\)\n\s+if \(!ok\) return false/)
   assert.match(client, /if \(!ok\) \{\n\s+report\('saveFailed'\)/)
   assert.match(client, /A failed write keeps the row/)
+})
+
+test('notes stay behind one host-owned domain file', () => {
+  const constants = read('src/client/constants.ts')
+  const route = read('host/store-route.js')
+  const spec = read('host/store-spec.js')
+  const identity = read('host/constants.js')
+  assert.match(constants, /HOST_STORE_PATH = '\/dsh-sideby-note\/store'/)
+  assert.match(route, /STORE_PATH = '\/dsh-sideby-note\/store'/, 'both halves must name the same endpoint')
+  assert.match(constants, /HOST_STORE_LOCATION_PATH = '\/dsh-sideby-note\/store\/location'/)
+  assert.match(constants, /HOST_STORE_REVEAL_PATH = '\/dsh-sideby-note\/store\/reveal'/)
+  assert.match(route, /LOCATION_PATH = `\$\{STORE_PATH\}\/location`/)
+  assert.match(route, /REVEAL_PATH = `\$\{STORE_PATH\}\/reveal`/)
+  assert.match(identity, /DOMAIN_NAME = 'aside_note'/, 'the unit name also names the JSON file')
+  assert.match(identity, /DOMAIN_VERSION = 1/)
+  assert.match(spec, /layout: 'single'/)
+  for (const table of ['sessions', 'workspaces', 'forwarded']) {
+    assert.match(identity, new RegExp(`${table}: '${table}'`), `missing table ${table}`)
+  }
+  // The browser bundle must not reach into the host side or its schema library.
+  const built = fs.readFileSync(path.join(root, 'client', 'client.js'), 'utf8')
+  assert.doesNotMatch(built, /storageDomain|store-spec|zod/, 'host storage code must not ship in the browser bundle')
 })
 
 test('icon-only controls use the shared tooltip', () => {
@@ -984,14 +1011,14 @@ test('the insert action uses the product context-injection glyph', () => {
 
 test('putting a note into the chat archives it in the same step', () => {
   const popover = read('src/client/ui/MemoPopover.ts')
-  const start = popover.indexOf('const insertItem = item => {')
+  const start = popover.indexOf('const insertItem = async item => {')
   assert.ok(start > 0, 'insert handler missing')
   const handler = popover.slice(start, popover.indexOf('\n  }\n', start))
   // The note is written bare; no prompt and no list marker.
   assert.doesNotMatch(handler, /prefix|forward\.prefix|`- /)
   // No composer on screen: nothing changes and the note stays open.
   assert.match(handler, /if \(!appendToConversation\(item\.text\)\) \{\n\s+report\('insertFailed'\)\n\s+return\n\s+\}/)
-  assert.match(handler, /if \(archive\(item\)\) report\('inserted'\)/)
+  assert.match(handler, /report\(\(await archive\(item\)\) \? 'inserted' : 'archiveFailed'\)/)
   assert.ok(handler.indexOf('appendToConversation') < handler.indexOf('archive(item)'), 'archive only after the text landed')
   const actions = read('src/client/ui/useNoteActions.ts')
   assert.match(actions, /if \(candidate\.id !== item\.id \|\| candidate\.done\) return candidate/, 'archiving is one-way')

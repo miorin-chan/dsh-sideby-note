@@ -10,12 +10,20 @@ import React from 'react'
 import ReactDOMClient from 'react-dom/client'
 
 import CSS from './styles/panel.css?inline'
-import { NS, PANEL_ID } from './constants'
+import { NS, PANEL_ID, STORAGE_MODE_KEY } from './constants'
 import { DICT, fill, makeSay } from './i18n'
 import { bindWorkspace, draftKeyForSession, scopeForSession, workspaceScopeForSession } from './scope'
 import { setForwardTarget } from './domain/forward'
 import { readScopeMode } from './storage/prefs'
+import { bootStorage, retryStorage } from './storage/boot'
 import { ensureDraftScope } from './storage/drafts'
+import {
+  STORE_ERROR_LISTENERS,
+  STORE_NOTICE_LISTENERS,
+  STORE_READY_LISTENERS,
+  notifyTodoChange,
+} from './storage/events'
+import { requestHostRefresh, storageMode } from './storage/state'
 import { ensureWorkspaceRecord } from './storage/workspace'
 import { createToastSeat } from './ui/toastSeat'
 import { createHeaderEntry } from './ui/headerEntry'
@@ -122,6 +130,35 @@ function apply(ctx: DshClientCtx) {
   const toastSeat = createToastSeat(tr)
   let refreshHeaderEntry = () => {}
 
+  // Storage switch outcomes are one-time notices; write failures are already
+  // reported by the panel that initiated them, so this only covers background
+  // failures (preference writes and workspace seeding).
+  ctx.effect(() => {
+    const onNotice = notice => {
+      if (notice.kind === 'migrated') toastSeat.showText(tr('storage.migrated', { n: notice.count }))
+      else if (notice.kind === 'keptLocal') toastSeat.showText(tr('storage.keptLocal'))
+      else toastSeat.showText(tr('storage.notSwitched'))
+    }
+    const onError = (failure: { code: string; message: string }) => {
+      if (failure.code === 'STORE_IN_USE') {
+        toastSeat.showText(tr('storage.inUse'), null)
+        return
+      }
+      const hostDown = failure.code === 'STORE_UNREACHABLE'
+        || failure.code === 'STORE_TIMEOUT'
+        || failure.code === 'STORE_UNAVAILABLE'
+        || failure.code === 'STORE_OPEN_FAILED'
+        || failure.code === 'STORE_FORBIDDEN'
+      toastSeat.showText(tr(hostDown ? 'storage.hostError' : 'toast.saveFailed'))
+    }
+    STORE_NOTICE_LISTENERS.add(onNotice)
+    STORE_ERROR_LISTENERS.add(onError)
+    return () => {
+      STORE_NOTICE_LISTENERS.delete(onNotice)
+      STORE_ERROR_LISTENERS.delete(onError)
+    }
+  }, 'dsh-sideby-note: storage notices')
+
   const closeMemoPopover = () => {
     const current = activePopover
     activePopover = null
@@ -151,7 +188,9 @@ function apply(ctx: DshClientCtx) {
     // A workspace list must already contain its members' older notes before
     // the panel reads it; the first open is where that merge happens.
     const scope = scopeForSession(sessionId, readScopeMode())
-    if (scope.kind === 'workspace') ensureWorkspaceRecord(scope.id, scope.sessionIds)
+    if (storageMode() === 'host') requestHostRefresh()
+    // Host seeding is async and writes straight into the cache the panel reads.
+    if (scope.kind === 'workspace') void ensureWorkspaceRecord(scope.id, scope.sessionIds)
     // Drafts belong to the workspace even while the session list is showing,
     // so fold a pre-workspace draft in before the panel reads its composer.
     const workspace = workspaceScopeForSession(sessionId)
@@ -230,11 +269,32 @@ function apply(ctx: DshClientCtx) {
         // was reading the other list, so reopen it against the right one.
         closeMemoPopover()
       }
-      if (workspace) ensureWorkspaceRecord(workspace.workspaceId, workspace.sessionIds)
+      if (workspace) void ensureWorkspaceRecord(workspace.workspaceId, workspace.sessionIds)
       refreshHeaderEntry()
     }, [sessionId, workspace, sessionReady])
     return null
   }
+
+  // Storage boot runs after the entry exists so its ready notification can
+  // refresh the badge; it never blocks the panel from mounting.
+  ctx.effect(() => {
+    const onReady = () => {
+      refreshHeaderEntry()
+      notifyTodoChange()
+    }
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === STORAGE_MODE_KEY && event.newValue === 'host' && storageMode() === 'local') {
+        void retryStorage()
+      }
+    }
+    STORE_READY_LISTENERS.add(onReady)
+    window.addEventListener('storage', onStorage)
+    void bootStorage()
+    return () => {
+      STORE_READY_LISTENERS.delete(onReady)
+      window.removeEventListener('storage', onStorage)
+    }
+  }, 'dsh-sideby-note: storage boot')
 
   ctx.slots.inject('conversation.composer.dock', () =>
     ctx.slots.register(

@@ -46,8 +46,35 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      # One result per catalog case, plus the machine-readable run record that
+      # the release gate and the report are built from.
       - name: Contract and bundle tests
-        run: npm test
+        run: npm run test:run
+
+      - name: Keep the run record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-run-node${{ matrix.node }}
+          path: |
+            .test/runs/**/run.json
+            .test/runs/**/report.md
+            .test/runs/**/report.html
+            .test/runs/**/junit.xml
+          if-no-files-found: ignore
+          retention-days: 30
+
+      # The catalog is the business view of what must be verified; this keeps it
+      # bound to the tests, in both directions (no dangling pointers, no ids
+      # that were never catalogued).
+      - name: The test catalog matches the tests
+        run: npm run catalog:check
+
+      # Rules behind a P0 case must carry a human review of their current text.
+      # The approval stores a content hash, so editing a reviewed rule fails here
+      # until someone re-approves it.
+      - name: P0 rules carry a current review
+        run: node tools/catalog/review.mjs --strict
 
       # Every change lands under ## next-released; the release command renames
       # that heading and inserts a fresh one. Catch drift before it reaches main.

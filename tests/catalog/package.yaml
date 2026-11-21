@@ -1,0 +1,42 @@
+# 包与构建产物（PKG）
+#
+# 业务语义：这份产物能不能被 DSH 加载、能不能干净地卸载。
+# 产物一致性的闸门在 CI（client/client.js 必须与 src/client 一致），本目录只收录行为。
+domain: package
+owner: package
+
+cases:
+  - id: PKG-001
+    title: 构建产物注册三个座位与八种语言
+    priority: P0
+    class: A
+    rules: [R-PKG-BOOT]
+    risk: crash
+    expected:
+      - 产物导出 inject=['slots'] 与 apply 函数
+      - apply 后注册 composer.dock、hero.options、shell.overlay 三个座位
+      - 只注册一个语言命名空间，且包含 DSH 的八种官方语言
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: PKG-001 构建产物注册三个座位与八种语言
+        status: automated
+    suites: [smoke, pr, nightly, release]
+    tags: [bundle, boot]
+
+  - id: PKG-002
+    title: 卸载时移除注入的样式
+    priority: P2
+    class: B
+    rules: [R-PKG-DISPOSE]
+    risk: ux
+    expected:
+      - 卸载后带插件标记的 style 从文档移除
+      - 卸载不影响页面其余节点
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: PKG-002 卸载时移除注入的样式
+        status: automated
+    suites: [nightly, release]
+    tags: [bundle, dispose]

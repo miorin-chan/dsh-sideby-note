@@ -135,7 +135,7 @@ const clipboard = window => {
   return copied
 }
 
-test('a host with no update route hands over the offered version, without touching the market', async t => {
+test('UPD-007 宿主没有更新路由时给命令兜底', async t => {
   const hint = `npx -y --registry=https://registry.npmjs.org/ dsh-sideby-note@${NEXT} install --version ${NEXT} --profile-dir "${PROFILE}"`
   const { window, act, popover, calls, until, dispose } = await boot(t, () => json(501, {
     ok: false,
@@ -154,6 +154,9 @@ test('a host with no update route hands over the offered version, without touchi
   assert.ok(fallback.textContent.includes(hint), 'the host command is shown verbatim')
   assert.equal(calls.filter(call => call.url.includes('/dsh-market/')).length, 0,
     'the market must not be probed')
+  const card = popover.textContent
+  assert.equal(card.includes('正在更新'), false, 'the panel never claims an install is running')
+  assert.equal(card.includes('已更新'), false, 'the panel never claims the update happened')
 
   const copied = clipboard(window)
   await act(async () => { fallback.querySelector('.dsh-an-updateCopy').click() })

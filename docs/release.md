@@ -89,6 +89,7 @@ git push origin v0.2.0
 3. 把 `## next-released` 改名为 `## <version>`，并在顶部插入一个新的空 `## next-released`；
    `CHANGELOG-OPS.md` 存在且其 `## next-released` 下有内容时，对它做同样的改名；
 4. 运行 `npm run check`，确认 lint、类型、测试和构建产物都一致；
+   发布前再跑 `npm run test:strict` 并复核用例记录（见 [测试工程](./testing.md)）；
 5. 提交 `release: <version>` 并打 `v<version>` tag，**不自动 push**。
 
 预发布同样适用：`npm run release -- 0.2.0-beta.1` 会得到 `v0.2.0-beta.1` tag，workflow 自动发到 npm 的 `next` dist-tag。
@@ -209,7 +210,7 @@ gh release upload v0.1.0 dist/dsh-sideby-note-0.1.0.tgz --clobber
 ## 应用内更新的路径与兜底
 
 「立即更新」通过**宿主自己的更新端点**执行，不是插件市场，也不是本插件自己跑包管理器。
-客户端不再探测或调用 dshmarket；宿主端点只有两个：
+客户端通过两个经 DSH 会话验证的宿主端点更新：
 
 - `GET /dsh-sideby-note/update/probe`：报告 profile、安装方式与当前版本。
 - `POST /dsh-sideby-note/update/apply`（body `{ target }`）：就地覆盖安装，装完回读版本。

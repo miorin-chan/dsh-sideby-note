@@ -4,9 +4,13 @@ import { MAX_TEXT } from '../constants'
 import { clearAddDraft, readScopeDrafts, saveAddDraft } from '../storage/drafts'
 import { uid } from '../domain/id'
 
-export function useComposerDraft({ draftKey, commit, report }) {
+export function useComposerDraft({ draftKey, commit, report, storageInUse }) {
   const key = draftKey ? String(draftKey) : ''
   const [draft, setDraft] = React.useState(() => readScopeDrafts(key).add)
+  const draftRef = React.useRef({ value: draft })
+  const pendingAction = React.useRef(false)
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [isRecalling, setIsRecalling] = React.useState(false)
   const addRef = React.useRef(null)
   const composingRef = React.useRef(false)
 
@@ -39,18 +43,34 @@ export function useComposerDraft({ draftKey, commit, report }) {
     }
   }, [])
 
-  const add = () => {
-    const text = draft.trim().slice(0, MAX_TEXT)
-    if (!text) return
-    const now = Date.now()
-    const ok = commit(currentItems => [{ id: uid(), text, done: false, createdAt: now, updatedAt: now }, ...currentItems])
-    // The draft is only cleared once the note is actually stored.
-    if (!ok) {
-      report('saveFailed')
-      return
+  const updateDraft = value => {
+    draftRef.current = { value }
+    setDraft(value)
+    saveAddDraft(key, value)
+  }
+
+  const add = async () => {
+    const submitted = draftRef.current
+    const text = submitted.value.trim().slice(0, MAX_TEXT)
+    if (!text || pendingAction.current || storageInUse) return
+    pendingAction.current = true
+    setIsSubmitting(true)
+    try {
+      const now = Date.now()
+      const ok = await commit(currentItems => [{ id: uid(), text, done: false, createdAt: now, updatedAt: now }, ...currentItems])
+      if (!ok) {
+        report('saveFailed')
+        return
+      }
+      if (draftRef.current === submitted) {
+        draftRef.current = { value: '' }
+        setDraft('')
+        if (readScopeDrafts(key).add === submitted.value.slice(0, MAX_TEXT)) clearAddDraft(key)
+      }
+    } finally {
+      pendingAction.current = false
+      setIsSubmitting(false)
     }
-    setDraft('')
-    clearAddDraft(key)
   }
 
   /**
@@ -59,10 +79,21 @@ export function useComposerDraft({ draftKey, commit, report }) {
    * This is the only text editor for a note: the row leaves the list and its
    * text lands here, where the user can change it and submit it again.
    */
-  const recall = text => {
-    const value = String(text || '').slice(0, MAX_TEXT)
-    setDraft(value)
-    saveAddDraft(key, value)
+  const recall = async (item, takeBack) => {
+    if (pendingAction.current || draftRef.current.value.trim() || readScopeDrafts(key).add.trim()) {
+      report('recallBlocked')
+      return
+    }
+    pendingAction.current = true
+    setIsRecalling(true)
+    try {
+      if (!(await takeBack(item))) return
+      updateDraft(String(item.text || '').slice(0, MAX_TEXT))
+      report('recalled')
+    } finally {
+      pendingAction.current = false
+      setIsRecalling(false)
+    }
     window.requestAnimationFrame(() => {
       const node = addRef.current
       if (!node) return
@@ -81,9 +112,8 @@ export function useComposerDraft({ draftKey, commit, report }) {
   }
 
   const onDraftChange = event => {
-    const value = event.target.value
-    setDraft(value)
-    saveAddDraft(key, value)
+    if (isRecalling) return
+    updateDraft(event.target.value)
     resizeAdd(event.target)
   }
 
@@ -110,5 +140,5 @@ export function useComposerDraft({ draftKey, commit, report }) {
     add()
   }
 
-  return { draft, addRef, composingRef, add, recall, onDraftChange, onDraftKeyDown }
+  return { draft, isSubmitting, isRecalling, addRef, composingRef, add, recall, onDraftChange, onDraftKeyDown }
 }

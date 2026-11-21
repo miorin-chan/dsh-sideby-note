@@ -95,15 +95,15 @@ Click a note's **Hand to chat** button to append its text to the current chat in
 - **Archive to look back on**: separate open and archived sections, with creation and archive times.
 - **Adjustable panel**: resize the width and height, with your preferences remembered.
 - **Fits into DSH**: follows the light/dark theme and all eight DSH-official languages (Chinese, English, Japanese, Spanish, French, German, Russian and Brazilian Portuguese).
-- **Browser-local persistence**: records survive page refreshes and DSH restarts, with updates synced across tabs in the same browser.
+- **Host-file persistence**: notes live in `~/.dsh/storages/aside_note.json`, so page refreshes, DSH restarts and a different browser all keep them; tabs in the same browser stay in sync in real time, while other browsers on the same host refresh when they open the panel. Settings › Data storage shows the full path, with buttons to copy it or reveal the file in your file manager.
 
-> Notes are stored in the current browser and do not sync across devices or browsers. Clearing site data removes them. See [Where data lives](#where-data-lives).
+> With host storage, browsers connected to the same DSH host share notes. See [Where data lives](#where-data-lives) for the upgrade and fallback behavior.
 
 [Quick install](#quick-install) · [Feedback and issues](https://github.com/LighghtEeloo/dsh-sideby-note/issues)
 
 ## Features
 
-- **Workspace-level notes**: one list is shared by every session in a workspace by default, so switching conversations keeps it in view; the panel header switches between **Workspace** and **Session**, and sessions outside a workspace only have the session scope. Tabs in the same browser stay in sync.
+- **Workspace-level notes**: one list is shared by every session in a workspace by default, so switching conversations keeps it in view; the panel header switches between **Workspace** and **Session**, and sessions outside a workspace only have the session scope. Browsers and tabs on the same host share one list, with live sync across tabs in one browser.
 - **Entry and panel**: an icon button at the top right badges the open count; a blank new session shows it in the corner with the workspace list only until the first message, without the session option; clicking it opens a fixed panel aligned to the entry, which shifts left of the DSH right sidebar and closes when you switch sessions.
 - **Note actions**: add, reorder, copy, hand a note to chat, and rewind one into the composer to edit; there is no manual checkbox — handing it to chat archives it. Clearing archived notes asks for confirmation, and archived notes expand for review. Clearing the composer after rewinding a note removes it.
 - **Hand to chat**: each note is appended to the **currently open conversation's** composer as plain text — nothing is sent automatically. When the composer already has content, the note lands on a new line after it, so handing over several notes stacks them there. On success the note moves to **Archived**; when no composer is on screen nothing changes and the note stays open.
@@ -111,7 +111,7 @@ Click a note's **Hand to chat** button to append its text to the current chat in
 - **Remembered state**: add drafts are saved per workspace (per session outside a workspace), so switching conversations or the Workspace/Session switch never loses them; submitting still writes the list selected at that moment. Drafts are restored when the panel reopens, and the open/archived expand state plus the scope choice are remembered too.
 - **Panel size**: drag the left edge for width and the bottom handle for height, double-click either to reset; both persist in the browser.
 - **List regions**: **Open** and **Archived** each keep a sticky header and its own scroll, and expanding the archive never compresses open; at rest a note shows only its text and age, and on hover the age gives way to Rewind / Copy / Hand to chat; archived notes list newest archive first.
-- **Settings**: About (version, check, author, improver, source), saved automatically.
+- **Settings**: Data storage (file path, copy and reveal) and About (version, check, author, improver and source).
 - **Update notice**: a newer release puts a dot on the settings button, and Settings › About shows the notes and the update action; see [Update notice](#update-notice).
 - **Native look**: colours, radii, elevation and scrollbars all reuse DSH design tokens, following light/dark and the DSH locale; see [Design tokens](#design-tokens).
 
@@ -181,48 +181,14 @@ Feedback reuses product surfaces too: copy, hand to chat, rewind, clear-archived
 
 ## Where data lives
 
-Session notes live in the browser's `localStorage` under `dsh.aside-note` — the upstream key name, kept so data already in the browser loads after the package rename — in the original v1 shape:
+Notes live in `$DSH_HOME/storages/aside_note.json` when host storage is available. The default path is `~/.dsh/storages/aside_note.json`. DSH writes session and workspace lists to two tables in this file. Settings › Data storage shows the actual path.
 
-```json
-{
-  "version": 1,
-  "sessions": {
-    "session-…": {
-      "sessionId": "session-…",
-      "updatedAt": 0,
-      "items": []
-    }
-  }
-}
-```
+- The first start checks the host. If its store is empty, Sideby Note imports notes from `dsh.aside-note` and `dsh.aside-note.workspaces` and keeps the browser originals for recovery. If the host already contains notes, those lists take precedence and the browser originals remain available for recovery.
+- If the host is unavailable before the switch, Sideby Note uses browser storage and retries on the next start. Once switched, an unavailable or damaged host file shows an error and disables writes until it is available again.
+- Browsers connected to the same DSH host share host-stored notes. Back up the DSH home or copy the file to move notes to another machine. Uninstalling the plugin leaves the file on the host.
+- Panel size, open/archived expansion and unsaved drafts stay in the browser. Sessions in one workspace share a draft, and submission saves the note to the scope currently selected. Sessions outside a workspace have their own drafts.
 
-The list shared by one workspace lives separately under `dsh.aside-note.workspaces`:
-
-```json
-{
-  "version": 1,
-  "workspaces": {
-    "workspace-…": {
-      "workspaceId": "workspace-…",
-      "updatedAt": 0,
-      "items": [],
-      "seededSessionIds": ["session-…"]
-    }
-  }
-}
-```
-
-`workspaces` holds the list shared by one workspace; `seededSessionIds` remembers which member sessions were already folded in, so notes are merged once and never resurrect after a delete. Session data stays under the original `dsh.aside-note` key and workspace data is never written back into it; sessions without a workspace only use their `sessions` record. The panel header's scope choice lives separately under `dsh.aside-note.scope-mode` (`workspace` or `session`, default `workspace`).
-
-Unsaved add drafts live under `dsh.aside-note.drafts`: sessions in one workspace share a single workspace draft, so switching conversations or the scope never loses text; the submitted note goes to the workspace list or the session list according to the scope selected at that moment. Sessions outside a workspace keep their own draft. The first time a workspace is opened after upgrading, the current session's old draft is folded into the shared one; `edits` records left by the old inline editor are ignored and cleaned up on the next draft write.
-
-Therefore:
-
-- Refreshing, restarting DSH, or switching sessions keeps the records.
-- Notes already stored by the upstream package load without a migration.
-- Nothing is written into the project or synced to another machine/browser.
-- Clearing site data clears the notes.
-- Reading old data never rewrites the shape of `dsh.aside-note`; workspace lists are read from `dsh.aside-note.workspaces`, and the first visit to a workspace folds its member-session notes in once. Keys like `dsh.aside-notes.*` from earlier builds are not read. If your data still sits under the old `dsh.aside-notes.*.v2` keys, rename them to the matching `dsh.aside-note.*` keys and reload.
+Sideby Note uses the same host file and format as AsideNote 1.2.0. It reads existing host notes and can import from the earlier `dsh.aside-note.*` browser keys. DSH lets one plugin open the store at a time. Disable the plugin currently using the store before switching. Sideby Note pauses writes and shows a message when the store is occupied.
 
 ## Update notice
 
@@ -245,8 +211,11 @@ The browser half lives in `src/client/` and tsdown bundles it into a single `cli
 
 ```bash
 npm install
-npm run check     # lint + typecheck + tests + build
-npm run build     # regenerate client/client.js only
+npm run check         # lint + typecheck + tests + build + catalog check
+npm run build         # regenerate client/client.js only
+npm run catalog:check # validate the test catalog against the tests
+npm run test:run      # per-case run record + report.html/md (.test/runs/)
+npm run test:mutate   # mutation check: do the cases catch real defects?
 ```
 
 To run the checkout inside DSH, link it into a profile (replace `<path-to-repo>`) and run `pnpm install` in the profile directory:
@@ -274,7 +243,7 @@ window.__ModuleLoader__.load({ id: 'dsh-sideby-note', factory: (require) => { �
 
 The artifact is committed: CI rebuilds it and fails when `client/` does not match, so do not edit `client/client.js` by hand.
 
-`index.js` is the empty Host half; `cordis.patch.yml` inserts the package into the profile composition. The UI depends on two services, `slots` and `locale`:
+`index.js` registers the update and note storage routes; `cordis.patch.yml` inserts the package into the profile composition. The UI depends on two services, `slots` and `locale`:
 
 - `conversation.composer.dock`: used only to capture the active session ID; it renders no visible entry.
 - The top-right entry is injected into the host header with a MutationObserver, because the host's re-render reclaims a React portal there.
@@ -285,13 +254,13 @@ Run `npm run build` after source changes; the dev client HMR swaps the new bundl
 
 The screenshot and preview pipeline lives in the [screenshot SOP](./docs/screenshot-sop.md): one command re-shoots both themes from an isolated profile, and credentials are not copied unless `COPY_CREDENTIALS=1`.
 
-Code structure, data model and build conventions: [architecture](./docs/architecture.md).
+Code structure, data model and build conventions: [architecture](./docs/architecture.md); the test system (rules, cases, run records, gates): [testing](./docs/testing.md).
 
 Branching, versioning and the release checklist: [release and versioning](./docs/release.md) (Chinese).
 
 ## Verification
 
-Loaded in an isolated DSH profile and driven through headless Chrome:
+The panel workflow is covered by integration tests:
 
 - the **Sideby Note** button appears at the top right, with the open count on its badge;
 - clicking it opens the panel on the right, aligned with the entry;
@@ -300,4 +269,4 @@ Loaded in an isolated DSH profile and driven through headless Chrome:
 - records survive a refresh, and the panel header switches between the workspace list and the current session's list;
 - the npmjs → npmmirror → GitHub Release fallback, the one-hour cache, and the version comparison are covered by the contract tests, and the jsdom test drives the visible update notice; the live notice needs a published npm package or a GitHub Release.
 
-`npm run check` passes: lint, typecheck, build, and 129 tests, including jsdom integration tests that drive the whole panel, expand the release notes, run an update through the host route, and check the busy and no-route fallbacks.
+Run `npm run check` for lint, type checking, the build, automated tests and catalog validation. See [the test catalog](./tests/catalog/README.md).

@@ -7,6 +7,7 @@ import {
   PLUGIN_VERSION,
 } from '../constants'
 import { UpdateNotice } from './UpdateNotice'
+import { StorageSettings } from './StorageSettings'
 
 const h = React.createElement
 
@@ -19,6 +20,16 @@ export function SettingsPanel(props) {
             'div',
             { className: 'dsh-an-settings' },
             h('div', { className: 'dsh-an-settingsHead' }, say('settings.title')),
+            h(
+              'div',
+              { className: 'dsh-an-settingGroup' },
+              h('div', { className: 'dsh-an-settingLabel' }, say('settings.storage')),
+              h(
+                'div',
+                { className: 'dsh-an-settingBody' },
+                h(StorageSettings, { say, onToast: props.onToast }),
+              ),
+            ),
             h(
               'div',
               { className: 'dsh-an-settingGroup' },

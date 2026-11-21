@@ -138,3 +138,46 @@ test('a prerelease build reads the notes of the beta it is being offered', () =>
   const onStable = selectReleaseHistory(feed, { current: '1.1.1', latest: '1.2.0-beta.2' })
   assert.equal(onStable.entries.length, 0)
 })
+
+test('UPD-006 缓存 1 小时后重新探测', async () => {
+  const { createUpdateProbe } = readUpdateHelpers()
+  let clock = 0
+  const calls = []
+  const probe = createUpdateProbe({
+    fetchImpl: async url => {
+      calls.push(url)
+      return json('1.1.2')
+    },
+    now: () => clock,
+    currentVersion: '1.1.1',
+  })
+
+  assert.equal(await probe.latest(), '1.1.2')
+  const first = calls.length
+  assert.ok(first > 0)
+
+  clock = 59 * 60 * 1000
+  assert.equal(await probe.latest(), '1.1.2')
+  assert.equal(calls.length, first, 'within the hour the cached answer is reused')
+
+  clock = 61 * 60 * 1000
+  assert.equal(await probe.latest(), '1.1.2')
+  assert.ok(calls.length > first, 'after the hour the probe asks again')
+})
+
+test('UPD-008 两个注册表都失败时回退 GitHub Release', async () => {
+  const { createUpdateProbe } = readUpdateHelpers()
+  const calls = []
+  const probe = createUpdateProbe({
+    fetchImpl: async url => {
+      calls.push(url)
+      if (url.includes('api.github.com')) return { ok: true, json: async () => ({ tag_name: 'v1.2.0' }) }
+      return { ok: false, json: async () => ({}) }
+    },
+    now: () => 0,
+    currentVersion: '1.1.1',
+  })
+
+  assert.equal(await probe.latest(), '1.2.0', 'the release tag is the last source')
+  assert.ok(calls.some(url => url.includes('api.github.com')), 'GitHub is queried after both registries fail')
+})

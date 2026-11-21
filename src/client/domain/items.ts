@@ -1,6 +1,23 @@
 /** Note shape, ordering and relative time copy. */
-import { MAX_ITEMS, MAX_TEXT } from '../constants'
+import { MAX_TEXT } from '../constants'
 import { uid } from './id'
+
+/**
+ * Stable id for a legacy record that never had one.
+ *
+ * A random id here would change on every read, so a write could merge the same
+ * note twice under two ids. Hashing the authored fields keeps the id identical
+ * across reads; genuinely identical duplicates are resolved by the caller's
+ * `seen` check.
+ */
+function legacyId(text, createdAt, updatedAt) {
+  let hash = 5381
+  const source = `${text}\u0000${createdAt}\u0000${updatedAt}`
+  for (let index = 0; index < source.length; index += 1) {
+    hash = ((hash << 5) + hash + source.charCodeAt(index)) | 0
+  }
+  return `legacy-${(hash >>> 0).toString(36)}`
+}
 
 /**
  * Sanitize one session's notes. The store is user-editable, so treat
@@ -14,7 +31,10 @@ export function normalizeItems(items) {
     if (!raw || typeof raw !== 'object') continue
     const text = String(raw.text || '').trim().slice(0, MAX_TEXT)
     if (!text) continue
-    let id = typeof raw.id === 'string' && raw.id ? raw.id : uid()
+    let id = typeof raw.id === 'string' && raw.id ? raw.id : legacyId(text, raw.createdAt, raw.updatedAt)
+    // A duplicated id must not become a random one, or every read would mint a
+    // new identity and the next merge would keep both copies.
+    if (seen.has(id)) id = legacyId(text, raw.createdAt, raw.updatedAt)
     if (seen.has(id)) id = uid()
     seen.add(id)
     const done = raw.done === true
@@ -28,7 +48,6 @@ export function normalizeItems(items) {
       updatedAt,
       ...(done && Number.isFinite(raw.completedAt) ? { completedAt: raw.completedAt } : {}),
     })
-    if (normalized.length >= MAX_ITEMS) break
   }
   return normalized
 }

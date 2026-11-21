@@ -5,7 +5,7 @@ import { MAX_TEXT } from '../constants'
 const h = React.createElement
 
 export function ComposerForm(props) {
-  const { say, draft, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit } = props
+  const { say, draft, isSubmitting, isRecalling, storageInUse, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit } = props
   return h(
     'form',
     { className: 'dsh-an-add', onSubmit },
@@ -15,6 +15,7 @@ export function ComposerForm(props) {
       value: draft,
       rows: 1,
       maxLength: MAX_TEXT,
+      readOnly: isRecalling,
       placeholder: say('add.placeholder'),
       'aria-label': say('add.placeholder'),
       onChange: onDraftChange,
@@ -25,8 +26,8 @@ export function ComposerForm(props) {
     h(
       'div',
       { className: 'dsh-an-addFoot' },
-      h('span', { className: 'dsh-an-addShortcut' }, say('add.shortcut')),
-      h('button', { type: 'submit', className: 'dsh-an-addBtn', disabled: !draft.trim() }, say('add.action')),
+      storageInUse ? null : h('span', { className: 'dsh-an-addShortcut' }, say('add.shortcut')),
+      h('button', { type: 'submit', className: 'dsh-an-addBtn', disabled: storageInUse || isSubmitting || isRecalling || !draft.trim() }, say('add.action')),
     ),
   )
 }

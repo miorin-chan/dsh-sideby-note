@@ -3,7 +3,7 @@
 //
 // env: TOKEN (required), PORT (default 61399), PROMPT, TITLE (optional)
 import { connect, evaluate, sleep } from './lib/cdp.mjs'
-import { NOTES, NOTES_KEY, anchorExpression } from './lib/notes.mjs'
+import { NOTES, anchorExpression } from './lib/notes.mjs'
 
 const port = process.env.PORT || 61399
 const token = process.env.TOKEN
@@ -67,7 +67,7 @@ await sleep(1500)
 // has no checkbox, so the archive state is written straight into the store);
 // capture.mjs re-anchors before each theme.
 if (!(await evaluate(session, anchorExpression()))) {
-  throw new Error(`no note store at ${NOTES_KEY}`)
+  throw new Error('no demo notes in the host store')
 }
 
 console.log(await evaluate(session, `document.querySelector('.dsh-an-popover')?.innerText ?? 'panel closed'`))

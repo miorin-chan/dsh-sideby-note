@@ -13,8 +13,12 @@ import { join } from 'node:path'
 import test from 'node:test'
 
 import { APPLY_PATH, PROBE_PATH, registerUpdateRoutes } from '../host/route.js'
+import { requestRejection } from './fake-store.mjs'
 
-const ORIGIN = { host: '127.0.0.1:61433', origin: 'http://127.0.0.1:61433', 'sec-fetch-site': 'same-origin' }
+const ORIGIN = {
+  host: '127.0.0.1:61433', origin: 'http://127.0.0.1:61433', 'sec-fetch-site': 'same-origin',
+  'content-type': 'application/json',
+}
 
 /** A profile on disk with this package installed at `version`. */
 function makeProfile(t) {
@@ -32,7 +36,7 @@ function makeProfile(t) {
 }
 
 /** Mount the routes on a stand-in for the host web server. */
-function mount(dir, installer) {
+function mount(dir, installer, connection = { requestRejection }) {
   const routes = new Map()
   const server = {
     register(route) {
@@ -44,6 +48,7 @@ function mount(dir, installer) {
     get: name => {
       if (name === 'profileContext') return { dir }
       if (name === 'pluginManager') return installer
+      if (name === 'connection') return connection
       return undefined
     },
   }
@@ -101,6 +106,18 @@ test('a cross-site request cannot start an install', async t => {
   assert.equal(answer.status, 403)
   assert.equal(answer.body.code, 'UPDATE_FORBIDDEN')
   assert.equal(installed, false)
+})
+
+test('update routes preserve session rejection and fail closed without an authenticator', async () => {
+  const installer = { installBundle: () => assert.fail('unauthorized request reached installer') }
+  for (const [connection, status] of [[{ requestRejection: () => 401 }, 401], [null, 403]]) {
+    const routes = mount(undefined, installer, connection)
+    for (const [endpoint, method] of [[PROBE_PATH, 'GET'], [APPLY_PATH, 'POST']]) {
+      const answer = await call(routes, endpoint, { method, body: { target: '1.1.2' } })
+      assert.equal(answer.status, status)
+      assert.equal(answer.body.code, 'UPDATE_FORBIDDEN')
+    }
+  }
 })
 
 test('a range is not a target', async t => {

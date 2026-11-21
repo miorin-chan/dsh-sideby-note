@@ -11,6 +11,8 @@ import {
   SECTION_STATE_KEY,
 } from '../constants'
 import { storage } from './codec'
+import { setPrefs } from './ops'
+import { hostAuthoritative, hostPrefs, storageMode } from './state'
 
 /** Read the persisted right-panel width, clamped for the current viewport. */
 export function readPanelWidth() {
@@ -62,6 +64,9 @@ export function writePanelHeight(height) {
 
 /** Read the last chosen list scope; "workspace" is the default. */
 export function readScopeMode(): 'workspace' | 'session' {
+  if (hostAuthoritative()) {
+    return hostPrefs().scopeMode === 'session' ? 'session' : SCOPE_MODE_DEFAULT
+  }
   try {
     const saved = storage() && storage().getItem(SCOPE_MODE_KEY)
     return saved === 'session' ? 'session' : SCOPE_MODE_DEFAULT
@@ -71,6 +76,11 @@ export function readScopeMode(): 'workspace' | 'session' {
 }
 
 export function writeScopeMode(mode) {
+  if (storageMode() === 'error') return
+  if (storageMode() === 'host') {
+    setPrefs({ scopeMode: mode === 'session' ? 'session' : 'workspace' })
+    return
+  }
   try {
     const ls = storage()
     if (ls) ls.setItem(SCOPE_MODE_KEY, mode === 'session' ? 'session' : 'workspace')

@@ -1,4 +1,4 @@
-/** Notes for the active scope plus a synchronous writer that never invents state. */
+/** Notes for the active scope plus its writer, serialized per mounted panel. */
 import React from 'react'
 import { SESSION_STORAGE_KEY, WORKSPACE_STORAGE_KEY } from '../constants'
 import { normalizeItems } from '../domain/items'
@@ -13,11 +13,11 @@ function readScope(scope) {
     : readSessionRecord(scope.id)
 }
 
-/** Write the record the current scope renders. */
-function writeScope(scope, record) {
+/** Write the record the current scope renders; `base` is what this tab saw. */
+function writeScope(scope, record, base) {
   return scope.kind === 'workspace'
-    ? writeWorkspaceRecord(scope.id, record)
-    : writeSessionRecord(scope.id, record)
+    ? writeWorkspaceRecord(scope.id, record, base)
+    : writeSessionRecord(scope.id, record, base)
 }
 
 /** Notes of one list (a workspace, or a single session) and their writer. */
@@ -29,10 +29,11 @@ export function useMemoStore(scope) {
 
   const [record, setRecord] = React.useState(() => readScope(scopeRef.current))
   const [syncError, setSyncError] = React.useState(false)
-  const recordRef = React.useRef(record)
-  recordRef.current = record
+  // A host write is durable-or-fail; two quick clicks must not compute from the
+  // same stale list and clobber each other's result.
+  const chainRef = React.useRef<Promise<unknown>>(Promise.resolve())
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     setRecord(readScope(scopeRef.current))
     setSyncError(false)
   }, [kind, id])
@@ -53,20 +54,30 @@ export function useMemoStore(scope) {
 
   // A failed write leaves the rendered record alone: the row the user just
   // deleted stays on screen next to the failure toast, instead of the panel
-  // reporting success for something the browser never stored.
+  // reporting success for something the store never accepted.
   const commit = React.useCallback(updater => {
-    const current = recordRef.current || { items: [], updatedAt: 0 }
-    const nextItems = normalizeItems(updater(current.items || []))
-    // Spread the current record so workspace-only fields (seededSessionIds)
-    // survive an ordinary note edit.
-    const next = { ...current, items: nextItems, updatedAt: Date.now() }
-    const ok = writeScope(scopeRef.current, next)
-    setSyncError(!ok)
-    if (!ok) return false
-    recordRef.current = next
-    setRecord(next)
-    return true
-  }, [])
+    const target = { kind, id }
+    const run = chainRef.current.then(async () => {
+      const current = readScope(target)
+      const base = current.items || []
+      const nextItems = normalizeItems(updater(base))
+      // Spread the current record so workspace-only fields (seededSessionIds)
+      // survive an ordinary note edit.
+      const next = { ...current, items: nextItems, updatedAt: Date.now() }
+      // The store merges with the latest record (host: atomically; local: by
+      // id), so a note another tab added while this one was typing survives.
+      // `base` lets the local merge tell this tab's deletions from additions.
+      const ok = await writeScope(target, next, base)
+      const active = scopeRef.current
+      if (active.kind !== target.kind || active.id !== target.id) return ok
+      setSyncError(!ok)
+      if (!ok) return false
+      setRecord(readScope(target))
+      return true
+    })
+    chainRef.current = run.then(() => undefined, () => undefined)
+    return run
+  }, [kind, id])
 
   return { record, syncError, commit }
 }

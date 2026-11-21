@@ -9,7 +9,7 @@ const h = React.createElement
 export function NoteList(props) {
   const {
     say, listRef, listHasMore, syncListEdge,
-    showOpen, toggleOpen, openItems, openListRef, openCount, total, row,
+    showOpen, toggleOpen, openItems, openListRef, openCount, total, row, hideEmptyState,
     showDone, toggleDone, doneItems,
     confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone,
   } = props
@@ -44,7 +44,7 @@ export function NoteList(props) {
             showOpen
               ? openItems.length
                 ? h('ul', { className: 'dsh-an-rows', ref: openListRef }, openItems.map(row))
-                : h(EmptyState, {
+                : hideEmptyState ? null : h(EmptyState, {
                     title: say(total ? 'list.allArchived.title' : 'popover.empty.title'),
                     body: say(total ? 'list.allArchived.body' : 'popover.empty.body'),
                   })

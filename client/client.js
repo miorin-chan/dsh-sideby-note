@@ -37,7 +37,7 @@ let react_dom = require("react-dom");
 react_dom = __toESM(react_dom, 1);
 
 // \0dsh-css:src/client/styles/panel.css.mjs
-var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-field-line:var(--dsw-alias-border-l4);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose,.dsh-an-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active,.dsh-an-settingsBtn:active{background:var(--an-active)}\n.dsh-an-settingsBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-settingsBtn{position:relative}\n.dsh-an-updateDot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-brand-primary);box-shadow:0 0 0 2px var(--dsh-an-panelSurface)}\n/* The list-scope switch sits at the far right of the title line. */\n.dsh-an-scope{display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:24px;padding:1px;margin-left:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-scopeBtn{display:inline-flex;align-items:center;justify-content:center;height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px;font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-scopeBtn[data-active=\"true\"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:flex;flex-direction:column;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-input{display:block;flex:0 0 auto;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);width:100%;min-width:0}\n.dsh-an-addShortcut{min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-addBtn{display:inline-flex;align-items:center;justify-content:center;flex:none;height:28px;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:active{background:var(--dsw-alias-button-primary-dimmed);transform:scale(.97)}\n.dsh-an-addBtn[disabled]{background:transparent;color:var(--dsw-alias-label-secondary);box-shadow:inset 0 0 0 0.5px var(--an-field-line);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n/* The settings card rides the same rail as the list. When the panel is shorter than the card, the viewport takes the squeeze and scrolls instead of letting the card run under the popover's clipped bottom edge; the card keeps one content width in both states. */\n.dsh-an-settingsViewport{display:flex;flex-direction:column;flex:0 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1);padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}\n/* While settings is open the list yields its height first, so the card keeps its natural height until there is nothing left to take from the list. */\n.dsh-an-popover[data-settings=\"true\"] .dsh-an-listViewport{flex-shrink:10000}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;display:flex;flex-direction:column;gap:2px;margin:0;padding:0}\n/* A note is a bare line on the panel surface: no card, no divider. Grip, text and one trailing cell; the grip column keeps the text on the section label's edge. */\n.dsh-an-row{position:relative;display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:start;column-gap:var(--an-space-1);padding:var(--an-space-1);border-radius:var(--dsw-radius-sm);transition:var(--an-transition)}\n\n/* ── 6 一行便笺 · 把手 16 列，正文 13/20，尾格静置显示时间、悬停换成操作 ── */\n/* The grip is a drag handle and a keyboard control (↑/↓). Touch keeps it visible in the quiet non-text ink; pointer devices reveal it on hover. */\n.dsh-an-grip{display:flex;align-items:center;justify-content:center;width:16px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-tertiary);font:inherit;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:var(--an-transition)}\n.dsh-an-gripSpacer{width:16px}\n.dsh-an-text{display:block;min-width:0;margin:0;padding:0;color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}\n.dsh-an-rowArchived .dsh-an-text{color:var(--dsw-alias-label-secondary)}\n/* Age and actions share one grid cell, so the swap never reflows the text. */\n.dsh-an-trail{display:grid;align-items:center;justify-items:end;min-height:24px;margin:-2px 0 0}\n.dsh-an-trail>*{grid-area:1/1}\n.dsh-an-meta{padding:0 var(--an-space-1);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;opacity:0;transition:opacity var(--an-dur-fast) var(--an-ease)}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:2px;transition:opacity var(--an-dur-fast) var(--an-ease)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-glyphFlip{transform:scaleX(-1)}\n\n/* ── 7b 拖拽排序 · 抬起的行跟手，其余行用 transform 让位 ─────────────── */\n.dsh-an-rows[data-dragging=\"true\"],.dsh-an-rows[data-dragging=\"true\"] .dsh-an-grip{cursor:grabbing}\n.dsh-an-row[data-dragging=\"true\"]{z-index:1;background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-prominent);transition:none}\n.dsh-an-row[data-dragging=\"true\"] .dsh-an-grip{opacity:1;color:var(--dsw-alias-label-primary)}\n/* While a row is held the trail stays at rest: the age shows, the actions stay out of the way. */\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-meta{opacity:1}\n\n/* ── 8 紧凑文字按钮 · 清空确认 ─────────────────────────────────── */\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 设置 · 分组 R16，链接走 --dsw-alias-link ─────────────────── */\n.dsh-an-settings{--dsh-an-settingIndent:var(--an-space-3);display:flex;flex-direction:column;gap:var(--an-space-2);margin:0;padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-settingsHead{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-settingLabel{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingBody{display:flex;flex-direction:column;gap:var(--an-space-1);padding-left:var(--dsh-an-settingIndent)}\n.dsh-an-settingBrand{display:flex;flex-direction:column;gap:2px;min-width:0}\n.dsh-an-settingBrandName{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingBrandTagline{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-settingAbout{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingAbout>span{flex:none}\n.dsh-an-settingAbout .dsh-an-updateHint{flex:0 1 auto;min-width:0}\n.dsh-an-settingMetaRow{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-an-settingMetaRow>span{flex:none}\n.dsh-an-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}\n.dsh-an-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--an-transition)}\n.dsh-an-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n/* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */\n.dsh-an-updateCheck{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCheck:active{background:var(--an-active)}\n.dsh-an-updateCheck:disabled{color:var(--dsw-alias-label-tertiary);cursor:default}\n.dsh-an-updateCheck:focus-visible{outline-offset:2px}\n.dsh-an-updateHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-updateHintError{color:var(--dsw-alias-state-error-primary)}\n.dsh-an-updateCard{display:flex;flex-direction:column;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-updateTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-updateFull:focus-visible,.dsh-an-updateLinkBtn:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateFull{flex:none;color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}\n.dsh-an-updateNotes{display:flex;flex-direction:column;gap:var(--an-space-2);max-height:220px;overflow-y:auto;padding-right:0;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);scrollbar-gutter:stable}\n.dsh-an-updateNotes[data-fade=\"true\"]{--dsh-an-fadeHeight:var(--an-space-5);-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n.dsh-an-updateVersions{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion+.dsh-an-updateVersion{padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateVersionHead{display:flex;align-items:center;gap:var(--an-space-1);width:100%;padding:2px 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer}\n.dsh-an-updateVersionHead:active{background:var(--an-active)}\n.dsh-an-updateVersionHead:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateChevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-updateChevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-updateVersionLabel{font-variant-numeric:tabular-nums}\n.dsh-an-updateLatest{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500}\n.dsh-an-updateVersionBody{display:flex;flex-direction:column;gap:var(--an-space-2);padding-left:var(--an-space-4);min-width:0}\n.dsh-an-updateGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateGroupTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-updateItems{display:flex;flex-direction:column;gap:var(--an-space-1);margin:0;padding-left:var(--an-space-4);color:var(--dsw-alias-label-primary)}\n.dsh-an-updateItem{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);overflow-wrap:anywhere}\n.dsh-an-updateItem strong{font-weight:500}\n.dsh-an-updateActions{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updatePrimary{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-3);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updatePrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-updatePrimary:disabled{opacity:.55;cursor:default}\n.dsh-an-updatePrimary:focus-visible{outline-offset:2px}\n.dsh-an-updateDone{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateErrorRow{display:flex;align-items:baseline;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateError{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere}\n.dsh-an-updateLinkBtn{padding:0;border:0;background:transparent;color:var(--dsw-alias-link);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer}\n.dsh-an-updateFallback{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateFallback .dsh-an-updateHint{flex:1 1 100%;min-width:0}\n.dsh-an-updateCopy{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCopy:active{background:var(--an-active)}\n.dsh-an-updateCopy:focus-visible{outline-offset:2px}\n\n/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */\n.dsh-an-popFoot{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-grip{opacity:0}\n.dsh-an-row:hover .dsh-an-grip,.dsh-an-grip:focus-visible{opacity:1;color:var(--dsw-alias-label-secondary)}\n.dsh-an-grip:hover{color:var(--dsw-alias-label-primary)}\n.dsh-an-meta{opacity:1}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta{opacity:0}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-popClose:hover,.dsh-an-settingsBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:hover:not([data-active=\"true\"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover{background:var(--an-hover)}\n.dsh-an-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) backwards}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-grip,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
+var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-field-line:var(--dsw-alias-border-l4);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose,.dsh-an-settingsBtn{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active,.dsh-an-settingsBtn:active{background:var(--an-active)}\n.dsh-an-settingsBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-settingsBtn{position:relative}\n.dsh-an-updateDot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-brand-primary);box-shadow:0 0 0 2px var(--dsh-an-panelSurface)}\n/* The list-scope switch sits at the far right of the title line. */\n.dsh-an-scope{display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:24px;padding:1px;margin-left:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-scopeBtn{display:inline-flex;align-items:center;justify-content:center;height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px;font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-scopeBtn[data-active=\"true\"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:flex;flex-direction:column;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-input{display:block;flex:0 0 auto;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addFoot{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);width:100%;min-width:0}\n.dsh-an-addShortcut{min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-addBtn{display:inline-flex;align-items:center;justify-content:center;flex:none;height:28px;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:active{background:var(--dsw-alias-button-primary-dimmed);transform:scale(.97)}\n.dsh-an-addBtn[disabled]{background:transparent;color:var(--dsw-alias-label-secondary);box-shadow:inset 0 0 0 0.5px var(--an-field-line);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n/* The settings card rides the same rail as the list. When the panel is shorter than the card, the viewport takes the squeeze and scrolls instead of letting the card run under the popover's clipped bottom edge; the card keeps one content width in both states. */\n.dsh-an-settingsViewport{display:flex;flex-direction:column;flex:0 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1);padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}\n/* While settings is open the list yields its height first, so the card keeps its natural height until there is nothing left to take from the list. */\n.dsh-an-popover[data-settings=\"true\"] .dsh-an-listViewport{flex-shrink:10000}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;display:flex;flex-direction:column;gap:2px;margin:0;padding:0}\n/* A note is a bare line on the panel surface: no card, no divider. Grip, text and one trailing cell; the grip column keeps the text on the section label's edge. */\n.dsh-an-row{position:relative;display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:start;column-gap:var(--an-space-1);padding:var(--an-space-1);border-radius:var(--dsw-radius-sm);transition:var(--an-transition)}\n\n/* ── 6 一行便笺 · 把手 16 列，正文 13/20，尾格静置显示时间、悬停换成操作 ── */\n/* The grip is a drag handle and a keyboard control (↑/↓). Touch keeps it visible in the quiet non-text ink; pointer devices reveal it on hover. */\n.dsh-an-grip{display:flex;align-items:center;justify-content:center;width:16px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-tertiary);font:inherit;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:var(--an-transition)}\n.dsh-an-gripSpacer{width:16px}\n.dsh-an-text{display:block;min-width:0;margin:0;padding:0;color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}\n.dsh-an-rowArchived .dsh-an-text{color:var(--dsw-alias-label-secondary)}\n/* Age and actions share one grid cell, so the swap never reflows the text. */\n.dsh-an-trail{display:grid;align-items:center;justify-items:end;min-height:24px;margin:-2px 0 0}\n.dsh-an-trail>*{grid-area:1/1}\n.dsh-an-meta{padding:0 var(--an-space-1);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;opacity:0;transition:opacity var(--an-dur-fast) var(--an-ease)}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:2px;transition:opacity var(--an-dur-fast) var(--an-ease)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-glyphFlip{transform:scaleX(-1)}\n\n/* ── 7b 拖拽排序 · 抬起的行跟手，其余行用 transform 让位 ─────────────── */\n.dsh-an-rows[data-dragging=\"true\"],.dsh-an-rows[data-dragging=\"true\"] .dsh-an-grip{cursor:grabbing}\n.dsh-an-row[data-dragging=\"true\"]{z-index:1;background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-prominent);transition:none}\n.dsh-an-row[data-dragging=\"true\"] .dsh-an-grip{opacity:1;color:var(--dsw-alias-label-primary)}\n/* While a row is held the trail stays at rest: the age shows, the actions stay out of the way. */\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-meta{opacity:1}\n\n/* ── 8 紧凑文字按钮 · 清空确认 ─────────────────────────────────── */\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 设置 · 分组 R16，链接走 --dsw-alias-link ─────────────────── */\n.dsh-an-settings{--dsh-an-settingIndent:var(--an-space-3);display:flex;flex-direction:column;gap:var(--an-space-2);margin:0;padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-settingsHead{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-settingLabel{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingBody{display:flex;flex-direction:column;gap:var(--an-space-1);padding-left:var(--dsh-an-settingIndent)}\n.dsh-an-settingBrand{display:flex;flex-direction:column;gap:2px;min-width:0}\n.dsh-an-settingBrandName{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-settingBrandTagline{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-settingAbout{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-settingAbout>span{flex:none}\n.dsh-an-settingAbout .dsh-an-updateHint{flex:0 1 auto;min-width:0}\n.dsh-an-settingMetaRow{display:flex;align-items:baseline;gap:var(--an-space-1);min-width:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);white-space:nowrap}\n.dsh-an-settingMetaRow>span{flex:none}\n.dsh-an-storageBlock{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-storagePathRow{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-storagePath{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;user-select:all}\n.dsh-an-storageActions{display:flex;flex-wrap:wrap;gap:var(--an-space-1)}\n.dsh-an-storageAction{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-storageAction:active{background:var(--an-active)}\n.dsh-an-storageAction:focus-visible{outline-offset:2px}\n.dsh-an-settingDot{flex:none;color:var(--dsw-alias-label-tertiary)}\n.dsh-an-settingLink{flex:0 1 auto;min-width:0;overflow:hidden;color:var(--dsw-alias-link);font-weight:500;text-decoration:none;text-overflow:ellipsis;transition:var(--an-transition)}\n.dsh-an-settingLink:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n/* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */\n.dsh-an-updateCheck{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCheck:active{background:var(--an-active)}\n.dsh-an-updateCheck:disabled{color:var(--dsw-alias-label-tertiary);cursor:default}\n.dsh-an-updateCheck:focus-visible{outline-offset:2px}\n.dsh-an-updateHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-updateHintError{color:var(--dsw-alias-state-error-primary)}\n.dsh-an-updateCard{display:flex;flex-direction:column;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-updateTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-updateFull:focus-visible,.dsh-an-updateLinkBtn:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateFull{flex:none;color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}\n.dsh-an-updateNotes{display:flex;flex-direction:column;gap:var(--an-space-2);max-height:220px;overflow-y:auto;padding-right:0;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);scrollbar-gutter:stable}\n.dsh-an-updateNotes[data-fade=\"true\"]{--dsh-an-fadeHeight:var(--an-space-5);-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n.dsh-an-updateVersions{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion+.dsh-an-updateVersion{padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateVersionHead{display:flex;align-items:center;gap:var(--an-space-1);width:100%;padding:2px 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer}\n.dsh-an-updateVersionHead:active{background:var(--an-active)}\n.dsh-an-updateVersionHead:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateChevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-updateChevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-updateVersionLabel{font-variant-numeric:tabular-nums}\n.dsh-an-updateLatest{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500}\n.dsh-an-updateVersionBody{display:flex;flex-direction:column;gap:var(--an-space-2);padding-left:var(--an-space-4);min-width:0}\n.dsh-an-updateGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateGroupTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-updateItems{display:flex;flex-direction:column;gap:var(--an-space-1);margin:0;padding-left:var(--an-space-4);color:var(--dsw-alias-label-primary)}\n.dsh-an-updateItem{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);overflow-wrap:anywhere}\n.dsh-an-updateItem strong{font-weight:500}\n.dsh-an-updateActions{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updatePrimary{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-3);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updatePrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-updatePrimary:disabled{opacity:.55;cursor:default}\n.dsh-an-updatePrimary:focus-visible{outline-offset:2px}\n.dsh-an-updateDone{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateErrorRow{display:flex;align-items:baseline;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateError{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere}\n.dsh-an-updateLinkBtn{padding:0;border:0;background:transparent;color:var(--dsw-alias-link);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer}\n.dsh-an-updateFallback{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateFallback .dsh-an-updateHint{flex:1 1 100%;min-width:0}\n.dsh-an-updateCopy{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCopy:active{background:var(--an-active)}\n.dsh-an-updateCopy:focus-visible{outline-offset:2px}\n\n/* ── 11 面板脚注 · 存储状态就地提示，错误用状态色 ─────────────────── */\n.dsh-an-popFoot{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-grip{opacity:0}\n.dsh-an-row:hover .dsh-an-grip,.dsh-an-grip:focus-visible{opacity:1;color:var(--dsw-alias-label-secondary)}\n.dsh-an-grip:hover{color:var(--dsw-alias-label-primary)}\n.dsh-an-meta{opacity:1}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta{opacity:0}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-popClose:hover,.dsh-an-settingsBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:hover:not([data-active=\"true\"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not([disabled]){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover{background:var(--an-hover)}\n.dsh-an-settingLink:hover{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) backwards}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-grip,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
 
 // src/client/constants.ts
 /**
@@ -54,7 +54,7 @@ const PANEL_ID = "dsh-sideby-note";
 const SESSION_STORAGE_KEY = "dsh.aside-note";
 /** Notes shared by every session of one workspace; kept beside the session key. */
 const WORKSPACE_STORAGE_KEY = "dsh.aside-note.workspaces";
-/** Unsaved add/edit drafts, restored when the panel is reopened. */
+/** Unsaved composer drafts, restored when the panel is reopened. */
 const DRAFT_STORAGE_KEY = "dsh.aside-note.drafts";
 /** Shown in the in-panel settings; keep in sync with package.json. */
 const PLUGIN_VERSION = "0.1.0";
@@ -76,6 +76,22 @@ const CLEAR_CONFIRM_MS = 5e3;
 const PANEL_WIDTH_KEY = "dsh.aside-note.panel-width";
 /** Persisted height of the experimental right-side panel; 0 means content-sized. */
 const PANEL_HEIGHT_KEY = "dsh.aside-note.panel-height";
+/** Same-origin host endpoint owned by this package (keep in sync with host/store-route.js). */
+const HOST_STORE_PATH = "/dsh-sideby-note/store";
+/** Absolute path of the host file, for Settings. */
+const HOST_STORE_LOCATION_PATH = "/dsh-sideby-note/store/location";
+/** Ask the host to reveal the store file in its file manager. */
+const HOST_STORE_REVEAL_PATH = "/dsh-sideby-note/store/reveal";
+/** Browser-side marker: written only after the one-way switch to host storage succeeded. */
+const STORAGE_MODE_KEY = "dsh.aside-note.storage-mode";
+/** Browser-side notice dedupe record: { code, at }. */
+const STORAGE_NOTICE_KEY = "dsh.aside-note.storage-notice";
+/** Hydration/notice dedupe window for repeated failures. */
+const STORAGE_NOTICE_MS = 864e5;
+/** A snapshot is small; anything slower than this is a broken host, not a busy disk. */
+const HOST_READ_TIMEOUT_MS = 4e3;
+/** A durable write includes fsync; allow a slow disk but never hang the panel. */
+const HOST_WRITE_TIMEOUT_MS = 1e4;
 
 // src/client/i18n/de.ts
 /** German copy; a missing key fails the typecheck rather than falling back at runtime. */
@@ -108,6 +124,7 @@ const de = {
 	"settings.improver": "Verbesserungen",
 	"settings.improverName": "LighghtEeloo",
 	"settings.project": "Quellcode",
+	"settings.storage": "Datenspeicher",
 	"add.placeholder": "Eine notieren",
 	"add.shortcut": "Enter sendet · Umschalt+Enter für eine neue Zeile",
 	"add.action": "Hinzufügen",
@@ -124,6 +141,23 @@ const de = {
 	"time.days": "vor {n} T.",
 	"time.createdArchived": "Geschrieben {created} · Archiviert {completed}",
 	"storage.failed": "Lokaler Speicher ist nicht verfügbar; Änderungen werden möglicherweise nicht gespeichert",
+	"storage.whereHost": "Notizen werden in einer lokalen DSH-Datei gespeichert",
+	"storage.loading": "Notizen werden gelesen…",
+	"storage.modeHost": "Lokale DSH-Datei (aside_note.json)",
+	"storage.modeLocal": "Dieser Browser (localStorage)",
+	"storage.settingsLabel": "Speicher",
+	"storage.failure": "Letzter Fehler: {code}",
+	"storage.migrated": "{n} Notizen aus diesem Browser in die lokale DSH-Datei verschoben",
+	"storage.keptLocal": "Host-Notizen werden verwendet; ältere Notizen dieses Browsers wurden nicht zusammengeführt",
+	"storage.notSwitched": "Host-Speicher ist nicht verfügbar; Notizen bleiben in diesem Browser und werden beim nächsten Start erneut versucht",
+	"storage.hostError": "Notizspeicher ist nicht verfügbar",
+	"storage.inUse": "AsideNote verwendet den Notizspeicher. Deaktiviere AsideNote und wähle Einstellungen › Datenspeicher › Erneut verbinden.",
+	"storage.retry": "Erneut verbinden",
+	"storage.copyPath": "Pfad kopieren",
+	"storage.reveal": "Im Ordner zeigen",
+	"storage.pathLoading": "Speicherort wird gelesen…",
+	"storage.pathUnavailable": "Speicherdatei nicht auffindbar (Backend ohne Dateipfad)",
+	"storage.pathMissing": "Datei noch nicht erstellt; sie entsteht beim ersten Speichern",
 	"resize.width": "Breite von Sideby Note ändern",
 	"resize.height": "Höhe von Sideby Note ändern",
 	"resize.hint": "Zum Ändern ziehen, zum Zurücksetzen doppelklicken",
@@ -133,8 +167,11 @@ const de = {
 	"header.tooltipEmpty": "Sideby Note",
 	"toast.copied": "Kopiert",
 	"toast.copyFailed": "Kopieren fehlgeschlagen — erneut versuchen",
+	"toast.pathCopied": "Pfad kopiert",
+	"toast.revealFailed": "Dateimanager konnte nicht geöffnet werden",
 	"toast.inserted": "In den Chat gegeben",
 	"toast.insertFailed": "Kein Chat-Eingabefeld gefunden — die Notiz bleibt unverändert",
+	"toast.archiveFailed": "An den Chat übergeben, aber das Archiv konnte nicht gespeichert werden",
 	"toast.recalled": "Zurück in das Eingabefeld geholt",
 	"toast.recallBlocked": "Im Eingabefeld steht bereits Text – zuerst senden oder leeren",
 	"toast.cleared": "Archiv geleert",
@@ -212,6 +249,7 @@ const en = {
 	"settings.improver": "Improver",
 	"settings.improverName": "LighghtEeloo",
 	"settings.project": "Source",
+	"settings.storage": "Data storage",
 	"add.placeholder": "Jot one down",
 	"add.shortcut": "Enter sends · Shift+Enter for a new line",
 	"add.action": "Add",
@@ -228,6 +266,23 @@ const en = {
 	"time.days": "{n} d ago",
 	"time.createdArchived": "Written {created} · Archived {completed}",
 	"storage.failed": "Local storage is unavailable; changes may not persist",
+	"storage.whereHost": "Notes are saved in a DSH local file",
+	"storage.loading": "Reading notes…",
+	"storage.modeHost": "DSH local file (aside_note.json)",
+	"storage.modeLocal": "This browser (localStorage)",
+	"storage.settingsLabel": "Storage",
+	"storage.failure": "Last failure: {code}",
+	"storage.migrated": "Moved {n} notes from this browser into the DSH local file",
+	"storage.keptLocal": "Using host notes; this browser's older notes were left unmerged",
+	"storage.notSwitched": "Host storage is unavailable, so notes stay in this browser and will be retried on next start",
+	"storage.hostError": "Notes storage is unavailable",
+	"storage.inUse": "AsideNote is using the notes store. Disable AsideNote, then choose Settings › Data storage › Reconnect.",
+	"storage.retry": "Reconnect",
+	"storage.copyPath": "Copy path",
+	"storage.reveal": "Show in folder",
+	"storage.pathLoading": "Reading storage location…",
+	"storage.pathUnavailable": "Cannot locate the store file (the backend has no file path)",
+	"storage.pathMissing": "The file is not created yet; it appears after the first save",
 	"resize.width": "Resize Sideby Note width",
 	"resize.height": "Resize Sideby Note height",
 	"resize.hint": "Drag to resize, double-click to reset",
@@ -237,8 +292,11 @@ const en = {
 	"header.tooltipEmpty": "Sideby Note",
 	"toast.copied": "Copied",
 	"toast.copyFailed": "Copy failed — try again",
+	"toast.pathCopied": "Path copied",
+	"toast.revealFailed": "Could not open the file manager",
 	"toast.inserted": "Handed to the chat",
 	"toast.insertFailed": "No chat composer found — the note is untouched",
+	"toast.archiveFailed": "Handed to the chat, but the archive could not be saved",
 	"toast.recalled": "Moved back to the input",
 	"toast.recallBlocked": "The input already has text — send or clear it first",
 	"toast.cleared": "Archive cleared",
@@ -316,6 +374,7 @@ const es = {
 	"settings.improver": "Mejoras",
 	"settings.improverName": "LighghtEeloo",
 	"settings.project": "Código fuente",
+	"settings.storage": "Almacenamiento de datos",
 	"add.placeholder": "Anota una",
 	"add.shortcut": "Intro envía · Mayús+Intro para una nueva línea",
 	"add.action": "Añadir",
@@ -332,6 +391,23 @@ const es = {
 	"time.days": "hace {n} d",
 	"time.createdArchived": "Escrita {created} · Archivada {completed}",
 	"storage.failed": "El almacenamiento local no está disponible; es posible que los cambios no se guarden",
+	"storage.whereHost": "Las notas se guardan en un archivo local de DSH",
+	"storage.loading": "Leyendo notas…",
+	"storage.modeHost": "Archivo local de DSH (aside_note.json)",
+	"storage.modeLocal": "Este navegador (localStorage)",
+	"storage.settingsLabel": "Almacenamiento",
+	"storage.failure": "Último fallo: {code}",
+	"storage.migrated": "Se movieron {n} notas de este navegador al archivo local de DSH",
+	"storage.keptLocal": "Se usan las notas del host; las notas antiguas de este navegador quedaron sin combinar",
+	"storage.notSwitched": "El almacenamiento del host no está disponible; las notas siguen en este navegador y se reintentará al iniciar",
+	"storage.hostError": "El almacenamiento de notas no está disponible",
+	"storage.inUse": "AsideNote está usando el almacén de notas. Desactiva AsideNote y elige Ajustes › Almacenamiento de datos › Volver a conectar.",
+	"storage.retry": "Volver a conectar",
+	"storage.copyPath": "Copiar ruta",
+	"storage.reveal": "Mostrar en carpeta",
+	"storage.pathLoading": "Leyendo la ubicación…",
+	"storage.pathUnavailable": "No se puede localizar el archivo (el backend no usa archivo)",
+	"storage.pathMissing": "El archivo aún no existe; se crea al guardar",
 	"resize.width": "Cambiar el ancho de Sideby Note",
 	"resize.height": "Cambiar la altura de Sideby Note",
 	"resize.hint": "Arrastra para cambiar el tamaño, doble clic para restablecer",
@@ -341,8 +417,11 @@ const es = {
 	"header.tooltipEmpty": "Sideby Note",
 	"toast.copied": "Copiado",
 	"toast.copyFailed": "Error al copiar — inténtalo de nuevo",
+	"toast.pathCopied": "Ruta copiada",
+	"toast.revealFailed": "No se pudo abrir el gestor de archivos",
 	"toast.inserted": "Pasada al chat",
 	"toast.insertFailed": "No hay campo de chat — la nota sigue igual",
+	"toast.archiveFailed": "La nota se pasó al chat, pero no se pudo archivar",
 	"toast.recalled": "Devuelta al cuadro de texto",
 	"toast.recallBlocked": "El cuadro de texto ya tiene contenido; envíalo o bórralo primero",
 	"toast.cleared": "Archivo borrado",
@@ -420,6 +499,7 @@ const fr = {
 	"settings.improver": "Améliorations",
 	"settings.improverName": "LighghtEeloo",
 	"settings.project": "Source",
+	"settings.storage": "Stockage des données",
 	"add.placeholder": "Notez-en une",
 	"add.shortcut": "Entrée envoie · Maj+Entrée pour un saut de ligne",
 	"add.action": "Ajouter",
@@ -436,6 +516,23 @@ const fr = {
 	"time.days": "il y a {n} j",
 	"time.createdArchived": "Écrite {created} · Archivée {completed}",
 	"storage.failed": "Le stockage local n'est pas disponible ; les modifications peuvent ne pas être conservées",
+	"storage.whereHost": "Les notes sont enregistrées dans un fichier local DSH",
+	"storage.loading": "Lecture des notes…",
+	"storage.modeHost": "Fichier local DSH (aside_note.json)",
+	"storage.modeLocal": "Ce navigateur (localStorage)",
+	"storage.settingsLabel": "Stockage",
+	"storage.failure": "Dernier échec : {code}",
+	"storage.migrated": "{n} notes de ce navigateur ont été déplacées vers le fichier local DSH",
+	"storage.keptLocal": "Notes de l'hôte utilisées ; les anciennes notes de ce navigateur n'ont pas été fusionnées",
+	"storage.notSwitched": "Le stockage de l'hôte est indisponible ; les notes restent dans ce navigateur et seront réessayées au prochain démarrage",
+	"storage.hostError": "Le stockage des notes est indisponible",
+	"storage.inUse": "AsideNote utilise le stockage des notes. Désactivez AsideNote, puis choisissez Paramètres › Stockage des données › Se reconnecter.",
+	"storage.retry": "Se reconnecter",
+	"storage.copyPath": "Copier le chemin",
+	"storage.reveal": "Afficher dans le dossier",
+	"storage.pathLoading": "Lecture de l'emplacement…",
+	"storage.pathUnavailable": "Impossible de localiser le fichier (backend sans chemin)",
+	"storage.pathMissing": "Le fichier n'existe pas encore ; il apparaît après le premier enregistrement",
 	"resize.width": "Redimensionner la largeur d'Sideby Note",
 	"resize.height": "Redimensionner la hauteur d'Sideby Note",
 	"resize.hint": "Faites glisser pour redimensionner, double-cliquez pour réinitialiser",
@@ -445,8 +542,11 @@ const fr = {
 	"header.tooltipEmpty": "Sideby Note",
 	"toast.copied": "Copié",
 	"toast.copyFailed": "Échec de la copie — réessayez",
+	"toast.pathCopied": "Chemin copié",
+	"toast.revealFailed": "Impossible d'ouvrir le gestionnaire de fichiers",
 	"toast.inserted": "Passée au chat",
 	"toast.insertFailed": "Aucune zone de saisie — la note reste en place",
+	"toast.archiveFailed": "Note transmise au chat, mais son archivage a échoué",
 	"toast.recalled": "Renvoyée dans la zone de saisie",
 	"toast.recallBlocked": "La zone de saisie contient déjà du texte ; envoyez-le ou effacez-le d'abord",
 	"toast.cleared": "Archive effacée",
@@ -524,6 +624,7 @@ const ja = {
 	"settings.improver": "改良者",
 	"settings.improverName": "LighghtEeloo",
 	"settings.project": "ソース",
+	"settings.storage": "データ保存",
 	"add.placeholder": "ひとつメモする",
 	"add.shortcut": "Enter で送信 · Shift+Enter で改行",
 	"add.action": "追加",
@@ -540,6 +641,23 @@ const ja = {
 	"time.days": "{n} 日前",
 	"time.createdArchived": "記入 {created} · アーカイブ {completed}",
 	"storage.failed": "ローカルストレージを利用できません。変更は保存されない可能性があります",
+	"storage.whereHost": "メモは DSH のローカルファイルに保存されます",
+	"storage.loading": "メモを読み込み中…",
+	"storage.modeHost": "DSH ローカルファイル（aside_note.json）",
+	"storage.modeLocal": "このブラウザ（localStorage）",
+	"storage.settingsLabel": "保存先",
+	"storage.failure": "前回の失敗：{code}",
+	"storage.migrated": "このブラウザのメモ {n} 件を DSH ローカルファイルに移行しました",
+	"storage.keptLocal": "ホストのメモを使用中です。このブラウザの古いメモは統合していません",
+	"storage.notSwitched": "ホストのストレージを利用できないため、メモはこのブラウザに保存され、次回起動時に再試行します",
+	"storage.hostError": "メモのストレージを利用できません",
+	"storage.inUse": "AsideNote がノートの保存先を使用しています。AsideNote を無効にし、設定 › データ保存 › 再接続を選んでください。",
+	"storage.retry": "再接続",
+	"storage.copyPath": "パスをコピー",
+	"storage.reveal": "フォルダで表示",
+	"storage.pathLoading": "保存先を読み込み中…",
+	"storage.pathUnavailable": "保存ファイルを特定できません（このバックエンドはファイルパス非対応）",
+	"storage.pathMissing": "ファイルは未作成です。最初の保存後に生成されます",
 	"resize.width": "Sideby Note の幅を変更",
 	"resize.height": "Sideby Note の高さを変更",
 	"resize.hint": "ドラッグでサイズ変更、ダブルクリックでリセット",
@@ -549,8 +667,11 @@ const ja = {
 	"header.tooltipEmpty": "Sideby Note",
 	"toast.copied": "コピーしました",
 	"toast.copyFailed": "コピーに失敗しました — もう一度お試しください",
+	"toast.pathCopied": "パスをコピーしました",
+	"toast.revealFailed": "ファイルマネージャーを開けません",
 	"toast.inserted": "チャットへ渡しました",
 	"toast.insertFailed": "チャットの入力欄が見つかりません — メモはそのままです",
+	"toast.archiveFailed": "チャットに渡しましたが、アーカイブを保存できませんでした",
 	"toast.recalled": "入力欄に戻しました",
 	"toast.recallBlocked": "入力欄に文字があります。送信するかクリアしてください",
 	"toast.cleared": "アーカイブを削除しました",
@@ -628,6 +749,7 @@ const pt = {
 	"settings.improver": "Melhorias",
 	"settings.improverName": "LighghtEeloo",
 	"settings.project": "Código-fonte",
+	"settings.storage": "Armazenamento de dados",
 	"add.placeholder": "Anote uma",
 	"add.shortcut": "Enter envia · Shift+Enter para uma nova linha",
 	"add.action": "Adicionar",
@@ -644,6 +766,23 @@ const pt = {
 	"time.days": "há {n} d",
 	"time.createdArchived": "Escrita {created} · Arquivada {completed}",
 	"storage.failed": "O armazenamento local não está disponível; as alterações podem não ser salvas",
+	"storage.whereHost": "As notas são salvas em um arquivo local do DSH",
+	"storage.loading": "Lendo notas…",
+	"storage.modeHost": "Arquivo local do DSH (aside_note.json)",
+	"storage.modeLocal": "Este navegador (localStorage)",
+	"storage.settingsLabel": "Armazenamento",
+	"storage.failure": "Última falha: {code}",
+	"storage.migrated": "{n} notas deste navegador foram movidas para o arquivo local do DSH",
+	"storage.keptLocal": "Usando as notas do host; as notas antigas deste navegador não foram mescladas",
+	"storage.notSwitched": "O armazenamento do host está indisponível; as notas ficam neste navegador e serão tentadas novamente na próxima inicialização",
+	"storage.hostError": "O armazenamento de notas está indisponível",
+	"storage.inUse": "O AsideNote está usando o armazenamento de notas. Desative o AsideNote e escolha Configurações › Armazenamento de dados › Reconectar.",
+	"storage.retry": "Reconectar",
+	"storage.copyPath": "Copiar caminho",
+	"storage.reveal": "Mostrar na pasta",
+	"storage.pathLoading": "Lendo o local…",
+	"storage.pathUnavailable": "Não foi possível localizar o arquivo (backend sem caminho)",
+	"storage.pathMissing": "O arquivo ainda não existe; será criado ao salvar",
 	"resize.width": "Redimensionar a largura do Sideby Note",
 	"resize.height": "Redimensionar a altura do Sideby Note",
 	"resize.hint": "Arraste para redimensionar, clique duas vezes para redefinir",
@@ -653,8 +792,11 @@ const pt = {
 	"header.tooltipEmpty": "Sideby Note",
 	"toast.copied": "Copiado",
 	"toast.copyFailed": "Falha ao copiar — tente novamente",
+	"toast.pathCopied": "Caminho copiado",
+	"toast.revealFailed": "Não foi possível abrir o gerenciador de arquivos",
 	"toast.inserted": "Passada para o chat",
 	"toast.insertFailed": "Nenhum campo do chat — a nota fica como está",
+	"toast.archiveFailed": "A nota foi enviada para o chat, mas não pôde ser arquivada",
 	"toast.recalled": "Devolvida para a caixa de texto",
 	"toast.recallBlocked": "A caixa de texto já tem conteúdo; envie ou limpe primeiro",
 	"toast.cleared": "Arquivo limpo",
@@ -732,6 +874,7 @@ const ru = {
 	"settings.improver": "Улучшения",
 	"settings.improverName": "LighghtEeloo",
 	"settings.project": "Исходный код",
+	"settings.storage": "Хранилище данных",
 	"add.placeholder": "Записать",
 	"add.shortcut": "Enter отправляет · Shift+Enter — новая строка",
 	"add.action": "Добавить",
@@ -748,6 +891,23 @@ const ru = {
 	"time.days": "{n} дн. назад",
 	"time.createdArchived": "Записано {created} · В архиве {completed}",
 	"storage.failed": "Локальное хранилище недоступно; изменения могут не сохраниться",
+	"storage.whereHost": "Заметки сохраняются в локальном файле DSH",
+	"storage.loading": "Чтение заметок…",
+	"storage.modeHost": "Локальный файл DSH (aside_note.json)",
+	"storage.modeLocal": "Этот браузер (localStorage)",
+	"storage.settingsLabel": "Хранилище",
+	"storage.failure": "Последняя ошибка: {code}",
+	"storage.migrated": "Заметки этого браузера ({n}) перенесены в локальный файл DSH",
+	"storage.keptLocal": "Используются заметки хоста; старые заметки этого браузера не объединены",
+	"storage.notSwitched": "Хранилище хоста недоступно; заметки остаются в этом браузере, повтор при следующем запуске",
+	"storage.hostError": "Хранилище заметок недоступно",
+	"storage.inUse": "AsideNote использует хранилище заметок. Отключите AsideNote и выберите «Настройки › Хранилище данных › Подключиться снова».",
+	"storage.retry": "Подключиться снова",
+	"storage.copyPath": "Скопировать путь",
+	"storage.reveal": "Показать в папке",
+	"storage.pathLoading": "Чтение расположения…",
+	"storage.pathUnavailable": "Не удалось найти файл (бэкенд без пути)",
+	"storage.pathMissing": "Файл ещё не создан; появится после первого сохранения",
 	"resize.width": "Изменить ширину Sideby Note",
 	"resize.height": "Изменить высоту Sideby Note",
 	"resize.hint": "Перетащите для изменения размера, двойной щелчок для сброса",
@@ -757,8 +917,11 @@ const ru = {
 	"header.tooltipEmpty": "Sideby Note",
 	"toast.copied": "Скопировано",
 	"toast.copyFailed": "Не удалось скопировать — повторите попытку",
+	"toast.pathCopied": "Путь скопирован",
+	"toast.revealFailed": "Не удалось открыть файловый менеджер",
 	"toast.inserted": "Передано в чат",
 	"toast.insertFailed": "Поле чата не найдено — заметка не тронута",
+	"toast.archiveFailed": "Заметка передана в чат, но сохранить её в архиве не удалось",
 	"toast.recalled": "Возвращено в поле ввода",
 	"toast.recallBlocked": "В поле ввода уже есть текст — сначала отправьте или очистите его",
 	"toast.cleared": "Архив очищен",
@@ -836,6 +999,7 @@ const zh = {
 	"settings.improver": "改良者",
 	"settings.improverName": "光吟",
 	"settings.project": "源代码",
+	"settings.storage": "数据存储",
 	"add.placeholder": "随手记一条",
 	"add.shortcut": "Enter 发送 · Shift+Enter 换行",
 	"add.action": "添加",
@@ -852,6 +1016,23 @@ const zh = {
 	"time.days": "{n} 天前",
 	"time.createdArchived": "写于 {created} · 归档于 {completed}",
 	"storage.failed": "本地存储不可用，改动不会保留",
+	"storage.whereHost": "便笺保存在 DSH 本地文件",
+	"storage.loading": "正在读取便笺…",
+	"storage.modeHost": "DSH 本地文件（aside_note.json）",
+	"storage.modeLocal": "当前浏览器（localStorage）",
+	"storage.settingsLabel": "存储",
+	"storage.failure": "最近失败：{code}",
+	"storage.migrated": "已把本浏览器的 {n} 条便笺迁入 DSH 本地文件",
+	"storage.keptLocal": "已使用宿主便笺；本浏览器的旧便笺未合并",
+	"storage.notSwitched": "宿主存储暂不可用，便笺仍保存在本浏览器，下次启动会重试",
+	"storage.hostError": "便笺存储暂不可用",
+	"storage.inUse": "旁边记（AsideNote）正在使用便笺存储。请停用旁边记，再选择「设置 › 数据存储 › 重新连接」",
+	"storage.retry": "重新连接",
+	"storage.copyPath": "拷贝路径",
+	"storage.reveal": "在文件夹中显示",
+	"storage.pathLoading": "正在读取存储位置…",
+	"storage.pathUnavailable": "无法定位存储文件（当前存储后端不支持）",
+	"storage.pathMissing": "文件尚未创建，首次写入后生成",
 	"resize.width": "调整边记部宽度",
 	"resize.height": "调整边记部高度",
 	"resize.hint": "拖动调整，双击复位",
@@ -861,8 +1042,11 @@ const zh = {
 	"header.tooltipEmpty": "边记部",
 	"toast.copied": "已复制",
 	"toast.copyFailed": "复制失败，请重试",
+	"toast.pathCopied": "已复制路径",
+	"toast.revealFailed": "无法打开文件管理器",
 	"toast.inserted": "已递入对话",
 	"toast.insertFailed": "找不到对话输入框，便笺未动",
+	"toast.archiveFailed": "便笺已递入对话，但存档未能保存",
 	"toast.recalled": "已退回输入框",
 	"toast.recallBlocked": "输入框已有内容，请先发送或清空",
 	"toast.cleared": "归档已清空",
@@ -1137,13 +1321,525 @@ function appendToConversation(text) {
 
 // src/client/storage/codec.ts
 /** The browser store, or null when storage is blocked. */
-/** The browser store, or null when storage is blocked. */
 function storage() {
 	try {
 		return window.localStorage;
 	} catch {
 		return null;
 	}
+}
+/** Suffix appended to a store key when its payload could not be read. */
+const CORRUPT_SUFFIX = ".corrupt";
+/**
+* Keep an unreadable payload beside its key before anything overwrites it.
+*
+* Notes only exist in this browser, so a bad parse must not be allowed to turn
+* into silent data loss: the raw string is parked under `<key>.corrupt` and the
+* store continues from empty. Best effort — when storage itself is blocked or
+* full there is nowhere to keep the copy.
+*
+* Repeated reads of the same damage do not rewrite the backup.
+*/
+function setAsideUnreadable(key, raw) {
+	const ls = storage();
+	if (!ls) return false;
+	try {
+		const backupKey = `${key}${CORRUPT_SUFFIX}`;
+		const previous = ls.getItem(backupKey);
+		if (previous) try {
+			const parsed = JSON.parse(previous);
+			if (parsed && parsed.raw === raw) return true;
+		} catch {}
+		ls.setItem(backupKey, JSON.stringify({
+			at: Date.now(),
+			raw
+		}));
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+// src/client/storage/host-client.ts
+/**
+* The host store as the browser sees it.
+*
+* One same-origin endpoint, two calls: GET hydrates, POST applies a mutation.
+* Nothing here throws a raw network error to the UI: every branch becomes a
+* `HostRequestError` carrying the stable `code` the route documented, so the
+* boot logic can distinguish "this host cannot store" from "this write failed".
+*/
+/** A storage request that did not succeed, with the route's stable code. */
+var HostRequestError = class extends Error {
+	code;
+	status;
+	retryable;
+	constructor(code, message, status = 0, retryable = false) {
+		super(message);
+		this.name = "HostRequestError";
+		this.code = code;
+		this.status = status;
+		this.retryable = retryable;
+	}
+};
+const RETRY_MS = 250;
+const sleep$1 = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+function abortSignal(timeoutMs) {
+	if (typeof AbortController !== "function") return { done: () => {} };
+	const controller = new AbortController();
+	const timer = setTimeout(() => controller.abort(), timeoutMs);
+	return {
+		signal: controller.signal,
+		done: () => clearTimeout(timer)
+	};
+}
+function failureOf$1(response, body) {
+	const code = typeof body?.code === "string" ? body.code : "";
+	const message = typeof body?.message === "string" ? body.message : `host answered ${response.status}`;
+	if (response.status === 404) return new HostRequestError("STORE_ROUTE_MISSING", "this host has no note-store route", 404);
+	if (response.status === 403) return new HostRequestError("STORE_FORBIDDEN", "the host refused this page", 403);
+	if (response.status === 405) return new HostRequestError("STORE_METHOD", "the host rejected the method", 405);
+	if (response.status === 413) return new HostRequestError("STORE_TOO_LARGE", message, 413);
+	if (response.status === 400) return new HostRequestError(code || "STORE_BAD_REQUEST", message, 400);
+	if (response.status === 503) return new HostRequestError(code || "STORE_UNAVAILABLE", message, 503, true);
+	return new HostRequestError(code || "STORE_FAILED", message, response.status, response.status >= 500);
+}
+async function readJson(response) {
+	try {
+		return await response.json();
+	} catch {
+		return;
+	}
+}
+async function request(path, init, options) {
+	let last;
+	for (let attempt = 0; attempt < options.attempts; attempt += 1) {
+		const abort = abortSignal(options.timeoutMs);
+		let response;
+		try {
+			response = await fetch(path, {
+				...init,
+				...abort.signal === void 0 ? {} : { signal: abort.signal }
+			});
+		} catch (error) {
+			abort.done();
+			last = new HostRequestError(error?.name === "AbortError" ? "STORE_TIMEOUT" : "STORE_UNREACHABLE", error instanceof Error ? error.message : "the host did not answer", 0, true);
+			if (attempt + 1 < options.attempts) {
+				await sleep$1(RETRY_MS);
+				continue;
+			}
+			throw last;
+		} finally {
+			abort.done();
+		}
+		const body = await readJson(response);
+		if (response.ok && body?.ok === true) return body;
+		if (response.ok) throw new HostRequestError("STORE_FAILED", "the host returned an unexpected body", response.status);
+		last = failureOf$1(response, body);
+		if (!last.retryable || attempt + 1 >= options.attempts) throw last;
+		await sleep$1(RETRY_MS);
+	}
+	throw last ?? new HostRequestError("STORE_FAILED", "the host did not answer");
+}
+/** Read the authoritative snapshot; retries one transient failure. */
+async function fetchSnapshot() {
+	const body = await request(HOST_STORE_PATH, {
+		method: "GET",
+		headers: { accept: "application/json" }
+	}, {
+		timeoutMs: HOST_READ_TIMEOUT_MS,
+		attempts: 2
+	});
+	const data = body?.data;
+	if (!data || typeof data !== "object") throw new HostRequestError("STORE_FAILED", "the host snapshot has no data", 200);
+	return {
+		rev: Number.isFinite(body.rev) ? body.rev : 0,
+		empty: body.empty === true,
+		data: {
+			sessions: data.sessions && typeof data.sessions === "object" ? data.sessions : {},
+			workspaces: data.workspaces && typeof data.workspaces === "object" ? data.workspaces : {},
+			prefs: data.prefs && typeof data.prefs === "object" ? data.prefs : {}
+		}
+	};
+}
+/** Apply one mutation; retries once because every operation is idempotent. */
+async function postOp(op) {
+	return request(HOST_STORE_PATH, {
+		method: "POST",
+		headers: {
+			"content-type": "application/json",
+			accept: "application/json"
+		},
+		body: JSON.stringify(op)
+	}, {
+		timeoutMs: HOST_WRITE_TIMEOUT_MS,
+		attempts: 2
+	});
+}
+/** Read the durable file path; null when the host has no such route. */
+async function fetchStoreLocation() {
+	try {
+		const body = await request(HOST_STORE_LOCATION_PATH, {
+			method: "GET",
+			headers: { accept: "application/json" }
+		}, {
+			timeoutMs: HOST_READ_TIMEOUT_MS,
+			attempts: 1
+		});
+		return {
+			path: typeof body.path === "string" && body.path ? body.path : null,
+			exists: body.exists === true,
+			backend: typeof body.backend === "string" ? body.backend : null,
+			...typeof body.reason === "string" ? { reason: body.reason } : {}
+		};
+	} catch {
+		return null;
+	}
+}
+/** Ask the host to show the store file (or its folder) in the OS file manager. */
+async function revealStoreFile() {
+	try {
+		return (await request(HOST_STORE_REVEAL_PATH, {
+			method: "POST",
+			headers: { accept: "application/json" }
+		}, {
+			timeoutMs: HOST_WRITE_TIMEOUT_MS,
+			attempts: 1
+		}))?.ok === true;
+	} catch {
+		return false;
+	}
+}
+
+// src/client/storage/events.ts
+/**
+* Same-tab change bus plus storage lifecycle notifications.
+*
+* The `storage` event only crosses tabs, so a write here wakes the readers in
+* this tab — the header count and an open panel. Host-backed storage has no
+* `storage` event at all, so the host cache notifies through the same bus and
+* adds two lifecycle channels: "the mode is decided / data hydrated" and
+* "a storage operation failed".
+*/
+/** Same-tab subscribers, so the composer dock's count follows panel edits. */
+const TODO_LISTENERS = /* @__PURE__ */ new Set();
+/** Listeners told once the storage mode is decided (host hydrated, or local chosen). */
+const STORE_READY_LISTENERS = /* @__PURE__ */ new Set();
+/** Listeners told about a failed host read or write worth surfacing as a Toast. */
+const STORE_ERROR_LISTENERS = /* @__PURE__ */ new Set();
+/** Listeners told about a completed or refused switch (translated by the UI). */
+const STORE_NOTICE_LISTENERS = /* @__PURE__ */ new Set();
+/** Notify same-tab readers after a successful write (storage events only cross tabs). */
+function notifyTodoChange() {
+	for (const listener of TODO_LISTENERS) try {
+		listener();
+	} catch (error) {
+		console.error("dsh-sideby-note: listener failed", error);
+	}
+}
+/** Announce that the storage mode is decided and the cache is usable. */
+function notifyStoreReady() {
+	for (const listener of STORE_READY_LISTENERS) try {
+		listener();
+	} catch (error) {
+		console.error("dsh-sideby-note: ready listener failed", error);
+	}
+}
+/** Announce a switch outcome; the panel turns it into a Toast. */
+function notifyStoreNotice(notice) {
+	for (const listener of STORE_NOTICE_LISTENERS) try {
+		listener(notice);
+	} catch (error) {
+		console.error("dsh-sideby-note: notice listener failed", error);
+	}
+}
+/** Announce a failed storage operation; the panel turns it into a Toast. */
+function notifyStoreError(failure) {
+	for (const listener of STORE_ERROR_LISTENERS) try {
+		listener(failure);
+	} catch (error) {
+		console.error("dsh-sideby-note: error listener failed", error);
+	}
+}
+
+// src/client/storage/state.ts
+/**
+* Browser-side storage state shared by the facade modules.
+*
+* Two sources coexist by design: `localStorage` (the device-local state and
+* the pre-switch fallback) and the in-memory host snapshot. Reads stay
+* synchronous, so the UI keeps its current shape; this module is the single
+* place that answers "which one is authoritative right now".
+*/
+let mode = "probing";
+let data = null;
+let failure = null;
+let pendingWrites = 0;
+let refreshRequested = false;
+let refreshing = false;
+let channel = null;
+let listening = false;
+/** Current mode; `probing` means boot has not decided yet. */
+function storageMode() {
+	return mode;
+}
+/** True while the host is (or must be) the only source: `host` and the error state after it. */
+function hostAuthoritative() {
+	return mode === "host" || mode === "error";
+}
+function setStorageMode(next) {
+	mode = next;
+	if (next === "host") refreshHost();
+}
+/** The last host failure, for the settings surface. */
+function storageFailure() {
+	return failure;
+}
+function setStorageFailure(next) {
+	failure = next;
+}
+/** Replace the cache with a fresh host snapshot. */
+function hydrateHost(next) {
+	data = next;
+}
+/** One host table, or an empty map. */
+function hostTable(name) {
+	return data?.[name] ?? {};
+}
+/** One host record, or undefined. */
+function hostRecord(name, key) {
+	if (!key) return void 0;
+	return hostTable(name)[key];
+}
+/** Host preferences (user intent that travels with the notes). */
+function hostPrefs() {
+	return data?.prefs ?? {};
+}
+/** Merge one record into the cache and wake same-tab readers. */
+function applyHostRecord(name, key, value) {
+	if (!data || !key) return;
+	if (value === void 0) delete data[name][key];
+	else data[name][key] = value;
+	notifyTodoChange();
+}
+/** Replace cached preferences and wake readers. */
+function applyHostPrefs(prefs) {
+	if (!data) return;
+	data.prefs = prefs && typeof prefs === "object" ? prefs : {};
+	notifyTodoChange();
+}
+/** Include the local cache update or rollback in the lifetime of a write. */
+function beginPending() {
+	pendingWrites += 1;
+	if (refreshing) refreshRequested = true;
+}
+function endPending() {
+	pendingWrites -= 1;
+	refreshHost();
+}
+async function refreshHost() {
+	if (mode !== "host" || pendingWrites !== 0 || refreshing || !refreshRequested) return;
+	refreshing = true;
+	refreshRequested = false;
+	try {
+		const { data: snapshot } = await fetchSnapshot();
+		if (mode === "host" && !refreshRequested) {
+			hydrateHost(snapshot);
+			notifyTodoChange();
+		}
+	} catch {} finally {
+		refreshing = false;
+		if (refreshRequested) refreshHost();
+	}
+}
+function ensureChannel() {
+	if (channel) return channel;
+	if (typeof BroadcastChannel !== "function") return null;
+	try {
+		channel = new BroadcastChannel("dsh-aside-note");
+	} catch {
+		channel = null;
+	}
+	return channel;
+}
+/** Older tabs consume the payload. Sideby Note treats it as a signal to refetch. */
+function broadcastHostChange(change) {
+	ensureChannel()?.postMessage(change);
+}
+/** Schedule a fresh read without racing pending writes. */
+function requestHostRefresh() {
+	refreshRequested = true;
+	refreshHost();
+}
+/**
+* Listen for same-browser tab updates once. BroadcastChannel is optional (jsdom
+* and older runtimes), so a missing implementation only loses that nicety.
+*/
+function startCrossTabSync() {
+	if (listening) return;
+	const bus = ensureChannel();
+	if (!bus) return;
+	listening = true;
+	bus.onmessage = (event) => {
+		const message = event?.data;
+		if (mode === "local" || message?.kind !== "prefs" && message?.kind !== "record") return;
+		requestHostRefresh();
+	};
+}
+
+// src/client/storage/ops.ts
+/**
+* Host mutations.
+*
+* Notes are written as a diff (`order` + changed `upserts` + removed ids) and
+* the host applies it atomically, so two tabs editing different rows merge
+* instead of replacing each other's whole list. The scope preference is
+* optimistic and rolls back on failure.
+*/
+const chains = /* @__PURE__ */ new Map();
+function serialize(key, task) {
+	const run = (chains.get(key) ?? Promise.resolve()).then(task, task);
+	chains.set(key, run.then(() => void 0, () => void 0));
+	beginPending();
+	return run.finally(endPending);
+}
+function report(error) {
+	const failure = {
+		code: typeof error?.code === "string" ? error.code : "STORE_FAILED",
+		message: error instanceof Error ? error.message : String(error)
+	};
+	setStorageFailure({
+		...failure,
+		status: error?.status
+	});
+	notifyStoreError(failure);
+}
+function tableFor(kind) {
+	return kind === "workspace" ? "workspaces" : "sessions";
+}
+function sameJson(a, b) {
+	return JSON.stringify(a) === JSON.stringify(b);
+}
+function toItems(record) {
+	return record && Array.isArray(record.items) ? record.items : [];
+}
+/**
+* Persist the next ordered list for one scope.
+* @returns true when the host accepted (or nothing changed)
+*/
+async function commitList(kind, listKey, nextItems) {
+	if (!listKey) return false;
+	const table = tableFor(kind);
+	const base = toItems(hostRecord(table, listKey));
+	const baseById = new Map(base.map((item) => [item.id, item]));
+	const nextById = new Map(nextItems.map((item) => [item.id, item]));
+	const upserts = nextItems.filter((item) => {
+		const previous = baseById.get(item.id);
+		return previous === void 0 || !sameJson(previous, item);
+	});
+	const deletes = [...baseById.keys()].filter((id) => !nextById.has(id));
+	const order = nextItems.map((item) => item.id);
+	const sameOrder = order.length === base.length && base.every((item, index) => item.id === order[index]);
+	if (upserts.length === 0 && deletes.length === 0 && sameOrder) return true;
+	try {
+		await serialize(`${table}:${listKey}`, async () => {
+			const result = await postOp({
+				op: "list.patch",
+				kind,
+				listKey,
+				order,
+				upserts,
+				deletes
+			});
+			applyHostRecord(table, listKey, result.record);
+			broadcastHostChange({
+				kind: "record",
+				name: table,
+				key: listKey,
+				value: result.record,
+				rev: result.rev
+			});
+		});
+		return true;
+	} catch (error) {
+		const failure = {
+			code: typeof error?.code === "string" ? error.code : "STORE_FAILED",
+			message: error instanceof Error ? error.message : String(error)
+		};
+		setStorageFailure({
+			...failure,
+			status: error?.status
+		});
+		return false;
+	}
+}
+/** Fold member sessions into a workspace list once, on the host. */
+async function ensureWorkspace(workspaceId, sessionIds) {
+	if (!workspaceId) return false;
+	const current = hostRecord("workspaces", workspaceId);
+	const seeded = new Set(Array.isArray(current?.seededSessionIds) ? current.seededSessionIds : []);
+	const pendingMembers = (Array.isArray(sessionIds) ? sessionIds : []).filter((id) => id && !seeded.has(id));
+	if (current && pendingMembers.length === 0) return true;
+	try {
+		await serialize(`workspaces:${workspaceId}`, async () => {
+			const latest = hostRecord("workspaces", workspaceId);
+			const seeded = new Set(Array.isArray(latest?.seededSessionIds) ? latest.seededSessionIds : []);
+			if (latest && pendingMembers.every((id) => seeded.has(id))) return;
+			const result = await postOp({
+				op: "list.ensure",
+				workspaceId,
+				sessionIds: Array.isArray(sessionIds) ? sessionIds : []
+			});
+			applyHostRecord("workspaces", workspaceId, result.record);
+			broadcastHostChange({
+				kind: "record",
+				name: "workspaces",
+				key: workspaceId,
+				value: result.record,
+				rev: result.rev
+			});
+		});
+		return true;
+	} catch (error) {
+		report(error);
+		return false;
+	}
+}
+/** Merge user preferences on the host; optimistic with the same rollback rule. */
+function setPrefs(patch) {
+	const previous = hostPrefs();
+	const next = {
+		...previous,
+		...patch,
+		version: 1
+	};
+	applyHostPrefs(next);
+	serialize("prefs", async () => {
+		try {
+			const result = await postOp({
+				op: "prefs.set",
+				patch
+			});
+			applyHostPrefs(result.prefs);
+			broadcastHostChange({
+				kind: "prefs",
+				prefs: result.prefs,
+				rev: result.rev
+			});
+		} catch (error) {
+			if (sameJson(hostPrefs(), next)) applyHostPrefs(previous);
+			report(error);
+		}
+	});
+	return true;
+}
+/** Upload the pre-switch browser store; safe to re-run after an interruption. */
+async function migrate(snapshot) {
+	return postOp({
+		op: "migrate",
+		snapshot,
+		source: "localStorage"
+	});
 }
 
 // src/client/storage/prefs.ts
@@ -1186,6 +1882,7 @@ function writePanelHeight(height) {
 }
 /** Read the last chosen list scope; "workspace" is the default. */
 function readScopeMode() {
+	if (hostAuthoritative()) return hostPrefs().scopeMode === "session" ? "session" : SCOPE_MODE_DEFAULT;
 	try {
 		return (storage() && storage().getItem("dsh.aside-note.scope-mode")) === "session" ? "session" : SCOPE_MODE_DEFAULT;
 	} catch {
@@ -1193,6 +1890,11 @@ function readScopeMode() {
 	}
 }
 function writeScopeMode(mode) {
+	if (storageMode() === "error") return;
+	if (storageMode() === "host") {
+		setPrefs({ scopeMode: mode === "session" ? "session" : "workspace" });
+		return;
+	}
 	try {
 		const ls = storage();
 		if (ls) ls.setItem(SCOPE_MODE_KEY, mode === "session" ? "session" : "workspace");
@@ -1231,6 +1933,208 @@ function writeSectionState(state) {
 	} catch {}
 }
 
+// src/client/storage/legacy.ts
+/**
+* The pre-switch browser store: migration payload and mode markers.
+*
+* Once the switch succeeds this data is never read as authority again; it is
+* kept untouched as the recovery source. The parser mirrors the old modules so
+* a hand-edited or older shape migrates as far as it can instead of failing.
+*/
+const FORWARDED_STORAGE_KEY = "dsh.aside-note.forwarded";
+const SEND_SHORTCUT_KEY = "dsh.aside-note.send-shortcut";
+const FORWARD_PREFIX_STORAGE_KEY = "dsh.aside-note.forward-prefix";
+const bucket$2 = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
+function parse(raw) {
+	if (!raw) return void 0;
+	try {
+		return JSON.parse(raw);
+	} catch {
+		return;
+	}
+}
+function readItem(key) {
+	const ls = storage();
+	if (!ls) return null;
+	try {
+		return ls.getItem(key);
+	} catch {
+		return null;
+	}
+}
+function writeItem(key, value) {
+	const ls = storage();
+	if (!ls) return false;
+	try {
+		ls.setItem(key, value);
+		return true;
+	} catch {
+		return false;
+	}
+}
+/** Read everything a one-time migration needs, in the old on-disk shapes. */
+function readLegacySnapshot() {
+	const sessionStore = parse(readItem(SESSION_STORAGE_KEY));
+	const workspaceStore = parse(readItem(WORKSPACE_STORAGE_KEY));
+	const forwardedStore = parse(readItem(FORWARDED_STORAGE_KEY));
+	const prefs = {};
+	const scope = readItem(SCOPE_MODE_KEY);
+	if (scope === "workspace" || scope === "session") prefs.scopeMode = scope;
+	const shortcut = readItem(SEND_SHORTCUT_KEY);
+	if (shortcut === "enter" || shortcut === "ctrl-enter") prefs.sendShortcut = shortcut;
+	const prefix = readItem(FORWARD_PREFIX_STORAGE_KEY);
+	if (typeof prefix === "string") prefs.forwardPrefix = prefix.slice(0, 80);
+	return {
+		sessions: bucket$2(sessionStore?.sessions),
+		workspaces: bucket$2(workspaceStore?.workspaces),
+		forwarded: bucket$2(forwardedStore?.sessions),
+		prefs
+	};
+}
+/** Number of notes the migration would carry, for the success notice. */
+function legacyNoteCount(snapshot) {
+	let count = 0;
+	for (const record of Object.values(snapshot.sessions)) if (Array.isArray(record?.items)) count += record.items.length;
+	for (const record of Object.values(snapshot.workspaces)) if (Array.isArray(record?.items)) count += record.items.length;
+	return count;
+}
+/** True when the browser holds anything worth migrating. */
+function hasLegacyData(snapshot) {
+	return legacyNoteCount(snapshot) > 0 || Object.keys(snapshot.forwarded).length > 0 || Object.keys(snapshot.prefs).length > 0;
+}
+/** Whether this browser already switched to host storage. */
+function hostModeMarked() {
+	return readItem(STORAGE_MODE_KEY) === "host";
+}
+/** Remember the one-way switch. Best effort: clearing site data loses it. */
+function markHostMode() {
+	return writeItem(STORAGE_MODE_KEY, "host");
+}
+/**
+* Whether a failure notice should surface now. The same reason is throttled to
+* once per day so a broken host does not toast on every reload.
+*/
+function shouldNoticeStorage(code) {
+	const saved = parse(readItem(STORAGE_NOTICE_KEY));
+	if (!saved || typeof saved !== "object") return true;
+	if (saved.code !== code) return true;
+	const at = Number(saved.at);
+	return !Number.isFinite(at) || Date.now() - at >= 864e5;
+}
+function rememberStorageNotice(code) {
+	writeItem(STORAGE_NOTICE_KEY, JSON.stringify({
+		code,
+		at: Date.now()
+	}));
+}
+
+// src/client/storage/boot.ts
+/**
+* The one-time decision: switch this browser's notes to host storage or stay
+* on localStorage.
+*
+* Rules (docs/design/host-storage-migration.md §7.1/§7.5):
+* - probe before deciding; an unavailable host means "don't switch", keep
+*   working locally, notify, and retry on the next load;
+* - migrate only after a successful open, and write the one-way marker only
+*   after the data is durable;
+* - after the switch the host is authoritative: a later outage is an error
+*   state, never a silent fallback that would fork the data.
+*/
+let booting = null;
+let inFlight = false;
+function failureOf(error) {
+	return {
+		code: typeof error?.code === "string" ? error.code : "STORE_FAILED",
+		message: error instanceof Error ? error.message : String(error),
+		status: error?.status
+	};
+}
+function refuse(failure) {
+	const readOnly = storageMode() === "error" || hostModeMarked() || failure.code === "STORE_IN_USE";
+	const mode = readOnly ? "error" : "local";
+	setStorageFailure(failure);
+	setStorageMode(mode);
+	notifyStoreReady();
+	if (shouldNoticeStorage(failure.code)) {
+		rememberStorageNotice(failure.code);
+		if (readOnly) notifyStoreError({
+			code: failure.code,
+			message: failure.message
+		});
+		else notifyStoreNotice({
+			kind: "notSwitched",
+			code: failure.code
+		});
+	}
+	return mode;
+}
+async function runBoot() {
+	startCrossTabSync();
+	if (hostModeMarked()) try {
+		const snapshot = await fetchSnapshot();
+		hydrateHost(snapshot.data);
+		setStorageFailure(null);
+		setStorageMode("host");
+		notifyStoreReady();
+		return "host";
+	} catch (error) {
+		return refuse(failureOf(error));
+	}
+	let snapshot;
+	try {
+		snapshot = await fetchSnapshot();
+	} catch (error) {
+		return refuse(failureOf(error));
+	}
+	const legacy = readLegacySnapshot();
+	const incomplete = snapshot.data.prefs?.migration?.complete === false;
+	const localNoteCount = legacyNoteCount(legacy);
+	try {
+		if (incomplete || snapshot.empty) {
+			if (hasLegacyData(legacy)) {
+				const result = await migrate(legacy);
+				snapshot = await fetchSnapshot();
+				if (result.keptLocal && localNoteCount > 0) notifyStoreNotice({ kind: "keptLocal" });
+				else if (!result.alreadyComplete && result.notesMigrated > 0) notifyStoreNotice({
+					kind: "migrated",
+					count: result.notesMigrated
+				});
+			}
+		} else if (localNoteCount > 0) notifyStoreNotice({ kind: "keptLocal" });
+	} catch (error) {
+		return refuse(failureOf(error));
+	}
+	hydrateHost(snapshot.data);
+	markHostMode();
+	setStorageFailure(null);
+	setStorageMode("host");
+	notifyStoreReady();
+	return "host";
+}
+/** Decide once per page load; later callers share the same promise. */
+function bootStorage() {
+	if (!booting) return startBoot();
+	return booting;
+}
+/** Force a new probe (settings retry button). */
+function retryStorage() {
+	if (inFlight) return bootStorage();
+	if (storageMode() === "local") setStorageMode("probing");
+	return startBoot();
+}
+function startBoot() {
+	inFlight = true;
+	booting = runBoot().catch((error) => refuse(failureOf(error))).finally(() => {
+		inFlight = false;
+	});
+	return booting;
+}
+/** Current mode without waiting. */
+function currentStorageMode() {
+	return storageMode();
+}
+
 // src/client/storage/drafts.ts
 /**
 * The unsaved composer draft, so closing the panel never loses text.
@@ -1250,24 +2154,41 @@ function emptyDraftStore() {
 		sessions: {}
 	};
 }
-/** Read the unsaved composer draft; corrupt or unavailable reads as empty. */
+/**
+* Read the unsaved composer drafts; corrupt or unavailable reads as empty.
+* An unreadable payload is parked under `<key>.corrupt` first, so half-typed
+* text is never destroyed by the next write.
+*/
 function readDraftStore() {
 	const ls = storage();
 	if (!ls) return emptyDraftStore();
+	let raw;
 	try {
-		const raw = ls.getItem(DRAFT_STORAGE_KEY);
-		if (!raw) return emptyDraftStore();
-		const parsed = JSON.parse(raw);
-		if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return emptyDraftStore();
-		const sessions = parsed.sessions;
-		if (!sessions || typeof sessions !== "object" || Array.isArray(sessions)) return emptyDraftStore();
-		return {
-			version: 1,
-			sessions
-		};
+		raw = ls.getItem(DRAFT_STORAGE_KEY);
 	} catch {
 		return emptyDraftStore();
 	}
+	if (!raw) return emptyDraftStore();
+	let parsed;
+	try {
+		parsed = JSON.parse(raw);
+	} catch {
+		setAsideUnreadable(DRAFT_STORAGE_KEY, raw);
+		return emptyDraftStore();
+	}
+	const sessions = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed.sessions : void 0;
+	if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || sessions !== void 0 && (!sessions || typeof sessions !== "object" || Array.isArray(sessions))) {
+		setAsideUnreadable(DRAFT_STORAGE_KEY, raw);
+		return emptyDraftStore();
+	}
+	return {
+		version: 1,
+		sessions: bucketOf(sessions)
+	};
+}
+/** The stored map, or an empty one when the field is absent. */
+function bucketOf(value) {
+	return value && typeof value === "object" && !Array.isArray(value) ? value : {};
 }
 function writeDraftStore(store) {
 	const ls = storage();
@@ -1342,6 +2263,20 @@ function uid() {
 // src/client/domain/items.ts
 /** Note shape, ordering and relative time copy. */
 /**
+* Stable id for a legacy record that never had one.
+*
+* A random id here would change on every read, so a write could merge the same
+* note twice under two ids. Hashing the authored fields keeps the id identical
+* across reads; genuinely identical duplicates are resolved by the caller's
+* `seen` check.
+*/
+function legacyId(text, createdAt, updatedAt) {
+	let hash = 5381;
+	const source = `${text}\u0000${createdAt}\u0000${updatedAt}`;
+	for (let index = 0; index < source.length; index += 1) hash = (hash << 5) + hash + source.charCodeAt(index) | 0;
+	return `legacy-${(hash >>> 0).toString(36)}`;
+}
+/**
 * Sanitize one session's notes. The store is user-editable, so treat
 * every field defensively and preserve the authored order.
 */
@@ -1353,7 +2288,8 @@ function normalizeItems(items) {
 		if (!raw || typeof raw !== "object") continue;
 		const text = String(raw.text || "").trim().slice(0, 280);
 		if (!text) continue;
-		let id = typeof raw.id === "string" && raw.id ? raw.id : uid();
+		let id = typeof raw.id === "string" && raw.id ? raw.id : legacyId(text, raw.createdAt, raw.updatedAt);
+		if (seen.has(id)) id = legacyId(text, raw.createdAt, raw.updatedAt);
 		if (seen.has(id)) id = uid();
 		seen.add(id);
 		const done = raw.done === true;
@@ -1367,7 +2303,6 @@ function normalizeItems(items) {
 			updatedAt,
 			...done && Number.isFinite(raw.completedAt) ? { completedAt: raw.completedAt } : {}
 		});
-		if (normalized.length >= 300) break;
 	}
 	return normalized;
 }
@@ -1456,31 +2391,63 @@ function moveOpenItem(items, itemId, toIndex) {
 	return items.map((item) => item && item.done !== true ? order[next++] : item);
 }
 
-// src/client/storage/events.ts
+// src/client/storage/merge.ts
 /**
-* Same-tab change bus.
+* Merge the note list another tab may have written with the one this tab holds.
 *
-* The `storage` event only crosses tabs, so a write here wakes the readers in
-* this tab — the header count and an open panel.
+* A whole-record write would otherwise overwrite whatever the other tab added
+* while this one was typing: two tabs, two additions, one survivor. Writes now
+* read the latest record first and union it with the incoming list:
+*
+*   - both sides keep their additions;
+*   - for the same id, the newer `updatedAt` wins;
+*   - ids this tab removed since its last read (`base`) stay removed.
+*
+* A deletion made in another tab is not observable from here, so a concurrent
+* write can bring that note back. Losing a note is worse than reviving one.
+*
+* The incoming list supplies the authored order. Notes unseen by this tab
+* remain present in their existing relative order.
 */
-/** Same-tab subscribers, so the composer dock's count follows panel edits. */
-const TODO_LISTENERS = /* @__PURE__ */ new Set();
-/** Notify same-tab readers after a successful write (storage events only cross tabs). */
-function notifyTodoChange() {
-	for (const listener of TODO_LISTENERS) try {
-		listener();
-	} catch (error) {
-		console.error("dsh-sideby-note: listener failed", error);
+const stampOf = (item) => {
+	if (item && Number.isFinite(item.updatedAt)) return item.updatedAt;
+	if (item && Number.isFinite(item.createdAt)) return item.createdAt;
+	return 0;
+};
+/** Union two lists by id, honouring this tab's removals. */
+function mergeItems(existing, incoming, base = null) {
+	const incomingIds = new Set(incoming.map((item) => item && item.id).filter(Boolean));
+	const removed = /* @__PURE__ */ new Set();
+	if (Array.isArray(base)) {
+		for (const item of base) if (item && item.id && !incomingIds.has(item.id)) removed.add(item.id);
 	}
+	const byId = /* @__PURE__ */ new Map();
+	for (const item of existing) if (item && item.id) byId.set(item.id, item);
+	for (const item of incoming) {
+		if (!item || !item.id) continue;
+		const other = byId.get(item.id);
+		if (!other || stampOf(item) >= stampOf(other)) byId.set(item.id, item);
+	}
+	for (const id of removed) byId.delete(id);
+	const ordered = [];
+	for (const id of incomingIds) {
+		const item = byId.get(id);
+		if (!item) continue;
+		ordered.push(item);
+		byId.delete(id);
+	}
+	return [...ordered, ...byId.values()];
 }
 
 // src/client/storage/session.ts
 /**
-* Session-scoped notes in one localStorage record.
+* Session-scoped notes.
 *
-* The shape stays at v1: workspace notes now live under
-* `WORKSPACE_STORAGE_KEY`, so the session key existing users already have is
-* never rewritten into a new schema.
+* Two media, one shape: while this browser is still on `localStorage` the
+* record lives under `SESSION_STORAGE_KEY`; after the one-way switch the same
+* record lives in the host snapshot's `sessions` table and writes go through
+* the host route. The workspace key is separate, so existing per-session data
+* is never rewritten into a new schema.
 */
 /** Empty note store. */
 function emptySessionStore() {
@@ -1490,24 +2457,47 @@ function emptySessionStore() {
 	};
 }
 const bucket$1 = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
-/** Read the whole note store; corrupt or unavailable reads as empty. */
-function readSessionStore() {
+/**
+* Read the browser store; corrupt or unavailable reads as empty.
+* An unreadable payload is parked under `<key>.corrupt` first, so the next
+* write cannot destroy the only copy of a user's notes.
+*/
+function readLocalStore$1() {
 	const ls = storage();
 	if (!ls) return emptySessionStore();
+	let raw;
 	try {
-		const raw = ls.getItem(SESSION_STORAGE_KEY);
-		if (!raw) return emptySessionStore();
-		const parsed = JSON.parse(raw);
-		if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return emptySessionStore();
-		return {
-			version: 1,
-			sessions: bucket$1(parsed.sessions)
-		};
+		raw = ls.getItem(SESSION_STORAGE_KEY);
 	} catch {
 		return emptySessionStore();
 	}
+	if (!raw) return emptySessionStore();
+	let parsed;
+	try {
+		parsed = JSON.parse(raw);
+	} catch {
+		setAsideUnreadable(SESSION_STORAGE_KEY, raw);
+		return emptySessionStore();
+	}
+	const sessions = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed.sessions : void 0;
+	if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || sessions !== void 0 && (!sessions || typeof sessions !== "object" || Array.isArray(sessions))) {
+		setAsideUnreadable(SESSION_STORAGE_KEY, raw);
+		return emptySessionStore();
+	}
+	return {
+		version: 1,
+		sessions: bucket$1(sessions)
+	};
 }
-/** Persist the whole session store; the single writer for this key. */
+/** Read the whole note store from whichever medium is authoritative now. */
+function readSessionStore() {
+	if (hostAuthoritative()) return {
+		version: 1,
+		sessions: { ...hostTable("sessions") }
+	};
+	return readLocalStore$1();
+}
+/** Persist the whole browser store; the single writer for the legacy key. */
 function writeSessionStore(store) {
 	const ls = storage();
 	if (!ls) return false;
@@ -1529,21 +2519,41 @@ function readSessionRecord(sessionId) {
 		items: [],
 		updatedAt: 0
 	};
-	const record = readSessionStore().sessions[key];
+	if (hostAuthoritative()) {
+		const record = hostRecord("sessions", key);
+		return {
+			items: normalizeItems(record && record.items),
+			updatedAt: record && Number.isFinite(record.updatedAt) ? record.updatedAt : 0
+		};
+	}
+	const record = readLocalStore$1().sessions[key];
 	return {
 		items: normalizeItems(record && record.items),
 		updatedAt: record && Number.isFinite(record.updatedAt) ? record.updatedAt : 0
 	};
 }
-/** Persist one session's memo record. */
-function writeSessionRecord(sessionId, record) {
+/**
+* Persist one session's memo record.
+*
+* Host mode sends only the changed notes; the host applies them atomically to
+* its latest record. Local mode reads the latest stored record first and merges
+* by id, so a note another tab added is not overwritten; `base` is the list this
+* tab rendered, and ids missing from `record.items` are this tab's deletions.
+*
+* @returns resolution with whether the write was accepted/durable
+*/
+async function writeSessionRecord(sessionId, record, base = null) {
 	const key = sessionId ? String(sessionId) : "";
 	if (!key) return false;
-	const store = readSessionStore();
+	const mode = storageMode();
+	if (mode === "probing" || mode === "error") return false;
+	if (mode === "host") return commitList("session", key, normalizeItems(record && record.items));
+	const store = readLocalStore$1();
+	const previous = store.sessions[key];
 	store.sessions[key] = {
 		sessionId: key,
-		updatedAt: record.updatedAt || Date.now(),
-		items: normalizeItems(record.items)
+		updatedAt: Math.max(record.updatedAt || 0, previous && Number.isFinite(previous.updatedAt) ? previous.updatedAt : 0) || Date.now(),
+		items: mergeItems(normalizeItems(previous && previous.items), normalizeItems(record.items), base)
 	};
 	return writeSessionStore(store);
 }
@@ -1552,12 +2562,11 @@ function writeSessionRecord(sessionId, record) {
 /**
 * Workspace-scoped notes.
 *
-* Stored under `WORKSPACE_STORAGE_KEY`, beside the session key, so adding
-* workspace lists never changes the shape of existing per-session data. One
-* list is shared by every session of a workspace. The first time a workspace
-* is seen, notes already written per session are folded in once;
-* `seededSessionIds` records that so a later delete is not undone by the merge
-* running again.
+* One list is shared by every session of a workspace. The first time a
+* workspace is seen, notes already written per session are folded in once;
+* `seededSessionIds` records that so a later delete is not undone. After the
+* switch to host storage the fold runs on the host (`list.ensure`), where it is
+* atomic; before the switch it stays in the browser and merges before writing.
 */
 const text$1 = (value) => value ? String(value) : "";
 const bucket = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
@@ -1581,24 +2590,38 @@ function emptyWorkspaceStore() {
 		workspaces: {}
 	};
 }
-/** Read the workspace-note store; corrupt or unavailable reads as empty. */
-function readWorkspaceStore() {
+/**
+* Read the browser workspace store; corrupt or unavailable reads as empty.
+* An unreadable payload is parked under `<key>.corrupt` before any write.
+*/
+function readLocalStore() {
 	const ls = storage();
 	if (!ls) return emptyWorkspaceStore();
+	let raw;
 	try {
-		const raw = ls.getItem(WORKSPACE_STORAGE_KEY);
-		if (!raw) return emptyWorkspaceStore();
-		const parsed = JSON.parse(raw);
-		if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return emptyWorkspaceStore();
-		return {
-			version: 1,
-			workspaces: bucket(parsed.workspaces)
-		};
+		raw = ls.getItem(WORKSPACE_STORAGE_KEY);
 	} catch {
 		return emptyWorkspaceStore();
 	}
+	if (!raw) return emptyWorkspaceStore();
+	let parsed;
+	try {
+		parsed = JSON.parse(raw);
+	} catch {
+		setAsideUnreadable(WORKSPACE_STORAGE_KEY, raw);
+		return emptyWorkspaceStore();
+	}
+	const workspaces = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed.workspaces : void 0;
+	if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || workspaces !== void 0 && (!workspaces || typeof workspaces !== "object" || Array.isArray(workspaces))) {
+		setAsideUnreadable(WORKSPACE_STORAGE_KEY, raw);
+		return emptyWorkspaceStore();
+	}
+	return {
+		version: 1,
+		workspaces: bucket(workspaces)
+	};
 }
-/** Persist the whole workspace-note store. */
+/** Persist the whole browser workspace store. */
 function writeWorkspaceStore(store) {
 	const ls = storage();
 	if (!ls) return false;
@@ -1621,36 +2644,59 @@ function readWorkspaceRecord(workspaceId) {
 		updatedAt: 0,
 		seededSessionIds: []
 	};
-	const record = readWorkspaceStore().workspaces[key];
+	if (hostAuthoritative()) {
+		const record = hostRecord("workspaces", key);
+		return {
+			items: normalizeItems(record && record.items),
+			updatedAt: record && Number.isFinite(record.updatedAt) ? record.updatedAt : 0,
+			seededSessionIds: seededOf(record)
+		};
+	}
+	const record = readLocalStore().workspaces[key];
 	return {
 		items: normalizeItems(record && record.items),
 		updatedAt: record && Number.isFinite(record.updatedAt) ? record.updatedAt : 0,
 		seededSessionIds: seededOf(record)
 	};
 }
-/** Persist one workspace's memo record. */
-function writeWorkspaceRecord(workspaceId, record) {
+/**
+* Persist one workspace's memo record.
+*
+* Host mode sends only the changed notes; the host merges them atomically.
+* Local mode reads the latest stored record and merges by id, keeping this
+* tab's deletions (`base`) from being resurrected by a concurrent writer.
+*
+* @returns resolution with whether the write was accepted/durable
+*/
+async function writeWorkspaceRecord(workspaceId, record, base = null) {
 	const key = text$1(workspaceId);
 	if (!key) return false;
-	const store = readWorkspaceStore();
+	const mode = storageMode();
+	if (mode === "probing" || mode === "error") return false;
+	if (mode === "host") return commitList("workspace", key, normalizeItems(record && record.items));
+	const store = readLocalStore();
 	const previous = store.workspaces[key];
 	const seededSource = Array.isArray(record.seededSessionIds) ? record : previous;
 	store.workspaces[key] = {
 		workspaceId: key,
-		updatedAt: record.updatedAt || Date.now(),
-		items: normalizeItems(record.items),
+		updatedAt: Math.max(record.updatedAt || 0, previous && Number.isFinite(previous.updatedAt) ? previous.updatedAt : 0) || Date.now(),
+		items: mergeItems(normalizeItems(previous && previous.items), normalizeItems(record.items), base),
 		seededSessionIds: seededOf(seededSource)
 	};
 	return writeWorkspaceStore(store);
 }
 /**
 * Fold the member sessions' existing notes into the workspace list once.
-* Returns whether the store changed; repeated calls are cheap and idempotent.
+* @returns resolution with whether the store changed / was accepted
 */
-function ensureWorkspaceRecord(workspaceId, sessionIds) {
+async function ensureWorkspaceRecord(workspaceId, sessionIds) {
 	const key = text$1(workspaceId);
 	if (!key) return false;
-	const previous = readWorkspaceStore().workspaces[key];
+	if (storageMode() === "probing") await bootStorage();
+	const mode = storageMode();
+	if (mode === "probing" || mode === "error") return false;
+	if (mode === "host") return ensureWorkspace(key, Array.isArray(sessionIds) ? sessionIds : []);
+	const previous = readLocalStore().workspaces[key];
 	const seeded = new Set(seededOf(previous));
 	const items = normalizeItems(previous && previous.items);
 	const seen = new Set(items.map((item) => item.id));
@@ -1692,7 +2738,7 @@ function ensureWorkspaceRecord(workspaceId, sessionIds) {
 * stroke weight, optical size and currentColor stay consistent with the shell.
 * Tooltip and Toast are the seeded primitives — the bundle keeps them external.
 */
-const h$12 = react.default.createElement;
+const h$13 = react.default.createElement;
 const PRIMITIVES = _deepseek_ai_dsh_client_ui_primitives;
 const Tooltip = typeof PRIMITIVES.Tooltip === "function" ? PRIMITIVES.Tooltip : null;
 const Toast = typeof PRIMITIVES.Toast === "function" ? PRIMITIVES.Toast : null;
@@ -1705,17 +2751,17 @@ const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name]
 function Glyph(props) {
 	const Component = icon(props.name);
 	if (!Component) return null;
-	return h$12(Component, {
+	return h$13(Component, {
 		size: props.size,
 		className: props.className
 	});
 }
-const IconCopy = () => h$12(Glyph, {
+const IconCopy = () => h$13(Glyph, {
 	name: "IconCopyOutlineRegular",
 	size: 14
 });
 /** Arrow into a box: the product's own "into the context" glyph, for putting a note into the chat. */
-const IconInsert = () => h$12(Glyph, {
+const IconInsert = () => h$13(Glyph, {
 	name: "IconContextInjectionOutlineRegular",
 	size: 14
 });
@@ -1723,11 +2769,11 @@ const IconInsert = () => h$12(Glyph, {
 * Reorder grip. Newer shells ship a drag-handle glyph; older ones fall back to
 * the up/down chevrons, so the handle never renders empty.
 */
-const IconGrip = () => h$12(Glyph, {
+const IconGrip = () => h$13(Glyph, {
 	name: icon("IconDragHandleOutlineRegular") ? "IconDragHandleOutlineRegular" : "IconChevronsUpDownOutlineRegular",
 	size: 14
 });
-const IconGear = () => h$12(Glyph, {
+const IconGear = () => h$13(Glyph, {
 	name: "IconSettingsOutlineRegular",
 	size: 14
 });
@@ -1735,27 +2781,27 @@ const IconGear = () => h$12(Glyph, {
 * Rewind is the product refresh arc mirrored to run counter-clockwise (↺):
 * the set has no undo glyph, and flipping keeps the shell's stroke and size.
 */
-const IconRewind = () => h$12(Glyph, {
+const IconRewind = () => h$13(Glyph, {
 	name: "IconRefreshOutlineRegular",
 	size: 14,
 	className: "dsh-an-glyphFlip"
 });
-const IconChevron = () => h$12(Glyph, {
+const IconChevron = () => h$13(Glyph, {
 	name: "IconChevronRightOutlineRegular",
 	size: 12
 });
-const IconEmpty = () => h$12(Glyph, {
+const IconEmpty = () => h$13(Glyph, {
 	name: "IconChecklistOutlineRegular",
 	size: 18
 });
-const IconClose = () => h$12(Glyph, {
+const IconClose = () => h$13(Glyph, {
 	name: "IconCloseOutlineRegular",
 	size: 14
 });
 /** Wrap one icon-only control in the shared tooltip; a bare button when absent. */
 function withTooltip(label, node) {
 	if (!Tooltip) return node;
-	return h$12(Tooltip, {
+	return h$13(Tooltip, {
 		label,
 		side: "top",
 		portal: true,
@@ -1765,7 +2811,7 @@ function withTooltip(label, node) {
 
 // src/client/ui/toastSeat.ts
 /** Frame-wide toast seat: one notice at a time, dismissed when it fades. */
-const h$11 = react.default.createElement;
+const h$12 = react.default.createElement;
 const TOAST_COPY = {
 	copied: {
 		key: "toast.copied",
@@ -1786,6 +2832,12 @@ const TOAST_COPY = {
 	},
 	copyFailed: { key: "toast.copyFailed" },
 	insertFailed: { key: "toast.insertFailed" },
+	archiveFailed: { key: "toast.archiveFailed" },
+	pathCopied: {
+		key: "toast.pathCopied",
+		tone: "success"
+	},
+	revealFailed: { key: "toast.revealFailed" },
 	saveFailed: { key: "toast.saveFailed" }
 };
 const WarningIcon = icon("IconWarningOutlineRegular");
@@ -1819,6 +2871,15 @@ function createToastSeat(tr) {
 					sequence
 				});
 			},
+			/** Localized text chosen at call time (storage notices carry variables). */
+			showText(text, tone = "success") {
+				sequence += 1;
+				publish({
+					text,
+					tone,
+					sequence
+				});
+			},
 			dismiss() {
 				publish(null);
 			}
@@ -1828,19 +2889,20 @@ function createToastSeat(tr) {
 	function ToastHost(props) {
 		const notice = react.default.useSyncExternalStore(source.hooks.notice.subscribe, source.hooks.notice.getSnapshot);
 		if (!notice || !Toast) return null;
-		const copy = TOAST_COPY[notice.kind] || TOAST_COPY.saveFailed;
-		const bound = props && typeof props.t === "function" ? props.t(copy.key) : "";
-		const text = bound && bound !== copy.key ? bound : tr(copy.key);
-		return h$11(Toast, {
+		const copy = notice.text ? { tone: notice.tone } : TOAST_COPY[notice.kind] || TOAST_COPY.saveFailed;
+		const bound = !notice.text && props && typeof props.t === "function" ? props.t(copy.key) : "";
+		const text = notice.text || (bound && bound !== copy.key ? bound : tr(copy.key));
+		return h$12(Toast, {
 			key: notice.sequence,
 			text,
 			tone: copy.tone,
-			icon: copy.tone ? void 0 : WarningIcon ? h$11(WarningIcon, { size: 16 }) : void 0,
+			icon: copy.tone ? void 0 : WarningIcon ? h$12(WarningIcon, { size: 16 }) : void 0,
 			onDone: source.dismiss
 		});
 	}
 	return {
 		show: source.show,
+		showText: source.showText,
 		ToastHost
 	};
 }
@@ -1949,14 +3011,14 @@ function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, tr, onO
 }
 
 // src/client/ui/useSessionMemoStore.ts
-/** Notes for the active scope plus a synchronous writer that never invents state. */
+/** Notes for the active scope plus its writer, serialized per mounted panel. */
 /** Read the record the current scope renders. */
 function readScope(scope) {
 	return scope.kind === "workspace" ? readWorkspaceRecord(scope.id) : readSessionRecord(scope.id);
 }
-/** Write the record the current scope renders. */
-function writeScope(scope, record) {
-	return scope.kind === "workspace" ? writeWorkspaceRecord(scope.id, record) : writeSessionRecord(scope.id, record);
+/** Write the record the current scope renders; `base` is what this tab saw. */
+function writeScope(scope, record, base) {
+	return scope.kind === "workspace" ? writeWorkspaceRecord(scope.id, record, base) : writeSessionRecord(scope.id, record, base);
 }
 /** Notes of one list (a workspace, or a single session) and their writer. */
 function useMemoStore(scope) {
@@ -1972,9 +3034,8 @@ function useMemoStore(scope) {
 	};
 	const [record, setRecord] = react.default.useState(() => readScope(scopeRef.current));
 	const [syncError, setSyncError] = react.default.useState(false);
-	const recordRef = react.default.useRef(record);
-	recordRef.current = record;
-	react.default.useEffect(() => {
+	const chainRef = react.default.useRef(Promise.resolve());
+	react.default.useLayoutEffect(() => {
 		setRecord(readScope(scopeRef.current));
 		setSyncError(false);
 	}, [kind, id]);
@@ -1995,23 +3056,30 @@ function useMemoStore(scope) {
 		record,
 		syncError,
 		commit: react.default.useCallback((updater) => {
-			const current = recordRef.current || {
-				items: [],
-				updatedAt: 0
+			const target = {
+				kind,
+				id
 			};
-			const nextItems = normalizeItems(updater(current.items || []));
-			const next = {
-				...current,
-				items: nextItems,
-				updatedAt: Date.now()
-			};
-			const ok = writeScope(scopeRef.current, next);
-			setSyncError(!ok);
-			if (!ok) return false;
-			recordRef.current = next;
-			setRecord(next);
-			return true;
-		}, [])
+			const run = chainRef.current.then(async () => {
+				const current = readScope(target);
+				const base = current.items || [];
+				const nextItems = normalizeItems(updater(base));
+				const next = {
+					...current,
+					items: nextItems,
+					updatedAt: Date.now()
+				};
+				const ok = await writeScope(target, next, base);
+				const active = scopeRef.current;
+				if (active.kind !== target.kind || active.id !== target.id) return ok;
+				setSyncError(!ok);
+				if (!ok) return false;
+				setRecord(readScope(target));
+				return true;
+			});
+			chainRef.current = run.then(() => void 0, () => void 0);
+			return run;
+		}, [kind, id])
 	};
 }
 
@@ -3061,9 +4129,13 @@ function useUpdateCenter(localeId) {
 
 // src/client/ui/useComposerDraft.ts
 /** The add box: draft persistence, auto-grow and the composer key gestures. */
-function useComposerDraft({ draftKey, commit, report }) {
+function useComposerDraft({ draftKey, commit, report, storageInUse }) {
 	const key = draftKey ? String(draftKey) : "";
 	const [draft, setDraft] = react.default.useState(() => readScopeDrafts(key).add);
+	const draftRef = react.default.useRef({ value: draft });
+	const pendingAction = react.default.useRef(false);
+	const [isSubmitting, setIsSubmitting] = react.default.useState(false);
+	const [isRecalling, setIsRecalling] = react.default.useState(false);
 	const addRef = react.default.useRef(null);
 	const composingRef = react.default.useRef(false);
 	const resizeAdd = (node) => {
@@ -3085,22 +4157,38 @@ function useComposerDraft({ draftKey, commit, report }) {
 			node.setSelectionRange(end, end);
 		} catch {}
 	}, []);
-	const add = () => {
-		const text = draft.trim().slice(0, 280);
-		if (!text) return;
-		const now = Date.now();
-		if (!commit((currentItems) => [{
-			id: uid(),
-			text,
-			done: false,
-			createdAt: now,
-			updatedAt: now
-		}, ...currentItems])) {
-			report("saveFailed");
-			return;
+	const updateDraft = (value) => {
+		draftRef.current = { value };
+		setDraft(value);
+		saveAddDraft(key, value);
+	};
+	const add = async () => {
+		const submitted = draftRef.current;
+		const text = submitted.value.trim().slice(0, 280);
+		if (!text || pendingAction.current || storageInUse) return;
+		pendingAction.current = true;
+		setIsSubmitting(true);
+		try {
+			const now = Date.now();
+			if (!await commit((currentItems) => [{
+				id: uid(),
+				text,
+				done: false,
+				createdAt: now,
+				updatedAt: now
+			}, ...currentItems])) {
+				report("saveFailed");
+				return;
+			}
+			if (draftRef.current === submitted) {
+				draftRef.current = { value: "" };
+				setDraft("");
+				if (readScopeDrafts(key).add === submitted.value.slice(0, 280)) clearAddDraft(key);
+			}
+		} finally {
+			pendingAction.current = false;
+			setIsSubmitting(false);
 		}
-		setDraft("");
-		clearAddDraft(key);
 	};
 	/**
 	* Replace the composer with a recalled note and put the caret at its end.
@@ -3108,10 +4196,21 @@ function useComposerDraft({ draftKey, commit, report }) {
 	* This is the only text editor for a note: the row leaves the list and its
 	* text lands here, where the user can change it and submit it again.
 	*/
-	const recall = (text) => {
-		const value = String(text || "").slice(0, 280);
-		setDraft(value);
-		saveAddDraft(key, value);
+	const recall = async (item, takeBack) => {
+		if (pendingAction.current || draftRef.current.value.trim() || readScopeDrafts(key).add.trim()) {
+			report("recallBlocked");
+			return;
+		}
+		pendingAction.current = true;
+		setIsRecalling(true);
+		try {
+			if (!await takeBack(item)) return;
+			updateDraft(String(item.text || "").slice(0, 280));
+			report("recalled");
+		} finally {
+			pendingAction.current = false;
+			setIsRecalling(false);
+		}
 		window.requestAnimationFrame(() => {
 			const node = addRef.current;
 			if (!node) return;
@@ -3126,9 +4225,8 @@ function useComposerDraft({ draftKey, commit, report }) {
 		});
 	};
 	const onDraftChange = (event) => {
-		const value = event.target.value;
-		setDraft(value);
-		saveAddDraft(key, value);
+		if (isRecalling) return;
+		updateDraft(event.target.value);
 		resizeAdd(event.target);
 	};
 	/**
@@ -3155,6 +4253,8 @@ function useComposerDraft({ draftKey, commit, report }) {
 	};
 	return {
 		draft,
+		isSubmitting,
+		isRecalling,
 		addRef,
 		composingRef,
 		add,
@@ -3172,8 +4272,8 @@ function useNoteActions({ commit, report }) {
 	* has been put into the conversation, and only `takeBack` brings it back.
 	* The stored shape keeps `done` / `completedAt`, so existing lists read as-is.
 	*/
-	const archive = (item) => {
-		const ok = commit((currentItems) => currentItems.map((candidate) => {
+	const archive = async (item) => {
+		return commit((currentItems) => currentItems.map((candidate) => {
 			if (candidate.id !== item.id || candidate.done) return candidate;
 			const now = Date.now();
 			return {
@@ -3183,14 +4283,17 @@ function useNoteActions({ commit, report }) {
 				completedAt: now
 			};
 		}));
-		if (!ok) report("saveFailed");
-		return ok;
 	};
 	/** Move an open note to `toIndex` among the open notes; archived ones keep their order. */
-	const move = (itemId, toIndex) => {
-		const ok = commit((currentItems) => moveOpenItem(currentItems, itemId, toIndex));
+	const move = async (itemId, toIndex) => {
+		let changed = false;
+		const ok = await commit((currentItems) => {
+			const next = moveOpenItem(currentItems, itemId, toIndex);
+			changed = next !== currentItems;
+			return next;
+		});
 		if (!ok) report("saveFailed");
-		return ok;
+		return ok && changed;
 	};
 	/**
 	* Remove a note so its text can be recalled into the composer.
@@ -3198,8 +4301,8 @@ function useNoteActions({ commit, report }) {
 	* A failed write keeps the row and its text exactly as they were; the
 	* caller writes the recalled text only after this succeeds.
 	*/
-	const takeBack = (item) => {
-		if (!commit((currentItems) => currentItems.filter((candidate) => candidate.id !== item.id))) {
+	const takeBack = async (item) => {
+		if (!await commit((currentItems) => currentItems.filter((candidate) => candidate.id !== item.id))) {
 			report("saveFailed");
 			return false;
 		}
@@ -3318,17 +4421,25 @@ function useRowReorder({ ids, scrollRef, onMove }) {
 			} catch {}
 			if (!drag.started) return;
 			if (commit && drag.to !== drag.from) {
-				settleRef.current = {
+				const settle = {
 					id: drag.id,
 					top: drag.rows[drag.from].top + drag.dy
 				};
-				if (onMoveRef.current(drag.id, drag.to)) return;
-				settleRef.current = null;
+				settleRef.current = settle;
+				const cancelSettle = () => {
+					if (settleRef.current !== settle) return;
+					settleRef.current = null;
+					release(drag);
+				};
+				onMoveRef.current(drag.id, drag.to).then((ok) => {
+					if (!ok) cancelSettle();
+				}, cancelSettle);
+				return;
 			}
 			release(drag);
 		};
 		const start = (id, event) => {
-			if (event.button !== 0 || dragRef.current) return;
+			if (event.button !== 0 || dragRef.current || settleRef.current) return;
 			const list = listRef.current;
 			const all = rows();
 			const from = all.findIndex((node) => node.dataset.rowId === id);
@@ -3390,7 +4501,12 @@ function useRowReorder({ ids, scrollRef, onMove }) {
 			const to = index + (event.key === "ArrowUp" ? -1 : 1);
 			if (index < 0 || to < 0 || to >= order.length) return;
 			focusRef.current = id;
-			if (!onMoveRef.current(id, to)) focusRef.current = "";
+			const clearFocus = () => {
+				if (focusRef.current === id) focusRef.current = "";
+			};
+			onMoveRef.current(id, to).then((ok) => {
+				if (!ok) clearFocus();
+			}, clearFocus);
 		};
 		return {
 			rows,
@@ -3556,7 +4672,7 @@ function useOutsideDismiss(panelRef, anchorRef, onClose) {
 * One note, kept light: a reorder grip, the text, and one trailing cell where
 * the age rests and the actions take its place on hover.
 */
-const h$10 = react.default.createElement;
+const h$11 = react.default.createElement;
 function TodoRow(props) {
 	const { item, archived, say, localeId, onToast, onInsert, onRecall, grip } = props;
 	const [pending, setPending] = react.default.useState("");
@@ -3579,43 +4695,43 @@ function TodoRow(props) {
 		if (!mountedRef.current) return;
 		if (onToast) onToast(ok ? "copied" : "copyFailed");
 	};
-	return h$10("li", {
+	return h$11("li", {
 		className: archived ? "dsh-an-row dsh-an-rowArchived" : "dsh-an-row",
 		"data-row-id": item.id
-	}, grip ? h$10("button", {
+	}, grip ? h$11("button", {
 		type: "button",
 		className: "dsh-an-grip",
 		"aria-label": say("item.reorder"),
 		...grip
-	}, h$10(IconGrip, null)) : h$10("span", {
+	}, h$11(IconGrip, null)) : h$11("span", {
 		className: "dsh-an-gripSpacer",
 		"aria-hidden": true
-	}), h$10("div", { className: "dsh-an-text" }, item.text), h$10("div", { className: "dsh-an-trail" }, h$10("span", {
+	}), h$11("div", { className: "dsh-an-text" }, item.text), h$11("div", { className: "dsh-an-trail" }, h$11("span", {
 		className: "dsh-an-meta",
 		title: metaLabel(item, say, localeId)
-	}, rowAge(item, say, localeId)), h$10("div", { className: "dsh-an-actions" }, withTooltip(say("item.recall"), h$10("button", {
+	}, rowAge(item, say, localeId)), h$11("div", { className: "dsh-an-actions" }, withTooltip(say("item.recall"), h$11("button", {
 		type: "button",
 		className: "dsh-an-iconBtn",
 		"aria-label": say("item.recall"),
 		onClick: () => onRecall(item)
-	}, h$10(IconRewind, null))), withTooltip(say("item.copy"), h$10("button", {
+	}, h$11(IconRewind, null))), withTooltip(say("item.copy"), h$11("button", {
 		type: "button",
 		className: "dsh-an-iconBtn",
 		"aria-label": say("item.copy"),
 		"aria-busy": pending === "copy" ? "true" : "false",
 		"data-loading": pending === "copy" ? "true" : void 0,
 		onClick: copy
-	}, h$10(IconCopy, null))), archived ? null : withTooltip(say("item.insert"), h$10("button", {
+	}, h$11(IconCopy, null))), archived ? null : withTooltip(say("item.insert"), h$11("button", {
 		type: "button",
 		className: "dsh-an-iconBtn dsh-an-insert",
 		"aria-label": say("item.insert"),
 		onClick: () => onInsert(item)
-	}, h$10(IconInsert, null))))));
+	}, h$11(IconInsert, null))))));
 }
 
 // src/client/ui/ScopeSwitch.tsx
 /** Segmented switch between the workspace list and the session list. */
-const h$9 = react.default.createElement;
+const h$10 = react.default.createElement;
 function ScopeSwitch(props) {
 	const { say, mode, canUseSession, onChange } = props;
 	const options = [{
@@ -3625,11 +4741,11 @@ function ScopeSwitch(props) {
 		value: "session",
 		label: say("scope.session")
 	}] : []];
-	return h$9("div", {
+	return h$10("div", {
 		className: "dsh-an-scope",
 		role: "group",
 		"aria-label": say("scope.label")
-	}, options.map((option) => h$9(react.default.Fragment, { key: option.value }, withTooltip(option.value === "session" ? say("scope.sessionHint") : canUseSession ? say("scope.workspaceHint") : say("scope.newSessionHint"), h$9("button", {
+	}, options.map((option) => h$10(react.default.Fragment, { key: option.value }, withTooltip(option.value === "session" ? say("scope.sessionHint") : canUseSession ? say("scope.workspaceHint") : say("scope.newSessionHint"), h$10("button", {
 		type: "button",
 		className: "dsh-an-scopeBtn",
 		"data-scope-mode": option.value,
@@ -3641,33 +4757,33 @@ function ScopeSwitch(props) {
 
 // src/client/ui/PanelHead.ts
 /** Panel title, counts, the list-scope switch and the settings/close actions. */
-const h$8 = react.default.createElement;
+const h$9 = react.default.createElement;
 function PanelHead(props) {
 	const { say, openCount, total, showSettings, onToggleSettings, onClose, newerVersion, scopeMode, canUseWorkspace, canUseSession, onScopeChange } = props;
-	return h$8("div", { className: "dsh-an-popHead" }, h$8("div", { className: "dsh-an-popTitleLine" }, h$8("div", { className: "dsh-an-popTitle" }, say("popover.title")), h$8("p", { className: "dsh-an-popMeta" }, say("popover.count", {
+	return h$9("div", { className: "dsh-an-popHead" }, h$9("div", { className: "dsh-an-popTitleLine" }, h$9("div", { className: "dsh-an-popTitle" }, say("popover.title")), h$9("p", { className: "dsh-an-popMeta" }, say("popover.count", {
 		open: openCount,
 		total
-	})), canUseWorkspace ? h$8(ScopeSwitch, {
+	})), canUseWorkspace ? h$9(ScopeSwitch, {
 		say,
 		mode: scopeMode,
 		canUseSession,
 		onChange: onScopeChange
-	}) : null), h$8("div", { className: "dsh-an-popActions" }, withTooltip(say("settings.open"), h$8("button", {
+	}) : null), h$9("div", { className: "dsh-an-popActions" }, withTooltip(say("settings.open"), h$9("button", {
 		type: "button",
 		className: "dsh-an-settingsBtn",
 		"data-active": showSettings ? "true" : void 0,
 		"aria-label": newerVersion ? `${say("settings.open")} · ${say("update.tip", { version: `v${newerVersion}` })}` : say("settings.open"),
 		"aria-expanded": showSettings,
 		onClick: onToggleSettings
-	}, h$8(IconGear, null), newerVersion ? h$8("span", {
+	}, h$9(IconGear, null), newerVersion ? h$9("span", {
 		className: "dsh-an-updateDot",
 		"aria-hidden": true
-	}) : null)), withTooltip(say("popover.close"), h$8("button", {
+	}) : null)), withTooltip(say("popover.close"), h$9("button", {
 		type: "button",
 		className: "dsh-an-popClose",
 		"aria-label": say("popover.close"),
 		onClick: onClose
-	}, h$8(IconClose, null)))));
+	}, h$9(IconClose, null)))));
 }
 
 // src/client/ui/UpdateNotice.ts
@@ -3690,7 +4806,7 @@ function PanelHead(props) {
 * upgrading to 2.3.0 can read 2.1.0, 2.2.0 and 2.3.0 in order. The full release
 * page opens from the link beside the update button.
 */
-const h$7 = react.default.createElement;
+const h$8 = react.default.createElement;
 const NOTES_ID = "dsh-an-update-notes";
 const UPDATE_PACKAGE = "dsh-sideby-note";
 /** Failure codes the card can explain without echoing the host's message. */
@@ -3796,69 +4912,145 @@ function UpdateNotice(props) {
 			if (typeof props.onToast === "function") props.onToast(ok ? "copied" : "copyFailed");
 		});
 	};
-	const noteGroups = (list) => list.map((group, index) => h$7("div", {
+	const noteGroups = (list) => list.map((group, index) => h$8("div", {
 		key: `${group.title}-${index}`,
 		className: "dsh-an-updateGroup"
-	}, group.title ? h$7("div", { className: "dsh-an-updateGroupTitle" }, group.title) : null, h$7("ul", { className: "dsh-an-updateItems" }, group.items.map((item, itemIndex) => h$7("li", {
+	}, group.title ? h$8("div", { className: "dsh-an-updateGroupTitle" }, group.title) : null, h$8("ul", { className: "dsh-an-updateItems" }, group.items.map((item, itemIndex) => h$8("li", {
 		key: itemIndex,
 		className: "dsh-an-updateItem"
-	}, item.lead ? h$7("strong", null, item.lead) : null, item.lead ? " " : null, item.body)))));
-	const entryBody = (entry) => entry.groups.length > 0 ? noteGroups(entry.groups) : h$7("p", { className: "dsh-an-updateHint" }, say("update.notesMissing"));
-	const notesBody = notes.status === "loading" ? h$7("p", { className: "dsh-an-updateHint" }, say("update.notesLoading")) : notes.status === "error" ? h$7("p", { className: "dsh-an-updateHint" }, say("update.notesFailed")) : notes.status === "ready" && notes.entries.length === 1 ? entryBody(notes.entries[0]) : notes.status === "ready" ? h$7("div", { className: "dsh-an-updateVersions" }, h$7("p", { className: "dsh-an-updateHint" }, say("update.historyCount", { n: notes.entries.length })), notes.entries.map((entry, index) => {
+	}, item.lead ? h$8("strong", null, item.lead) : null, item.lead ? " " : null, item.body)))));
+	const entryBody = (entry) => entry.groups.length > 0 ? noteGroups(entry.groups) : h$8("p", { className: "dsh-an-updateHint" }, say("update.notesMissing"));
+	const notesBody = notes.status === "loading" ? h$8("p", { className: "dsh-an-updateHint" }, say("update.notesLoading")) : notes.status === "error" ? h$8("p", { className: "dsh-an-updateHint" }, say("update.notesFailed")) : notes.status === "ready" && notes.entries.length === 1 ? entryBody(notes.entries[0]) : notes.status === "ready" ? h$8("div", { className: "dsh-an-updateVersions" }, h$8("p", { className: "dsh-an-updateHint" }, say("update.historyCount", { n: notes.entries.length })), notes.entries.map((entry, index) => {
 		const open = expandedVersions[entry.version] === true;
-		return h$7("div", {
+		return h$8("div", {
 			key: entry.version,
 			className: "dsh-an-updateVersion"
-		}, h$7("button", {
+		}, h$8("button", {
 			type: "button",
 			className: "dsh-an-updateVersionHead",
 			"aria-expanded": open,
 			"aria-controls": `${NOTES_ID}-${entry.version}`,
 			onClick: () => props.onToggleVersion(entry.version)
-		}, h$7("span", {
+		}, h$8("span", {
 			className: "dsh-an-updateChevron",
 			"data-open": open ? "true" : "false",
 			"aria-hidden": true
-		}, "▸"), h$7("span", { className: "dsh-an-updateVersionLabel" }, `v${entry.version}`), index === 0 ? h$7("span", { className: "dsh-an-updateLatest" }, say("update.latest")) : null), open ? h$7("div", {
+		}, "▸"), h$8("span", { className: "dsh-an-updateVersionLabel" }, `v${entry.version}`), index === 0 ? h$8("span", { className: "dsh-an-updateLatest" }, say("update.latest")) : null), open ? h$8("div", {
 			id: `${NOTES_ID}-${entry.version}`,
 			className: "dsh-an-updateVersionBody"
 		}, entryBody(entry)) : null);
-	}), notes.truncated ? h$7("a", {
+	}), notes.truncated ? h$8("a", {
 		className: "dsh-an-updateFull",
 		href: props.releasesUrl,
 		target: "_blank",
 		rel: "noreferrer"
 	}, say("update.olderNotes")) : null) : null;
-	return h$7("div", { className: "dsh-an-updateCard" }, h$7("div", { className: "dsh-an-updateTitle" }, say("update.available", { version: `v${latestVersion}` })), h$7("div", {
+	return h$8("div", { className: "dsh-an-updateCard" }, h$8("div", { className: "dsh-an-updateTitle" }, say("update.available", { version: `v${latestVersion}` })), h$8("div", {
 		id: NOTES_ID,
 		ref: notesRef,
 		className: "dsh-an-updateNotes",
 		role: "region",
 		"aria-label": say("update.notesTitle"),
 		"data-fade": fade ? "true" : void 0
-	}, notesBody), h$7("div", { className: "dsh-an-updateActions" }, phase === "done" ? h$7("div", { className: "dsh-an-updateDone" }, h$7("span", { className: "dsh-an-updateHint" }, say("update.updated", { version: run.installedVersion ? `v${run.installedVersion}` : `v${latestVersion}` })), h$7("button", {
+	}, notesBody), h$8("div", { className: "dsh-an-updateActions" }, phase === "done" ? h$8("div", { className: "dsh-an-updateDone" }, h$8("span", { className: "dsh-an-updateHint" }, say("update.updated", { version: run.installedVersion ? `v${run.installedVersion}` : `v${latestVersion}` })), h$8("button", {
 		type: "button",
 		className: "dsh-an-updatePrimary",
 		onClick: props.onRefresh
-	}, say("update.refresh"))) : h$7("button", {
+	}, say("update.refresh"))) : h$8("button", {
 		type: "button",
 		className: "dsh-an-updatePrimary",
 		disabled: busy,
 		"aria-busy": busy,
 		onClick: () => props.onStartUpdate()
-	}, busy ? phase === "running" ? say("update.updating") : say("update.starting") : say("update.now")), fullReleaseUrl ? h$7("a", {
+	}, busy ? phase === "running" ? say("update.updating") : say("update.starting") : say("update.now")), fullReleaseUrl ? h$8("a", {
 		className: "dsh-an-updateFull",
 		href: fullReleaseUrl,
 		target: "_blank",
 		rel: "noreferrer"
-	}, say("update.full")) : null), phase === "error" ? h$7("div", { className: "dsh-an-updateErrorRow" }, h$7("p", {
+	}, say("update.full")) : null), phase === "error" ? h$8("div", { className: "dsh-an-updateErrorRow" }, h$8("p", {
 		className: "dsh-an-updateError",
 		role: "status"
-	}, failureKey ? say(failureKey) : say("update.failed", { reason: run.message || run.failureCode || "" }))) : null, manual ? h$7("div", { className: "dsh-an-updateFallback" }, h$7("p", { className: "dsh-an-updateHint" }, say("update.manualHint", { command: manualCommand })), h$7("button", {
+	}, failureKey ? say(failureKey) : say("update.failed", { reason: run.message || run.failureCode || "" }))) : null, manual ? h$8("div", { className: "dsh-an-updateFallback" }, h$8("p", { className: "dsh-an-updateHint" }, say("update.manualHint", { command: manualCommand })), h$8("button", {
 		type: "button",
 		className: "dsh-an-updateCopy",
 		onClick: copyPrompt
-	}, say("update.copyPrompt"))) : null, run.phase === "done" && run.restartRequired ? h$7("p", { className: "dsh-an-updateHint" }, say("update.restartHint")) : null);
+	}, say("update.copyPrompt"))) : null, run.phase === "done" && run.restartRequired ? h$8("p", { className: "dsh-an-updateHint" }, say("update.restartHint")) : null);
+}
+
+// src/client/ui/StorageSettings.ts
+/** Settings › Data storage: the medium, the host file path and its actions. */
+const h$7 = react.default.createElement;
+/**
+* The storage decision can change after this block mounts (retry, or a probe
+* finishing late); refresh on the same ready channel the entry uses. The path
+* is host-owned state and is fetched only while host storage is in use.
+*/
+function StorageSettings(props) {
+	const { say } = props;
+	const [storage, setStorage] = react.default.useState(() => ({
+		mode: currentStorageMode(),
+		failure: storageFailure()
+	}));
+	react.default.useEffect(() => {
+		const onReady = () => setStorage({
+			mode: currentStorageMode(),
+			failure: storageFailure()
+		});
+		STORE_READY_LISTENERS.add(onReady);
+		return () => {
+			STORE_READY_LISTENERS.delete(onReady);
+		};
+	}, []);
+	const [location, setLocation] = react.default.useState(null);
+	const [locating, setLocating] = react.default.useState(false);
+	react.default.useEffect(() => {
+		if (storage.mode !== "host") {
+			setLocation(null);
+			setLocating(false);
+			return;
+		}
+		let alive = true;
+		setLocating(true);
+		fetchStoreLocation().then((next) => {
+			if (!alive) return;
+			setLocation(next);
+			setLocating(false);
+		});
+		return () => {
+			alive = false;
+		};
+	}, [storage.mode]);
+	const notify = typeof props.onToast === "function" ? props.onToast : () => {};
+	const copyStorePath = async () => {
+		if (!location || !location.path) return;
+		notify(await copyText(location.path) ? "pathCopied" : "copyFailed");
+	};
+	const showStoreFile = async () => {
+		if (!await revealStoreFile()) notify("revealFailed");
+	};
+	const modeLabel = storage.mode === "host" ? say("storage.modeHost") : storage.mode === "local" ? say("storage.modeLocal") : storage.mode === "probing" ? say("storage.loading") : say(storage.failure?.code === "STORE_IN_USE" ? "storage.inUse" : "storage.hostError");
+	return h$7("div", { className: "dsh-an-storageBlock" }, h$7("div", { className: "dsh-an-settingMetaRow" }, h$7("span", null, modeLabel), storage.mode === "error" ? h$7("button", {
+		type: "button",
+		className: "dsh-an-updateCheck",
+		onClick: () => {
+			retryStorage();
+		}
+	}, say("storage.retry")) : null), storage.mode === "host" ? locating ? h$7("p", { className: "dsh-an-settingHint" }, say("storage.pathLoading")) : location && location.path ? h$7("div", { className: "dsh-an-storagePathRow" }, h$7("code", {
+		className: "dsh-an-storagePath",
+		title: location.path
+	}, location.path), h$7("div", { className: "dsh-an-storageActions" }, h$7("button", {
+		type: "button",
+		className: "dsh-an-storageAction",
+		onClick: () => {
+			copyStorePath();
+		}
+	}, say("storage.copyPath")), h$7("button", {
+		type: "button",
+		className: "dsh-an-storageAction",
+		onClick: () => {
+			showStoreFile();
+		}
+	}, say("storage.reveal"))), location.exists ? null : h$7("p", { className: "dsh-an-settingHint" }, say("storage.pathMissing"))) : h$7("p", { className: "dsh-an-settingHint" }, say("storage.pathUnavailable")) : storage.mode === "local" ? h$7("p", { className: "dsh-an-settingHint" }, say("storage.notSwitched")) : null, storage.failure ? h$7("p", { className: "dsh-an-settingHint" }, say("storage.failure").replace("{code}", storage.failure.code)) : null);
 }
 
 // src/client/ui/SettingsPanel.ts
@@ -3866,7 +5058,10 @@ function UpdateNotice(props) {
 const h$6 = react.default.createElement;
 function SettingsPanel(props) {
 	const { say, update } = props;
-	return h$6("div", { className: "dsh-an-settings" }, h$6("div", { className: "dsh-an-settingsHead" }, say("settings.title")), h$6("div", { className: "dsh-an-settingGroup" }, h$6("div", { className: "dsh-an-settingLabel" }, say("settings.about")), h$6("div", { className: "dsh-an-settingBody" }, h$6("div", { className: "dsh-an-settingBrand" }, h$6("span", { className: "dsh-an-settingBrandName" }, say("title")), h$6("span", { className: "dsh-an-settingBrandTagline" }, say("settings.tagline"))), h$6("div", { className: "dsh-an-settingAbout" }, h$6("span", { className: "dsh-an-settingAboutVersion" }, `${say("settings.version")} ${PLUGIN_VERSION}`), h$6("button", {
+	return h$6("div", { className: "dsh-an-settings" }, h$6("div", { className: "dsh-an-settingsHead" }, say("settings.title")), h$6("div", { className: "dsh-an-settingGroup" }, h$6("div", { className: "dsh-an-settingLabel" }, say("settings.storage")), h$6("div", { className: "dsh-an-settingBody" }, h$6(StorageSettings, {
+		say,
+		onToast: props.onToast
+	}))), h$6("div", { className: "dsh-an-settingGroup" }, h$6("div", { className: "dsh-an-settingLabel" }, say("settings.about")), h$6("div", { className: "dsh-an-settingBody" }, h$6("div", { className: "dsh-an-settingBrand" }, h$6("span", { className: "dsh-an-settingBrandName" }, say("title")), h$6("span", { className: "dsh-an-settingBrandTagline" }, say("settings.tagline"))), h$6("div", { className: "dsh-an-settingAbout" }, h$6("span", { className: "dsh-an-settingAboutVersion" }, `${say("settings.version")} ${PLUGIN_VERSION}`), h$6("button", {
 		type: "button",
 		className: "dsh-an-updateCheck",
 		disabled: update.check.status === "checking",
@@ -3912,7 +5107,7 @@ function SettingsPanel(props) {
 /** The add form: one growing textarea, the Enter hint and the submit button. */
 const h$5 = react.default.createElement;
 function ComposerForm(props) {
-	const { say, draft, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit } = props;
+	const { say, draft, isSubmitting, isRecalling, storageInUse, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit } = props;
 	return h$5("form", {
 		className: "dsh-an-add",
 		onSubmit
@@ -3922,16 +5117,17 @@ function ComposerForm(props) {
 		value: draft,
 		rows: 1,
 		maxLength: 280,
+		readOnly: isRecalling,
 		placeholder: say("add.placeholder"),
 		"aria-label": say("add.placeholder"),
 		onChange: onDraftChange,
 		onCompositionStart,
 		onCompositionEnd,
 		onKeyDown
-	}), h$5("div", { className: "dsh-an-addFoot" }, h$5("span", { className: "dsh-an-addShortcut" }, say("add.shortcut")), h$5("button", {
+	}), h$5("div", { className: "dsh-an-addFoot" }, storageInUse ? null : h$5("span", { className: "dsh-an-addShortcut" }, say("add.shortcut")), h$5("button", {
 		type: "submit",
 		className: "dsh-an-addBtn",
-		disabled: !draft.trim()
+		disabled: storageInUse || isSubmitting || isRecalling || !draft.trim()
 	}, say("add.action"))));
 }
 
@@ -3966,7 +5162,7 @@ function EmptyState(props) {
 /** Open/archived sections, their sticky heads, rows and the clear confirmation. */
 const h$2 = react.default.createElement;
 function NoteList(props) {
-	const { say, listRef, listHasMore, syncListEdge, showOpen, toggleOpen, openItems, openListRef, openCount, total, row, showDone, toggleDone, doneItems, confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = props;
+	const { say, listRef, listHasMore, syncListEdge, showOpen, toggleOpen, openItems, openListRef, openCount, total, row, hideEmptyState, showDone, toggleDone, doneItems, confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = props;
 	return h$2("div", {
 		className: "dsh-an-listViewport",
 		"data-bottom": listHasMore ? "true" : void 0
@@ -3985,7 +5181,7 @@ function NoteList(props) {
 	}, h$2(IconChevron, null)), say("list.open"), openCount ? h$2("span", { className: "dsh-an-sectionCount" }, String(openCount)) : null)), showOpen ? openItems.length ? h$2("ul", {
 		className: "dsh-an-rows",
 		ref: openListRef
-	}, openItems.map(row)) : h$2(EmptyState, {
+	}, openItems.map(row)) : hideEmptyState ? null : h$2(EmptyState, {
 		title: say(total ? "list.allArchived.title" : "popover.empty.title"),
 		body: say(total ? "list.allArchived.body" : "popover.empty.body")
 	}) : null), doneItems.length ? h$2("div", { className: "dsh-an-listSection" }, h$2("div", { className: "dsh-an-doneHead" }, h$2("button", {
@@ -4043,8 +5239,16 @@ function MemoPopover(props) {
 		const onStorage = (event) => {
 			if (event && event.key === "dsh.aside-note.scope-mode") setMode(readScopeMode());
 		};
+		const onStoreChange = () => {
+			const current = storageMode();
+			if (current === "host" || current === "error") setMode(readScopeMode());
+		};
+		TODO_LISTENERS.add(onStoreChange);
 		window.addEventListener("storage", onStorage);
-		return () => window.removeEventListener("storage", onStorage);
+		return () => {
+			TODO_LISTENERS.delete(onStoreChange);
+			window.removeEventListener("storage", onStorage);
+		};
 	}, []);
 	react.default.useSyncExternalStore(subscribeScope, scopeVersion, scopeVersion);
 	const canUseWorkspace = Boolean(workspaceScopeForSession(sessionId));
@@ -4055,14 +5259,17 @@ function MemoPopover(props) {
 	/** Settled outcomes go to the frame-wide toast host, not to inline marks. */
 	const report = typeof props.onToast === "function" ? props.onToast : () => {};
 	const { record, syncError, commit } = useMemoStore(scope);
+	const storageInUse = storageMode() === "error" && storageFailure()?.code === "STORE_IN_USE";
 	const { sectionsRef, showOpen, showDone, toggleOpen, toggleDone, applySections } = useSections();
 	const [showSettings, setShowSettings] = react.default.useState(false);
 	const update = useUpdateCenter(localeId);
 	const newerVersion = update.latestVersion;
-	const { draft, addRef, composingRef, add, recall, onDraftChange, onDraftKeyDown } = useComposerDraft({
+	const inserting = react.default.useRef(/* @__PURE__ */ new Set());
+	const { draft, isSubmitting, isRecalling, addRef, composingRef, add, recall, onDraftChange, onDraftKeyDown } = useComposerDraft({
 		draftKey,
 		commit,
-		report
+		report,
+		storageInUse
 	});
 	const { archive, move, takeBack } = useNoteActions({
 		commit,
@@ -4105,8 +5312,8 @@ function MemoPopover(props) {
 		dismissClearConfirm();
 		notifyTodoChange();
 	};
-	const clearDone = () => {
-		if (!commit((currentItems) => currentItems.filter((item) => !item.done))) {
+	const clearDone = async () => {
+		if (!await commit((currentItems) => currentItems.filter((item) => !item.done))) {
 			report("saveFailed");
 			return;
 		}
@@ -4121,12 +5328,23 @@ function MemoPopover(props) {
 	* conversation composer and the row moves to the archive in the same step.
 	* When no composer is on screen nothing changes, so the note stays open.
 	*/
-	const insertItem = (item) => {
+	const insertItem = async (item) => {
+		if (inserting.current.has(item.id)) return;
+		const mode = storageMode();
+		if (mode === "probing" || mode === "error") {
+			report("saveFailed");
+			return;
+		}
 		if (!appendToConversation(item.text)) {
 			report("insertFailed");
 			return;
 		}
-		if (archive(item)) report("inserted");
+		inserting.current.add(item.id);
+		try {
+			report(await archive(item) ? "inserted" : "archiveFailed");
+		} finally {
+			inserting.current.delete(item.id);
+		}
 	};
 	/**
 	* 退回 moves the note's text into the top composer and removes the row.
@@ -4134,13 +5352,7 @@ function MemoPopover(props) {
 	* would silently destroy it; ask the user to send or clear it first instead.
 	*/
 	const recallItem = (item) => {
-		if (draft.trim()) {
-			report("recallBlocked");
-			return;
-		}
-		if (!takeBack(item)) return;
-		recall(item.text);
-		report("recalled");
+		if (!inserting.current.has(item.id)) recall(item, takeBack);
 	};
 	const row = (item) => h$1(TodoRow, {
 		key: item.id,
@@ -4199,6 +5411,9 @@ function MemoPopover(props) {
 	})) : null, h$1(ComposerForm, {
 		say,
 		draft,
+		isSubmitting,
+		isRecalling,
+		storageInUse,
 		inputRef: addRef,
 		onDraftChange,
 		onCompositionStart: () => {
@@ -4222,6 +5437,7 @@ function MemoPopover(props) {
 		toggleOpen,
 		openItems,
 		openListRef: reorder.listRef,
+		hideEmptyState: storageInUse,
 		openCount,
 		total,
 		row,
@@ -4235,7 +5451,7 @@ function MemoPopover(props) {
 	}), h$1("div", {
 		className: "dsh-an-popFoot",
 		role: "status"
-	}, h$1("span", { className: syncError ? "dsh-an-error" : void 0 }, say(syncError ? "storage.failed" : "popover.local"))));
+	}, h$1("span", { className: syncError || storageMode() === "error" ? "dsh-an-error" : void 0 }, say(storageMode() === "error" ? storageInUse ? "storage.inUse" : "storage.hostError" : syncError ? "storage.failed" : storageMode() === "host" ? "storage.whereHost" : storageMode() === "probing" ? "storage.loading" : "popover.local"))));
 	return react_dom.default.createPortal(content, document.body);
 }
 
@@ -4282,6 +5498,27 @@ function apply(ctx) {
 	let activeSessionId = "";
 	const toastSeat = createToastSeat(tr);
 	let refreshHeaderEntry = () => {};
+	ctx.effect(() => {
+		const onNotice = (notice) => {
+			if (notice.kind === "migrated") toastSeat.showText(tr("storage.migrated", { n: notice.count }));
+			else if (notice.kind === "keptLocal") toastSeat.showText(tr("storage.keptLocal"));
+			else toastSeat.showText(tr("storage.notSwitched"));
+		};
+		const onError = (failure) => {
+			if (failure.code === "STORE_IN_USE") {
+				toastSeat.showText(tr("storage.inUse"), null);
+				return;
+			}
+			const hostDown = failure.code === "STORE_UNREACHABLE" || failure.code === "STORE_TIMEOUT" || failure.code === "STORE_UNAVAILABLE" || failure.code === "STORE_OPEN_FAILED" || failure.code === "STORE_FORBIDDEN";
+			toastSeat.showText(tr(hostDown ? "storage.hostError" : "toast.saveFailed"));
+		};
+		STORE_NOTICE_LISTENERS.add(onNotice);
+		STORE_ERROR_LISTENERS.add(onError);
+		return () => {
+			STORE_NOTICE_LISTENERS.delete(onNotice);
+			STORE_ERROR_LISTENERS.delete(onError);
+		};
+	}, "dsh-sideby-note: storage notices");
 	const closeMemoPopover = () => {
 		const current = activePopover;
 		activePopover = null;
@@ -4302,6 +5539,7 @@ function apply(ctx) {
 		}
 		closeMemoPopover();
 		const scope = scopeForSession(sessionId, readScopeMode());
+		if (storageMode() === "host") requestHostRefresh();
 		if (scope.kind === "workspace") ensureWorkspaceRecord(scope.id, scope.sessionIds);
 		const workspace = workspaceScopeForSession(sessionId);
 		if (workspace) ensureDraftScope(draftKeyForSession(sessionId), sessionId, workspace.sessionIds);
@@ -4375,6 +5613,22 @@ function apply(ctx) {
 		]);
 		return null;
 	}
+	ctx.effect(() => {
+		const onReady = () => {
+			refreshHeaderEntry();
+			notifyTodoChange();
+		};
+		const onStorage = (event) => {
+			if (event.key === "dsh.aside-note.storage-mode" && event.newValue === "host" && storageMode() === "local") retryStorage();
+		};
+		STORE_READY_LISTENERS.add(onReady);
+		window.addEventListener("storage", onStorage);
+		bootStorage();
+		return () => {
+			STORE_READY_LISTENERS.delete(onReady);
+			window.removeEventListener("storage", onStorage);
+		};
+	}, "dsh-sideby-note: storage boot");
 	ctx.slots.inject("conversation.composer.dock", () => ctx.slots.register({
 		name: "conversation.composer.dock",
 		id: PANEL_ID,

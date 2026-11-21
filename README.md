@@ -95,9 +95,9 @@ npx dsh-sideby-note install --version 0.1.0   # 固定版本，而不是 ^0.1.0
 - **归档后可回看**：待续与归档分区展示，保留创建与归档时间。
 - **面板大小可调整**：宽高按需拖动，记住你的习惯。
 - **融入 DSH 界面**：跟随明暗主题与 DSH 全部八种官方语言（中文、英语、日语、西班牙语、法语、德语、俄语和巴西葡萄牙语）。
-- **当前浏览器持久保存**：刷新页面、重启 DSH 后仍可继续查看；同一浏览器的多个标签页同步更新。
+- **跟随 DSH 本地文件持久保存**：便笺写入 `~/.dsh/storages/aside_note.json`，刷新、重启、换浏览器都不丢；同一浏览器的多标签页实时同步；同一 Host 的其他浏览器在打开面板时刷新。设置 › 数据存储会显示文件的完整路径，可拷贝路径或直接在文件管理器中定位。
 
-> 便笺保存在当前浏览器，不跨设备或浏览器同步；清理站点数据会清除记录。详见[数据保存在哪里](#数据保存在哪里)。
+> 宿主存储可用时，同一 DSH 宿主上的浏览器共享便笺。升级和回落行为见[数据保存在哪里](#数据保存在哪里)。
 
 [查看安装方法](#快速安装) · [反馈问题或建议](https://github.com/LighghtEeloo/dsh-sideby-note/issues)
 
@@ -111,7 +111,7 @@ npx dsh-sideby-note install --version 0.1.0   # 固定版本，而不是 ^0.1.0
 - **状态记忆**：新增草稿按工作区自动保存（工作区之外的会话按会话），切换会话或在「工作区 / 会话」之间切换都不会丢；提交时仍写入当前选中的清单。关掉面板再打开会恢复草稿，「待续 / 归档」的展开折叠状态与范围选择也会记住。
 - **面板尺寸**：拖左边缘调宽度、拖底部把手调高度，双击复位；宽高都保存在浏览器里。
 - **列表分区**：「待续」「归档」各有吸顶标题与独立滚动，展开归档不会压缩待续；每条便笺静置时只显示正文与时间，悬停时时间让位给「退回 / 复制 / 递入对话」；归档便笺按归档时间倒序。
-- **设置**：关于（版本、检查更新、作者、改良者、源码），改动自动保存。
+- **设置**：数据存储（文件路径、复制和定位）与关于（版本、检查更新、作者、改良者、源码）。
 - **更新提示**：有新版本时设置按钮出现提示点，设置 › 关于 可查看更新说明并更新；详见[更新提示](#更新提示)。
 - **界面融入**：颜色、圆角、阴影与滚动条全部复用 DSH 设计令牌，自动适配明暗主题与 DSH 全部官方语言；详见[设计规范](#设计规范)。
 
@@ -181,48 +181,14 @@ npx dsh-sideby-note install --version 0.1.0   # 固定版本，而不是 ^0.1.0
 
 ## 数据保存在哪里
 
-会话便笺保存在**当前浏览器**的 `localStorage` 中，键为 `dsh.aside-note`（沿用上游键名，包名改为 `dsh-sideby-note` 后已有数据仍直接读取），保持原来的 v1 结构：
+宿主存储可用时，便笺写入 `$DSH_HOME/storages/aside_note.json`，默认路径为 `~/.dsh/storages/aside_note.json`。DSH 在文件中用两张表保存会话与工作区清单。「设置 › 数据存储」显示实际路径。
 
-```json
-{
-  "version": 1,
-  "sessions": {
-    "session-…": {
-      "sessionId": "session-…",
-      "updatedAt": 0,
-      "items": []
-    }
-  }
-}
-```
+- 首次启动先检查宿主。宿主存储为空时，从 `dsh.aside-note` 和 `dsh.aside-note.workspaces` 导入浏览器里的旧便笺，并保留原副本供恢复。宿主已有便笺时，使用宿主清单，原浏览器副本仍可用于恢复。
+- 切换前若宿主不可用，本次继续使用浏览器存储，下次启动时重试。切换后若宿主不可用或文件损坏，面板会提示错误，并暂停写入直到宿主恢复。
+- 连接同一 DSH 宿主的浏览器共享宿主便笺。跨机器迁移可备份 DSH home 或复制该文件。卸载插件后文件仍留在宿主上。
+- 面板尺寸、「待续 / 归档」展开状态及未提交草稿仍存在浏览器。工作区内的会话共用一份草稿，提交时写入当前选中的清单；工作区外的会话各自保存草稿。
 
-同一个工作区共享的清单单独保存在 `dsh.aside-note.workspaces`：
-
-```json
-{
-  "version": 1,
-  "workspaces": {
-    "workspace-…": {
-      "workspaceId": "workspace-…",
-      "updatedAt": 0,
-      "items": [],
-      "seededSessionIds": ["session-…"]
-    }
-  }
-}
-```
-
-`workspaces` 是同一个工作区共享的清单；`seededSessionIds` 记住哪些会话的旧便笺已经并进来，避免重复合并或删除后复活。会话数据仍留在原来的 `dsh.aside-note` 键里，工作区数据不会写回这个键；没有工作区的会话只使用自己的 `sessions` 记录。面板顶部的范围选择单独保存在 `dsh.aside-note.scope-mode`（`workspace` 或 `session`，默认 `workspace`）。
-
-未提交的新增草稿保存在 `dsh.aside-note.drafts`：工作区内的会话共用一份工作区草稿，所以切会话、切范围都不会丢字；提交时才按当前范围写进工作区清单或会话清单。工作区之外的会话仍按会话保存草稿。升级后首次打开工作区时，当前会话的旧草稿会自动并入共享草稿；旧版就地编辑留下的 `edits` 记录会被忽略，并在下次写入草稿时清理。
-
-因此：
-
-- 刷新页面、重启 DSH、切换会话都不会丢。
-- 从上游版本升级或改为本包名后，已有便笺无需迁移。
-- 不会写入项目文件，也不会同步到其他机器或其他浏览器。
-- 清理浏览器站点数据会清除便笺。
-- 读取旧数据时不会改写 `dsh.aside-note` 的结构；工作区清单从 `dsh.aside-note.workspaces` 读取，首次进入工作区时把成员会话的旧便笺合入一次。不会读取 `dsh.aside-notes.*` 这类更早的键。如果本地数据仍在旧的 `dsh.aside-notes.*.v2` 键下，把键名改为对应的 `dsh.aside-note.*` 后刷新页面即可继续使用。
+边记部沿用旁边记 1.2.0 的宿主文件及格式，可以读取已有的宿主便笺，也兼容浏览器中的旧 `dsh.aside-note.*` 数据。DSH 同一时间只允许一个插件打开这份存储。切换时请先停用正在使用它的插件，边记部遇到占用时会提示并暂停写入。
 
 ## 更新提示
 
@@ -245,8 +211,11 @@ npx dsh-sideby-note install --version 0.1.0   # 固定版本，而不是 ^0.1.0
 
 ```bash
 npm install
-npm run check     # lint + typecheck + 测试 + 构建
-npm run build     # 只重新生成 client/client.js
+npm run check         # lint + typecheck + 测试 + 构建 + 案例目录校验
+npm run build         # 只重新生成 client/client.js
+npm run catalog:check # 只校验测试案例目录与测试是否对得上
+npm run test:run      # 逐用例执行记录 + report.html/md（.test/runs/）
+npm run test:mutate   # 变异测试：确认用例能抓到真实缺陷
 ```
 
 本地调试时把仓库 link 进 DSH profile（`<path-to-repo>` 换成克隆目录），再在 profile 目录执行 `pnpm install`：
@@ -274,7 +243,7 @@ window.__ModuleLoader__.load({ id: 'dsh-sideby-note', factory: (require) => { �
 
 产物单独提交：CI 会重建并对比 `client/`，不一致就失败，因此不要手改 `client/client.js`。
 
-`index.js` 是空的 Host 半侧；`cordis.patch.yml` 负责把包插入 profile 的组合。界面依赖 `slots` 与 `locale` 两个服务：
+`index.js` 注册宿主更新与便笺存储端点；`cordis.patch.yml` 负责把包插入 profile 的组合。界面依赖 `slots` 与 `locale` 两个服务：
 
 - `conversation.composer.dock`：只用来捕获当前会话 ID，不渲染可见入口。
 - 顶部右侧入口由 MutationObserver 注入宿主 header，因为宿主重渲染会回收 React portal。
@@ -285,13 +254,13 @@ window.__ModuleLoader__.load({ id: 'dsh-sideby-note', factory: (require) => { �
 
 截图与预览图的产出流程见 [截图与预览图 SOP](./docs/screenshot-sop.md)：在隔离 profile 里造演示会话，一条命令重拍明暗两套；凭据默认不复制。
 
-代码结构、数据模型与构建约定见 [架构文档](./docs/architecture.md)。
+代码结构、数据模型与构建约定见 [架构文档](./docs/architecture.md)；测试工程（规则 / 用例 / 执行记录 / 门禁）见 [测试工程](./docs/testing.md)。
 
 分支模型、版本策略与发版步骤见 [发布与版本迭代](./docs/release.md)。
 
 ## 验证
 
-已在独立的 DSH profile 中实际加载，并用无头 Chrome 走通：
+集成测试覆盖以下面板流程：
 
 - 会话顶部右侧出现「边记部」按钮，角标显示待续数；
 - 点击按钮在右侧打开面板，面板右上角对齐入口；
@@ -300,4 +269,4 @@ window.__ModuleLoader__.load({ id: 'dsh-sideby-note', factory: (require) => { �
 - 刷新页面后记录仍在；面板头部可在工作区级与当前会话级清单之间切换；
 - 版本检查的 npmjs → npmmirror → GitHub Release 回退、1 小时缓存与版本比较由契约测试覆盖；发布说明的标记提取、中英文回退、上限与 Markdown 压平有独立测试；jsdom 集成测试会驱动面板显示更新卡片、展开说明并通过宿主更新端点完成一次更新。真实更新提示需先发布到 npm 或创建 GitHub Release。
 
-`npm run check` 通过：lint、类型检查、构建与 129 个测试（含 jsdom 里驱动完整面板流程的集成测试）。
+运行 `npm run check` 可验证 lint、类型检查、构建、自动化测试和用例目录，详见[测试案例目录](./tests/catalog/README.md)。
