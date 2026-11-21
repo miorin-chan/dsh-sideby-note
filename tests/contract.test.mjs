@@ -382,8 +382,8 @@ test('locale files carry metadata and the dictionary stays in sync', () => {
     if (key.startsWith('update.')) continue
     assert.doesNotMatch(value, /完成/, `${key} still says 完成`)
   }
-  assert.equal(dict.zh['item.insert'], '递入对话')
-  assert.equal(dict.en['item.insert'], 'Hand to chat')
+  assert.equal(dict.zh['item.insert'], '填入')
+  assert.equal(dict.en['item.insert'], 'Insert')
   for (const id of LOCALE_IDS) {
     for (const gone of ['item.markDone', 'item.markOpen', 'item.forward', 'item.forwarded', 'toast.forwarded', 'toast.unforwarded', 'toast.forwardFailed']) {
       assert.equal(dict[id][gone], undefined, `${id} still carries ${gone}`)
@@ -822,8 +822,8 @@ test('archived notes drop the insert action and keep rewind plus copy', () => {
   assert.equal([...actions.matchAll(/\? null : withTooltip/g)].length, 1, 'insert is the only conditional action')
   assert.match(actions, /withTooltip\(say\('item\.copy'\)/)
   assert.match(actions, /withTooltip\(say\('item\.recall'\)/)
-  // Rewind, copy, then the primary insert at the trailing edge.
-  const order = ["withTooltip(say('item.recall')", "withTooltip(say('item.copy')", "withTooltip(say('item.insert')"]
+  // Copy, rewind, then the primary insert at the trailing edge.
+  const order = ["withTooltip(say('item.copy')", "withTooltip(say('item.recall')", "withTooltip(say('item.insert')"]
     .map(snippet => actions.indexOf(snippet))
   assert.ok(order.every(index => index > 0), 'row action order drifted')
   assert.deepEqual([...order].sort((a, b) => a - b), order, 'row action order drifted')
@@ -1000,9 +1000,9 @@ test('rows are bare lines whose age gives way to the actions', () => {
   assert.match(css, /\.dsh-an-row\[data-dragging="true"\]\{[^}]*background:var\(--dsh-an-panelSurface\);box-shadow:var\(--dsw-elevation-prominent\)/)
 })
 
-test('the insert action uses the product context-injection glyph', () => {
+test('the insert action uses the product list-pen glyph', () => {
   const primitives = read('src/client/ui/primitives.ts')
-  assert.match(primitives, /IconInsert = \(\) => h\(Glyph, \{ name: 'IconContextInjectionOutlineRegular', size: 14 \}\)/)
+  assert.match(primitives, /IconInsert = \(\) => h\(Glyph, \{ name: 'IconListPenOutlineRegular', size: 14 \}\)/)
   assert.doesNotMatch(primitives, /IconShareOutlineRegular/, 'the share arrow no longer stands for this action')
   // Older shells lack the drag-handle glyph; the grip then falls back to the
   // up/down chevrons rather than rendering an empty button.

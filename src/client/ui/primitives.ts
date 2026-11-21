@@ -27,8 +27,7 @@ export function Glyph(props) {
 }
 
 export const IconCopy = () => h(Glyph, { name: 'IconCopyOutlineRegular', size: 14 })
-/** Arrow into a box: the product's own "into the context" glyph, for putting a note into the chat. */
-export const IconInsert = () => h(Glyph, { name: 'IconContextInjectionOutlineRegular', size: 14 })
+export const IconInsert = () => h(Glyph, { name: 'IconListPenOutlineRegular', size: 14 })
 /**
  * Reorder grip. Newer shells ship a drag-handle glyph; older ones fall back to
  * the up/down chevrons, so the handle never renders empty.

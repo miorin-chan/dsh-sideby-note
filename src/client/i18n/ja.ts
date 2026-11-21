@@ -39,7 +39,7 @@ export const ja: Record<MessageKey, string> = {
   "list.allArchived.body": "さらに書き足すか、アーカイブを開いて振り返れます",
   "item.copy": "コピー",
   "item.recall": "戻す",
-  "item.insert": "チャットへ渡す",
+  "item.insert": "挿入",
   "item.reorder": "ドラッグか ↑↓ で並べ替え",
   "time.now": "たった今",
   "time.minutes": "{n} 分前",

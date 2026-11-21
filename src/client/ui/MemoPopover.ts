@@ -162,7 +162,7 @@ export function MemoPopover(props) {
   }
 
   /**
-   * 递入对话 is the one way a note gets archived: its text goes into the
+   * Inserting a note into the conversation archives it: its text goes into the
    * conversation composer and the row moves to the archive in the same step.
    * When no composer is on screen nothing changes, so the note stays open.
    */

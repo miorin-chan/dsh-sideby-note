@@ -133,7 +133,7 @@ const de = {
 	"list.allArchived.body": "Noch eine Notiz hinzufügen oder unten das Archiv aufklappen",
 	"item.copy": "Kopieren",
 	"item.recall": "Zurückholen",
-	"item.insert": "In den Chat geben",
+	"item.insert": "Einfügen",
 	"item.reorder": "Zum Sortieren ziehen oder ↑ / ↓ nutzen",
 	"time.now": "gerade eben",
 	"time.minutes": "vor {n} Min.",
@@ -258,7 +258,7 @@ const en = {
 	"list.allArchived.body": "Add another, or expand archived to look back",
 	"item.copy": "Copy",
 	"item.recall": "Rewind",
-	"item.insert": "Hand to chat",
+	"item.insert": "Insert",
 	"item.reorder": "Drag to reorder, or use ↑ / ↓",
 	"time.now": "just now",
 	"time.minutes": "{n} min ago",
@@ -294,9 +294,9 @@ const en = {
 	"toast.copyFailed": "Copy failed — try again",
 	"toast.pathCopied": "Path copied",
 	"toast.revealFailed": "Could not open the file manager",
-	"toast.inserted": "Handed to the chat",
+	"toast.inserted": "Inserted into the chat input",
 	"toast.insertFailed": "No chat composer found — the note is untouched",
-	"toast.archiveFailed": "Handed to the chat, but the archive could not be saved",
+	"toast.archiveFailed": "Inserted into the chat input, but the archive could not be saved",
 	"toast.recalled": "Moved back to the input",
 	"toast.recallBlocked": "The input already has text — send or clear it first",
 	"toast.cleared": "Archive cleared",
@@ -383,7 +383,7 @@ const es = {
 	"list.allArchived.body": "Añade otra o despliega las archivadas para revisarlas",
 	"item.copy": "Copiar",
 	"item.recall": "Devolver",
-	"item.insert": "Pasar al chat",
+	"item.insert": "Insertar",
 	"item.reorder": "Arrastra para ordenar o usa ↑ / ↓",
 	"time.now": "ahora mismo",
 	"time.minutes": "hace {n} min",
@@ -508,7 +508,7 @@ const fr = {
 	"list.allArchived.body": "Ajoutez-en une autre ou dépliez les archivées pour les revoir",
 	"item.copy": "Copier",
 	"item.recall": "Renvoyer",
-	"item.insert": "Passer au chat",
+	"item.insert": "Insérer",
 	"item.reorder": "Glisser pour réordonner, ou ↑ / ↓",
 	"time.now": "à l'instant",
 	"time.minutes": "il y a {n} min",
@@ -633,7 +633,7 @@ const ja = {
 	"list.allArchived.body": "さらに書き足すか、アーカイブを開いて振り返れます",
 	"item.copy": "コピー",
 	"item.recall": "戻す",
-	"item.insert": "チャットへ渡す",
+	"item.insert": "挿入",
 	"item.reorder": "ドラッグか ↑↓ で並べ替え",
 	"time.now": "たった今",
 	"time.minutes": "{n} 分前",
@@ -758,7 +758,7 @@ const pt = {
 	"list.allArchived.body": "Adicione outra ou expanda as arquivadas para revisar",
 	"item.copy": "Copiar",
 	"item.recall": "Devolver",
-	"item.insert": "Passar para o chat",
+	"item.insert": "Inserir",
 	"item.reorder": "Arraste para ordenar ou use ↑ / ↓",
 	"time.now": "agora mesmo",
 	"time.minutes": "há {n} min",
@@ -883,7 +883,7 @@ const ru = {
 	"list.allArchived.body": "Добавьте заметку или раскройте архив, чтобы вспомнить",
 	"item.copy": "Копировать",
 	"item.recall": "Вернуть",
-	"item.insert": "Передать в чат",
+	"item.insert": "Вставить",
 	"item.reorder": "Перетащите или нажмите ↑ / ↓",
 	"time.now": "только что",
 	"time.minutes": "{n} мин назад",
@@ -1008,7 +1008,7 @@ const zh = {
 	"list.allArchived.body": "再添一笔，或展开归档回看",
 	"item.copy": "复制",
 	"item.recall": "退回",
-	"item.insert": "递入对话",
+	"item.insert": "填入",
 	"item.reorder": "拖动排序，↑↓ 亦可",
 	"time.now": "刚刚",
 	"time.minutes": "{n} 分钟前",
@@ -1044,9 +1044,9 @@ const zh = {
 	"toast.copyFailed": "复制失败，请重试",
 	"toast.pathCopied": "已复制路径",
 	"toast.revealFailed": "无法打开文件管理器",
-	"toast.inserted": "已递入对话",
+	"toast.inserted": "已填入",
 	"toast.insertFailed": "找不到对话输入框，便笺未动",
-	"toast.archiveFailed": "便笺已递入对话，但存档未能保存",
+	"toast.archiveFailed": "便笺已填入对话输入框，但存档未能保存",
 	"toast.recalled": "已退回输入框",
 	"toast.recallBlocked": "输入框已有内容，请先发送或清空",
 	"toast.cleared": "归档已清空",
@@ -2760,9 +2760,8 @@ const IconCopy = () => h$13(Glyph, {
 	name: "IconCopyOutlineRegular",
 	size: 14
 });
-/** Arrow into a box: the product's own "into the context" glyph, for putting a note into the chat. */
 const IconInsert = () => h$13(Glyph, {
-	name: "IconContextInjectionOutlineRegular",
+	name: "IconListPenOutlineRegular",
 	size: 14
 });
 /**
@@ -4709,19 +4708,19 @@ function TodoRow(props) {
 	}), h$11("div", { className: "dsh-an-text" }, item.text), h$11("div", { className: "dsh-an-trail" }, h$11("span", {
 		className: "dsh-an-meta",
 		title: metaLabel(item, say, localeId)
-	}, rowAge(item, say, localeId)), h$11("div", { className: "dsh-an-actions" }, withTooltip(say("item.recall"), h$11("button", {
-		type: "button",
-		className: "dsh-an-iconBtn",
-		"aria-label": say("item.recall"),
-		onClick: () => onRecall(item)
-	}, h$11(IconRewind, null))), withTooltip(say("item.copy"), h$11("button", {
+	}, rowAge(item, say, localeId)), h$11("div", { className: "dsh-an-actions" }, withTooltip(say("item.copy"), h$11("button", {
 		type: "button",
 		className: "dsh-an-iconBtn",
 		"aria-label": say("item.copy"),
 		"aria-busy": pending === "copy" ? "true" : "false",
 		"data-loading": pending === "copy" ? "true" : void 0,
 		onClick: copy
-	}, h$11(IconCopy, null))), archived ? null : withTooltip(say("item.insert"), h$11("button", {
+	}, h$11(IconCopy, null))), withTooltip(say("item.recall"), h$11("button", {
+		type: "button",
+		className: "dsh-an-iconBtn",
+		"aria-label": say("item.recall"),
+		onClick: () => onRecall(item)
+	}, h$11(IconRewind, null))), archived ? null : withTooltip(say("item.insert"), h$11("button", {
 		type: "button",
 		className: "dsh-an-iconBtn dsh-an-insert",
 		"aria-label": say("item.insert"),
@@ -5324,7 +5323,7 @@ function MemoPopover(props) {
 		});
 	};
 	/**
-	* 递入对话 is the one way a note gets archived: its text goes into the
+	* Inserting a note into the conversation archives it: its text goes into the
 	* conversation composer and the row moves to the archive in the same step.
 	* When no composer is on screen nothing changes, so the note stays open.
 	*/

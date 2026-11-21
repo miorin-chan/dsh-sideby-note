@@ -63,18 +63,6 @@ export function TodoRow(props) {
       h(
         'div',
         { className: 'dsh-an-actions' },
-        // 退回 is the only way back into the composer: the note leaves the
-        // list and its text becomes the one editable buffer at the top.
-        withTooltip(say('item.recall'), h(
-          'button',
-          {
-            type: 'button',
-            className: 'dsh-an-iconBtn',
-            'aria-label': say('item.recall'),
-            onClick: () => onRecall(item),
-          },
-          h(IconRewind, null),
-        )),
         withTooltip(say('item.copy'), h(
           'button',
           {
@@ -86,6 +74,17 @@ export function TodoRow(props) {
             onClick: copy,
           },
           h(IconCopy, null),
+        )),
+        // Rewind moves the note back to the panel's editor.
+        withTooltip(say('item.recall'), h(
+          'button',
+          {
+            type: 'button',
+            className: 'dsh-an-iconBtn',
+            'aria-label': say('item.recall'),
+            onClick: () => onRecall(item),
+          },
+          h(IconRewind, null),
         )),
         // Putting a note into the chat is what archives it, so an archived
         // row has nothing left to hand over: the action is absent, not disabled.

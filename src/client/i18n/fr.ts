@@ -39,7 +39,7 @@ export const fr: Record<MessageKey, string> = {
   "list.allArchived.body": "Ajoutez-en une autre ou dépliez les archivées pour les revoir",
   "item.copy": "Copier",
   "item.recall": "Renvoyer",
-  "item.insert": "Passer au chat",
+  "item.insert": "Insérer",
   "item.reorder": "Glisser pour réordonner, ou ↑ / ↓",
   "time.now": "à l'instant",
   "time.minutes": "il y a {n} min",

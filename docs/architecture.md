@@ -64,7 +64,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 身份 | `constants.ts` | 包与插件的 id、`dsh-an-*` 相关的键与上限 |
 | 文案 | `i18n/` | `zh.ts` 定义键集合与 `MessageKey`；其余 7 种 DSH 官方语言用 `Record<MessageKey, string>`，缺键编译失败；运行时未知语言或缺键一律回退英文 |
 | 领域 | `domain/items.ts` | `normalizeItems`（防御性清洗、去重）、归档排序、`moveOpenItem`（只重排待续，归档留在原槽位）、相对时间文案 |
-| 领域 | `domain/forward.ts` | 「递入对话」：把便笺作为纯文本写进**当前会话**的 Lexical contenteditable 或 textarea，按换行接在已有内容后面；按 `[data-conversation-session]` 限定输入框。写入成功后由面板把该便笺归档 |
+| 领域 | `domain/forward.ts` | 「填入」：把便笺作为纯文本写进**当前会话**的 Lexical contenteditable 或 textarea，按换行接在已有内容后面；按 `[data-conversation-session]` 限定输入框。写入成功后由面板把该便笺归档 |
 | 存储 | `storage/session.ts` | 会话便笺的读写；宿主模式走缓存 + `list.patch` diff（宿主原子合并），本地复用 v1 键并做损坏备份与并发合并；失败返回 `false`，由调用方保留 UI 原状 |
 | 存储 | `storage/workspace.ts` | 工作区清单读写；首次见到工作区时把成员会话的旧便笺并入一次（宿主侧 `list.ensure` 原子完成），`seededSessionIds` 防重复 |
 | 存储 | `storage/merge.ts` | 本地回落模式的按 id 合并：双方新增都保留，同一条目取较新的 `updatedAt`，本页相对上次读取删除的条目不再复活 |
@@ -151,7 +151,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 输入框已有未提交内容时不覆盖，改为提示先发送或清空。
 录入框的键位固定与主会话一致：Enter 发送，Shift+Enter 换行，输入法选词时的 Enter 交给浏览器。
 
-便笺没有手动勾选：「递入对话」把便笺作为纯文本写入会话输入框（已有内容时按换行接在后面），
+便笺没有手动勾选：「填入」把便笺作为纯文本写入会话输入框（已有内容时按换行接在后面），
 写入成功后同一步把它归档（`done: true` 与 `completedAt`，字段名沿用旧结构以便原样读取）；找不到输入框时不改任何数据。
 待续便笺的顺序就是存储数组里的顺序，`useRowReorder` 负责指针拖动与 ↑ / ↓ 键：拖动期间只改行的内联 `transform`，
 松手才经 `moveOpenItem` 写入一次，再在 layout effect 里把被拖行从松手处滑入新位置。
@@ -176,7 +176,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | `tests/contract.test.mjs` | 清单与 patch 形状、工具链约定、样式令牌、无障碍与交互规则、字典完整性 |
 | `tests/resilience.test.mjs` | 排序与取消操作、无工作区/空白会话范围、存储读写失败、跨标签页刷新、宽度钳制、确认失效、未知语言回落、大清单 |
 | `tests/testkit/bundle.mjs` | 在 jsdom 里启动构建产物的测试装置：可注入存储故障、压缩定时器、locale 与 slot props |
-| `tests/bundle.test.mjs` | 在 jsdom 里执行**构建产物**：模块表、slot 注册、样式注入、入口注入，并驱动完整面板流程（添加、设置、方向键排序、递入对话并归档与找不到输入框时不变、清除确认、退回输入框、缩放、清空到空态、分区记忆）；另有工作区测试，验证两个会话共享清单、旧便笺只合入一次、工作区/会话切换与持久化、递入对话只写入当前会话输入框并归档、指针拖动排序与 Esc 取消；还有空白新会话测试，验证入口落在 header corner、只有工作区清单，以及首轮对话后入口移到 utilities 并解锁会话清单 |
+| `tests/bundle.test.mjs` | 在 jsdom 里执行**构建产物**：模块表、slot 注册、样式注入、入口注入，并驱动完整面板流程（添加、设置、方向键排序、填入并归档与找不到输入框时不变、清除确认、退回输入框、缩放、清空到空态、分区记忆）；另有工作区测试，验证两个会话共享清单、旧便笺只合入一次、工作区/会话切换与持久化、填入只写入当前会话输入框并归档、指针拖动排序与 Esc 取消；还有空白新会话测试，验证入口落在 header corner、只有工作区清单，以及首轮对话后入口移到 utilities 并解锁会话清单 |
 | `tests/host-store.test.mjs` | 宿主 store 契约：快照、diff/顺序/删除、并发新增保留、工作区只合并一次、偏好、迁移两阶段与中断恢复、不可用/损坏错误码、路由鉴权与体积上限 |
 | `tests/host-bundle.test.mjs` | 构建产物 + 假宿主端点：首次迁移后只写宿主、不可用时留在浏览器、已切换后不可用进入错误态且不写 `localStorage` |
 

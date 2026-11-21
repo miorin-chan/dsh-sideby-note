@@ -87,7 +87,7 @@ Sessions in one workspace share a single list by default: whichever session you 
 
 ### Bring it back when you are ready
 
-Click a note's **Hand to chat** button to append its text to the current chat input; the note is archived in the same step. Add to or edit it, then send when you are ready. Several notes stack on new lines after whatever is already in the composer. Handing a note over never sends the message automatically.
+Click a note's **Insert** button to append its text to the current chat input; the note is archived in the same step. Add to or edit it, then send when you are ready. Several notes stack on new lines after whatever is already in the composer. Inserting a note never sends the message automatically.
 
 ### Small details for everyday use
 
@@ -105,12 +105,12 @@ Click a note's **Hand to chat** button to append its text to the current chat in
 
 - **Workspace-level notes**: one list is shared by every session in a workspace by default, so switching conversations keeps it in view; the panel header switches between **Workspace** and **Session**, and sessions outside a workspace only have the session scope. Browsers and tabs on the same host share one list, with live sync across tabs in one browser.
 - **Entry and panel**: an icon button at the top right badges the open count; a blank new session shows it in the corner with the workspace list only until the first message, without the session option; clicking it opens a fixed panel aligned to the entry, which shifts left of the DSH right sidebar and closes when you switch sessions.
-- **Note actions**: add, reorder, copy, hand a note to chat, and rewind one into the composer to edit; there is no manual checkbox — handing it to chat archives it. Clearing archived notes asks for confirmation, and archived notes expand for review. Clearing the composer after rewinding a note removes it.
-- **Hand to chat**: each note is appended to the **currently open conversation's** composer as plain text — nothing is sent automatically. When the composer already has content, the note lands on a new line after it, so handing over several notes stacks them there. On success the note moves to **Archived**; when no composer is on screen nothing changes and the note stays open.
+- **Note actions**: add, reorder, copy, insert a note into the chat input, and rewind one into the composer to edit; there is no manual checkbox — inserting it archives it. Clearing archived notes asks for confirmation, and archived notes expand for review. Clearing the composer after rewinding a note removes it.
+- **Insert**: each note is appended to the **currently open conversation's** composer as plain text — nothing is sent automatically. When the composer already has content, the note lands on a new line after it, so inserting several notes stacks them there. On success the note moves to **Archived**; when no composer is on screen nothing changes and the note stays open.
 - **Drag to reorder**: open notes move by the grip on their left; with the grip focused, ↑ / ↓ move a note one slot, and Esc cancels a drag in flight. Archived notes stay in archive order.
 - **Remembered state**: add drafts are saved per workspace (per session outside a workspace), so switching conversations or the Workspace/Session switch never loses them; submitting still writes the list selected at that moment. Drafts are restored when the panel reopens, and the open/archived expand state plus the scope choice are remembered too.
 - **Panel size**: drag the left edge for width and the bottom handle for height, double-click either to reset; both persist in the browser.
-- **List regions**: **Open** and **Archived** each keep a sticky header and its own scroll, and expanding the archive never compresses open; at rest a note shows only its text and age, and on hover the age gives way to Rewind / Copy / Hand to chat; archived notes list newest archive first.
+- **List regions**: **Open** and **Archived** each keep a sticky header and its own scroll, and expanding the archive never compresses open; at rest a note shows only its text and age, and on hover the age gives way to Copy / Rewind / Insert; archived notes list newest archive first.
 - **Settings**: Data storage (file path, copy and reveal) and About (version, check, author, improver and source).
 - **Update notice**: a newer release puts a dot on the settings button, and Settings › About shows the notes and the update action; see [Update notice](#update-notice).
 - **Native look**: colours, radii, elevation and scrollbars all reuse DSH design tokens, following light/dark and the DSH locale; see [Design tokens](#design-tokens).
@@ -136,7 +136,7 @@ Five states shot from the same demo session and the same set of notes, in both t
     <td><img src="./docs/assets/features/settings-dark.png" width="300" alt="Settings, dark"></td>
   </tr>
   <tr>
-    <td>Row actions<br>grip plus rewind / copy / hand to chat on hover</td>
+    <td>Row actions<br>grip plus copy / rewind / insert on hover</td>
     <td><img src="./docs/assets/features/actions.png" width="300" alt="Row actions"></td>
     <td><img src="./docs/assets/features/actions-dark.png" width="300" alt="Row actions, dark"></td>
   </tr>
@@ -168,7 +168,7 @@ The panel and the entry button read from one token block in `src/client/styles/p
 | Motion | `--ds-transition-duration*`, `--ds-ease-in-out` | 100 / 200ms, opacity and transform only |
 | Scrollbar | shared theme skin | the panel rebinds `--dsh-scrollbar-*` to l2 and gives the list a 9px rail with a 2px inset |
 
-Feedback reuses product surfaces too: copy, hand to chat, rewind, clear-archived, and failed writes all report through a `shell.overlay` toast that outlives the panel, and icon buttons use the `ui-primitives` `Tooltip`.
+Feedback reuses product surfaces too: copy, rewind, insert, clear-archived, and failed writes all report through a `shell.overlay` toast that outlives the panel, and icon buttons use the `ui-primitives` `Tooltip`.
 
 ## Usage
 
@@ -176,7 +176,7 @@ Feedback reuses product surfaces too: copy, hand to chat, rewind, clear-archived
 2. Write one concrete follow-up in the panel and press Enter to add it (Shift+Enter for a new line, matching the main composer), or click **Add**.
 3. To change a note, click its **Rewind** button (↺): the text goes back into the top composer, ready to edit and submit again. Clearing that composer removes the note.
 4. To change the order, drag a note by the grip on its left (or focus the grip and press ↑ / ↓).
-5. When you are ready to continue, click the note's **Hand to chat** button: the text is appended to the chat input and the note is archived; review and send it yourself. Expand **Archived** to look back.
+5. When you are ready to continue, click the note's **Insert** button: the text is appended to the chat input and the note is archived; review and send it yourself. Expand **Archived** to look back.
 6. Click outside the panel or press Esc to close.
 
 ## Where data lives
@@ -265,7 +265,7 @@ The panel workflow is covered by integration tests:
 - the **Sideby Note** button appears at the top right, with the open count on its badge;
 - clicking it opens the panel on the right, aligned with the entry;
 - adding updates both the badge and the panel count;
-- copy, rewind into the composer, and clear-archived work in the panel; handing a note to chat and drag / arrow-key reordering are driven by the jsdom integration tests;
+- copy, rewind into the composer, and clear-archived work in the panel; inserting a note into the chat input and drag / arrow-key reordering are driven by the jsdom integration tests;
 - records survive a refresh, and the panel header switches between the workspace list and the current session's list;
 - the npmjs → npmmirror → GitHub Release fallback, the one-hour cache, and the version comparison are covered by the contract tests, and the jsdom test drives the visible update notice; the live notice needs a published npm package or a GitHub Release.
 

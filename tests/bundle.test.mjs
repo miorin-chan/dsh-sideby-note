@@ -422,11 +422,11 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   })
 
   await t.test('NOTE-002 归档便笺与清除归档需二次确认', async () => {
-    // 递入对话 needs a composer on screen; without one nothing changes.
+    // 填入 needs a composer on screen; without one nothing changes.
     const composer = document.querySelector('[data-composer-input]')
     const insertButton = text => openRows()
       .find(node => node.querySelector('.dsh-an-text').textContent === text)
-      .querySelector('.dsh-an-iconBtn[aria-label="递入对话"]')
+      .querySelector('.dsh-an-iconBtn[aria-label="填入"]')
     await act(async () => { insertButton('新的一条').click() })
     assert.equal(composer.value, '', 'a hidden composer receives nothing')
     assert.ok(storedTexts().length === 2 && JSON.parse(window.localStorage.getItem('dsh.aside-note'))
@@ -873,12 +873,12 @@ test('one workspace shares its notes and forwards into the visible session', asy
   const workspaceItems = () => JSON.parse(window.localStorage.getItem('dsh.aside-note.workspaces')).workspaces['ws-1'].items
 
   await t.test('FWD-002 递入只写当前可见会话且归档到原工作区', async () => {
-    // 递入对话 writes into session-2's composer only: session-1's stays empty,
+    // 填入 writes into session-2's composer only: session-1's stays empty,
     // proving the shared note follows the conversation currently on screen.
     const row = [...secondPopover.querySelectorAll('.dsh-an-row')]
       .find(node => node.querySelector('.dsh-an-text').textContent === '新增的共享事项')
-    const insert = row.querySelector('.dsh-an-iconBtn[aria-label="递入对话"]')
-    assert.ok(insert, 'the open note offers 递入对话')
+    const insert = row.querySelector('.dsh-an-iconBtn[aria-label="填入"]')
+    assert.ok(insert, 'the open note offers 填入')
     await act(async () => { insert.click() })
     const composers = [...window.document.querySelectorAll('[data-conversation-session]')]
     const valueOf = id => composers

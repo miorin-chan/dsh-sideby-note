@@ -39,7 +39,7 @@ export const ru: Record<MessageKey, string> = {
   "list.allArchived.body": "Добавьте заметку или раскройте архив, чтобы вспомнить",
   "item.copy": "Копировать",
   "item.recall": "Вернуть",
-  "item.insert": "Передать в чат",
+  "item.insert": "Вставить",
   "item.reorder": "Перетащите или нажмите ↑ / ↓",
   "time.now": "только что",
   "time.minutes": "{n} мин назад",
