@@ -409,6 +409,17 @@ features:
         technique: [决策表]
         reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: 'f15ee9c2df6d8f6f' }
 
+      - id: R-PANEL-SHORTCUT
+        statement: 会话工具行的入口可用时，DSH 快捷键可打开或收起面板，入口提示随有效键位更新。
+        failure: 键盘无法切换面板，或提示仍显示已经换掉的绑定。
+        kind: presentation
+        branches:
+          - kind: valid
+            text: 命令通过当前会话的入口打开或收起面板，入口随目录更新显示有效绑定
+          - kind: invalid
+            text: 对话框占用输入、入口不可见或已解绑时，快捷键不作用于面板
+        technique: [状态迁移]
+
       - id: R-PANEL-GEOMETRY
         statement: 面板宽度限制在 280–720 之间，且不超过视口可用宽度；调整后的宽度被记住。
         failure: 面板宽到超出屏幕，或窄到内容不可读。

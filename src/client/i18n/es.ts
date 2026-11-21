@@ -23,6 +23,7 @@ export const es: Record<MessageKey, string> = {
   "popover.empty.body": "Esboza tus ideas de forma asíncrona mientras el agente trabaja",
   "settings.open": "Ajustes",
   "settings.title": "Ajustes",
+  "shortcut.toggle": "Mostrar u ocultar Sideby Note",
   "settings.about": "Acerca de",
   "settings.tagline": "Esboza tus ideas de forma asíncrona mientras el agente trabaja.",
   "settings.version": "Versión",

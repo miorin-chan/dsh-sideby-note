@@ -48,6 +48,7 @@ interface DshSlotsService {
 interface DshClientCtx {
   get(service: string): any
   effect(effect: () => (() => void) | void, label?: string): void
+  inject?(dependencies: string[], apply: (ctx: DshClientCtx) => void): unknown
   slots: DshSlotsService
 }
 

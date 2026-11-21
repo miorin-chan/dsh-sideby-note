@@ -23,6 +23,7 @@ export const de: Record<MessageKey, string> = {
   "popover.empty.body": "Ideen entwerfen, während der Agent arbeitet",
   "settings.open": "Einstellungen",
   "settings.title": "Einstellungen",
+  "shortcut.toggle": "Sideby Note ein- oder ausblenden",
   "settings.about": "Info",
   "settings.tagline": "Ideen entwerfen, während der Agent arbeitet.",
   "settings.version": "Version",

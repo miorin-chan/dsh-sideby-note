@@ -177,7 +177,9 @@ Feedback reuses product surfaces too: copy, rewind, insert, clear-archived, and 
 3. To change a note, click its **Rewind** button (↺): the text goes back into the top composer, ready to edit and submit again. Clearing that composer removes the note.
 4. To change the order, drag a note by the grip on its left (or focus the grip and press ↑ / ↓).
 5. When you are ready to continue, click the note's **Insert** button: the text is appended to the chat input and the note is archived; review and send it yourself. Expand **Archived** to look back.
-6. Click outside the panel or press Esc to close.
+6. Click outside the panel or press Esc to close. On Desktop, `Mod+E` toggles the panel (`⌘E` on macOS and `Ctrl+E` elsewhere).
+   In macOS and Windows browsers, the default is `Mod+Alt+E`. Linux browsers start with no binding.
+   Open the shortcut editor with `Mod+/` or **Settings › Edit shortcuts**, then find **Toggle Sideby Note** to change, clear, or restore the binding.
 
 ## Where data lives
 

@@ -23,6 +23,7 @@ export const ja: Record<MessageKey, string> = {
   "popover.empty.body": "エージェントが作業している間に、アイデアを非同期で書き留める",
   "settings.open": "設定",
   "settings.title": "設定",
+  "shortcut.toggle": "Sideby Note の表示を切り替え",
   "settings.about": "このプラグインについて",
   "settings.tagline": "エージェントが作業している間に、アイデアを非同期で書き留める。",
   "settings.version": "バージョン",

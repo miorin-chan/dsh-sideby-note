@@ -4,6 +4,7 @@
  * It is a plain DOM node beside the shell's utilities row: a React portal there
  * would be reconciled away. The glyph is inlined for the same reason.
  */
+import type { ShortcutCatalogEntry } from '@deepseek-ai/dsh-client-shortcuts/client'
 import { SCOPE_MODE_KEY, SESSION_STORAGE_KEY, WORKSPACE_STORAGE_KEY } from '../constants'
 import { normalizeItems } from '../domain/items'
 import { scopeForSession, scopeKey, sessionReadyFor, workspaceScopeForSession } from '../scope'
@@ -14,7 +15,32 @@ import { TODO_LISTENERS } from '../storage/events'
 
 const HEADER_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" aria-hidden="true"><path d="M3.25 2.75h6.5l3 3v7.5c0 .55-.45 1-1 1H3.25c-.55 0-1-.45-1-1V3.75c0-.55.45-1 1-1Z"/><path d="M9.75 2.75v3h3"/><path d="M4.9 7.6h5.4M4.9 9.9h3.6" stroke-linecap="round"/></svg>'
 
-export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, tr, onOpen }) {
+interface HeaderEntryOptions {
+  getSessionId: () => string
+  getActiveAnchor: () => HTMLButtonElement | null
+  getLocaleId: () => string
+  getShortcut: () => ShortcutCatalogEntry | undefined
+  tr: (key: string, vars?: { n: number }) => string
+  onOpen: (sessionId: string, anchor: HTMLButtonElement) => void
+}
+
+export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, getShortcut, tr, onOpen }: HeaderEntryOptions) {
+  const buttonForSession = () => {
+    const button = document.querySelector<HTMLButtonElement>('.dsh-an-headerBtn')
+    return button?.dataset.sessionId === getSessionId() ? button : null
+  }
+  const refreshShortcut = () => {
+    const button = buttonForSession()
+    if (!button) return
+    const shortcut = getShortcut()
+    const available = shortcut && !shortcut.issue && shortcut.conflicts.length === 0
+    const keys = available ? shortcut.keys.join(' ') : ''
+    const title = button.dataset.entryTitle ?? ''
+    button.title = keys ? `${title} (${keys})` : title
+    if (available && shortcut.aria) button.setAttribute('aria-keyshortcuts', shortcut.aria)
+    else button.removeAttribute('aria-keyshortcuts')
+  }
+
   const refresh = () => {
     const sessionId = getSessionId()
     let button = document.querySelector('.dsh-an-headerBtn') as HTMLButtonElement | null
@@ -66,7 +92,9 @@ export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, 
       host.appendChild(button)
     }
     button.dataset.anchor = host === utilities ? 'utilities' : 'corner'
-    button.dataset.active = getActiveAnchor() === button ? 'true' : 'false'
+    const expanded = getActiveAnchor() === button ? 'true' : 'false'
+    button.dataset.active = expanded
+    button.setAttribute('aria-expanded', expanded)
     button.dataset.scope = scope.kind
     const signature = `${getLocaleId()}:${scopeKey(scope)}:${open}`
     if (button.dataset.signature !== signature) {
@@ -86,7 +114,8 @@ export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, 
     // The header entry is host-owned DOM (a React portal beside it would be
     // reconciled away), so the shared Tooltip cannot wrap it; a native title
     // keeps the icon-only control explained on hover.
-    button.title = open > 0 ? tr('header.tooltip', { n: open }) : tr('header.tooltipEmpty')
+    button.dataset.entryTitle = open > 0 ? tr('header.tooltip', { n: open }) : tr('header.tooltipEmpty')
+    refreshShortcut()
     button.setAttribute('aria-label', open > 0
       ? `${tr('dock.open')}, ${tr('dock.count', { n: open })}`
       : tr('dock.open'))
@@ -120,5 +149,5 @@ export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, 
     }
   }
 
-  return { refresh, attach }
+  return { refresh, attach, buttonForSession, refreshShortcut }
 }

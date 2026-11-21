@@ -67,7 +67,10 @@ export async function bootBundle(t, options = {}) {
     getLocale: () => ({ active: options.locale ?? 'zh' }),
   }
   const ctx = {
-    get: name => (name === 'locale' ? locale : undefined),
+    get: name => ({ locale, shortcuts: options.shortcuts })[name],
+    inject: (deps, apply) => {
+      if (deps.every(name => ctx.get(name))) apply(ctx)
+    },
     effect: fn => {
       const dispose = fn()
       if (typeof dispose === 'function') disposers.push(dispose)

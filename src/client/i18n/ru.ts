@@ -23,6 +23,7 @@ export const ru: Record<MessageKey, string> = {
   "popover.empty.body": "Набрасывайте идеи асинхронно, пока агент работает",
   "settings.open": "Настройки",
   "settings.title": "Настройки",
+  "shortcut.toggle": "Показать или скрыть Sideby Note",
   "settings.about": "О плагине",
   "settings.tagline": "Набрасывайте идеи асинхронно, пока агент работает.",
   "settings.version": "Версия",

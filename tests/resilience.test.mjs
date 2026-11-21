@@ -5,6 +5,7 @@
  */
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { bindingIssue, isWebBindingAllowed, normalizeBinding } from '@deepseek-ai/dsh-client-shortcuts/protocol'
 import { bootBundle } from './testkit/bundle.mjs'
 
 const note = (id, text, createdAt, extra = {}) => ({
@@ -446,4 +447,66 @@ test('FWD-006 归档条目没有再次递入操作', async t => {
   assert.equal(row().querySelector('.dsh-an-insert'), null)
   assert.equal(app.window.localStorage.getItem('dsh.aside-note.forwarded'), null)
   await app.dispose()
+})
+
+test('PANEL-011 DSH 快捷键切换面板并跟随当前绑定', async t => {
+  let command, onCatalogChange
+  let rows = []
+  const shortcuts = {
+    config: { getSnapshot: () => ({ status: 'ready' }) },
+    catalog: {
+      getSnapshot: () => rows,
+      subscribe(listener) {
+        onCatalogChange = listener
+        return () => { onCatalogChange = undefined }
+      },
+    },
+    register(value) {
+      command = value
+      return () => { command = undefined }
+    },
+  }
+  const app = await bootBundle(t, { shortcuts })
+  assert.equal(command.id, 'dsh-sideby-note.toggle')
+  assert.equal(command.label(), '打开或收起边记部')
+  for (const [profile, binding] of Object.entries(command.defaults)) {
+    const [runtime, platform] = profile.split(':')
+    assert.equal(binding.code, 'KeyE')
+    assert.deepEqual([...binding.modifiers], runtime === 'desktop' ? ['primary'] : ['primary', 'alt'])
+    assert.equal(bindingIssue(normalizeBinding(binding, platform), runtime, platform), null)
+  }
+  assert.equal(Object.keys(command.defaults).length, 5)
+  assert.equal(command.defaults['web:linux'], undefined)
+  assert.equal(isWebBindingAllowed(normalizeBinding(command.defaults['desktop:macos'], 'macos'), 'macos'), false)
+
+  const publishBinding = (keys, aria) => {
+    rows = [{ id: command.id, keys, aria, conflicts: [], issue: null }]
+    onCatalogChange()
+  }
+  const button = app.button
+  const title = button.title
+  publishBinding(['⌘', 'E'], 'Meta+E')
+  assert.equal(button.getAttribute('aria-keyshortcuts'), 'Meta+E')
+  assert.equal(button.title, `${title} (⌘ E)`)
+
+  const context = { region: 'editable', target: null, modal: null }
+  assert.equal(command.resolve(context).status, 'pass', 'a hidden button cannot toggle notes')
+  button.getClientRects = () => [button.getBoundingClientRect()]
+  assert.equal(command.resolve({ ...context, modal: 'settings' }).status, 'pass')
+  for (const expanded of [true, false]) {
+    const result = command.resolve(context)
+    assert.equal(result.status, 'handled')
+    await app.act(async () => result.run())
+    assert.equal(Boolean(app.document.querySelector('.dsh-an-popover')), expanded)
+    assert.equal(button.getAttribute('aria-expanded'), String(expanded))
+  }
+  publishBinding(['⌥', '⌘', 'N'], 'Alt+Meta+N')
+  assert.equal(button.getAttribute('aria-keyshortcuts'), 'Alt+Meta+N')
+  publishBinding([], undefined)
+  assert.equal(button.hasAttribute('aria-keyshortcuts'), false)
+  assert.equal(button.title, title)
+
+  await app.dispose()
+  assert.equal(command, undefined)
+  assert.equal(onCatalogChange, undefined)
 })

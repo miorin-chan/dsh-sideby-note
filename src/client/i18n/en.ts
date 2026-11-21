@@ -23,6 +23,7 @@ export const en: Record<MessageKey, string> = {
   "popover.empty.body": "Asynchronously draft your ideas while the agent is working",
   "settings.open": "Settings",
   "settings.title": "Settings",
+  "shortcut.toggle": "Toggle Sideby Note",
   "settings.about": "About",
   "settings.tagline": "Asynchronously draft your ideas while the agent is working.",
   "settings.version": "Version",

@@ -21,6 +21,7 @@ export const zh = {
   "popover.empty.body": "趁 agent 工作时，异步记下你的想法",
   "settings.open": "设置",
   "settings.title": "设置",
+  "shortcut.toggle": "打开或收起边记部",
   "settings.about": "关于",
   "settings.tagline": "趁 agent 工作时，异步记下你的想法",
   "settings.version": "版本",

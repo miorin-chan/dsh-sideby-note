@@ -117,6 +117,7 @@ const de = {
 	"popover.empty.body": "Ideen entwerfen, während der Agent arbeitet",
 	"settings.open": "Einstellungen",
 	"settings.title": "Einstellungen",
+	"shortcut.toggle": "Sideby Note ein- oder ausblenden",
 	"settings.about": "Info",
 	"settings.tagline": "Ideen entwerfen, während der Agent arbeitet.",
 	"settings.version": "Version",
@@ -241,6 +242,7 @@ const en = {
 	"popover.empty.body": "Asynchronously draft your ideas while the agent is working",
 	"settings.open": "Settings",
 	"settings.title": "Settings",
+	"shortcut.toggle": "Toggle Sideby Note",
 	"settings.about": "About",
 	"settings.tagline": "Asynchronously draft your ideas while the agent is working.",
 	"settings.version": "Version",
@@ -365,6 +367,7 @@ const es = {
 	"popover.empty.body": "Esboza tus ideas de forma asíncrona mientras el agente trabaja",
 	"settings.open": "Ajustes",
 	"settings.title": "Ajustes",
+	"shortcut.toggle": "Mostrar u ocultar Sideby Note",
 	"settings.about": "Acerca de",
 	"settings.tagline": "Esboza tus ideas de forma asíncrona mientras el agente trabaja.",
 	"settings.version": "Versión",
@@ -489,6 +492,7 @@ const fr = {
 	"popover.empty.body": "Rédigez vos idées de façon asynchrone pendant que l'agent travaille",
 	"settings.open": "Paramètres",
 	"settings.title": "Paramètres",
+	"shortcut.toggle": "Afficher ou masquer Sideby Note",
 	"settings.about": "À propos",
 	"settings.tagline": "Rédigez vos idées de façon asynchrone pendant que l'agent travaille.",
 	"settings.version": "Version",
@@ -613,6 +617,7 @@ const ja = {
 	"popover.empty.body": "エージェントが作業している間に、アイデアを非同期で書き留める",
 	"settings.open": "設定",
 	"settings.title": "設定",
+	"shortcut.toggle": "Sideby Note の表示を切り替え",
 	"settings.about": "このプラグインについて",
 	"settings.tagline": "エージェントが作業している間に、アイデアを非同期で書き留める。",
 	"settings.version": "バージョン",
@@ -737,6 +742,7 @@ const pt = {
 	"popover.empty.body": "Esboce suas ideias de forma assíncrona enquanto o agente trabalha",
 	"settings.open": "Configurações",
 	"settings.title": "Configurações",
+	"shortcut.toggle": "Mostrar ou ocultar Sideby Note",
 	"settings.about": "Sobre",
 	"settings.tagline": "Esboce suas ideias de forma assíncrona enquanto o agente trabalha.",
 	"settings.version": "Versão",
@@ -861,6 +867,7 @@ const ru = {
 	"popover.empty.body": "Набрасывайте идеи асинхронно, пока агент работает",
 	"settings.open": "Настройки",
 	"settings.title": "Настройки",
+	"shortcut.toggle": "Показать или скрыть Sideby Note",
 	"settings.about": "О плагине",
 	"settings.tagline": "Набрасывайте идеи асинхронно, пока агент работает.",
 	"settings.version": "Версия",
@@ -985,6 +992,7 @@ const zh = {
 	"popover.empty.body": "趁 agent 工作时，异步记下你的想法",
 	"settings.open": "设置",
 	"settings.title": "设置",
+	"shortcut.toggle": "打开或收起边记部",
 	"settings.about": "关于",
 	"settings.tagline": "趁 agent 工作时，异步记下你的想法",
 	"settings.version": "版本",
@@ -2899,14 +2907,23 @@ function createToastSeat(tr) {
 }
 
 // src/client/ui/headerEntry.ts
-/**
-* The host-owned notes button in the conversation header.
-*
-* It is a plain DOM node beside the shell's utilities row: a React portal there
-* would be reconciled away. The glyph is inlined for the same reason.
-*/
 const HEADER_ICON = "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.3\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.25 2.75h6.5l3 3v7.5c0 .55-.45 1-1 1H3.25c-.55 0-1-.45-1-1V3.75c0-.55.45-1 1-1Z\"/><path d=\"M9.75 2.75v3h3\"/><path d=\"M4.9 7.6h5.4M4.9 9.9h3.6\" stroke-linecap=\"round\"/></svg>";
-function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, tr, onOpen }) {
+function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, getShortcut, tr, onOpen }) {
+	const buttonForSession = () => {
+		const button = document.querySelector(".dsh-an-headerBtn");
+		return button?.dataset.sessionId === getSessionId() ? button : null;
+	};
+	const refreshShortcut = () => {
+		const button = buttonForSession();
+		if (!button) return;
+		const shortcut = getShortcut();
+		const available = shortcut && !shortcut.issue && shortcut.conflicts.length === 0;
+		const keys = available ? shortcut.keys.join(" ") : "";
+		const title = button.dataset.entryTitle ?? "";
+		button.title = keys ? `${title} (${keys})` : title;
+		if (available && shortcut.aria) button.setAttribute("aria-keyshortcuts", shortcut.aria);
+		else button.removeAttribute("aria-keyshortcuts");
+	};
 	const refresh = () => {
 		const sessionId = getSessionId();
 		let button = document.querySelector(".dsh-an-headerBtn");
@@ -2945,7 +2962,9 @@ function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, tr, onO
 			if (host.firstElementChild !== button) host.insertBefore(button, host.firstElementChild);
 		} else if (button.parentElement !== host) host.appendChild(button);
 		button.dataset.anchor = host === utilities ? "utilities" : "corner";
-		button.dataset.active = getActiveAnchor() === button ? "true" : "false";
+		const expanded = getActiveAnchor() === button ? "true" : "false";
+		button.dataset.active = expanded;
+		button.setAttribute("aria-expanded", expanded);
 		button.dataset.scope = scope.kind;
 		const signature = `${getLocaleId()}:${scopeKey(scope)}:${open}`;
 		if (button.dataset.signature !== signature) {
@@ -2962,7 +2981,8 @@ function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, tr, onO
 			button.dataset.signature = signature;
 		}
 		button.dataset.sessionId = sessionId;
-		button.title = open > 0 ? tr("header.tooltip", { n: open }) : tr("header.tooltipEmpty");
+		button.dataset.entryTitle = open > 0 ? tr("header.tooltip", { n: open }) : tr("header.tooltipEmpty");
+		refreshShortcut();
 		button.setAttribute("aria-label", open > 0 ? `${tr("dock.open")}, ${tr("dock.count", { n: open })}` : tr("dock.open"));
 	};
 	/** Watch the store, the DOM and the viewport; returns the cleanup. */
@@ -2997,7 +3017,9 @@ function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, tr, onO
 	};
 	return {
 		refresh,
-		attach
+		attach,
+		buttonForSession,
+		refreshShortcut
 	};
 }
 
@@ -5468,6 +5490,15 @@ function MemoPopover(props) {
 * in their own modules; P2 splits the remaining UI out of this file.
 */
 const h = react.default.createElement;
+const toggleCommandId = `${NS}.toggle`;
+const desktopToggle = {
+	code: "KeyE",
+	modifiers: ["primary"]
+};
+const webToggle = {
+	code: "KeyE",
+	modifiers: ["primary", "alt"]
+};
 /** Hosts without ui-workspace (and the bundle test) keep the session list. */
 const useNoWorkspace = () => null;
 /** Hosts without a session list cannot tell a new session from an old one. */
@@ -5569,7 +5600,13 @@ function apply(ctx) {
 		}));
 		refreshHeaderEntry();
 	};
+	let shortcuts;
+	const readToggleShortcut = () => {
+		if (shortcuts?.config.getSnapshot().status === "loading") return void 0;
+		return shortcuts?.catalog.getSnapshot().find((row) => row.id === toggleCommandId);
+	};
 	const headerEntry = createHeaderEntry({
+		getShortcut: readToggleShortcut,
 		getSessionId: () => activeSessionId,
 		getActiveAnchor: () => activePopover ? activePopover.anchor : null,
 		getLocaleId: () => localeId(),
@@ -5579,6 +5616,43 @@ function apply(ctx) {
 	refreshHeaderEntry = headerEntry.refresh;
 	if (locale && typeof locale.subscribe === "function") ctx.effect(() => locale.subscribe(() => refreshHeaderEntry()), "dsh-sideby-note: locale changes");
 	ctx.effect(() => headerEntry.attach(() => closeMemoPopover()), "dsh-sideby-note: right-side entry");
+	ctx.inject?.(["shortcuts"], (shortcutCtx) => {
+		const service = shortcutCtx.get("shortcuts");
+		shortcutCtx.effect(() => {
+			const unregister = service.register({
+				id: toggleCommandId,
+				label: () => say("shortcut.toggle"),
+				aliases: ["sideby note"],
+				defaults: {
+					"desktop:macos": desktopToggle,
+					"desktop:windows": desktopToggle,
+					"desktop:linux": desktopToggle,
+					"web:macos": webToggle,
+					"web:windows": webToggle
+				},
+				regions: ["page", "editable"],
+				modals: [],
+				resolve: ({ modal }) => {
+					if (modal !== null) return { status: "pass" };
+					const button = headerEntry.buttonForSession();
+					if (!button || !button.getClientRects().length) return { status: "pass" };
+					return {
+						status: "handled",
+						run: () => button.click()
+					};
+				}
+			});
+			shortcuts = service;
+			const unsubscribe = service.catalog.subscribe(headerEntry.refreshShortcut);
+			headerEntry.refreshShortcut();
+			return () => {
+				unsubscribe();
+				unregister();
+				shortcuts = void 0;
+				headerEntry.refreshShortcut();
+			};
+		}, "dsh-sideby-note: toggle shortcut");
+	});
 	function BoundSessionCapture(props) {
 		const sessionId = props.sessionId || "";
 		const useWorkspaces = typeof props.useWorkspaces === "function" ? props.useWorkspaces : useNoWorkspace;

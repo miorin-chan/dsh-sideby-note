@@ -8,6 +8,7 @@
  */
 import React from 'react'
 import ReactDOMClient from 'react-dom/client'
+import type { ShortcutBinding, ShortcutCatalogEntry, ShortcutCommandId, Shortcuts } from '@deepseek-ai/dsh-client-shortcuts/client'
 
 import CSS from './styles/panel.css?inline'
 import { NS, PANEL_ID, STORAGE_MODE_KEY } from './constants'
@@ -30,6 +31,9 @@ import { createHeaderEntry } from './ui/headerEntry'
 import { MemoPopover } from './ui/MemoPopover'
 
 const h = React.createElement
+const toggleCommandId = `${NS}.toggle` as ShortcutCommandId
+const desktopToggle: ShortcutBinding = { code: 'KeyE', modifiers: ['primary'] }
+const webToggle: ShortcutBinding = { code: 'KeyE', modifiers: ['primary', 'alt'] }
 
 // Shared controls come from the seeded platform module, so the panel uses the
 // product's Tooltip and Toast instead of a second copy. The bundle declares it
@@ -214,7 +218,13 @@ function apply(ctx: DshClientCtx) {
     refreshHeaderEntry()
   }
 
+  let shortcuts: Shortcuts | undefined
+  const readToggleShortcut = (): ShortcutCatalogEntry | undefined => {
+    if (shortcuts?.config.getSnapshot().status === 'loading') return undefined
+    return shortcuts?.catalog.getSnapshot().find(row => row.id === toggleCommandId)
+  }
   const headerEntry = createHeaderEntry({
+    getShortcut: readToggleShortcut,
     getSessionId: () => activeSessionId,
     getActiveAnchor: () => (activePopover ? activePopover.anchor : null),
     getLocaleId: () => localeId(),
@@ -233,6 +243,42 @@ function apply(ctx: DshClientCtx) {
   }
 
   ctx.effect(() => headerEntry.attach(() => closeMemoPopover()), 'dsh-sideby-note: right-side entry')
+
+  // Keep the notes entry available on hosts without the shortcuts service.
+  ctx.inject?.(['shortcuts'], shortcutCtx => {
+    const service: Shortcuts = shortcutCtx.get('shortcuts')
+    shortcutCtx.effect(() => {
+      const unregister = service.register({
+        id: toggleCommandId,
+        label: () => say('shortcut.toggle'),
+        aliases: ['sideby note'],
+        defaults: {
+          'desktop:macos': desktopToggle,
+          'desktop:windows': desktopToggle,
+          'desktop:linux': desktopToggle,
+          'web:macos': webToggle,
+          'web:windows': webToggle,
+        },
+        regions: ['page', 'editable'],
+        modals: [],
+        resolve: ({ modal }) => {
+          if (modal !== null) return { status: 'pass' }
+          const button = headerEntry.buttonForSession()
+          if (!button || !button.getClientRects().length) return { status: 'pass' }
+          return { status: 'handled', run: () => button.click() }
+        },
+      })
+      shortcuts = service
+      const unsubscribe = service.catalog.subscribe(headerEntry.refreshShortcut)
+      headerEntry.refreshShortcut()
+      return () => {
+        unsubscribe()
+        unregister()
+        shortcuts = undefined
+        headerEntry.refreshShortcut()
+      }
+    }, 'dsh-sideby-note: toggle shortcut')
+  })
 
   function BoundSessionCapture(props) {
     const sessionId = props.sessionId || ''

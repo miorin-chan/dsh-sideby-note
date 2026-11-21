@@ -15,6 +15,12 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 ## next-released
 
 <!-- app-update-notes:en:start -->
+### Added
+- Toggle the panel with `Mod+E` on Desktop.
+  Change or clear the binding in DSH’s keyboard shortcut settings.
+  macOS and Windows browsers use `Mod+Alt+E` by default.
+  Linux browsers start with no binding.
+
 ### Changed
 - Notes move to the DSH host when its storage is available.
   The first start can import existing browser notes and keeps their original copy for recovery.
@@ -29,6 +35,10 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
+### 新增
+- 桌面版可用 `Mod+E` 打开或收起面板，可在 DSH 快捷键设置里改键或停用。
+  macOS 和 Windows 浏览器版默认用 `Mod+Alt+E`，Linux 浏览器版默认未绑定。
+
 ### 变更
 - DSH 宿主存储可用时，便笺改存宿主文件。
   同一宿主的浏览器共享清单，首次启动可从浏览器导入旧便笺，并保留旧副本供恢复。

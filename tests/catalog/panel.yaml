@@ -161,3 +161,21 @@ cases:
         status: automated
     suites: [nightly, release]
     tags: [timing, confirm]
+
+  - id: PANEL-011
+    title: DSH 快捷键切换面板并跟随当前绑定
+    priority: P1
+    class: B
+    rules: [R-PANEL-SHORTCUT]
+    risk: ux
+    expected:
+      - 桌面版声明 Mod+E，macOS 和 Windows 浏览器版声明 Mod+Alt+E
+      - 命令只在可见入口且无模态对话框时切换面板
+      - 改键和解绑后提示及辅助技术属性随之更新，卸载后注销命令
+    automation:
+      - type: integration
+        file: tests/resilience.test.mjs
+        test: PANEL-011 DSH 快捷键切换面板并跟随当前绑定
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [keyboard, header-entry]
