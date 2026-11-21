@@ -83,13 +83,16 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 .dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}
 .dsh-an-doneRows{margin-top:var(--an-space-2)}
 .dsh-an-rows{list-style:none;display:flex;flex-direction:column;gap:2px;margin:0;padding:0}
-/* A note is a bare line on the panel surface: no card, no divider. Grip, text and one trailing cell; the grip column keeps the text on the section label's edge. */
+/* The leading column keeps both sections aligned with the section label. */
 .dsh-an-row{position:relative;display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:start;column-gap:var(--an-space-1);padding:var(--an-space-1);border-radius:var(--dsw-radius-sm);transition:var(--an-transition)}
 
-/* ── 6 一行便笺 · 把手 16 列，正文 13/20，尾格静置显示时间、悬停换成操作 ── */
-/* The grip is a drag handle and a keyboard control (↑/↓). Touch keeps it visible in the quiet non-text ink; pointer devices reveal it on hover. */
-.dsh-an-grip{display:flex;align-items:center;justify-content:center;width:16px;height:24px;margin:-2px 0 0;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-tertiary);font:inherit;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:var(--an-transition)}
-.dsh-an-gripSpacer{width:16px}
+/* ── 6 一行便笺 · 左侧填入，正文 13/20，尾格静置显示时间、悬停换成操作 ── */
+.dsh-an-leading{display:flex;justify-content:center;margin:-2px 0 0}
+.dsh-an-leading>.dsh-an-insert{flex:none}
+.dsh-an-row[data-sortable]{cursor:grab}
+/* Reserve the body for direct touch dragging and leave the side columns available for scrolling. */
+.dsh-an-row[data-sortable] .dsh-an-rowBody{touch-action:none}
+.dsh-an-row[data-sortable] .dsh-an-text{user-select:none;-webkit-user-select:none}
 .dsh-an-text{display:block;min-width:0;margin:0;padding:0;color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}
 .dsh-an-rowArchived .dsh-an-text{color:var(--dsw-alias-label-secondary)}
 /* Age and actions share one grid cell, so the swap never reflows the text. */
@@ -105,11 +108,10 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 .dsh-an-glyphFlip{transform:scaleX(-1)}
 
 /* ── 7b 拖拽排序 · 抬起的行跟手，其余行用 transform 让位 ─────────────── */
-.dsh-an-rows[data-dragging="true"],.dsh-an-rows[data-dragging="true"] .dsh-an-grip{cursor:grabbing}
+.dsh-an-rows[data-dragging="true"],.dsh-an-rows[data-dragging="true"] .dsh-an-row{cursor:grabbing}
 .dsh-an-row[data-dragging="true"]{z-index:1;background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-prominent);transition:none}
-.dsh-an-row[data-dragging="true"] .dsh-an-grip{opacity:1;color:var(--dsw-alias-label-primary)}
-/* While a row is held the trail stays at rest: the age shows, the actions stay out of the way. */
-.dsh-an-rows[data-dragging="true"] .dsh-an-row .dsh-an-actions{opacity:0;pointer-events:none}
+/* During a drag, show ages and keep row actions out of the way. */
+.dsh-an-rows[data-dragging="true"] .dsh-an-row :is(.dsh-an-actions,.dsh-an-insert){opacity:0;pointer-events:none}
 .dsh-an-rows[data-dragging="true"] .dsh-an-row .dsh-an-meta{opacity:1}
 
 /* ── 8 紧凑文字按钮 · 清空确认 ─────────────────────────────────── */
@@ -223,9 +225,6 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 /* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */
 @media (hover:hover){
 .dsh-an-row:hover{background:var(--an-hover)}
-.dsh-an-grip{opacity:0}
-.dsh-an-row:hover .dsh-an-grip,.dsh-an-grip:focus-visible{opacity:1;color:var(--dsw-alias-label-secondary)}
-.dsh-an-grip:hover{color:var(--dsw-alias-label-primary)}
 .dsh-an-meta{opacity:1}
 .dsh-an-actions{opacity:0;pointer-events:none}
 .dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}
@@ -258,7 +257,7 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 @keyframes dsh-an-spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){
 .dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading="true"]::after{animation:none}
-.dsh-an-popover,.dsh-an-row,.dsh-an-grip,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}
+.dsh-an-popover,.dsh-an-row,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}
 }
 
 /* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */

@@ -34,7 +34,8 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - Lists can hold more than 300 notes.
   Local fallback preserves unreadable payloads in a recovery copy.
 - Hand to chat is now Insert and uses the list-and-pen icon.
-  Copy is the leftmost row action.
+  Insert now sits to the left of the note text.
+  Drag an open note directly to reorder it.
 - The note composer uses a borderless return icon button and removes the visible keyboard hint.
 <!-- app-update-notes:en:end -->
 
@@ -53,7 +54,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   草稿和面板布局仍随浏览器保存。
 - 清单可超过 300 条。本地回落遇到无法读取的数据时会保留恢复副本。
 - 便笺的「递入对话」改为「填入」，换用列表加笔图标。
-  「复制」移到行操作组最左侧。
+  「填入」移到正文左侧，直接拖动待续便笺即可排序。
 - 便笺录入区移除键盘说明，添加按钮改用无边框的回车图标。
 <!-- app-update-notes:zh:end -->
 

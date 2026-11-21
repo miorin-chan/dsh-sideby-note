@@ -209,8 +209,8 @@ export function MemoPopover(props) {
     onToast: report,
     onInsert: insertItem,
     onRecall: recallItem,
-    // Archived notes sort by archive time, so only open rows carry a grip.
-    grip: item.done ? null : reorder.gripProps(item.id),
+    dragProps: item.done ? undefined : reorder.dragProps(item.id),
+    onReorderKey: item.done ? undefined : reorder.reorderKey(item.id),
   })
 
   const content = h(

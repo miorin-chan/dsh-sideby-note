@@ -166,8 +166,9 @@ cases:
     rules: [R-NOTE-ORDER]
     risk: ux
     expected:
-      - 键盘移动保留焦点，且条目不能越过列表边界
-      - 拖动后保存并显示新顺序；按 Escape 取消时维持原顺序
+      - 在左侧操作按钮上按方向键移动，保留焦点且条目不能越过列表边界
+      - 直接拖动正文后保存并显示新顺序，按 Escape 取消时维持原顺序
+      - 从填入按钮起拖不会触发排序
     automation:
       - type: integration
         file: tests/bundle.test.mjs

@@ -28,14 +28,6 @@ export function Glyph(props) {
 
 export const IconCopy = () => h(Glyph, { name: 'IconCopyOutlineRegular', size: 14 })
 export const IconInsert = () => h(Glyph, { name: 'IconListPenOutlineRegular', size: 14 })
-/**
- * Reorder grip. Newer shells ship a drag-handle glyph; older ones fall back to
- * the up/down chevrons, so the handle never renders empty.
- */
-export const IconGrip = () => h(Glyph, {
-  name: icon('IconDragHandleOutlineRegular') ? 'IconDragHandleOutlineRegular' : 'IconChevronsUpDownOutlineRegular',
-  size: 14,
-})
 export const IconGear = () => h(Glyph, { name: 'IconSettingsOutlineRegular', size: 14 })
 /**
  * Rewind is the product refresh arc mirrored to run counter-clockwise (↺):

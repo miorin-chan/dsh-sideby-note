@@ -403,27 +403,25 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const storedTexts = () => JSON.parse(window.localStorage.getItem('dsh.aside-note')).sessions['session-1'].items.map(item => item.text)
 
   await t.test('NOTE-010 键盘调整待续排序并保留焦点', async () => {
-    // There is no checkbox: open rows lead with a reorder grip instead.
     assert.equal(popover.querySelector('.dsh-an-check'), null, 'notes are no longer completed by hand')
     assert.deepEqual(openTexts(), ['新的一条', '旧便笺'])
-    const firstGrip = openRows()[0].querySelector('.dsh-an-grip')
-    assert.ok(firstGrip, 'an open row carries a grip')
-    assert.equal(firstGrip.getAttribute('aria-label'), '拖动排序，↑↓ 亦可')
-
-    // ↓ on a focused grip moves that note one slot down and keeps focus on it.
-    firstGrip.focus()
+    const firstInsert = openRows()[0].firstElementChild.querySelector('.dsh-an-insert')
+    assert.ok(firstInsert, 'Insert leads the open row')
+    assert.equal(firstInsert.getAttribute('aria-label'), '填入')
+    assert.equal(firstInsert.getAttribute('aria-keyshortcuts'), 'ArrowUp ArrowDown')
+    firstInsert.focus()
     const press = async (node, key) => {
       await act(async () => {
         node.dispatchEvent(new window.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }))
       })
     }
-    await press(firstGrip, 'ArrowDown')
+    await press(firstInsert, 'ArrowDown')
     assert.deepEqual(openTexts(), ['旧便笺', '新的一条'], 'ArrowDown moves the note down')
     assert.deepEqual(storedTexts(), ['旧便笺', '新的一条'], 'the new order is stored')
-    assert.equal(document.activeElement, firstGrip, 'the moved grip keeps focus')
-    await press(firstGrip, 'ArrowDown')
+    assert.equal(document.activeElement, firstInsert, 'the moved note keeps focus on Insert')
+    await press(firstInsert, 'ArrowDown')
     assert.deepEqual(storedTexts(), ['旧便笺', '新的一条'], 'the last note cannot move further down')
-    await press(firstGrip, 'ArrowUp')
+    await press(firstInsert, 'ArrowUp')
     assert.deepEqual(storedTexts(), ['新的一条', '旧便笺'], 'ArrowUp moves it back')
   })
 
@@ -453,14 +451,14 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(document.querySelector('.dsh-an-headerCount').textContent, '1')
     assert.deepEqual(openTexts(), ['旧便笺'])
 
-    // The archive is collapsed by default; an archived row has neither a grip nor an insert action.
+    // The archive is collapsed by default.
     const archiveToggle = popover.querySelector('.dsh-an-doneHead .dsh-an-doneToggle')
     assert.match(archiveToggle.textContent, /归档/)
     await act(async () => { archiveToggle.click() })
     const archivedRow = popover.querySelector('.dsh-an-rowArchived')
     assert.ok(archivedRow, 'the archived note renders in the archive')
-    assert.equal(archivedRow.querySelector('.dsh-an-grip'), null, 'archived rows sort by time, not by hand')
-    assert.ok(archivedRow.querySelector('.dsh-an-gripSpacer'), 'the text keeps the shared edge')
+    assert.equal(archivedRow.hasAttribute('data-sortable'), false, 'archived rows retain archive order')
+    assert.ok(archivedRow.querySelector('.dsh-an-leading'), 'the text keeps the shared edge')
     assert.equal(archivedRow.querySelector('.dsh-an-insert'), null, 'an archived note cannot be inserted again')
     assert.ok(archivedRow.querySelector('.dsh-an-iconBtn[aria-label="退回"]'), 'an archived note can still be taken back')
     const clearButton = popover.querySelector('.dsh-an-clear')
@@ -897,11 +895,9 @@ test('one workspace shares its notes and forwards into the visible session', asy
   })
 
   await t.test('NOTE-010 拖动调整排序且 Escape 取消拖动', async () => {
-    // Drag a grip: every row reports the same 24px box here, so a drop 60px
-    // below the start lands the first open note at the end of the open list.
     const Pointer = window.PointerEvent || window.MouseEvent
-    const pointer = (node, type, clientY) => node.dispatchEvent(new Pointer(type, {
-      bubbles: true, cancelable: true, button: 0, pointerId: 1, clientY,
+    const pointer = (node, type, clientY, pointerType = 'mouse') => node.dispatchEvent(new Pointer(type, {
+      bubbles: true, cancelable: true, button: 0, pointerId: 1, clientY, pointerType,
     }))
     const openList = () => secondPopover.querySelector('.dsh-an-listSection:first-child .dsh-an-rows')
     const openOrder = () => [...openList().querySelectorAll('.dsh-an-text')].map(node => node.textContent)
@@ -909,15 +905,33 @@ test('one workspace shares its notes and forwards into the visible session', asy
     const before = openOrder()
     assert.equal(before.length, 2)
     assert.deepEqual(storedOpen(), before)
-    let grip = openList().querySelector('.dsh-an-grip')
+    const insert = openList().querySelector('.dsh-an-insert')
     await act(async () => {
-      pointer(grip, 'pointerdown', 0)
-      pointer(grip, 'pointermove', 10)
-      pointer(grip, 'pointermove', 60)
+      pointer(insert, 'pointerdown', 0)
+      pointer(insert, 'pointermove', 60)
+      assert.equal(openList().dataset.dragging, undefined, 'Insert does not start a drag')
+      pointer(insert, 'pointerup', 60)
+    })
+    assert.deepEqual(storedOpen(), before)
+
+    const trail = openList().querySelector('.dsh-an-trail')
+    await act(async () => {
+      pointer(trail, 'pointerdown', 0, 'touch')
+      pointer(trail, 'pointermove', 60, 'touch')
+      assert.equal(openList().dataset.dragging, undefined, 'a swipe in the side column can scroll')
+      pointer(trail, 'pointerup', 60, 'touch')
+    })
+
+    let text = openList().querySelector('.dsh-an-text')
+    await act(async () => {
+      pointer(text, 'pointerdown', 0)
+      pointer(text, 'pointermove', 3)
+      assert.equal(openList().dataset.dragging, undefined, 'small pointer movement leaves the row in place')
+      pointer(text, 'pointermove', 60)
     })
     assert.equal(openList().dataset.dragging, 'true', 'the list marks the drag')
-    assert.equal(grip.closest('.dsh-an-row').dataset.dragging, 'true', 'the held row lifts')
-    await act(async () => { pointer(grip, 'pointerup', 60) })
+    assert.equal(text.closest('.dsh-an-row').dataset.dragging, 'true', 'dragging the text lifts the row')
+    await act(async () => { pointer(text, 'pointerup', 60) })
     const after = [...before.slice(1), before[0]]
     assert.deepEqual(openOrder(), after, 'the drop reorders the rendered list')
     assert.deepEqual(storedOpen(), after, 'the drop is stored')
@@ -925,12 +939,12 @@ test('one workspace shares its notes and forwards into the visible session', asy
     assert.equal(secondPopover.querySelector('.dsh-an-row[data-dragging]'), null)
 
     // Escape cancels a drag in flight without closing the panel or moving anything.
-    grip = openList().querySelector('.dsh-an-grip')
+    text = openList().querySelector('.dsh-an-text')
     await act(async () => {
-      pointer(grip, 'pointerdown', 0)
-      pointer(grip, 'pointermove', 60)
+      pointer(text, 'pointerdown', 0)
+      pointer(text, 'pointermove', 60)
       document.body.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))
-      pointer(grip, 'pointerup', 60)
+      pointer(text, 'pointerup', 60)
     })
     assert.ok(document.querySelector('.dsh-an-popover'), 'Escape during a drag keeps the panel open')
     assert.deepEqual(storedOpen(), after, 'a cancelled drag stores nothing')

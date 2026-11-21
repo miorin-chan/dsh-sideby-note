@@ -1,17 +1,14 @@
-/**
- * One note, kept light: a reorder grip, the text, and one trailing cell where
- * the age rests and the actions take its place on hover.
- */
+/** A note with a leading insert action and a trailing cell for its age and secondary actions. */
 import React from 'react'
 import { copyText } from '../domain/clipboard'
 import { metaLabel, rowAge } from '../domain/items'
 import { AttachmentList } from './AttachmentList'
-import { Glyph, IconCopy, IconGrip, IconInsert, IconRewind, icon, withTooltip } from './primitives'
+import { Glyph, IconCopy, IconInsert, IconRewind, icon, withTooltip } from './primitives'
 
 const h = React.createElement
 
 export function TodoRow(props) {
-  const { item, archived, say, localeId, onToast, onInsert, onRecall, grip } = props
+  const { item, archived, say, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey } = props
   const attachments = item.attachments ?? []
   const hasText = Boolean(item.text)
   const insertLabel = say(hasText ? (attachments.length ? 'attachment.insertText' : 'item.insert') : 'attachment.archive')
@@ -44,21 +41,24 @@ export function TodoRow(props) {
     {
       className: archived ? 'dsh-an-row dsh-an-rowArchived' : 'dsh-an-row',
       'data-row-id': item.id,
+      'data-sortable': dragProps ? 'true' : undefined,
+      ...dragProps,
     },
-    // Only open notes have an order of their own; an archived row keeps the
-    // column empty so both sections share one text edge.
-    grip
-      ? h(
-          'button',
-          {
-            type: 'button',
-            className: 'dsh-an-grip',
-            'aria-label': say('item.reorder'),
-            ...grip,
-          },
-          h(IconGrip, null),
-        )
-      : h('span', { className: 'dsh-an-gripSpacer', 'aria-hidden': true }),
+    h('div', { className: 'dsh-an-leading' }, archived ? null : withTooltip(insertLabel, h(
+      'button',
+      {
+        type: 'button',
+        className: 'dsh-an-iconBtn dsh-an-insert',
+        'aria-label': insertLabel,
+        'aria-description': say('item.reorder'),
+        'aria-keyshortcuts': 'ArrowUp ArrowDown',
+        onKeyDown: onReorderKey,
+        onClick: () => onInsert(item),
+      },
+      hasText ? h(IconInsert) : icon('IconArchiveOutlineRegular')
+        ? h(Glyph, { name: 'IconArchiveOutlineRegular', size: 14 })
+        : h('span', { 'aria-hidden': true }, '✓'),
+    ))),
     h('div', { className: 'dsh-an-rowBody' },
       hasText ? h('div', { className: 'dsh-an-text' }, item.text) : null,
       h(AttachmentList, { attachments, say }),
@@ -92,20 +92,6 @@ export function TodoRow(props) {
             onClick: () => onRecall(item),
           },
           h(IconRewind, null),
-        )),
-        // Putting a note into the chat is what archives it, so an archived
-        // row has nothing left to hand over: the action is absent, not disabled.
-        archived ? null : withTooltip(insertLabel, h(
-          'button',
-          {
-            type: 'button',
-            className: 'dsh-an-iconBtn dsh-an-insert',
-            'aria-label': insertLabel,
-            onClick: () => onInsert(item),
-          },
-          hasText ? h(IconInsert) : icon('IconArchiveOutlineRegular')
-            ? h(Glyph, { name: 'IconArchiveOutlineRegular', size: 14 })
-            : h('span', { 'aria-hidden': true }, '✓'),
         )),
       ),
     ),

@@ -818,16 +818,11 @@ test('archived notes drop the insert action and keep rewind plus copy', () => {
   const start = client.indexOf("{ className: 'dsh-an-actions' }")
   assert.ok(start > 0, 'row actions missing')
   const actions = client.slice(start)
-  // Inserting is what archives a note, so an archived row has nothing left to
-  // hand over: the action disappears instead of rendering disabled.
-  assert.match(actions, /archived \? null : withTooltip\(insertLabel/)
+  assert.match(client.slice(0, start), /archived \? null : withTooltip\(insertLabel/)
   assert.match(actions, /hasText \? withTooltip\(say\('item\.copy'\)/, 'copy appears when the note has text')
   assert.match(actions, /withTooltip\(say\('item\.recall'\)/)
-  // Copy, rewind, then the primary insert at the trailing edge.
-  const order = ["withTooltip(say('item.copy')", "withTooltip(say('item.recall')", 'withTooltip(insertLabel']
-    .map(snippet => actions.indexOf(snippet))
-  assert.ok(order.every(index => index > 0), 'row action order drifted')
-  assert.deepEqual([...order].sort((a, b) => a - b), order, 'row action order drifted')
+  assert.doesNotMatch(actions, /withTooltip\(insertLabel/)
+  assert.ok(actions.indexOf("withTooltip(say('item.copy')") < actions.indexOf("withTooltip(say('item.recall')"))
   assert.doesNotMatch(actions, /item\.(?:edit|delete)|dsh-an-iconBtnDanger/, 'inline edit and delete are gone')
 })
 
@@ -947,22 +942,18 @@ test('the composer sends on Enter and breaks on Shift+Enter, like the main compo
   }
 })
 
-test('the checkbox is gone; open rows lead with a reorder grip', () => {
+test('open rows lead with Insert and support direct dragging', () => {
   const row = read('src/client/ui/TodoRow.ts')
   const css = readCss()
   assert.doesNotMatch(row, /role: 'checkbox'|aria-checked|onToggle/, 'there is no manual completion any more')
   assert.doesNotMatch(css, /dsh-an-check|dsh-an-rowFoot|dsh-an-itemBody/, 'the checkbox and footer styles are gone')
   assert.doesNotMatch(read('src/client/ui/useNoteActions.ts'), /done: !candidate\.done/, 'nothing toggles a note back and forth')
-  // The grip is a real button: a drag handle for pointers, ↑/↓ for keyboards.
-  assert.match(row, /className: 'dsh-an-grip',\n\s+'aria-label': say\('item\.reorder'\),\n\s+\.\.\.grip,/)
-  assert.match(row, /: h\('span', \{ className: 'dsh-an-gripSpacer', 'aria-hidden': true \}\)/)
+  assert.match(row, /className: 'dsh-an-leading' \}, archived \? null : withTooltip\(insertLabel/)
+  assert.match(row, /'aria-keyshortcuts': 'ArrowUp ArrowDown'/)
   const popover = read('src/client/ui/MemoPopover.ts')
-  assert.match(popover, /grip: item\.done \? null : reorder\.gripProps\(item\.id\)/, 'archived rows sort by time and carry no grip')
-  const grip = css.match(/\.dsh-an-grip\{([^}]*)\}/)
-  assert.ok(grip, 'grip rule missing')
-  assert.match(grip[1], /touch-action:none/, 'touch drags must not scroll the list')
-  assert.match(grip[1], /cursor:grab/)
-  assert.match(grip[1], /color:var\(--dsw-alias-label-tertiary\)/, 'the grip rests in the quiet non-text ink')
+  assert.match(popover, /dragProps: item\.done \? undefined : reorder\.dragProps\(item\.id\)/)
+  assert.match(css, /\.dsh-an-row\[data-sortable\]\{cursor:grab\}/)
+  assert.match(css, /\.dsh-an-row\[data-sortable\] \.dsh-an-rowBody\{touch-action:none\}/)
   const hook = read('src/client/ui/useRowReorder.ts')
   assert.match(hook, /setPointerCapture/)
   assert.match(hook, /event\.key !== 'ArrowUp' && event\.key !== 'ArrowDown'/)
@@ -987,8 +978,6 @@ test('rows are bare lines whose age gives way to the actions', () => {
   assert.ok(meta && /opacity:1/.test(meta.body), 'pointer devices show the age at rest')
   const swap = rules.find(rule => rule.selector === '.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta')
   assert.ok(swap && /opacity:0/.test(swap.body), 'hover and focus hide the age behind the actions')
-  const gripHover = rules.find(rule => rule.selector === '.dsh-an-grip' && rule.media.includes('hover:hover'))
-  assert.ok(gripHover && /opacity:0/.test(gripHover.body), 'pointer devices reveal the grip on hover only')
   // Archived notes only step down in ink; they are not struck through.
   assert.match(css, /\.dsh-an-rowArchived \.dsh-an-text\{color:var\(--dsw-alias-label-secondary\)\}/)
   assert.doesNotMatch(css, /line-through/)
@@ -1003,9 +992,6 @@ test('the insert action uses the product list-pen glyph', () => {
   const primitives = read('src/client/ui/primitives.ts')
   assert.match(primitives, /IconInsert = \(\) => h\(Glyph, \{ name: 'IconListPenOutlineRegular', size: 14 \}\)/)
   assert.doesNotMatch(primitives, /IconShareOutlineRegular/, 'the share arrow no longer stands for this action')
-  // Older shells lack the drag-handle glyph; the grip then falls back to the
-  // up/down chevrons rather than rendering an empty button.
-  assert.match(primitives, /icon\('IconDragHandleOutlineRegular'\) \? 'IconDragHandleOutlineRegular' : 'IconChevronsUpDownOutlineRegular'/)
 })
 
 test('putting a note into the chat archives it in the same step', () => {

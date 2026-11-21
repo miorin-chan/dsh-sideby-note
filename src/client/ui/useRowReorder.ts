@@ -1,6 +1,6 @@
 /**
- * Reorder the open notes by their grip: drag with any pointer, or press the
- * up/down arrows while the grip has focus.
+ * Drag an open note to reorder it, or press the up/down arrows while its
+ * leading action has focus.
  *
  * The drag runs outside React: rows follow the pointer through inline
  * transforms, so a long list never re-renders per frame. Only the drop goes
@@ -9,7 +9,7 @@
  */
 import React from 'react'
 
-/** Pixels the pointer travels before a press on the grip becomes a drag. */
+/** Vertical pixels the pointer travels before a press becomes a drag. */
 const DRAG_THRESHOLD = 4
 /** Distance from the scroller's edge where a held drag starts scrolling it. */
 const EDGE_ZONE = 32
@@ -113,7 +113,7 @@ export function useRowReorder({ ids, scrollRef, onMove }) {
       window.removeEventListener('keydown', onEscape, true)
       if (drag.scroller) drag.scroller.removeEventListener('scroll', onScroll)
       try {
-        drag.grip.releasePointerCapture(drag.pointerId)
+        drag.target.releasePointerCapture(drag.pointerId)
       } catch {
         /* capture may already be gone */
       }
@@ -136,19 +136,22 @@ export function useRowReorder({ ids, scrollRef, onMove }) {
       release(drag)
     }
 
-    const start = (id, event) => {
+    const start = (id: string, event: React.PointerEvent<HTMLLIElement>) => {
       if (event.button !== 0 || dragRef.current || settleRef.current) return
+      const origin = event.target
+      const target = event.currentTarget
+      if (!(origin instanceof window.Element) || !target.contains(origin)) return
+      if (origin.closest('button, a, audio, video, img')) return
+      if (event.pointerType === 'touch' && !origin.closest('.dsh-an-rowBody')) return
       const list = listRef.current
       const all = rows()
       const from = all.findIndex(node => node.dataset.rowId === id)
       if (!list || from < 0) return
-      // No text selection, no focus ring: a press on the grip is a drag.
       event.preventDefault()
-      const grip = event.currentTarget
       try {
-        grip.setPointerCapture(event.pointerId)
+        target.setPointerCapture(event.pointerId)
       } catch {
-        /* older engines still deliver moves to the grip while pressed */
+        /* older engines still deliver moves over the row */
       }
       const listTop = list.getBoundingClientRect().top
       const scroller = scrollRef.current || null
@@ -156,7 +159,7 @@ export function useRowReorder({ ids, scrollRef, onMove }) {
         id,
         from,
         to: from,
-        grip,
+        target,
         pointerId: event.pointerId,
         startY: event.clientY,
         lastY: event.clientY,
@@ -173,9 +176,9 @@ export function useRowReorder({ ids, scrollRef, onMove }) {
       }
     }
 
-    const move = event => {
+    const move = (event: React.PointerEvent<HTMLLIElement>) => {
       const drag = dragRef.current
-      if (!drag || event.pointerId !== drag.pointerId) return
+      if (!drag || event.currentTarget !== drag.target || event.pointerId !== drag.pointerId) return
       drag.lastY = event.clientY
       if (!drag.started) {
         if (Math.abs(drag.lastY - drag.startY) < DRAG_THRESHOLD) return
@@ -190,8 +193,13 @@ export function useRowReorder({ ids, scrollRef, onMove }) {
       if (!drag.frame && edgeStep(drag)) drag.frame = window.requestAnimationFrame(tick)
     }
 
-    /** Arrow keys move the focused note one slot; the grip keeps focus. */
-    const key = (id, event) => {
+    const finishPointer = (event: React.PointerEvent<HTMLLIElement>, commit: boolean) => {
+      const drag = dragRef.current
+      if (drag?.target === event.currentTarget && drag.pointerId === event.pointerId) finish(commit)
+    }
+
+    /** Arrow keys move the focused note one slot; its leading action keeps focus. */
+    const key = (id: string, event: React.KeyboardEvent<HTMLButtonElement>) => {
       if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
       event.preventDefault()
       if (dragRef.current) return
@@ -208,7 +216,7 @@ export function useRowReorder({ ids, scrollRef, onMove }) {
       }, clearFocus)
     }
 
-    return { rows, start, move, finish, key }
+    return { rows, start, move, finish, finishPointer, key }
   })
 
   const idsKey = ids.join('\n')
@@ -240,23 +248,22 @@ export function useRowReorder({ ids, scrollRef, onMove }) {
     if (focusId && list) {
       focusRef.current = ''
       const row = api.rows().find(node => node.dataset.rowId === focusId)
-      const grip = row ? row.querySelector('.dsh-an-grip') as HTMLElement | null : null
-      if (grip && document.activeElement !== grip) grip.focus()
+      const action = row?.querySelector<HTMLButtonElement>('.dsh-an-insert')
+      if (action && document.activeElement !== action) action.focus()
     }
   }, [idsKey, api])
 
   // Closing the panel mid-drag must not leave a window listener behind.
   React.useEffect(() => () => api.finish(false), [api])
 
-  /** Props for one row's grip button. */
-  const gripProps = id => ({
+  const dragProps = (id: string): React.DOMAttributes<HTMLLIElement> => ({
     onPointerDown: event => api.start(id, event),
     onPointerMove: api.move,
-    onPointerUp: () => api.finish(true),
-    onPointerCancel: () => api.finish(false),
-    onLostPointerCapture: () => api.finish(true),
-    onKeyDown: event => api.key(id, event),
+    onPointerUp: event => api.finishPointer(event, true),
+    onPointerCancel: event => api.finishPointer(event, false),
+    onLostPointerCapture: event => api.finishPointer(event, false),
   })
+  const reorderKey = (id: string): React.KeyboardEventHandler<HTMLButtonElement> => event => api.key(id, event)
 
-  return { listRef, gripProps }
+  return { listRef, dragProps, reorderKey }
 }

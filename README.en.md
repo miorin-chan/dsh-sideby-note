@@ -79,7 +79,7 @@ A few small tasks should not need a whole management system. Capture a thought, 
 
 ### Capture it and keep going
 
-Click the **Sideby Note** button at the top right of the conversation to open the right-side panel. Record tasks, ideas, and details to revisit. The button shows the open count; drag a note by the grip on its left to change the order.
+Click the **Sideby Note** button at the top right of the conversation to open the right-side panel. Record tasks, ideas, and details to revisit. The button shows the open count; drag an open note directly to change the order.
 
 ### Keep it in the workspace and pick it up later
 
@@ -108,10 +108,10 @@ Click a note's **Insert** button to append its text to the current chat input; t
 - **Note actions**: add, reorder, copy, insert a note into the chat input, and rewind one into the composer to edit; there is no manual checkbox — inserting it archives it. Clearing archived notes asks for confirmation, and archived notes expand for review. Clearing the composer after rewinding a note removes it.
 - **Attachments**: choose files with the paperclip, paste them from the clipboard, or drop them onto the note composer. A note can hold up to 10 nonempty files of up to 25 MiB each, with optional text. Select a file name to preview supported images, audio, and video. Each attachment can be downloaded, and recalling a note restores its attachments with the text.
 - **Insert**: the note's text is appended on a new line to the **currently open conversation's** composer and the note moves to **Archived**. You decide when to send. To include an attachment, download it and add it through the DSH composer. Notes that contain only attachments can be archived directly.
-- **Drag to reorder**: open notes move by the grip on their left; with the grip focused, ↑ / ↓ move a note one slot, and Esc cancels a drag in flight. Archived notes stay in archive order.
+- **Drag to reorder**: drag open notes directly. Focus the Insert button and press ↑ / ↓ to move a note one slot. Esc cancels an active drag. Archived notes stay in archive order.
 - **Remembered state**: add drafts are saved per workspace (per session outside a workspace), so switching conversations or the Workspace/Session switch never loses them; submitting still writes the list selected at that moment. Drafts are restored when the panel reopens, and the open/archived expand state plus the scope choice are remembered too.
 - **Panel size**: drag the left edge for width and the bottom handle for height, double-click either to reset; both persist in the browser.
-- **List regions**: **Open** and **Archived** each keep a sticky header and its own scroll, and expanding the archive never compresses open; at rest a note shows only its text and age, and on hover the age gives way to Copy / Rewind / Insert; archived notes list newest archive first.
+- **List regions**: **Open** and **Archived** each keep a sticky header and its own scroll, and expanding the archive never compresses open; Insert sits to the left of open note text. On hover, the age gives way to Copy / Rewind; archived notes list newest archive first.
 - **Settings**: Data storage (file path, copy and reveal) and About (version, check, author, improver and source).
 - **Update notice**: a newer release puts a dot on the settings button, and Settings › About shows the notes and the update action; see [Update notice](#update-notice).
 - **Native look**: colours, radii, elevation and scrollbars all reuse DSH design tokens, following light/dark and the DSH locale; see [Design tokens](#design-tokens).
@@ -137,7 +137,7 @@ Five states shot from the same demo session and the same set of notes, in both t
     <td><img src="./docs/assets/features/settings-dark.png" width="300" alt="Settings, dark"></td>
   </tr>
   <tr>
-    <td>Row actions<br>grip plus copy / rewind / insert on hover</td>
+    <td>Row actions<br>Insert, copy, and rewind</td>
     <td><img src="./docs/assets/features/actions.png" width="300" alt="Row actions"></td>
     <td><img src="./docs/assets/features/actions-dark.png" width="300" alt="Row actions, dark"></td>
   </tr>
@@ -176,7 +176,7 @@ Feedback reuses product surfaces too: copy, rewind, insert, clear-archived, and 
 1. Click the **Sideby Note** button at the top right of the conversation to open the right-side panel. Its badge shows the open count when there are open notes; the **Workspace / Session** switch in the panel header moves between the whole workspace and the current conversation.
 2. Write one concrete follow-up in the panel, then click the return button (↵) beside the input or press Enter to add it. Press Shift+Enter for a new line.
 3. To change a note, click its **Rewind** button (↺): the text goes back into the top composer, ready to edit and submit again. Clearing that composer removes the note.
-4. To change the order, drag a note by the grip on its left (or focus the grip and press ↑ / ↓).
+4. To change the order, drag an open note by its text (or focus Insert and press ↑ / ↓).
 5. When you are ready to continue, click the note's **Insert** button: the text is appended to the chat input and the note is archived; review and send it yourself. Expand **Archived** to look back.
 6. Click outside the panel or press Esc to close. On Desktop, `Mod+E` toggles the panel (`⌘E` on macOS and `Ctrl+E` elsewhere).
    In macOS and Windows browsers, the default is `Mod+Alt+E`. Linux browsers start with no binding.
