@@ -8,14 +8,14 @@
  */
 import React from 'react'
 import ReactDOMClient from 'react-dom/client'
+import type { WorkspaceSnapshot } from '@deepseek-ai/dsh-api-workspace-controller/client'
 import type { ShortcutBinding, ShortcutCatalogEntry, ShortcutCommandId, Shortcuts } from '@deepseek-ai/dsh-client-shortcuts/client'
 
 import CSS from './styles/panel.css?inline'
 import { NS, PANEL_ID, STORAGE_MODE_KEY } from './constants'
 import { DICT, fill, makeSay } from './i18n'
-import { bindWorkspace, draftKeyForSession, scopeForSession, workspaceScopeForSession } from './scope'
+import { bindWorkspace, draftKeyForSession, workspaceForSession, type NoteWorkspace } from './scope'
 import { setForwardTarget } from './domain/forward'
-import { readScopeMode } from './storage/prefs'
 import { bootStorage, retryStorage } from './storage/boot'
 import { ensureDraftScope } from './storage/drafts'
 import {
@@ -25,7 +25,7 @@ import {
   notifyTodoChange,
 } from './storage/events'
 import { requestHostRefresh, storageMode } from './storage/state'
-import { ensureWorkspaceRecord } from './storage/workspace'
+import { migrateWorkspaceNotes } from './storage/workspace'
 import { createToastSeat } from './ui/toastSeat'
 import { createHeaderEntry } from './ui/headerEntry'
 import { MemoPopover } from './ui/MemoPopover'
@@ -81,14 +81,22 @@ const webToggle: ShortcutBinding = { code: 'KeyE', modifiers: ['primary', 'alt']
 
 
 
-/** Hosts without ui-workspace (and the bundle test) keep the session list. */
+/** Workspace hooks are optional on profiles without the workspace UI. */
 const useNoWorkspace = () => null
 /** Hosts without a session list cannot tell a new session from an old one. */
 const useNoSessions = () => undefined
 
+function isWorkspaceSnapshot(value: unknown): value is {
+  items: unknown[]
+  phase?: WorkspaceSnapshot['phase']
+} {
+  return Boolean(value && typeof value === 'object' && 'items' in value && Array.isArray(value.items))
+}
+
 /** Compact floating memo list, anchored to the entry that opened it. */
 function apply(ctx: DshClientCtx) {
   const locale = ctx.get('locale')
+  let workspaceCatalog: NoteWorkspace[] | null = null
 
   // One document-level sheet covers both the panel and the composer dock;
   // the dock mounts outside the panel tree, so a panel-local <style> would
@@ -189,15 +197,9 @@ function apply(ctx: DshClientCtx) {
       return
     }
     closeMemoPopover()
-    // A workspace list must already contain its members' older notes before
-    // the panel reads it; the first open is where that merge happens.
-    const scope = scopeForSession(sessionId, readScopeMode())
     if (storageMode() === 'host') requestHostRefresh()
-    // Host seeding is async and writes straight into the cache the panel reads.
-    if (scope.kind === 'workspace') void ensureWorkspaceRecord(scope.id, scope.sessionIds)
-    // Drafts belong to the workspace even while the session list is showing,
-    // so fold a pre-workspace draft in before the panel reads its composer.
-    const workspace = workspaceScopeForSession(sessionId)
+    if (workspaceCatalog) void migrateWorkspaceNotes(workspaceCatalog)
+    const workspace = workspaceForSession(sessionId)
     if (workspace) ensureDraftScope(draftKeyForSession(sessionId), sessionId, workspace.sessionIds)
     setForwardTarget(sessionId)
     const container = document.createElement('div')
@@ -282,22 +284,28 @@ function apply(ctx: DshClientCtx) {
 
   function BoundSessionCapture(props) {
     const sessionId = props.sessionId || ''
-    // `useWorkspaces` and `useSessions` are global standard props; a host
-    // without them (or a test harness) keeps the previous, session-only
-    // behaviour and never mistakes a conversation for a new session.
-    const useWorkspaces = typeof props.useWorkspaces === 'function' ? props.useWorkspaces : useNoWorkspace
+    const hasWorkspaceHook = typeof props.useWorkspaces === 'function'
+    const useWorkspaces = hasWorkspaceHook ? props.useWorkspaces : useNoWorkspace
     const useSessions = typeof props.useSessions === 'function' ? props.useSessions : useNoSessions
-    const snapshot = useWorkspaces(state => state)
-    const summary = useSessions(state => (state && state.byId ? state.byId[sessionId] : undefined))
-    const sessionReady = !(summary && summary.blank === true)
-    const workspace = React.useMemo(() => {
-      const items = snapshot && Array.isArray(snapshot.items) ? snapshot.items : []
-      return items.find(candidate => (
-        candidate && Array.isArray(candidate.sessionIds) && candidate.sessionIds.includes(sessionId)
-      )) || null
-    }, [snapshot, sessionId])
-    // Readiness changes without changing the workspace; the open panel gains
-    // the session scope in place instead of being closed on the first turn.
+    const snapshot: unknown = useWorkspaces(state => state)
+    const summary = useSessions(state => state?.byId?.[sessionId])
+    const sessionReady = summary?.blank !== true
+    const catalog = React.useMemo(() => {
+      if (!hasWorkspaceHook) return []
+      if (!isWorkspaceSnapshot(snapshot) || (snapshot.phase !== undefined && snapshot.phase !== 'ready')) return null
+      return snapshot.items.flatMap((candidate: unknown): NoteWorkspace[] => {
+        if (!candidate || typeof candidate !== 'object' || !('workspaceId' in candidate)
+          || typeof candidate.workspaceId !== 'string' || !candidate.workspaceId) return []
+        return [{
+          workspaceId: candidate.workspaceId,
+          title: 'title' in candidate && typeof candidate.title === 'string' ? candidate.title : '',
+          sessionIds: 'sessionIds' in candidate && Array.isArray(candidate.sessionIds)
+            ? candidate.sessionIds.filter((id: unknown): id is string => typeof id === 'string')
+            : [],
+        }]
+      })
+    }, [hasWorkspaceHook, snapshot])
+    const workspace = catalog?.find(candidate => candidate.sessionIds.includes(sessionId)) ?? null
     const workspaceRef = React.useRef({ sessionId: '', workspaceId: '' })
 
     React.useEffect(() => {
@@ -305,7 +313,8 @@ function apply(ctx: DshClientCtx) {
       const previous = workspaceRef.current
       const workspaceChanged = previous.sessionId === sessionId && previous.workspaceId !== workspaceId
       workspaceRef.current = { sessionId, workspaceId }
-      bindWorkspace(sessionId, workspace, sessionReady)
+      workspaceCatalog = catalog
+      bindWorkspace(sessionId, workspace, sessionReady, catalog)
       if (activeSessionId !== sessionId) {
         activeSessionId = sessionId
         setForwardTarget(sessionId)
@@ -315,9 +324,10 @@ function apply(ctx: DshClientCtx) {
         // was reading the other list, so reopen it against the right one.
         closeMemoPopover()
       }
-      if (workspace) void ensureWorkspaceRecord(workspace.workspaceId, workspace.sessionIds)
+      if (catalog) void migrateWorkspaceNotes(catalog)
+      notifyTodoChange()
       refreshHeaderEntry()
-    }, [sessionId, workspace, sessionReady])
+    }, [sessionId, workspace, sessionReady, catalog])
     return null
   }
 
@@ -325,6 +335,7 @@ function apply(ctx: DshClientCtx) {
   // refresh the badge; it never blocks the panel from mounting.
   ctx.effect(() => {
     const onReady = () => {
+      if (workspaceCatalog) void migrateWorkspaceNotes(workspaceCatalog)
       refreshHeaderEntry()
       notifyTodoChange()
     }

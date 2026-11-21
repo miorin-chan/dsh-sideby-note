@@ -8,7 +8,7 @@ import { MAX_ATTACHMENTS, MAX_ATTACHMENT_BYTES, uploadAttachment, type NoteAttac
 const uploadsByDraft = new Set<string>()
 const sameAttachments = (a: NoteAttachment[], b: NoteAttachment[]) => JSON.stringify(a) === JSON.stringify(b)
 
-export function useComposerDraft({ draftKey, commit, report, storageInUse, canUpload }) {
+export function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse, canUpload }) {
   const key = draftKey ? String(draftKey) : ''
   const [draft, setDraft] = React.useState(() => readScopeDrafts(key))
   const draftRef = React.useRef(draft)
@@ -19,8 +19,8 @@ export function useComposerDraft({ draftKey, commit, report, storageInUse, canUp
     setIsUploading(uploadsByDraft.has(key))
     if (pendingAction.current) return
     const saved = readScopeDrafts(key)
-    if (sameAttachments(saved.attachments, draftRef.current.attachments)) return
-    const next = { ...draftRef.current, attachments: saved.attachments }
+    if (sameAttachments(saved.attachments, draftRef.current.attachments) && saved.workspaceId === draftRef.current.workspaceId) return
+    const next = { ...draftRef.current, attachments: saved.attachments, workspaceId: saved.workspaceId }
     draftRef.current = next
     setDraft(next)
   }), [key])
@@ -95,15 +95,17 @@ export function useComposerDraft({ draftKey, commit, report, storageInUse, canUp
       report('attachmentDraftChanged')
       return
     }
-    if (!saveAddDraft(key, latest.add, latest.attachments.filter((_, position) => position !== index))) report('saveFailed')
+    const remaining = latest.attachments.filter((_, position) => position !== index)
+    if (!saveAddDraft(key, latest.add, remaining, latest.add.trim() || remaining.length ? latest.workspaceId : null)) report('saveFailed')
   }
 
   const add = async () => {
     const submitted = draftRef.current
     const text = submitted.add.trim().slice(0, MAX_TEXT)
     const { attachments } = submitted
-    if (!hasContent(submitted) || pendingAction.current || uploadsByDraft.has(key) || storageInUse) return
-    if (!sameAttachments(attachments, readScopeDrafts(key).attachments)) {
+    if ((!submitted.workspaceId && !workspaceId) || !hasContent(submitted) || pendingAction.current || uploadsByDraft.has(key) || storageInUse) return
+    const latest = readScopeDrafts(key)
+    if (!sameAttachments(attachments, latest.attachments) || submitted.workspaceId !== latest.workspaceId) {
       notifyDraftAttachments(key)
       report('attachmentDraftChanged')
       return
@@ -117,7 +119,7 @@ export function useComposerDraft({ draftKey, commit, report, storageInUse, canUp
     try {
       const now = Date.now()
       const item = { id: uid(), text, ...(attachments.length ? { attachments } : {}), done: false, createdAt: now, updatedAt: now }
-      const ok = await commit(currentItems => [item, ...currentItems])
+      const ok = await commit(submitted.workspaceId ?? workspaceId, currentItems => [item, ...currentItems])
       if (!ok) {
         report('saveFailed')
         return
@@ -126,14 +128,14 @@ export function useComposerDraft({ draftKey, commit, report, storageInUse, canUp
       const sameFiles = sameAttachments(saved.attachments, attachments)
       const remaining = sameFiles ? [] : saved.attachments
       if (draftRef.current === submitted) {
-        showDraft({ add: '', attachments: remaining })
+        showDraft({ add: '', attachments: remaining, workspaceId: remaining.length ? saved.workspaceId : undefined })
         if (saved.add === submitted.add.slice(0, MAX_TEXT)) {
           if (sameFiles) clearAddDraft(key)
-          else saveAddDraft(key, '')
+          else saveAddDraft(key, '', undefined, remaining.length ? saved.workspaceId : null)
         }
-      } else if (attachments.length) {
-        showDraft({ ...draftRef.current, attachments: remaining })
-        if (sameFiles) saveAddDraft(key, saved.add, [])
+      } else if (sameFiles && saved.workspaceId === submitted.workspaceId) {
+        showDraft({ ...draftRef.current, attachments: remaining, workspaceId: undefined })
+        saveAddDraft(key, saved.add, [], null)
       }
     } finally {
       pendingAction.current = false
@@ -156,18 +158,21 @@ export function useComposerDraft({ draftKey, commit, report, storageInUse, canUp
     setIsRecalling(true)
     try {
       const before = readScopeDrafts(key)
-      const next = { add: String(item.text || '').slice(0, MAX_TEXT), attachments: item.attachments ?? [] }
-      if (next.attachments.length && !saveAddDraft(key, next.add, next.attachments)) {
+      const next = {
+        add: String(item.text || '').slice(0, MAX_TEXT),
+        attachments: item.attachments ?? [],
+        workspaceId: item.workspaceId === workspaceId ? undefined : item.workspaceId,
+      }
+      if (!saveAddDraft(key, next.add, next.attachments, next.workspaceId ?? null)) {
         report('saveFailed')
         return
       }
       if (!(await takeBack(item))) {
-        if (next.attachments.length && JSON.stringify(readScopeDrafts(key)) === JSON.stringify(next)) {
-          saveAddDraft(key, before.add, before.attachments)
+        if (JSON.stringify(readScopeDrafts(key)) === JSON.stringify(next)) {
+          saveAddDraft(key, before.add, before.attachments, before.workspaceId ?? null)
         }
         return
       }
-      if (!next.attachments.length) saveAddDraft(key, next.add)
       showDraft(next)
       report('recalled')
     } finally {
@@ -193,9 +198,11 @@ export function useComposerDraft({ draftKey, commit, report, storageInUse, canUp
 
   const onDraftChange = event => {
     if (isRecalling) return
-    const next = { ...draftRef.current, add: event.target.value }
+    const value = event.target.value
+    const owner = value.trim() || draftRef.current.attachments.length ? draftRef.current.workspaceId : undefined
+    const next = { ...draftRef.current, add: value, workspaceId: owner }
     showDraft(next)
-    saveAddDraft(key, next.add)
+    saveAddDraft(key, next.add, undefined, owner ?? null)
     resizeAdd(event.target)
   }
 

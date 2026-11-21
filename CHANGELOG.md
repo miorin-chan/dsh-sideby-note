@@ -26,6 +26,15 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   To bring a file into chat, add the downloaded file through DSH’s composer.
 
 ### Changed
+- The panel now offers **Global** to view notes across all workspaces and **Workspace** to view the current one.
+  **Global** is available in new blank sessions.
+  **Workspace** is available when a workspace is bound.
+  New notes save to the current workspace regardless of the filter.
+  Standalone sessions save to an unassigned workspace.
+  Row actions and reordering apply within the note’s own workspace.
+- Existing session notes move to their owning workspaces.
+  Notes with unknown ownership remain visible under **Global**.
+  The migration keeps unique legacy notes and preserves the current workspace version when IDs match.
 - Notes move to the DSH host when its storage is available.
   The first start can import existing browser notes and keeps their original copy for recovery.
   Browsers connected to the same host share the host lists.
@@ -52,6 +61,11 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   要把原文件带进对话，可下载后通过 DSH 输入框添加。
 
 ### 变更
+- 面板可用「全局」查看各工作区的便笺，也可在绑定工作区后用「工作区」查看当前工作区的便笺。
+  空白新会话也能用「全局」。新增便笺始终写入当前工作区，独立会话写入未分配工作区。
+  行操作和排序都在便笺所属工作区内生效。
+- 旧会话便笺会移入所属工作区，归属未知的便笺可在「全局」查看。
+  迁移保留旧会话清单独有的便笺，同一工作区有相同 ID 时保留工作区现有版本。
 - DSH 宿主存储可用时，便笺改存宿主文件。
   同一宿主的浏览器共享清单，首次启动可从浏览器导入旧便笺，并保留旧副本供恢复。
 - 面板页脚的「存储与更新」默认折叠。

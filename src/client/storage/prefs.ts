@@ -10,6 +10,7 @@ import {
   SECTION_STATE_DEFAULT,
   SECTION_STATE_KEY,
 } from '../constants'
+import type { ScopeMode } from '../scope'
 import { storage } from './codec'
 import { setPrefs } from './ops'
 import { hostAuthoritative, hostPrefs, storageMode } from './state'
@@ -63,27 +64,27 @@ export function writePanelHeight(height) {
 }
 
 /** Read the last chosen list scope; "workspace" is the default. */
-export function readScopeMode(): 'workspace' | 'session' {
+export function readScopeMode(): ScopeMode {
   if (hostAuthoritative()) {
-    return hostPrefs().scopeMode === 'session' ? 'session' : SCOPE_MODE_DEFAULT
+    return hostPrefs().sidebyNoteScopeMode === 'global' ? 'global' : SCOPE_MODE_DEFAULT
   }
   try {
     const saved = storage() && storage().getItem(SCOPE_MODE_KEY)
-    return saved === 'session' ? 'session' : SCOPE_MODE_DEFAULT
+    return saved === 'global' ? 'global' : SCOPE_MODE_DEFAULT
   } catch {
     return SCOPE_MODE_DEFAULT
   }
 }
 
-export function writeScopeMode(mode) {
+export function writeScopeMode(mode: ScopeMode) {
   if (storageMode() === 'error') return
   if (storageMode() === 'host') {
-    setPrefs({ scopeMode: mode === 'session' ? 'session' : 'workspace' })
+    setPrefs({ scopeMode: mode === 'global' ? 'global' : 'workspace' })
     return
   }
   try {
     const ls = storage()
-    if (ls) ls.setItem(SCOPE_MODE_KEY, mode === 'session' ? 'session' : 'workspace')
+    if (ls) ls.setItem(SCOPE_MODE_KEY, mode === 'global' ? 'global' : 'workspace')
   } catch {
     /* storage is best effort */
   }

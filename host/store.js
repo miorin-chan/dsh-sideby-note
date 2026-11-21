@@ -13,6 +13,7 @@ import {
   normalizeSessionRecord,
   normalizeWorkspaceRecord,
 } from './normalize.js'
+import { moveLegacySessions, UNASSIGNED_WORKSPACE_ID, workspaceForSession, workspaceMembership } from './workspace-migration.js'
 
 /** Stable failure vocabulary shared with the browser route. */
 export class StoreError extends Error {
@@ -78,28 +79,31 @@ class Store {
 
   /** Whole-domain snapshot for the browser's initial hydration. */
   async snapshot() {
-    const domain = await this.#domain()
-    const data = {
-      sessions: tableObject(domain.table(TABLES.sessions)),
-      workspaces: tableObject(domain.table(TABLES.workspaces)),
-      forwarded: tableObject(domain.table(TABLES.forwarded)),
-      prefs: domain.global.get() || {},
-    }
-    return {
-      rev: this.rev,
-      empty: isEmptySnapshot(data),
-      data: structuredClone(data),
-    }
+    return this.#serialize(async () => {
+      const domain = await this.#domain()
+      await this.#migrateRegisteredSessions(domain)
+      const data = {
+        sessions: tableObject(domain.table(TABLES.sessions)),
+        workspaces: tableObject(domain.table(TABLES.workspaces)),
+        forwarded: tableObject(domain.table(TABLES.forwarded)),
+        prefs: domain.global.get() || {},
+      }
+      return {
+        rev: this.rev,
+        empty: isEmptySnapshot(data),
+        data: structuredClone(data),
+      }
+    })
   }
 
-  /**
-   * Apply one browser mutation. Operations are serialized locally so a
-   * read-modify-write never races a sibling request.
-   * @param {any} op
-   */
+  /** Apply one browser mutation. @param {any} op */
   async apply(op) {
+    return this.#serialize(() => this.#apply(op))
+  }
+
+  #serialize(task) {
     if (this.closed) throw new StoreError('STORE_UNAVAILABLE', 'the note store is closed', 503)
-    const run = this.chain.then(() => this.#apply(op))
+    const run = this.chain.then(task)
     this.chain = run.then(() => undefined, () => undefined)
     return run
   }
@@ -194,9 +198,11 @@ class Store {
   async #patchList(domain, op) {
     const key = text(op.listKey)
     if (!key) throw bad('listKey is required')
-    const kind = op.kind === 'workspace' ? 'workspace' : op.kind === 'session' ? 'session' : ''
-    if (!kind) throw bad("kind must be 'workspace' or 'session'")
-    const table = domain.table(kind === 'workspace' ? TABLES.workspaces : TABLES.sessions)
+    if (op.kind !== 'workspace') throw bad("kind must be 'workspace'")
+    const table = domain.table(TABLES.workspaces)
+    // Finish any staged move to this list before applying deletions or edits.
+    // Otherwise a later cleanup retry could restore an item just deleted here.
+    await this.#migrateRegisteredSessions(domain, key)
 
     const deletes = new Set((Array.isArray(op.deletes) ? op.deletes : []).map(text).filter(Boolean))
     const upserts = Array.isArray(op.upserts) ? normalizeItems(op.upserts) : []
@@ -222,9 +228,7 @@ class Store {
       ordered.push(item)
     }
 
-    const next = kind === 'workspace'
-      ? normalizeWorkspaceRecord({ ...current, items: ordered, updatedAt: Date.now() }, key)
-      : normalizeSessionRecord({ ...current, items: ordered, updatedAt: Date.now() }, key)
+    const next = normalizeWorkspaceRecord({ ...current, items: ordered, updatedAt: Date.now() }, key)
     await writeRecord(table, key, current, next)
     this.rev += 1
     return { rev: this.rev, record: next }
@@ -235,43 +239,44 @@ class Store {
     if (!workspaceId) throw bad('workspaceId is required')
     const sessions = domain.table(TABLES.sessions)
     const workspaces = domain.table(TABLES.workspaces)
-    const current = workspaces.get(workspaceId)
-    const seeded = new Set(Array.isArray(current?.seededSessionIds) ? current.seededSessionIds : [])
-    const items = normalizeItems(current?.items)
-    const visible = new Set(items.map(item => item.id))
-    const memberIds = []
-    const seenMembers = new Set()
-    for (const value of Array.isArray(op.sessionIds) ? op.sessionIds : []) {
-      const sessionId = text(value)
-      if (!sessionId || seenMembers.has(sessionId)) continue
-      seenMembers.add(sessionId)
-      memberIds.push(sessionId)
+    const registry = this.ctx?.get?.('workspaceRegistry')
+    const membership = workspaceMembership(registry)
+    if (domain.global.get()?.migration?.complete === false || (registry && !membership && workspaceId === UNASSIGNED_WORKSPACE_ID)) {
+      const record = normalizeWorkspaceRecord(workspaces.get(workspaceId), workspaceId)
+      return { rev: this.rev, record, migratedSessionIds: [] }
     }
 
-    let changed = current === undefined
-    for (const sessionId of memberIds) {
-      if (seeded.has(sessionId)) continue
-      changed = true
-      seeded.add(sessionId)
-      for (const item of normalizeItems(sessions.get(sessionId)?.items)) {
-        if (visible.has(item.id)) continue
-        visible.add(item.id)
-        items.push(item)
-      }
-    }
-    if (!changed) {
-      return { rev: this.rev, record: normalizeWorkspaceRecord(current, workspaceId) }
-    }
+    const sessionIds = membership
+      ? [...sessions.keys()].filter(id => workspaceForSession(membership, id) === workspaceId)
+      : explicitMembers(op.sessionIds)
+    return this.#moveSessions(sessions, workspaces, workspaceId, sessionIds)
+  }
 
-    const next = normalizeWorkspaceRecord({
-      items,
-      updatedAt: Number.isFinite(current?.updatedAt) ? current.updatedAt : Date.now(),
-      seededSessionIds: [...seeded],
-      workspaceId,
-    }, workspaceId)
-    await writeRecord(workspaces, workspaceId, current, next)
-    this.rev += 1
-    return { rev: this.rev, record: next }
+  async #moveSessions(sessions, workspaces, workspaceId, sessionIds) {
+    const { record, migratedSessionIds, changed } = await moveLegacySessions(sessions, workspaces, workspaceId, sessionIds)
+    if (changed) this.rev += 1
+    return { rev: this.rev, record, migratedSessionIds }
+  }
+
+  async #migrateRegisteredSessions(domain, targetWorkspaceId) {
+    const sessions = domain.table(TABLES.sessions)
+    // Resume a pending browser import with its original source rows in place.
+    if (sessions.size === 0 || domain.global.get()?.migration?.complete === false) return
+    const membership = workspaceMembership(this.ctx?.get?.('workspaceRegistry'))
+    if (!membership) return
+
+    const byWorkspace = new Map()
+    for (const id of sessions.keys()) {
+      const workspaceId = workspaceForSession(membership, id)
+      if (targetWorkspaceId && workspaceId !== targetWorkspaceId) continue
+      const members = byWorkspace.get(workspaceId)
+      if (members) members.push(id)
+      else byWorkspace.set(workspaceId, [id])
+    }
+    const workspaces = domain.table(TABLES.workspaces)
+    for (const [workspaceId, sessionIds] of byWorkspace) {
+      await this.#moveSessions(sessions, workspaces, workspaceId, sessionIds)
+    }
   }
 
   async #setPrefs(domain, op) {
@@ -279,10 +284,10 @@ class Store {
     if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw bad('patch must be an object')
     const current = domain.global.get() || {}
     const next = { ...current, version: 1 }
-    if (patch.scopeMode !== 'workspace' && patch.scopeMode !== 'session') {
-      throw bad("scopeMode must be 'workspace' or 'session'")
+    if (patch.scopeMode !== 'workspace' && patch.scopeMode !== 'global') {
+      throw bad("scopeMode must be 'workspace' or 'global'")
     }
-    next.scopeMode = patch.scopeMode
+    next.sidebyNoteScopeMode = patch.scopeMode
     await domain.global.set(next)
     this.rev += 1
     return { rev: this.rev, prefs: next }
@@ -293,6 +298,7 @@ class Store {
     if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) throw bad('snapshot must be an object')
     const current = domain.global.get() || {}
     if (current.migration?.complete === true) {
+      await this.#migrateRegisteredSessions(domain)
       return { rev: this.rev, migrated: 0, notesMigrated: 0, alreadyComplete: true }
     }
     const sessions = domain.table(TABLES.sessions)
@@ -343,6 +349,9 @@ class Store {
     if (current.scopeMode === undefined && (prefs.scopeMode === 'workspace' || prefs.scopeMode === 'session')) {
       merged.scopeMode = prefs.scopeMode
     }
+    if (current.sidebyNoteScopeMode === undefined && prefs.scopeMode === 'global') {
+      merged.sidebyNoteScopeMode = 'global'
+    }
     if (current.sendShortcut === undefined && (prefs.sendShortcut === 'enter' || prefs.sendShortcut === 'ctrl-enter')) {
       merged.sendShortcut = prefs.sendShortcut
     }
@@ -354,8 +363,13 @@ class Store {
       migration: { complete: true, at: Date.now(), source },
     })
     this.rev += 1
+    await this.#migrateRegisteredSessions(domain)
     return { rev: this.rev, migrated, notesMigrated }
   }
+}
+
+function explicitMembers(sessionIds) {
+  return Array.isArray(sessionIds) ? new Set(sessionIds.filter(id => typeof id === 'string' && id)) : []
 }
 
 /** Leave records already persisted by an interrupted migration in place. */

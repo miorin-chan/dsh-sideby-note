@@ -2,7 +2,7 @@
 import React from 'react'
 import { CLEAR_CONFIRM_MS } from '../constants'
 
-export function useClearConfirm({ sessionId, showDone, doneCount, onConfirm }) {
+export function useClearConfirm({ scope, showDone, doneCount, onConfirm }) {
   const [confirmClear, setConfirmClear] = React.useState(false)
   const clearConfirmTimerRef = React.useRef(0)
 
@@ -36,14 +36,14 @@ export function useClearConfirm({ sessionId, showDone, doneCount, onConfirm }) {
   }
 
   // Retire the band when the completed section empties or collapses, and on a
-  // session switch; unmount also drops the timer.
+  // filter switch; unmount also drops the timer.
   React.useEffect(() => () => stopClearConfirmTimer(), [])
   React.useEffect(() => {
     if (confirmClear && (!showDone || doneCount === 0)) dismissClearConfirm()
   }, [confirmClear, showDone, doneCount])
   React.useEffect(() => {
     dismissClearConfirm()
-  }, [sessionId])
+  }, [scope])
 
   return { confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone }
 }

@@ -111,64 +111,70 @@ features:
     owner: scope
     rules:
       - id: R-SCOPE-DEFAULT
-        statement: 会话属于某个工作区时，默认展示并写入工作区清单；面板可在工作区清单与本会话清单之间切换，选择被记住。
-        failure: 打开别的会话看到不属于它的便笺；或每次打开都要手动切一次范围。
+        statement: 有工作区绑定时默认展示工作区清单；全局汇总各工作区及未归属便笺，范围选择会记住。
+        failure: 工作区筛选显示其他工作区的条目，全局漏掉条目，或角标与筛选不一致。
         kind: scope
         branches:
           - kind: valid
-            text: 切换后只看到对应清单的内容，角标跟随所选范围
-          - kind: invalid
-            text: 记住的选择遇到空白新会话时回落工作区清单，不显示空清单
+            text: 全局显示各工作区条目；工作区仅显示当前工作区，角标跟随筛选
+          - kind: boundary
+            text: 有工作区绑定的空白会话遵循已保存的全局选择
         technique: [决策表, 状态迁移]
-        reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: 'fed1678af40d8f69' }
 
       - id: R-SCOPE-BLANK
-        statement: 空白新会话（还没有第一轮对话）只能写工作区清单；首轮对话后解锁会话清单。
-        failure: 空白会话里写进一个还不存在的会话清单，首轮后内容凭空消失。
+        statement: 空白新会话可正常记录便笺。首轮对话后入口移入会话工具行，筛选保持原样。
+        failure: 首轮前无法使用面板，或首轮后切换了筛选或丢失已写便笺。
         kind: rule
         branches:
           - kind: valid
-            text: 首轮后出现“会话”选项并可写入
-          - kind: invalid
-            text: 首轮前面板不提供会话选项
+            text: 首轮前可切换可用的筛选并新增便笺
+          - kind: boundary
+            text: 首轮对话后面板保持打开，入口移动，筛选和写入归属保持原样
         technique: [状态迁移]
-        reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: '43232e64f5933fb3' }
 
       - id: R-SCOPE-NOWORKSPACE
-        statement: 宿主未提供工作区、或会话未出现在任何工作区清单时，按会话清单处理，不得回落到任何工作区清单。
-        failure: 无工作区的会话读到别人的便笺，或把内容写进共享清单。
+        statement: 无工作区绑定时仅提供全局范围，新增便笺存于保留的未归属清单。
+        failure: 无工作区时无法记录便笺，或内容被写入旧会话清单或任一真实工作区。
         kind: scope
         branches:
           - kind: valid
-            text: 只有会话清单
-          - kind: n-a
-            reason: 越界访问是缺陷而不是被允许的分支，没有“合法地回落到别人清单”的情况
+            text: 显示全局范围，新增条目落在未归属清单
+          - kind: boundary
+            text: 空白新会话没有工作区时也能使用全局范围
         technique: [等价类]
-        reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: '6e1da1e861f31c12' }
 
       - id: R-SCOPE-SEED
-        statement: 第一次见到某个工作区时，把成员会话里已有便笺并入共享清单，每个会话只并入一次；用户之后删除的条目不会因再次并入而复活。
-        failure: 旧便笺没并进来（丢数据）；或每次打开都重复并入（重复条目）。
+        statement: 按工作区归属迁移旧会话便笺，成功后移除源记录；曾经并入过的会话仍需迁移不同 ID 的条目。
+        failure: 旧便笺丢失、被重复并入，或因旧会话副本再次出现而复活。
         kind: migration
         branches:
           - kind: valid
-            text: 成员会话的便笺各出现一次
-          - kind: invalid
-            text: 重复打开工作区不产生重复条目
+            text: 每个工作区保留各自的全部旧便笺，成功后删除源记录
+          - kind: boundary
+            text: 已并入过的会话只补入不同 ID 的条目，重复打开不产生重复记录
         technique: [等价类, 状态迁移]
-        reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: '4970a4b723260b94' }
 
       - id: R-SCOPE-SAVE
-        statement: 提交时落到「提交那一刻选中的清单」，而不是历史选择或默认值。
-        failure: 以为在会话清单里记，实际写进共享清单，被同事看到。
+        statement: 新增便笺始终写入当前工作区；无工作区绑定时写入未归属清单。筛选只决定显示内容。
+        failure: 全局下新增写到了另一工作区，或切换筛选改动了便笺。
         kind: rule
         branches:
           - kind: valid
-            text: 工作区范围提交进工作区清单，会话范围提交进会话清单
+            text: 全局与工作区下新增的便笺均写入当前工作区
           - kind: invalid
-            text: 切换范围不会把已输入内容写进另一个清单
+            text: 只切换筛选时便笺存储无变化，输入内容仍在草稿中
         technique: [决策表]
-        reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: '0509b1d051780454' }
+
+      - id: R-SCOPE-OWNER
+        statement: 全局下的归档和退回操作按便笺原有归属写入，退回后重新提交仍回到原清单。
+        failure: 相同 ID 的另一工作区便笺被改动，或退回后的便笺写到错误的工作区。
+        kind: scope
+        branches:
+          - kind: valid
+            text: 归档、退回和重新提交都更新原工作区
+          - kind: boundary
+            text: 两个工作区有相同原始 ID 时仍只更新被操作的那一条
+        technique: [等价类]
 
   - id: store
     title: 存储、草稿与并发
@@ -617,8 +623,8 @@ invariants:
     rules: [R-STORE-CORRUPT, R-STORE-MERGE, R-STORE-READ-FAIL, R-STORE-WRITE-FAIL, R-NOTE-PERSIST]
 
   - id: INV-NO-CROSS-SCOPE
-    statement: 一条便笺只在其所属清单可见可写；工作区、会话、转发目标之间不串数据。
-    rules: [R-SCOPE-DEFAULT, R-SCOPE-SAVE, R-FWD-TARGET, R-STORE-SYNC]
+    statement: 工作区筛选只展示当前归属的便笺；全局跨工作区展示，写入按便笺归属，递入只更新当前对话。
+    rules: [R-SCOPE-DEFAULT, R-SCOPE-SAVE, R-SCOPE-OWNER, R-FWD-TARGET, R-STORE-SYNC]
 
   - id: INV-IDEMPOTENT
     statement: 同一条目最多存在一份有效记录；重复并入、重复写入不产生重复。

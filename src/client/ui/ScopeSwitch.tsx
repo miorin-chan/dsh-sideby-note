@@ -1,16 +1,14 @@
-/** Segmented switch between the workspace list and the session list. */
+/** Segmented switch between the global and workspace filters. */
 import React from 'react'
 import { withTooltip } from './primitives'
 
 const h = React.createElement
 
 export function ScopeSwitch(props) {
-  const { say, mode, canUseSession, onChange } = props
+  const { say, mode, canUseWorkspace, onChange } = props
   const options = [
-    { value: 'workspace', label: say('scope.workspace') },
-    // The session list appears only after the new session actually starts;
-    // until then the workspace list is the only list it can show.
-    ...(canUseSession ? [{ value: 'session', label: say('scope.session') }] : []),
+    { value: 'global', label: say('scope.global'), hint: say('scope.globalHint') },
+    ...(canUseWorkspace ? [{ value: 'workspace', label: say('scope.workspace'), hint: say('scope.workspaceHint') }] : []),
   ]
   return h(
     'div',
@@ -19,9 +17,7 @@ export function ScopeSwitch(props) {
       React.Fragment,
       { key: option.value },
       withTooltip(
-        option.value === 'session'
-          ? say('scope.sessionHint')
-          : canUseSession ? say('scope.workspaceHint') : say('scope.newSessionHint'),
+        option.hint,
         h(
           'button',
           {

@@ -19,8 +19,16 @@ const seedSession = (window, items) => {
   }))
 }
 
-const sessionItems = window => JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-  .sessions['session-1'].items
+const WORKSPACE_KEY = 'dsh.aside-note.workspaces'
+const UNASSIGNED = 'sideby-note:unassigned'
+const standaloneItems = window => JSON.parse(window.localStorage.getItem(WORKSPACE_KEY))
+  .workspaces[UNASSIGNED].items
+const seedStandalone = (window, items) => {
+  window.localStorage.setItem(WORKSPACE_KEY, JSON.stringify({
+    version: 1,
+    workspaces: { [UNASSIGNED]: { workspaceId: UNASSIGNED, updatedAt: 1, items } },
+  }))
+}
 
 const workspaceProps = () => ({
   useWorkspaces: selector => selector({
@@ -82,54 +90,67 @@ test('NOTE-008 归档条目退回后可重新提交到待续区', async t => {
   await app.act(async () => { rowByText(app.popover, '甲').querySelector('.dsh-an-insert').click() })
   await app.settle(40)
   assert.equal(app.button.querySelector('.dsh-an-headerCount').textContent, '1')
-  const archived = sessionItems(app.window).find(item => item.id === 'a')
+  const archived = standaloneItems(app.window).find(item => item.id === 'a')
   assert.equal(archived.done, true)
   assert.ok(archived.completedAt > 0, 'archiving stamps the completion time')
 
   await app.act(async () => { app.popover.querySelector('.dsh-an-doneHead .dsh-an-doneToggle').click() })
   await app.act(async () => { rowByText(app.popover, '甲').querySelector('button[aria-label="退回"]').click() })
   assert.equal(app.popover.querySelector('.dsh-an-input').value, '甲')
-  assert.equal(sessionItems(app.window).some(item => item.id === 'a'), false, 'recall removes the archived row')
+  assert.equal(standaloneItems(app.window).some(item => item.id === 'a'), false, 'recall removes the archived row')
   await app.act(async () => { app.popover.querySelector('.dsh-an-addBtn').click() })
   await app.settle(40)
 
-  const returned = sessionItems(app.window).find(item => item.text === '甲')
+  const returned = standaloneItems(app.window).find(item => item.text === '甲')
   assert.equal(returned.done, false)
   assert.equal('completedAt' in returned, false)
   assert.equal(app.button.querySelector('.dsh-an-headerCount').textContent, '2')
   await app.dispose()
 })
 
-test('SCOPE-010 不在工作区的会话只有会话清单', async t => {
-  const app = await bootBundle(t)
+test('SCOPE-010 无工作区时只显示全局并写入未归属清单', async t => {
+  const existingList = {
+    workspaceId: 'ws-other', updatedAt: 1, items: [note('a', '其他工作区的便笺', 1)],
+  }
+  const app = await bootBundle(t, {
+    prepare: window => window.localStorage.setItem(WORKSPACE_KEY, JSON.stringify({
+      version: 1,
+      workspaces: { 'ws-other': existingList },
+    })),
+    props: blankSessions(),
+  })
   await app.open()
 
   const scopes = [...app.popover.querySelectorAll('.dsh-an-scopeBtn')].map(node => node.textContent)
-  assert.equal(scopes.includes('工作区'), false, 'a workspace-less session must not offer the workspace list')
+  assert.deepEqual(scopes, ['全局'])
+  assert.equal(app.popover.querySelector('[data-scope-mode="global"]').getAttribute('aria-pressed'), 'true')
+  assert.deepEqual(rowsOf(app.popover).map(textOf), ['其他工作区的便笺'])
 
-  await typeInto(app, app.popover.querySelector('.dsh-an-input'), '只属于这个会话')
+  await typeInto(app, app.popover.querySelector('.dsh-an-input'), '不绑定工作区的便笺')
   await app.act(async () => { app.popover.querySelector('.dsh-an-addBtn').click() })
   await app.settle(20)
 
-  const stored = sessionItems(app.window)
-  assert.equal(stored.length, 1, 'the note lands in the session list')
-  assert.equal(app.window.localStorage.getItem('dsh.aside-note.workspaces'), null, 'no workspace list is created')
+  assert.deepEqual(standaloneItems(app.window).map(item => item.text), ['不绑定工作区的便笺'])
+  assert.deepEqual(JSON.parse(app.window.localStorage.getItem(WORKSPACE_KEY)).workspaces['ws-other'], existingList)
+  assert.equal(app.window.localStorage.getItem('dsh.aside-note'), null, 'no legacy session list is created')
   await app.dispose()
 })
 
-test('SCOPE-011 空白会话忽略遗留的会话范围选择', async t => {
+test('SCOPE-011 空白会话遵循显式全局选择', async t => {
   const app = await bootBundle(t, {
     prepare: window => {
       seedSession(window, [note('a', '甲', 1)])
-      window.localStorage.setItem('dsh.aside-note.scope-mode', 'session')
+      window.localStorage.setItem('dsh.aside-note.scope-mode', 'global')
     },
     props: { ...workspaceProps(), ...blankSessions() },
   })
   await app.open()
 
   const scopes = [...app.popover.querySelectorAll('.dsh-an-scopeBtn')].map(node => node.textContent)
-  assert.deepEqual(scopes, ['工作区'], 'a blank session shows the workspace list alone')
-  assert.equal(app.window.localStorage.getItem('dsh.aside-note.scope-mode'), 'session',
+  assert.deepEqual(scopes, ['全局', '工作区'])
+  assert.equal(app.popover.querySelector('[data-scope-mode="global"]').getAttribute('aria-pressed'), 'true')
+  assert.deepEqual(rowsOf(app.popover).map(textOf), ['甲'])
+  assert.equal(app.window.localStorage.getItem('dsh.aside-note.scope-mode'), 'global',
     'opening a blank session does not rewrite the stored choice')
   await app.dispose()
 })
@@ -164,7 +185,7 @@ test('STORE-011 存储读不到时按空继续且不丢输入', async t => {
 test('STORE-012 写入失败时读取不降级且保留输入', async t => {
   const app = await bootBundle(t, {
     prepare: window => {
-      seedSession(window, [note('a', '已经保存的', 1)])
+      seedStandalone(window, [note('a', '已经保存的', 1)])
       const real = window.localStorage
       window.__realStorage = real
       Object.defineProperty(window, 'localStorage', {
@@ -198,25 +219,24 @@ test('STORE-012 写入失败时读取不降级且保留输入', async t => {
   assert.match(footer.querySelector(':scope > [role="status"]')?.textContent ?? '', /本地存储不可用/,
     'the failure is visible outside the collapsed disclosure')
 
-  const raw = JSON.parse(app.window.__realStorage.getItem('dsh.aside-note'))
-  assert.equal(raw.sessions['session-1'].items.length, 1, 'nothing half-written reached the store')
+  assert.equal(standaloneItems({ localStorage: app.window.__realStorage }).length, 1, 'nothing half-written reached the store')
   await app.dispose()
 })
 
 test('STORE-016 另一个标签页写入后本页视图同步', async t => {
   const app = await bootBundle(t, {
-    prepare: window => seedSession(window, [note('a', '甲', 1)]),
+    prepare: window => seedStandalone(window, [note('a', '甲', 1)]),
   })
   await app.open()
   assert.equal(rowsOf(app.popover).length, 1)
 
   // Another tab writes without this one seeing the event; the event is what the
   // browser would deliver afterwards.
-  const store = JSON.parse(app.window.localStorage.getItem('dsh.aside-note'))
-  store.sessions['session-1'].items.unshift(note('b', '乙', 2))
-  app.window.localStorage.setItem('dsh.aside-note', JSON.stringify(store))
+  const store = JSON.parse(app.window.localStorage.getItem(WORKSPACE_KEY))
+  store.workspaces[UNASSIGNED].items.unshift(note('b', '乙', 2))
+  app.window.localStorage.setItem(WORKSPACE_KEY, JSON.stringify(store))
   await app.act(async () => {
-    app.window.dispatchEvent(new app.window.StorageEvent('storage', { key: 'dsh.aside-note' }))
+    app.window.dispatchEvent(new app.window.StorageEvent('storage', { key: WORKSPACE_KEY }))
   })
   await app.settle(80)
 
@@ -224,11 +244,11 @@ test('STORE-016 另一个标签页写入后本页视图同步', async t => {
   assert.equal(app.button.querySelector('.dsh-an-headerCount').textContent, '2', 'the badge follows too')
 
   // A deletion in the other tab must reach this view as well.
-  const trimmed = JSON.parse(app.window.localStorage.getItem('dsh.aside-note'))
-  trimmed.sessions['session-1'].items = trimmed.sessions['session-1'].items.filter(item => item.id !== 'b')
-  app.window.localStorage.setItem('dsh.aside-note', JSON.stringify(trimmed))
+  const trimmed = JSON.parse(app.window.localStorage.getItem(WORKSPACE_KEY))
+  trimmed.workspaces[UNASSIGNED].items = trimmed.workspaces[UNASSIGNED].items.filter(item => item.id !== 'b')
+  app.window.localStorage.setItem(WORKSPACE_KEY, JSON.stringify(trimmed))
   await app.act(async () => {
-    app.window.dispatchEvent(new app.window.StorageEvent('storage', { key: 'dsh.aside-note' }))
+    app.window.dispatchEvent(new app.window.StorageEvent('storage', { key: WORKSPACE_KEY }))
   })
   await app.settle(80)
   assert.deepEqual(rowsOf(app.popover).map(textOf), ['甲'], 'the removed note disappears here too')
@@ -292,7 +312,7 @@ test('PANEL-010 清除确认 5 秒后失效', async t => {
 
   await app.settle(220)
   assert.equal(app.popover.querySelector('.dsh-an-clearConfirm'), null, 'the confirmation dismisses itself')
-  assert.equal(sessionItems(app.window).length, 2, 'nothing was deleted by the timeout')
+  assert.equal(standaloneItems(app.window).length, 2, 'nothing was deleted by the timeout')
 
   await app.act(async () => { app.popover.querySelector('.dsh-an-clear').click() })
   assert.ok(app.popover.querySelector('.dsh-an-clearConfirm'), 'a later click asks again instead of deleting')
@@ -311,24 +331,40 @@ test('I18N-002 未知语言回落英文', async t => {
   await app.dispose()
 })
 
-test('SCOPE-012 重复打开工作区不产生重复条目', async t => {
+test('SCOPE-012 迁移失败时保留源记录且重试不重复', async t => {
+  const legacyNotes = [note('a', '甲', 1), note('b', '乙', 2)]
+  let failWrite = true
   const app = await bootBundle(t, {
-    prepare: window => seedSession(window, [note('a', '甲', 1), note('b', '乙', 2)]),
+    prepare: window => {
+      seedSession(window, legacyNotes)
+      const storage = window.localStorage
+      Object.defineProperty(window, 'localStorage', {
+        configurable: true,
+        value: {
+          getItem: key => storage.getItem(key),
+          removeItem: key => storage.removeItem(key),
+          setItem(key, value) {
+            if (failWrite && key === WORKSPACE_KEY) throw new Error('quota')
+            storage.setItem(key, value)
+          },
+        },
+      })
+    },
     props: workspaceProps(),
   })
-  await app.settle(40)
+  const storage = app.window.localStorage
+  assert.equal(storage.getItem(WORKSPACE_KEY), null, 'the destination write failed')
+  assert.deepEqual(JSON.parse(storage.getItem('dsh.aside-note')).sessions['session-1'].items, legacyNotes)
 
-  const read = () => JSON.parse(app.window.localStorage.getItem('dsh.aside-note.workspaces')).workspaces['ws-1']
-  const first = read()
-  assert.equal(first.items.length, 2, 'the first view folds the member notes in once')
-  const seeded = [...first.seededSessionIds].sort()
-
+  failWrite = false
   await app.remount(workspaceProps())
-  await app.settle(60)
+  const migrated = () => JSON.parse(storage.getItem(WORKSPACE_KEY)).workspaces['ws-1']
+  assert.deepEqual(migrated().items.map(item => item.id), ['a', 'b'])
+  assert.deepEqual(JSON.parse(storage.getItem('dsh.aside-note')).sessions, {}, 'the successful retry removes the source')
 
-  const again = read()
-  assert.equal(again.items.length, 2, 'reopening the same workspace does not duplicate the fold')
-  assert.deepEqual([...again.seededSessionIds].sort(), seeded, 'the seeded session list stays the same')
+  const first = migrated()
+  await app.remount(workspaceProps())
+  assert.deepEqual(migrated(), first, 'reopening the workspace keeps the migrated list identical')
   await app.dispose()
 })
 
@@ -340,20 +376,18 @@ test('SCOPE-013 切换范围本身不写入任何清单', async t => {
   await app.open()
   await app.settle(40)
 
-  const counts = () => ({
-    session: sessionItems(app.window).length,
-    workspace: JSON.parse(app.window.localStorage.getItem('dsh.aside-note.workspaces')).workspaces['ws-1'].items.length,
-  })
-  const before = counts()
+  const storedLists = () => [app.window.localStorage.getItem('dsh.aside-note'), app.window.localStorage.getItem(WORKSPACE_KEY)]
+  const before = storedLists()
 
   const input = app.popover.querySelector('.dsh-an-input')
   await typeInto(app, input, '半截草稿')
-  await app.act(async () => { app.popover.querySelector('[data-scope-mode="session"]').click() })
+  await app.act(async () => { app.popover.querySelector('[data-scope-mode="global"]').click() })
   await app.settle(40)
 
-  assert.deepEqual(counts(), before, 'switching scope writes to neither list')
+  assert.deepEqual(storedLists(), before, 'changing the view leaves note storage identical')
   await app.act(async () => { app.popover.querySelector('[data-scope-mode="workspace"]').click() })
   await app.settle(20)
+  assert.deepEqual(storedLists(), before, 'returning to Workspace leaves note storage identical')
   assert.equal(input.value, '半截草稿', 'the draft survives the round trip')
   await app.dispose()
 })
@@ -387,7 +421,7 @@ test('STORE-017 畸形记录被清洗而不是渲染成乱码', async t => {
   await app.act(async () => { app.popover.querySelector('.dsh-an-addBtn').click() })
   await app.settle(20)
 
-  const stored = sessionItems(app.window)
+  const stored = standaloneItems(app.window)
   assert.equal(stored.length, 4, 'the store is rewritten with sanitised records')
   assert.equal(new Set(stored.map(item => item.id)).size, 4, 'duplicate ids were reassigned')
   assert.equal(stored.find(item => item.text === '丙').done, false, 'a non-boolean done reads as false')
@@ -429,7 +463,7 @@ test('STORE-018 大清单仍可展示与新增', async t => {
   await typeInto(app, app.popover.querySelector('.dsh-an-input'), '大清单里再加一条')
   await app.act(async () => { app.popover.querySelector('.dsh-an-addBtn').click() })
   await app.settle(20)
-  assert.equal(sessionItems(app.window).length, 401, 'adding to a large list is not refused')
+  assert.equal(standaloneItems(app.window).length, 401, 'adding to a large list is not refused')
   await app.dispose()
 })
 

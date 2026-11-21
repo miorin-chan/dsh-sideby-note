@@ -66,6 +66,7 @@ export const forwardedSchema = z.record(z.string().min(1), z.literal(true))
 
 export const prefsSchema = z.object({
   version: z.literal(1).default(1),
+  sidebyNoteScopeMode: z.enum(['workspace', 'global']).optional(),
   scopeMode: z.enum(['workspace', 'session']).optional(),
   // Preserve these upstream preferences across storage ownership changes.
   sendShortcut: z.enum(['enter', 'ctrl-enter']).optional(),

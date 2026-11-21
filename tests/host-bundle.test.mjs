@@ -22,6 +22,9 @@ const STORE_PATH = '/dsh-sideby-note/store'
 const LOCATION_PATH = `${STORE_PATH}/location`
 const REVEAL_PATH = `${STORE_PATH}/reveal`
 const SESSION_KEY = 'dsh.aside-note'
+const WORKSPACE_KEY = 'dsh.aside-note.workspaces'
+const UNASSIGNED = 'sideby-note:unassigned'
+const browserNotes = window => JSON.parse(window.localStorage.getItem(WORKSPACE_KEY)).workspaces[UNASSIGNED].items
 const MODE_KEY = 'dsh.aside-note.storage-mode'
 
 const json = (status, body) => ({ ok: status >= 200 && status < 300, status, json: async () => body })
@@ -57,7 +60,7 @@ async function setup(options = {}) {
   if (options.markedHost) window.localStorage.setItem(MODE_KEY, 'host')
 
   const domain = fakeDomain()
-  const store = createStore(fakeCtx(domain))
+  const store = createStore(fakeCtx(domain, { list: () => [] }))
   const calls = []
   const attachments = new Map()
   const previewUrls = []
@@ -65,13 +68,7 @@ async function setup(options = {}) {
   window.URL.revokeObjectURL = () => {}
   if (options.hostSeed) {
     for (const [sessionId, items] of Object.entries(options.hostSeed.sessions || {})) {
-      await store.apply({
-        op: 'list.patch',
-        kind: 'session',
-        listKey: sessionId,
-        order: items.map(item => item.id),
-        upserts: items,
-      })
+      await domain.table('sessions').put(sessionId, { sessionId, updatedAt: 1, items })
     }
   }
   window.fetch = async (input, init = {}) => {
@@ -178,6 +175,7 @@ async function setup(options = {}) {
     await act(async () => {
       reactRoot.render(React.createElement(capture, { sessionId: 'session-1' }))
     })
+    await settle()
     const button = window.document.querySelector('._headerUtilities > .dsh-an-headerBtn')
     return { button, reactRoot, settle }
   }
@@ -205,7 +203,8 @@ test('STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记'
   assert.equal(ctx.window.localStorage.getItem(MODE_KEY), 'host', 'a successful switch writes the one-way marker')
   assert.ok(ctx.calls.some(call => call.method === 'POST'), 'the empty host receives the migrated snapshot')
   let snapshot = await ctx.store.snapshot()
-  assert.equal(snapshot.data.sessions['session-1'].items[0].text, '旧便笺')
+  assert.equal(snapshot.data.workspaces[UNASSIGNED].items[0].text, '旧便笺')
+  assert.deepEqual(snapshot.data.sessions, {}, 'the imported host session row is moved into the unassigned workspace')
   assert.deepEqual(snapshot.data.forwarded, { 'session-1': { seed: true } })
   assert.equal(snapshot.data.prefs.sendShortcut, 'ctrl-enter')
   assert.equal(snapshot.data.prefs.forwardPrefix, '', 'an explicitly empty upstream prefix survives migration')
@@ -216,7 +215,8 @@ test('STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记'
   const popover = await ctx.addNote('宿主新条目')
 
   snapshot = await ctx.store.snapshot()
-  assert.deepEqual(snapshot.data.sessions['session-1'].items.map(item => item.text), ['宿主新条目', '旧便笺'])
+  assert.deepEqual(snapshot.data.workspaces[UNASSIGNED].items.map(item => item.text), ['宿主新条目', '旧便笺'])
+  assert.deepEqual(snapshot.data.sessions, {}, 'standalone writes leave the legacy host table empty')
   const legacy = JSON.parse(ctx.window.localStorage.getItem(SESSION_KEY))
   assert.equal(legacy.sessions['session-1'].items.length, 1, 'host mode never writes the legacy browser store')
   await ctx.act(async () => { popover.querySelector('summary.dsh-an-storageToggle').click() })
@@ -240,10 +240,10 @@ test('STORE-020 宿主不可用时不切换并保留浏览器写入', async t =>
   await ctx.act(async () => { button.click() })
   await ctx.addNote('仍然本地')
 
-  const legacy = JSON.parse(ctx.window.localStorage.getItem(SESSION_KEY))
-  assert.deepEqual(legacy.sessions['session-1'].items.map(item => item.text), ['仍然本地', '旧便笺'])
+  assert.deepEqual(browserNotes(ctx.window).map(item => item.text), ['仍然本地', '旧便笺'])
+  assert.deepEqual(JSON.parse(ctx.window.localStorage.getItem(SESSION_KEY)).sessions, {})
   const snapshot = await ctx.store.snapshot()
-  assert.deepEqual(snapshot.data.sessions, {}, 'no host write happened before the switch')
+  assert.deepEqual(snapshot.data.workspaces, {}, 'no host write happened before the switch')
 })
 
 test('STORE-022 已切换后宿主不可用进入错误态且不改写浏览器', async t => {
@@ -300,7 +300,8 @@ test('STORE-022 已切换后宿主不可用进入错误态且不改写浏览器'
   await ctx.act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
   await ctx.settle()
   const snapshot = await ctx.store.snapshot()
-  assert.deepEqual(snapshot.data.sessions['session-1'].items.map(item => item.text), ['不应写入', '宿主便笺'])
+  assert.deepEqual(snapshot.data.workspaces[UNASSIGNED].items.map(item => item.text), ['不应写入', '宿主便笺'])
+  assert.deepEqual(snapshot.data.sessions, {})
   assert.equal(ctx.window.localStorage.getItem(SESSION_KEY), legacy)
 })
 
@@ -324,7 +325,7 @@ test('STORE-022 已连接宿主写入失败后可重新连接', async t => {
   assert.match(status.textContent, /STORE_UNAVAILABLE/)
   const input = popover.querySelector('.dsh-an-input')
   assert.equal(input.value, '连接中断期间的草稿')
-  assert.deepEqual((await ctx.store.snapshot()).data.sessions, {})
+  assert.deepEqual((await ctx.store.snapshot()).data.workspaces, {})
   assert.equal(ctx.window.localStorage.getItem(SESSION_KEY), legacy)
 
   options.storeDown = false
@@ -340,7 +341,7 @@ test('STORE-022 已连接宿主写入失败后可重新连接', async t => {
 
   await ctx.act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
   await ctx.settle()
-  const saved = (await ctx.store.snapshot()).data.sessions['session-1'].items
+  const saved = (await ctx.store.snapshot()).data.workspaces[UNASSIGNED].items
   assert.deepEqual(saved.map(item => item.text), ['连接中断期间的草稿'])
   assert.equal(ctx.window.localStorage.getItem(SESSION_KEY), legacy)
 })
@@ -353,7 +354,7 @@ test('STORE-021 宿主已有数据时不迁移并保留本地旧副本', async t
   assert.equal(ctx.window.localStorage.getItem(MODE_KEY), 'host')
   assert.equal(ctx.calls.filter(call => call.method === 'POST').length, 0, 'a non-empty host is never migrated into')
   const snapshot = await ctx.store.snapshot()
-  assert.deepEqual(snapshot.data.sessions['session-1'].items.map(item => item.text), ['宿主便笺'])
+  assert.deepEqual(snapshot.data.workspaces[UNASSIGNED].items.map(item => item.text), ['宿主便笺'])
 
   const { button } = await ctx.openPanel()
   assert.equal(button.querySelector('.dsh-an-headerCount').textContent, '1')
@@ -375,10 +376,10 @@ test('STORE-025 宿主文件打不开时不切换并提示', async t => {
   await ctx.act(async () => { button.click() })
   await ctx.addNote('仍然本地')
 
-  const legacy = JSON.parse(ctx.window.localStorage.getItem(SESSION_KEY))
-  assert.deepEqual(legacy.sessions['session-1'].items.map(item => item.text), ['仍然本地', '旧便笺'])
+  assert.deepEqual(browserNotes(ctx.window).map(item => item.text), ['仍然本地', '旧便笺'])
+  assert.deepEqual(JSON.parse(ctx.window.localStorage.getItem(SESSION_KEY)).sessions, {})
   const snapshot = await ctx.store.snapshot()
-  assert.deepEqual(snapshot.data.sessions, {}, 'no host write happened')
+  assert.deepEqual(snapshot.data.workspaces, {}, 'no host write happened')
 })
 
 test('STORE-028 存储详情按需加载路径并支持拷贝与定位', async t => {
@@ -516,7 +517,7 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
   await act(async () => { panel().querySelector('[aria-label="移除 数据.csv"]').click() })
   await act(async () => { panel().querySelector('.dsh-an-addBtn').click() })
   assert.deepEqual(draftNames(), [])
-  const note = (await store.snapshot()).data.sessions['session-1'].items[0]
+  const note = (await store.snapshot()).data.workspaces[UNASSIGNED].items[0]
   assert.equal(note.text, '')
   assert.deepEqual(note.attachments.map(attachment => attachment.name), ['截图.png', '语音.wav', '录屏.mp4'])
   const row = panel().querySelector('.dsh-an-row')
@@ -529,7 +530,7 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
   assert.equal(new window.URL(download.href).searchParams.get('id'), note.attachments[0].id)
   await act(async () => { row.querySelector('[aria-label="退回"]').click() })
   assert.deepEqual(draftNames(), ['截图.png', '语音.wav', '录屏.mp4'])
-  assert.deepEqual((await store.snapshot()).data.sessions['session-1'].items, [])
+  assert.deepEqual((await store.snapshot()).data.workspaces[UNASSIGNED].items, [])
 })
 
 test('NOTE-012 拒绝无效附件并保留上传失败前的草稿', async t => {

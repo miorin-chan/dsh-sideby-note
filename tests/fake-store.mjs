@@ -2,7 +2,7 @@
  * In-memory stand-ins for the DSH storage domain, shared by host unit tests
  * and the host-mode bundle test.
  */
-export function fakeDomain() {
+export function fakeDomain({ beforeWrite } = {}) {
   const tables = new Map()
   const state = { global: { version: 1 } }
   const table = name => {
@@ -16,12 +16,18 @@ export function fakeDomain() {
         return map.size
       },
       async put(key, value) {
+        await beforeWrite?.(name, 'put')
         map.set(key, structuredClone(value))
       },
       async delete(key) {
         return map.delete(key)
       },
+      async deleteMany(keys) {
+        await beforeWrite?.(name, 'deleteMany')
+        return keys.reduce((count, key) => count + Number(map.delete(key)), 0)
+      },
       async update(key, fn) {
+        await beforeWrite?.(name, 'update')
         if (!map.has(key)) {
           const error = new Error(`missing key '${key}'`)
           error.code = 'missing-key'
@@ -45,9 +51,10 @@ export function fakeDomain() {
   }
 }
 
-export function fakeCtx(domain) {
+export function fakeCtx(domain, workspaceRegistry) {
   return {
     get(name) {
+      if (name === 'workspaceRegistry') return workspaceRegistry
       if (name === 'storageDomain') {
         return {
           async open() {

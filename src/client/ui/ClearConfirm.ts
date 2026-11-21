@@ -4,16 +4,16 @@ import React from 'react'
 const h = React.createElement
 
 export function ClearConfirm(props) {
-  const { say, count, onCancel, onConfirm } = props
+  const { say, text, onCancel, onConfirm } = props
   return h(
     'div',
     {
       className: 'dsh-an-clearConfirm',
       role: 'group',
       'aria-live': 'polite',
-      'aria-label': say('popover.clearConfirm', { n: count }),
+      'aria-label': text,
     },
-    h('p', { className: 'dsh-an-clearConfirmText' }, say('popover.clearConfirm', { n: count })),
+    h('p', { className: 'dsh-an-clearConfirmText' }, text),
     h(
       'div',
       { className: 'dsh-an-clearConfirmActions' },

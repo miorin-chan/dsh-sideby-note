@@ -10,6 +10,8 @@ const h = React.createElement
 interface ComposerFormProps {
   say: (key: string, vars?: Record<string, string>) => string
   draft: string
+  destination?: string
+  destinationPending: boolean
   attachments: NoteAttachment[]
   isSubmitting: boolean
   isRecalling: boolean
@@ -29,13 +31,14 @@ interface ComposerFormProps {
 }
 
 export function ComposerForm(props: ComposerFormProps) {
-  const { say, draft, attachments, isSubmitting, isRecalling, isUploading, canUpload, storageInUse, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit, onFiles, onRemove, onUnavailable, onBusy } = props
+  const { say, draft, destination, destinationPending, attachments, isSubmitting, isRecalling, isUploading, canUpload, storageInUse, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit, onFiles, onRemove, onUnavailable, onBusy } = props
   const pickerRef = React.useRef<HTMLInputElement>(null)
   const attachRef = React.useRef<HTMLButtonElement>(null)
   const dragDepth = React.useRef(0)
   const [dropping, setDropping] = React.useState(false)
   const busy = isSubmitting || isRecalling || isUploading
   const addLabel = say('add.action')
+  const destinationId = React.useId()
   const attachLabel = say('attachment.add')
   const takeFiles = (files: File[]) => {
     if (!files.length) return
@@ -75,6 +78,7 @@ export function ComposerForm(props: ComposerFormProps) {
         takeFiles(Array.from(event.dataTransfer.files))
       },
     },
+    destination && h('div', { id: destinationId, className: 'dsh-an-destination' }, destination),
     h(AttachmentList, { attachments, say, onRemove: index => {
       if (document.activeElement?.closest('.dsh-an-attachment')) attachRef.current?.focus()
       onRemove(index)
@@ -87,6 +91,7 @@ export function ComposerForm(props: ComposerFormProps) {
       maxLength: MAX_TEXT,
       readOnly: isRecalling,
       placeholder: say('add.placeholder'),
+      'aria-describedby': destination ? destinationId : undefined,
       'aria-label': say('add.placeholder'),
       onChange: onDraftChange,
       onCompositionStart,
@@ -129,7 +134,7 @@ export function ComposerForm(props: ComposerFormProps) {
         type: 'submit',
         className: 'dsh-an-addBtn',
         'aria-label': addLabel,
-        disabled: storageInUse || busy || (!draft.trim() && !attachments.length),
+        disabled: destinationPending || storageInUse || busy || (!draft.trim() && !attachments.length),
       },
       h('svg', {
         width: 16,

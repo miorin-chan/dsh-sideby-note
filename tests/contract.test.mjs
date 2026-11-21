@@ -258,8 +258,7 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /dsh-an-headerBtn/)
   assert.match(client, /header\.tooltip/)
   assert.match(client, /scope\.workspaceHint/)
-  assert.match(client, /scope\.sessionHint/)
-  assert.match(client, /scope\.newSessionHint/)
+  assert.match(client, /scope\.globalHint/)
   assert.doesNotMatch(client, /add\.shortcut/)
   assert.match(client, /data-sidebar-right-panel\]\[data-sidebar-right-open\]/)
   assert.match(client, /DRAFT_STORAGE_KEY/)
@@ -745,7 +744,7 @@ test('a failed write keeps the row and says so', () => {
   const client = read('src/client/index.ts') + read('src/client/ui/useSessionMemoStore.ts') + read('src/client/ui/MemoPopover.ts') + read('src/client/ui/useNoteActions.ts') + read('src/client/ui/useComposerDraft.ts')
   // The store writer returns a promise now; a rejection becomes `false`, and
   // only a successful durable write may replace the rendered record.
-  assert.match(client, /setSyncError\(!ok\)\n\s+if \(!ok\) return false/)
+  assert.match(client, /setSyncError\(!ok\)\n\s+if \(ok\) setItems\(readVisibleNotes\(filterRef\.current\)\)/)
   assert.match(client, /if \(!ok\) \{\n\s+report\('saveFailed'\)/)
   assert.match(client, /A failed write keeps the row/)
 })
@@ -984,7 +983,7 @@ test('putting a note into the chat archives it in the same step', () => {
   assert.match(handler, /'inserted'[^\n]*'archiveFailed'/)
   assert.ok(handler.indexOf('appendToConversation') < handler.indexOf('archive(item)'), 'archive only after the text landed')
   const actions = read('src/client/ui/useNoteActions.ts')
-  assert.match(actions, /if \(candidate\.id !== item\.id \|\| candidate\.done\) return candidate/, 'archiving is one-way')
+  assert.match(actions, /if \(candidate\.id !== item\.noteId \|\| candidate\.done\) return candidate/, 'archiving is one-way')
   assert.match(actions, /done: true, updatedAt: now, completedAt: now/)
 })
 
@@ -1020,22 +1019,21 @@ test('clearing archived notes asks for a second confirmation', () => {
   // Cancel and confirm both close the band; only confirm reaches clearDone.
   assert.match(client, /const dismissClearConfirm = \(\) => \{\n\s+stopClearConfirmTimer\(\)\n\s+setConfirmClear\(false\)\n\s+\}/)
   assert.match(client, /const confirmClearDone = \(\) => \{\n\s+dismissClearConfirm\(\)\n\s+onConfirm\(\)\n\s+\}/)
-  assert.match(client, /onConfirm: \(\) => clearDone\(\)/)
+  assert.match(client, /onConfirm: clearDone/)
   assert.match(client, /onClick: onCancel \}, say\('popover\.clearCancel'\)/)
   assert.match(client, /onClick: onConfirm \}, say\('popover\.clearConfirmAction'\)/)
   // The band names the completed count and is announced politely.
   assert.match(client, /className: 'dsh-an-clearConfirm',\n\s+role: 'group',\n\s+'aria-live': 'polite',/)
-  assert.match(client, /count: doneItems\.length/)
   assert.match(client, /onCancel: dismissClearConfirm/)
   assert.match(client, /onConfirm: confirmClearDone/)
-  assert.match(client, /say\('popover\.clearConfirm', \{ n: count \}\)/)
+  assert.match(client, /say\(workspaceFilter \? 'popover\.clearConfirm' : 'popover\.clearGlobalConfirm', \{ n: doneItems\.length \}\)/)
   // Five-second auto-dismiss, with every teardown path dropping the timer.
   assert.match(read('src/client/constants.ts'), /const CLEAR_CONFIRM_MS = 5000/)
   assert.match(client, /clearConfirmTimerRef\.current = window\.setTimeout\(\(\) => \{\n\s+clearConfirmTimerRef\.current = 0\n\s+setConfirmClear\(false\)\n\s+\}, CLEAR_CONFIRM_MS\)/)
   assert.match(client, /React\.useEffect\(\(\) => \(\) => stopClearConfirmTimer\(\), \[\]\)/)
   assert.match(client, /if \(confirmClear && \(!showDone \|\| doneCount === 0\)\) dismissClearConfirm\(\)/)
-  assert.match(client, /doneCount: record\.items\.filter\(item => item\.done\)\.length/)
-  assert.match(client, /React\.useEffect\(\(\) => \{\n\s+dismissClearConfirm\(\)\n\s+\}, \[sessionId\]\)/)
+  assert.match(client, /doneCount: doneItems\.length/)
+  assert.match(client, /React\.useEffect\(\(\) => \{\n\s+dismissClearConfirm\(\)\n\s+\}, \[scope\]\)/)
 })
 
 test('the clear confirmation band reuses card tokens and a danger confirm', () => {

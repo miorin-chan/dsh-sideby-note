@@ -4,6 +4,7 @@ export default defineConfig({
   entry: {
     'attachment-metadata': 'host/attachment-metadata.ts',
     'attachment-route': 'host/attachment-route.ts',
+    'workspace-migration': 'host/workspace-migration.ts',
   },
   outDir: 'host',
   format: 'esm',
@@ -14,7 +15,7 @@ export default defineConfig({
   minify: false,
   clean: false,
   deps: {
-    neverBundle: ['./attachment-metadata.js', './http.js', './store-route.js'],
+    neverBundle: ['./attachment-metadata.js', './http.js', './normalize.js', './store-route.js'],
   },
   outputOptions: {
     entryFileNames: '[name].js',

@@ -37,6 +37,7 @@ export interface HostOpResult {
   prefs?: Record<string, any>
   migrated?: number
   notesMigrated?: number
+  migratedSessionIds?: string[]
   keptLocal?: boolean
   alreadyComplete?: boolean
 }

@@ -10,7 +10,7 @@ import path from 'node:path'
 import test from 'node:test'
 import { createStore, StoreError } from '../host/store.js'
 import { LOCATION_PATH, REVEAL_PATH, registerStoreRoutes, revealCommand, resolveStoreFile, STORE_PATH } from '../host/store-route.js'
-import { createSpec, sessionSchema, workspaceSchema } from '../host/store-spec.js'
+import { createSpec, prefsSchema, sessionSchema, workspaceSchema } from '../host/store-spec.js'
 import { fakeCtx, fakeDomain, requestRejection } from './fake-store.mjs'
 
 function fakeServer() {
@@ -50,9 +50,12 @@ function request(method, headers = {}, body) {
   }
 }
 
-async function storeWith(domain) {
-  return createStore(fakeCtx(domain))
+async function storeWith(domain, workspaceRegistry) {
+  return createStore(fakeCtx(domain, workspaceRegistry))
 }
+
+const note = (id, text = id) => ({ id, text, done: false, createdAt: 1, updatedAt: 1 })
+const list = (...items) => ({ updatedAt: 1, items })
 
 test('empty snapshot reports empty and a stable revision', async () => {
   const store = await storeWith(fakeDomain())
@@ -68,18 +71,21 @@ test('list.patch creates, orders and deletes notes', async () => {
   const a = { id: 'a', text: 'A', done: false, createdAt: 1, updatedAt: 1 }
   const b = { id: 'b', text: 'B', done: false, createdAt: 2, updatedAt: 2 }
 
-  let result = await store.apply({ op: 'list.patch', kind: 'session', listKey: 's1', order: ['a'], upserts: [a] })
+  await assert.rejects(store.apply({ op: 'list.patch', kind: 'session', listKey: 's1', upserts: [a] }),
+    { code: 'STORE_BAD_REQUEST' })
+  assert.deepEqual((await store.snapshot()).data.sessions, {})
+  let result = await store.apply({ op: 'list.patch', kind: 'workspace', listKey: 'w1', order: ['a'], upserts: [a] })
   assert.equal(result.record.items.length, 1)
   assert.equal(result.rev, 1)
 
-  result = await store.apply({ op: 'list.patch', kind: 'session', listKey: 's1', order: ['b', 'a'], upserts: [b] })
+  result = await store.apply({ op: 'list.patch', kind: 'workspace', listKey: 'w1', order: ['b', 'a'], upserts: [b] })
   assert.deepEqual(result.record.items.map(item => item.id), ['b', 'a'])
 
-  result = await store.apply({ op: 'list.patch', kind: 'session', listKey: 's1', order: ['b'], deletes: ['a'] })
+  result = await store.apply({ op: 'list.patch', kind: 'workspace', listKey: 'w1', order: ['b'], deletes: ['a'] })
   assert.deepEqual(result.record.items.map(item => item.id), ['b'])
 
   const snapshot = await store.snapshot()
-  assert.equal(snapshot.data.sessions.s1.items.length, 1)
+  assert.equal(snapshot.data.workspaces.w1.items.length, 1)
   assert.equal(snapshot.empty, false)
 })
 
@@ -98,19 +104,135 @@ test('STORE-023 宿主合并另一标签页新增的条目', async () => {
 })
 
 test('list.ensure folds member sessions in exactly once', async () => {
-  const store = await storeWith(fakeDomain())
+  const domain = fakeDomain()
+  const store = await storeWith(domain)
   const note = { id: 'n1', text: 'from s1', done: false, createdAt: 1, updatedAt: 1 }
-  await store.apply({ op: 'list.patch', kind: 'session', listKey: 's1', order: ['n1'], upserts: [note] })
+  await domain.table('sessions').put('s1', list(note))
 
   let result = await store.apply({ op: 'list.ensure', workspaceId: 'w1', sessionIds: ['s1'] })
   assert.deepEqual(result.record.items.map(item => item.id), ['n1'])
   assert.deepEqual(result.record.seededSessionIds, ['s1'])
+  assert.deepEqual(result.migratedSessionIds, ['s1'])
+  assert.deepEqual((await store.snapshot()).data.sessions, {})
 
   // Deleting the workspace note must not resurrect it on the next ensure.
   await store.apply({ op: 'list.patch', kind: 'workspace', listKey: 'w1', order: [], deletes: ['n1'] })
   result = await store.apply({ op: 'list.ensure', workspaceId: 'w1', sessionIds: ['s1'] })
   assert.deepEqual(result.record.items, [])
-  assert.equal(result.rev, 3)
+  assert.deepEqual(result.migratedSessionIds, [])
+  assert.equal(result.rev, 2)
+})
+
+test('snapshot preserves new notes from previously seeded sessions and migrates every workspace', async () => {
+  const domain = fakeDomain()
+  const current = note('shared', 'workspace edit')
+  const added = { ...note('new'), done: true, completedAt: 3 }
+  await domain.table('workspaces').put('w1', { ...list(current), seededSessionIds: ['s1'] })
+  await domain.table('sessions').put('s1', list({ ...note('shared', 'legacy edit'), updatedAt: 4 }, added))
+  await domain.table('sessions').put('s2', list(note('another member')))
+  await domain.table('sessions').put('s3', list(note('workspace never opened in panel')))
+  await domain.table('sessions').put('s4', list(note('outside registered workspaces')))
+  const store = await storeWith(domain, {
+    list: () => [{ id: 'w1', sessionIds: ['s1', 's2'] }, { id: 'w2', sessionIds: ['s3'] }],
+  })
+
+  const snapshot = await store.snapshot()
+  const { sessions, workspaces } = snapshot.data
+  assert.deepEqual(sessions, {})
+  assert.deepEqual(workspaces.w1.items, [current, added, note('another member')])
+  assert.deepEqual(workspaces.w1.seededSessionIds, ['s1', 's2'])
+  assert.deepEqual(workspaces.w2.items, [note('workspace never opened in panel')])
+  assert.deepEqual(workspaces['sideby-note:unassigned'].items, [note('outside registered workspaces')])
+  assert.deepEqual(await store.snapshot(), snapshot, 'an already migrated snapshot performs no writes')
+})
+
+test('an unavailable registry preserves unresolved rows until membership is known', async () => {
+  const domain = fakeDomain()
+  let workspaces
+  const store = await storeWith(domain, { list: () => workspaces })
+  await domain.table('sessions').put('s1', list(note('explicit member')))
+  await domain.table('sessions').put('unknown', list(note('unresolved')))
+
+  assert.deepEqual(Object.keys((await store.snapshot()).data.sessions), ['s1', 'unknown'])
+  const unassigned = await store.apply({ op: 'list.ensure', workspaceId: 'sideby-note:unassigned', sessionIds: ['unknown'] })
+  assert.deepEqual(unassigned.migratedSessionIds, [])
+  assert.deepEqual(unassigned.record.items, [])
+  assert.equal(domain.table('workspaces').get('sideby-note:unassigned'), undefined)
+  const explicit = await store.apply({ op: 'list.ensure', workspaceId: 'w1', sessionIds: ['s1', 's1'] })
+  assert.deepEqual(explicit.migratedSessionIds, ['s1'])
+  assert.deepEqual(explicit.record.items, [note('explicit member')])
+  assert.deepEqual(Object.keys((await store.snapshot()).data.sessions), ['unknown'])
+
+  workspaces = []
+  const snapshot = await store.snapshot()
+  assert.deepEqual(snapshot.data.sessions, {})
+  assert.deepEqual(snapshot.data.workspaces['sideby-note:unassigned'].items, [note('unresolved')])
+})
+
+test('list.ensure uses authoritative membership whenever the registry is mounted', async () => {
+  const domain = fakeDomain()
+  const store = await storeWith(domain, { list: () => [{ id: 'w1', sessionIds: ['s1'] }, { id: 'w2', sessionIds: ['s2'] }] })
+  await domain.table('sessions').put('s1', list(note('first')))
+  await domain.table('sessions').put('s2', list(note('second')))
+
+  const ensured = await store.apply({ op: 'list.ensure', workspaceId: 'w1', sessionIds: ['s2'] })
+  assert.deepEqual(ensured.migratedSessionIds, ['s1'])
+  assert.deepEqual(ensured.record.items, [note('first')])
+  assert.deepEqual([...domain.table('sessions').keys()], ['s2'])
+  assert.deepEqual((await store.snapshot()).data.workspaces.w2.items, [note('second')])
+})
+
+test('session migration retries safely before the copy and between copy and cleanup', async () => {
+  let failedWrite
+  let workspaceWrites = 0
+  const domain = fakeDomain({ beforeWrite(table, method) {
+    if (`${table}.${method}` === failedWrite) throw new Error(`interrupted at ${failedWrite}`)
+    if (table === 'workspaces') workspaceWrites += 1
+  } })
+  const registry = { list: () => [{ id: 'w1', sessionIds: ['s1', 's2'] }] }
+  const source = list(note('same-id'))
+  await domain.table('sessions').put('s1', source)
+  await domain.table('sessions').put('s2', list(note('same-id'), note('additional')))
+
+  const store = await storeWith(domain, registry)
+  failedWrite = 'workspaces.put'
+  await assert.rejects(store.snapshot(), /interrupted at workspaces\.put/)
+  assert.equal(domain.table('workspaces').get('w1'), undefined)
+  assert.deepEqual(domain.table('sessions').get('s1'), source)
+
+  failedWrite = 'sessions.deleteMany'
+  await assert.rejects(store.snapshot(), /interrupted at sessions\.deleteMany/)
+  const copied = domain.table('workspaces').get('w1')
+  assert.deepEqual(copied.items, [note('same-id'), note('additional')])
+  assert.deepEqual([...domain.table('sessions').keys()], ['s1', 's2'])
+  await store.close()
+
+  failedWrite = undefined
+  const retried = await storeWith(domain, registry)
+  const { data } = await retried.snapshot()
+  assert.deepEqual(data.workspaces.w1, copied)
+  assert.deepEqual(data.sessions, {})
+  assert.equal(workspaceWrites, 1, 'retry only needs the source cleanup')
+})
+
+test('a workspace deletion cannot run ahead of a failed source cleanup', async () => {
+  let failCleanup = true
+  const domain = fakeDomain({ beforeWrite(table, method) {
+    if (failCleanup && table === 'sessions' && method === 'deleteMany') throw new Error('cleanup interrupted')
+  } })
+  const store = await storeWith(domain, { list: () => [{ id: 'w1', sessionIds: ['s1'] }] })
+  await domain.table('sessions').put('s1', list(note('pending')))
+  await assert.rejects(store.snapshot(), /cleanup interrupted/)
+
+  const patch = { op: 'list.patch', kind: 'workspace', listKey: 'w1', deletes: ['pending'] }
+  await assert.rejects(store.apply(patch), /cleanup interrupted/)
+  assert.deepEqual(domain.table('workspaces').get('w1').items, [note('pending')])
+
+  failCleanup = false
+  assert.deepEqual((await store.apply(patch)).record.items, [])
+  const { data } = await store.snapshot()
+  assert.deepEqual(data.sessions, {})
+  assert.deepEqual(data.workspaces.w1.items, [])
 })
 
 test('STORE-026 宿主模式清单保存归档状态', async () => {
@@ -131,14 +253,18 @@ test('STORE-026 宿主模式清单保存归档状态', async () => {
 
 test('STORE-026 宿主模式偏好持久化', async () => {
   const domain = fakeDomain()
-  await domain.global.set({ version: 1, forwardPrefix: '上游前缀', sendShortcut: 'enter' })
+  await domain.global.set({ version: 1, scopeMode: 'session', forwardPrefix: '上游前缀', sendShortcut: 'enter' })
   const store = await storeWith(domain)
-  await store.apply({ op: 'prefs.set', patch: { scopeMode: 'session', forwardPrefix: '应忽略', sendShortcut: 'ctrl-enter' } })
-  await assert.rejects(store.apply({ op: 'prefs.set', patch: { scopeMode: 'other' } }),
-    error => error instanceof StoreError && error.code === 'STORE_BAD_REQUEST')
+  assert.equal((await store.snapshot()).data.prefs.scopeMode, 'session', 'legacy preferences are readable')
+  await store.apply({ op: 'prefs.set', patch: { scopeMode: 'workspace' } })
+  await store.apply({ op: 'prefs.set', patch: { scopeMode: 'global', forwardPrefix: '应忽略', sendShortcut: 'ctrl-enter' } })
+  for (const scopeMode of ['session', 'other']) {
+    await assert.rejects(store.apply({ op: 'prefs.set', patch: { scopeMode } }),
+      error => error instanceof StoreError && error.code === 'STORE_BAD_REQUEST')
+  }
   const snapshot = await store.snapshot()
-  assert.equal(snapshot.data.prefs.scopeMode, 'session')
-  assert.deepEqual(domain.global.get(), { version: 1, scopeMode: 'session', forwardPrefix: '上游前缀', sendShortcut: 'enter' })
+  assert.equal(snapshot.data.prefs.sidebyNoteScopeMode, 'global')
+  assert.deepEqual(domain.global.get(), { version: 1, scopeMode: 'session', sidebyNoteScopeMode: 'global', forwardPrefix: '上游前缀', sendShortcut: 'enter' })
 })
 
 test('migrate is two-phase and idempotent', async () => {
@@ -166,6 +292,39 @@ test('migrate is two-phase and idempotent', async () => {
   assert.equal(second.alreadyComplete, true)
   assert.equal(second.migrated, 0)
   assert.equal(second.notesMigrated, 0)
+})
+
+test('browser import compacts durable session rows after it finishes, including on cleanup retry', async () => {
+  let failCleanup = true
+  const domain = fakeDomain({ beforeWrite(table, method) {
+    if (failCleanup && table === 'sessions' && method === 'deleteMany') throw new Error('interrupted after browser import')
+  } })
+  const store = await storeWith(domain, { list: () => [{ id: 'w1', sessionIds: ['s1'] }] })
+  const persisted = note('n1', 'persisted before interruption')
+  const workspace = note('n2', 'from browser workspace')
+  await domain.table('sessions').put('s1', list(persisted))
+  await domain.global.set({ version: 1, migration: { complete: false, at: 1, source: 'localStorage' } })
+  const op = {
+    op: 'migrate',
+    snapshot: {
+      sessions: { s1: list(note('n1', 'stale from browser')), unknown: list(note('n3')) },
+      workspaces: { w1: { ...list(workspace), seededSessionIds: ['s1'] } },
+      prefs: { scopeMode: 'global' },
+    },
+  }
+
+  assert.deepEqual((await store.snapshot()).data.sessions.s1.items, [persisted], 'pending import retains its source rows')
+  await assert.rejects(store.apply(op), /interrupted after browser import/)
+  assert.deepEqual(domain.table('workspaces').get('w1').items, [workspace, persisted])
+  assert.equal(domain.global.get().migration.complete, true)
+
+  failCleanup = false
+  assert.equal((await store.apply(op)).alreadyComplete, true)
+  assert.equal(domain.table('sessions').size, 0, 'a successful import retry already finishes cleanup before the next GET')
+  const { data } = await store.snapshot()
+  assert.deepEqual(data.workspaces.w1.items, [workspace, persisted])
+  assert.deepEqual(data.workspaces['sideby-note:unassigned'].items, [note('n3')])
+  assert.equal(data.prefs.sidebyNoteScopeMode, 'global')
 })
 
 test('STORE-021 探测后已有宿主数据时拒绝迁移', async () => {
@@ -230,6 +389,10 @@ test('the spec is valid and rejects malformed records', () => {
   assert.deepEqual(Object.keys(spec.tables).sort(), ['forwarded', 'sessions', 'workspaces'])
   assert.equal(sessionSchema.safeParse({ updatedAt: 1, items: [{ id: 'a', text: '', done: false, createdAt: 1, updatedAt: 1 }] }).success, false)
   assert.equal(workspaceSchema.safeParse({ updatedAt: 1, items: [], seededSessionIds: [] }).success, true)
+  assert.equal(prefsSchema.safeParse({ sidebyNoteScopeMode: 'global' }).success, true)
+  assert.equal(prefsSchema.safeParse({ scopeMode: 'global' }).success, false)
+  assert.equal(prefsSchema.safeParse({ scopeMode: 'session' }).success, true)
+  assert.equal(prefsSchema.safeParse({ scopeMode: 'other' }).success, false)
 })
 
 test('store routes enforce method, origin, content type and JSON body', async () => {
@@ -259,7 +422,7 @@ test('store routes enforce method, origin, content type and JSON body', async ()
   assert.equal(res.status, 400)
 
   res = response()
-  await route.handler(request('POST', { 'content-type': 'application/json' }, { op: 'list.patch', kind: 'session', listKey: 's1', order: [], upserts: [] }), res)
+  await route.handler(request('POST', { 'content-type': 'application/json' }, { op: 'list.patch', kind: 'workspace', listKey: 'w1', order: [], upserts: [] }), res)
   assert.equal(res.status, 200)
   assert.equal(res.body.ok, true)
 
@@ -302,7 +465,7 @@ test('STORE-027 宿主模式 400 条仍可新增', async () => {
   }))
   const first = await store.apply({
     op: 'list.patch',
-    kind: 'session',
+    kind: 'workspace',
     listKey: 'big',
     order: notes.map(note => note.id),
     upserts: notes,
@@ -312,14 +475,14 @@ test('STORE-027 宿主模式 400 条仍可新增', async () => {
   const extra = { id: 'n400', text: '第 401 条', done: false, createdAt: 400, updatedAt: 400 }
   const second = await store.apply({
     op: 'list.patch',
-    kind: 'session',
+    kind: 'workspace',
     listKey: 'big',
     order: [...notes.map(note => note.id), extra.id],
     upserts: [extra],
   })
   assert.equal(second.record.items.length, 401)
   const snapshot = await store.snapshot()
-  assert.equal(snapshot.data.sessions.big.items.length, 401)
+  assert.equal(snapshot.data.workspaces.big.items.length, 401)
 })
 
 test('STORE-028 存储文件路径可查看', async () => {

@@ -11,7 +11,7 @@ export function NoteList(props) {
     say, listRef, listHasMore, syncListEdge,
     showOpen, toggleOpen, openItems, openListRef, openCount, total, row, hideEmptyState,
     showDone, toggleDone, doneItems,
-    confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone,
+    clearConfirmText, confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone,
   } = props
   return     h(
         'div',
@@ -81,7 +81,7 @@ export function NoteList(props) {
                 showDone && confirmClear
                   ? h(ClearConfirm, {
                       say,
-                      count: doneItems.length,
+                      text: clearConfirmText,
                       onCancel: dismissClearConfirm,
                       onConfirm: confirmClearDone,
                     })

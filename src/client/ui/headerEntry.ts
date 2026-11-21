@@ -6,11 +6,9 @@
  */
 import type { ShortcutCatalogEntry } from '@deepseek-ai/dsh-client-shortcuts/client'
 import { SCOPE_MODE_KEY, SESSION_STORAGE_KEY, WORKSPACE_STORAGE_KEY } from '../constants'
-import { normalizeItems } from '../domain/items'
-import { scopeForSession, scopeKey, sessionReadyFor, workspaceScopeForSession } from '../scope'
-import { readSessionStore } from '../storage/session'
+import { sessionReadyFor, workspaceForSession } from '../scope'
 import { readScopeMode } from '../storage/prefs'
-import { readWorkspaceRecord } from '../storage/workspace'
+import { readVisibleNotes } from '../storage/workspace'
 import { TODO_LISTENERS } from '../storage/events'
 
 const HEADER_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" aria-hidden="true"><path d="M3.25 2.75h6.5l3 3v7.5c0 .55-.45 1-1 1H3.25c-.55 0-1-.45-1-1V3.75c0-.55.45-1 1-1Z"/><path d="M9.75 2.75v3h3"/><path d="M4.9 7.6h5.4M4.9 9.9h3.6" stroke-linecap="round"/></svg>'
@@ -49,15 +47,6 @@ export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, 
       return
     }
     const ready = sessionReadyFor(sessionId)
-    const workspace = workspaceScopeForSession(sessionId)
-    // A blank new session has no conversation header utilities yet. Its notes
-    // are workspace notes, so the entry moves to the header corner — the only
-    // top-right seat the host renders while the new-session page is blank. A
-    // blank session outside a workspace has no list to offer and stays hidden.
-    if (!ready && !workspace) {
-      if (button) button.remove()
-      return
-    }
     const utilities = document.querySelector('[class*="_headerUtilities"]')
     const corner = ready ? null : document.querySelector('[class*="_headerCorner"]')
     const host = utilities || corner
@@ -65,12 +54,9 @@ export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, 
       if (button) button.remove()
       return
     }
-    const scope = scopeForSession(sessionId, readScopeMode())
-    const store = readSessionStore()
-    const items = scope.kind === 'workspace'
-      ? readWorkspaceRecord(scope.id).items
-      : normalizeItems(store.sessions[sessionId] && store.sessions[sessionId].items)
-    const open = items.filter(item => !item.done).length
+    const workspaceId = workspaceForSession(sessionId)?.workspaceId
+    const workspaceFilter = readScopeMode() === 'workspace' ? workspaceId ?? null : null
+    const open = readVisibleNotes(workspaceFilter).filter(item => !item.done).length
     if (!button) {
       button = document.createElement('button')
       button.type = 'button'
@@ -95,8 +81,8 @@ export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, 
     const expanded = getActiveAnchor() === button ? 'true' : 'false'
     button.dataset.active = expanded
     button.setAttribute('aria-expanded', expanded)
-    button.dataset.scope = scope.kind
-    const signature = `${getLocaleId()}:${scopeKey(scope)}:${open}`
+    button.dataset.scope = workspaceFilter ? 'workspace' : 'global'
+    const signature = `${getLocaleId()}:${workspaceFilter ?? 'global'}:${open}`
     if (button.dataset.signature !== signature) {
       const icon = document.createElement('span')
       icon.className = 'dsh-an-headerIcon'

@@ -1,26 +1,16 @@
-/**
- * Session-scoped notes.
- *
- * Two media, one shape: while this browser is still on `localStorage` the
- * record lives under `SESSION_STORAGE_KEY`; after the one-way switch the same
- * record lives in the host snapshot's `sessions` table and writes go through
- * the host route. The workspace key is separate, so existing per-session data
- * is never rewritten into a new schema.
- */
+/** Read and retire legacy session records during workspace migration. */
 import { SESSION_STORAGE_KEY } from '../constants'
-import { normalizeItems } from '../domain/items'
 import { setAsideUnreadable, storage } from './codec'
 import { notifyTodoChange } from './events'
-import { mergeItems } from './merge'
-import { commitList } from './ops'
-import { hostAuthoritative, hostRecord, hostTable, storageMode } from './state'
+import { hostAuthoritative, hostTable } from './state'
 
 /** Empty note store. */
 export function emptySessionStore() {
   return { version: 1, sessions: {} as Record<string, any> }
 }
 
-const bucket = value => (value && typeof value === 'object' && !Array.isArray(value) ? value : {})
+const bucket = (value: unknown): Record<string, any> =>
+  value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, any> : {}
 
 /**
  * Read the browser store; corrupt or unavailable reads as empty.
@@ -74,53 +64,4 @@ export function writeSessionStore(store) {
   } catch {
     return false
   }
-}
-
-/** Read one session's memo record. */
-export function readSessionRecord(sessionId) {
-  const key = sessionId ? String(sessionId) : ''
-  if (!key) return { items: [], updatedAt: 0 }
-  if (hostAuthoritative()) {
-    const record = hostRecord('sessions', key)
-    return {
-      items: normalizeItems(record && record.items),
-      updatedAt: record && Number.isFinite(record.updatedAt) ? record.updatedAt : 0,
-    }
-  }
-  const record = readLocalStore().sessions[key]
-  return {
-    items: normalizeItems(record && record.items),
-    updatedAt: record && Number.isFinite(record.updatedAt) ? record.updatedAt : 0,
-  }
-}
-
-/**
- * Persist one session's memo record.
- *
- * Host mode sends only the changed notes; the host applies them atomically to
- * its latest record. Local mode reads the latest stored record first and merges
- * by id, so a note another tab added is not overwritten; `base` is the list this
- * tab rendered, and ids missing from `record.items` are this tab's deletions.
- *
- * @returns resolution with whether the write was accepted/durable
- */
-export async function writeSessionRecord(sessionId, record, base = null) {
-  const key = sessionId ? String(sessionId) : ''
-  if (!key) return false
-  const mode = storageMode()
-  if (mode === 'probing' || mode === 'error') return false
-  if (mode === 'host') {
-    return commitList('session', key, normalizeItems(record && record.items))
-  }
-  const store = readLocalStore()
-  const previous = store.sessions[key]
-  store.sessions[key] = {
-    sessionId: key,
-    updatedAt: Math.max(
-      record.updatedAt || 0,
-      previous && Number.isFinite(previous.updatedAt) ? previous.updatedAt : 0,
-    ) || Date.now(),
-    items: mergeItems(normalizeItems(previous && previous.items), normalizeItems(record.items), base),
-  }
-  return writeSessionStore(store)
 }

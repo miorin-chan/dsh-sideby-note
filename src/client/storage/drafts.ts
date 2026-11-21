@@ -3,9 +3,9 @@
  *
  * Records are keyed by draft scope, not by conversation: inside a workspace
  * every member session shares one buffer (`ws:<workspaceId>`), so switching
- * conversations or the workspace/session scope never strands half-typed text.
- * A session outside a workspace keeps its own key. Saving still writes the
- * list selected at that moment. The map field stays `sessions` so the existing
+ * conversations or filters never strands half-typed text.
+ * A session outside a workspace keeps its own key. Recalled notes remember
+ * their original workspace. The map field stays `sessions` so the existing
  * store keeps its shape.
  */
 import { DRAFT_STORAGE_KEY, MAX_TEXT } from '../constants'
@@ -91,6 +91,7 @@ export function readScopeDrafts(key) {
   return {
     add: typeof record?.add === 'string' ? record.add : '',
     attachments: normalizeAttachments(record?.attachments),
+    workspaceId: typeof record?.workspaceId === 'string' ? record.workspaceId : undefined,
   }
 }
 
@@ -101,7 +102,7 @@ export function pruneDraftScope(store, key) {
   if (!hasAdd && normalizeAttachments(record.attachments).length === 0) delete store.sessions[key]
 }
 
-export function saveAddDraft(key: string, text: string, attachments?: NoteAttachment[]) {
+export function saveAddDraft(key: string, text: string, attachments?: NoteAttachment[], workspaceId?: string | null) {
   const id = keyOf(key)
   if (!id) return false
   const store = readDraftStore()
@@ -111,6 +112,8 @@ export function saveAddDraft(key: string, text: string, attachments?: NoteAttach
   else delete record.add
   if (attachments?.length) record.attachments = attachments
   else if (attachments) delete record.attachments
+  if (workspaceId) record.workspaceId = workspaceId
+  else if (workspaceId === null) delete record.workspaceId
   // Inline editing is gone; retire an edit map left by an older version.
   delete record.edits
   store.sessions[id] = record
@@ -121,7 +124,7 @@ export function saveAddDraft(key: string, text: string, attachments?: NoteAttach
 }
 
 export function clearAddDraft(key: string) {
-  return saveAddDraft(key, '', [])
+  return saveAddDraft(key, '', [], null)
 }
 
 /**
@@ -146,7 +149,7 @@ export function ensureDraftScope(key, sessionId, sessionIds) {
   const attachments = normalizeAttachments(legacy.attachments)
   if (!add && attachments.length === 0) return false
 
-  store.sessions[target] = { ...(add ? { add } : {}), ...(attachments.length ? { attachments } : {}) }
+  store.sessions[target] = { ...(add ? { add } : {}), ...(attachments.length ? { attachments } : {}), ...(legacy.workspaceId ? { workspaceId: legacy.workspaceId } : {}) }
   for (const member of members) delete store.sessions[member]
   // A stale workspace binding may not list the source; retire it regardless so
   // it cannot seed the shared key a second time.

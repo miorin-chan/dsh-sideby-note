@@ -7,11 +7,10 @@
  */
 import React from 'react'
 import { PANEL_DEFAULT_WIDTH, SCOPE_MODE_KEY } from '../constants'
-import { canUseSessionScope, draftKeyForSession, scopeForSession, scopeVersion, subscribeScope, workspaceScopeForSession } from '../scope'
+import { draftKeyForSession, UNASSIGNED_WORKSPACE, workspaceCatalogReady, workspaceForSession, workspaceTitle, type ScopeMode } from '../scope'
 import { STORE_READY_LISTENERS, TODO_LISTENERS, notifyTodoChange } from '../storage/events'
 import { retryStorage } from '../storage/boot'
 import { readScopeMode, writeScopeMode } from '../storage/prefs'
-import { ensureWorkspaceRecord } from '../storage/workspace'
 import { isHostConnectionFailure, storageFailure, storageMode } from '../storage/state'
 import { useMemoStore } from './useSessionMemoStore'
 import { usePanelGeometry } from './usePanelGeometry'
@@ -70,7 +69,7 @@ export function MemoPopover(props) {
     ? props.getLocaleId()
     : (props.localeId || 'en')
   const sessionId = props.sessionId || ''
-  /** The header switch remembers its choice; a workspace-less session stays session-scoped. */
+  /** The saved filter applies whenever its workspace is available. */
   const [mode, setMode] = React.useState(() => readScopeMode())
   React.useEffect(() => {
     const onStorage = event => {
@@ -87,20 +86,16 @@ export function MemoPopover(props) {
       window.removeEventListener('storage', onStorage)
     }
   }, [])
-  // Readiness lives in the module binding, not in React state: the header
-  // entry and the panel must agree without a parent component between them.
-  React.useSyncExternalStore(subscribeScope, scopeVersion, scopeVersion)
-  const canUseWorkspace = Boolean(workspaceScopeForSession(sessionId))
-  const canUseSession = canUseSessionScope(sessionId)
-  // A blank new session keeps the workspace list even when the stored mode is
-  // `session`; once its first turn lands, the stored mode applies again.
-  const effectiveMode = canUseSession ? mode : 'workspace'
-  const scope = scopeForSession(sessionId, effectiveMode)
-  // Drafts follow the workspace, not the tab; the writer below still follows `scope`.
+  const workspace = workspaceForSession(sessionId)
+  const workspaceId = workspaceCatalogReady() ? workspace?.workspaceId ?? UNASSIGNED_WORKSPACE : null
+  const workspaceFilter = mode === 'workspace' ? workspace?.workspaceId ?? null : null
+  const effectiveMode = workspaceFilter ? 'workspace' : 'global'
+  const nameOfWorkspace = (id: string) => id === UNASSIGNED_WORKSPACE
+    ? say('scope.unassigned')
+    : workspaceTitle(id) || id
   const draftKey = draftKeyForSession(sessionId)
-  /** Settled outcomes go to the frame-wide toast host, not to inline marks. */
   const report = typeof props.onToast === 'function' ? props.onToast : () => {}
-  const { record, syncError, commit } = useMemoStore(scope)
+  const { items, syncError, commit } = useMemoStore(workspaceFilter)
   const storeMode = React.useSyncExternalStore(subscribeStorageStatus, storageMode, storageMode)
   const failure = React.useSyncExternalStore(subscribeStorageStatus, storageFailure, storageFailure)
   const connectionError = storeMode === 'error' || (storeMode === 'host' && isHostConnectionFailure(failure))
@@ -114,18 +109,13 @@ export function MemoPopover(props) {
   const canUpload = storeMode === 'host'
   const { draft, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown } = useComposerDraft({
     draftKey,
+    workspaceId,
     commit,
     report,
     storageInUse,
     canUpload,
   })
   const { archive, move, takeBack } = useNoteActions({ commit, report })
-  const { confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = useClearConfirm({
-    sessionId,
-    showDone,
-    doneCount: record.items.filter(item => item.done).length,
-    onConfirm: () => clearDone(),
-  })
   const panelRef = React.useRef(null)
   const {
     style,
@@ -137,41 +127,57 @@ export function MemoPopover(props) {
     onPanelHeightKeyDown,
   } = usePanelGeometry(props.anchorRef, props.placement, panelRef)
 
-  const items = record.items || []
   const openItems = items.filter(item => !item.done)
   const doneItems = items.filter(item => item.done).sort(compareDoneItems)
   const openCount = openItems.length
   const total = items.length
   const { listRef, listHasMore, syncListEdge } = useListEdge({ items, showOpen, showDone })
-  const reorder = useRowReorder({ ids: openItems.map(item => item.id), scrollRef: listRef, onMove: move })
+  const openById = new Map(openItems.map(item => [item.id, item]))
+  const reorder = useRowReorder({
+    ids: openItems.map(item => item.id),
+    groupFor: id => openById.get(id)?.workspaceId,
+    scrollRef: listRef,
+    onMove: (id, index) => {
+      const item = openById.get(id)
+      if (!item) return Promise.resolve(false)
+      const first = openItems.findIndex(candidate => candidate.workspaceId === item.workspaceId)
+      return move(item, index - first)
+    },
+  })
   useOutsideDismiss(panelRef, props.anchorRef, props.onClose)
 
-  const chooseScope = next => {
-    if (next === mode) return
-    if (next === 'session' && !canUseSession) return
-    if (next === 'workspace' && !canUseWorkspace) return
-    // The workspace may not have been seeded yet if the panel opened while the
-    // session list was selected; fold member notes in before reading it.
-    if (next === 'workspace') {
-      const workspace = scopeForSession(sessionId, 'workspace')
-      if (workspace.kind === 'workspace') void ensureWorkspaceRecord(workspace.id, workspace.sessionIds)
+  const clearDone = async () => {
+    const idsByWorkspace = new Map<string, Set<string>>()
+    for (const item of doneItems) {
+      const ids = idsByWorkspace.get(item.workspaceId)
+      if (ids) ids.add(item.noteId)
+      else idsByWorkspace.set(item.workspaceId, new Set([item.noteId]))
     }
-    // Leaving a list discards a pending clear confirmation; the composer
-    // draft belongs to the workspace, so it survives the switch.
+    let clearedAny = false
+    for (const [owner, ids] of idsByWorkspace) {
+      const ok = await commit(owner, current => current.filter(item => !item.done || !ids.has(item.id)))
+      if (!ok) {
+        report(clearedAny ? 'clearPartial' : 'saveFailed')
+        return
+      }
+      clearedAny = true
+    }
+    report('cleared')
+    applySections({ open: sectionsRef.current.open, done: false })
+  }
+  const { confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = useClearConfirm({
+    scope: workspaceFilter,
+    showDone,
+    doneCount: doneItems.length,
+    onConfirm: clearDone,
+  })
+
+  const chooseScope = (next: ScopeMode) => {
+    if (next === effectiveMode) return
     writeScopeMode(next)
     setMode(next)
     dismissClearConfirm()
     notifyTodoChange()
-  }
-
-  const clearDone = async () => {
-    const ok = await commit(currentItems => currentItems.filter(item => !item.done))
-    if (!ok) {
-      report('saveFailed')
-      return
-    }
-    report('cleared')
-    applySections({ open: sectionsRef.current.open, done: false })
   }
 
   /**
@@ -215,6 +221,7 @@ export function MemoPopover(props) {
     key: item.id,
     item,
     archived: item.done === true,
+    workspaceName: workspaceFilter ? undefined : nameOfWorkspace(item.workspaceId),
     say,
     localeId,
     onToast: report,
@@ -265,8 +272,7 @@ export function MemoPopover(props) {
       total,
       onClose: props.onClose,
       scopeMode: effectiveMode,
-      canUseWorkspace,
-      canUseSession,
+      canUseWorkspace: Boolean(workspace),
       onScopeChange: chooseScope,
     }),
     connectionError && h('div', { className: 'dsh-an-storageStatus' },
@@ -298,6 +304,12 @@ export function MemoPopover(props) {
     h(ComposerForm, {
       say,
       draft: draft.add,
+      destination: draft.workspaceId || workspaceId
+        ? effectiveMode === 'global' || draft.workspaceId
+          ? say('add.destination', { workspace: nameOfWorkspace(draft.workspaceId ?? workspaceId) })
+          : undefined
+        : say('scope.loading'),
+      destinationPending: !draft.workspaceId && !workspaceId,
       attachments: draft.attachments,
       isSubmitting,
       isRecalling,
@@ -335,6 +347,7 @@ export function MemoPopover(props) {
       showDone,
       toggleDone,
       doneItems,
+      clearConfirmText: say(workspaceFilter ? 'popover.clearConfirm' : 'popover.clearGlobalConfirm', { n: doneItems.length }),
       confirmClear,
       askClearConfirm,
       dismissClearConfirm,

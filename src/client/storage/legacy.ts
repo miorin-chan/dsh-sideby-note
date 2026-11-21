@@ -25,7 +25,7 @@ export interface LegacySnapshot {
   sessions: Record<string, any>
   workspaces: Record<string, any>
   forwarded: Record<string, any>
-  prefs: { scopeMode?: 'workspace' | 'session'; sendShortcut?: 'enter' | 'ctrl-enter'; forwardPrefix?: string }
+  prefs: { scopeMode?: 'workspace' | 'global'; sendShortcut?: 'enter' | 'ctrl-enter'; forwardPrefix?: string }
 }
 
 const bucket = (value: unknown) => (value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, any> : {})
@@ -68,14 +68,16 @@ export function readLegacySnapshot(): LegacySnapshot {
   const prefs: LegacySnapshot['prefs'] = {}
 
   const scope = readItem(SCOPE_MODE_KEY)
-  if (scope === 'workspace' || scope === 'session') prefs.scopeMode = scope
+  if (scope === 'workspace' || scope === 'global') prefs.scopeMode = scope
   const shortcut = readItem(SEND_SHORTCUT_KEY)
   if (shortcut === 'enter' || shortcut === 'ctrl-enter') prefs.sendShortcut = shortcut
   const prefix = readItem(FORWARD_PREFIX_STORAGE_KEY)
   if (typeof prefix === 'string') prefs.forwardPrefix = prefix.slice(0, 80)
 
+  const pendingCleanup = new Set<string>(Array.isArray(workspaceStore?.pendingSessionCleanup) ? workspaceStore.pendingSessionCleanup : [])
+  const sessions = Object.fromEntries(Object.entries(bucket(sessionStore?.sessions)).filter(([id]) => !pendingCleanup.has(id)))
   return {
-    sessions: bucket(sessionStore?.sessions),
+    sessions,
     workspaces: bucket(workspaceStore?.workspaces),
     forwarded: bucket(forwardedStore?.sessions),
     prefs,

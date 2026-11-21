@@ -1,6 +1,6 @@
 # 清单范围与归属（SCOPE）
 #
-# 业务语义：一条便笺属于工作区还是某个会话，切换时看到什么。
+# 业务语义：便笺的工作区归属决定写入位置，筛选决定显示范围。
 # 这是本插件最容易出错、也最伤用户信任的一块。
 domain: scope
 owner: scope
@@ -14,8 +14,8 @@ cases:
     risk: data_loss
     expected:
       - 第一次捕获工作区时创建共享清单
-      - 成员会话的既有便笺全部并入，且每个会话只并入一次
-      - 会话键保持原结构，不写入工作区数据
+      - 两组成员会话的便笺分别并入所属工作区，已经并入过的会话仍补入不同 ID 的条目
+      - 成功迁移后移除浏览器的旧会话记录，工作区数据写入工作区键
     automation:
       - type: integration
         file: tests/bundle.test.mjs
@@ -31,7 +31,7 @@ cases:
     rules: [R-SCOPE-DEFAULT, R-PANEL-COPY]
     risk: ux
     expected:
-      - 范围开关有「工作区」「会话」两项，默认选中工作区
+      - 范围开关有「全局」「工作区」两项，默认选中工作区
       - 展开页脚「存储与更新」后说明便笺仍保存在本浏览器
     automation:
       - type: integration
@@ -42,18 +42,18 @@ cases:
     tags: [scope-switch]
 
   - id: SCOPE-003
-    title: 切到会话范围只显示本会话便笺
+    title: 全局范围汇总各工作区便笺
     priority: P1
     class: B
     rules: [R-SCOPE-DEFAULT]
     risk: ux
     expected:
-      - 会话范围只列出当前会话的便笺
+      - 全局显示两个工作区的便笺，相同原始 ID 的行可分别操作
       - 选择写入存储，入口角标跟随所选范围
     automation:
       - type: integration
         file: tests/bundle.test.mjs
-        test: SCOPE-003 切到会话范围只显示本会话便笺
+        test: SCOPE-003 全局范围汇总各工作区便笺
         status: automated
     suites: [pr, nightly, release]
     tags: [scope-switch, badge]
@@ -111,105 +111,105 @@ cases:
     tags: [workspace, sharing]
 
   - id: SCOPE-007
-    title: 会话范围提交落到会话清单
+    title: 全局范围新增便笺写入当前工作区
     priority: P1
     class: B
     rules: [R-SCOPE-SAVE, R-DRAFT-SCOPE]
     risk: data_loss
     expected:
-      - 在会话范围提交时写入当前会话清单
-      - 工作区清单条数不变
+      - 在全局范围提交时写入当前工作区清单
+      - 另一工作区清单保持原样
       - 提交后共享草稿被消费
     automation:
       - type: integration
         file: tests/bundle.test.mjs
-        test: SCOPE-007 会话范围提交落到会话清单
+        test: SCOPE-007 全局范围新增便笺写入当前工作区
         status: automated
     suites: [pr, nightly, release]
     tags: [persistence, scope-switch]
 
   - id: SCOPE-008
-    title: 空白会话只提供工作区范围并可写入
+    title: 空白会话可切换筛选并写入工作区
     priority: P1
     class: C
     rules: [R-SCOPE-BLANK]
     risk: ux
     expected:
-      - 空白新会话只显示「工作区」选项，并解释原因
+      - 有工作区绑定的空白新会话可在「全局」「工作区」之间切换
       - 此时写入的便笺进入工作区清单
     automation:
       - type: integration
         file: tests/bundle.test.mjs
-        test: SCOPE-008 空白会话只提供工作区范围并可写入
+        test: SCOPE-008 空白会话可切换筛选并写入工作区
         status: automated
     suites: [pr, nightly, release]
     tags: [blank-session]
 
   - id: SCOPE-009
-    title: 首轮对话后入口迁移并解锁会话范围
+    title: 首轮对话后入口迁移并保留筛选
     priority: P1
     class: B
     rules: [R-SCOPE-BLANK, R-PANEL-ENTRY]
     risk: ux
     expected:
       - 面板保持打开，入口从 header 角落移到对话工具行
-      - 「会话」选项出现，会话清单可写
+      - 保留原筛选，新增便笺仍写入当前工作区
     automation:
       - type: integration
         file: tests/bundle.test.mjs
-        test: SCOPE-009 首轮对话后入口迁移并解锁会话范围
+        test: SCOPE-009 首轮对话后入口迁移并保留筛选
         status: automated
     suites: [pr, nightly, release]
     tags: [blank-session, header-entry]
 
-  # —— 由 R-SCOPE-NOWORKSPACE / R-SCOPE-DEFAULT 推导，尚无实现 ——
   - id: SCOPE-010
-    title: 不在工作区的会话只有会话清单
+    title: 无工作区时只显示全局并写入未归属清单
     priority: P1
     class: D
     rules: [R-SCOPE-NOWORKSPACE]
     risk: data_loss
     expected:
-      - 没有工作区的会话打开面板时不出现「工作区」选项
-      - 写入只进入该会话自己的清单
+      - 没有工作区绑定的空白会话只提供「全局」范围，仍可见其他工作区的便笺
+      - 新便笺进入保留的未归属工作区清单，其他工作区保持原样，旧会话键不产生记录
     automation:
       - type: integration
         file: tests/resilience.test.mjs
-        test: SCOPE-010 不在工作区的会话只有会话清单
+        test: SCOPE-010 无工作区时只显示全局并写入未归属清单
         status: automated
     suites: [pr, nightly, release]
     tags: [scope, fallback]
 
   - id: SCOPE-011
-    title: 空白会话忽略遗留的会话范围选择
+    title: 空白会话遵循显式全局选择
     priority: P1
     class: D
     rules: [R-SCOPE-DEFAULT]
     risk: data_loss
     expected:
-      - 打开空白新会话时展示工作区清单
+      - 全局偏好在空白新会话中生效，原有便笺仍可见
       - 已保存的范围选择不被改写
     automation:
       - type: integration
         file: tests/resilience.test.mjs
-        test: SCOPE-011 空白会话忽略遗留的会话范围选择
+        test: SCOPE-011 空白会话遵循显式全局选择
         status: automated
     suites: [pr, nightly, release]
     tags: [scope, blank-session]
 
   - id: SCOPE-012
-    title: 重复打开工作区不产生重复条目
+    title: 迁移失败时保留源记录且重试不重复
     priority: P2
-    class: C
+    class: E
     rules: [R-SCOPE-SEED]
     risk: data_loss
     expected:
-      - 第一次打开时成员会话的便笺各并入一次
-      - 再次打开同一工作区，条目数与已并入会话列表都不变
+      - 写入工作区失败时，旧会话记录保持原样
+      - 重试成功后移除源记录，每条便笺只出现一次
+      - 再次打开工作区时，已迁移的清单保持原样
     automation:
       - type: integration
         file: tests/resilience.test.mjs
-        test: SCOPE-012 重复打开工作区不产生重复条目
+        test: SCOPE-012 迁移失败时保留源记录且重试不重复
         status: automated
     suites: [pr, nightly, release]
     tags: [idempotent, workspace]
@@ -221,7 +221,7 @@ cases:
     rules: [R-SCOPE-SAVE]
     risk: ux
     expected:
-      - 只在范围之间切换、不提交时，两份清单的条目数都不变
+      - 往返切换筛选时，便笺存储内容完全一致
       - 草稿在往返切换后仍在输入框里
     automation:
       - type: integration
@@ -230,3 +230,21 @@ cases:
         status: automated
     suites: [pr, nightly, release]
     tags: [scope-switch, draft]
+
+  - id: SCOPE-014
+    title: 全局范围操作更新便笺所属工作区
+    priority: P1
+    class: B
+    rules: [R-SCOPE-OWNER, R-FWD-TARGET]
+    risk: data_loss
+    expected:
+      - 在全局递入另一工作区的便笺，正文写入当前对话，归档写入原工作区
+      - 退回时从原工作区移除，再提交时回到原工作区
+      - 当前工作区即使有同 ID 的条目也保持原样
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: SCOPE-014 全局范围操作更新便笺所属工作区
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [scope, workspace, ownership]

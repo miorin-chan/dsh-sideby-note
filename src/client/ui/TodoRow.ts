@@ -8,7 +8,7 @@ import { Glyph, IconCopy, IconInsert, IconRewind, icon, withTooltip } from './pr
 const h = React.createElement
 
 export function TodoRow(props) {
-  const { item, archived, say, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey } = props
+  const { item, archived, workspaceName, say, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey } = props
   const attachments = item.attachments ?? []
   const hasText = Boolean(item.text)
   const insertLabel = say(hasText ? (attachments.length ? 'attachment.insertText' : 'item.insert') : 'attachment.archive')
@@ -60,6 +60,7 @@ export function TodoRow(props) {
         : h('span', { 'aria-hidden': true }, '✓'),
     ))),
     h('div', { className: 'dsh-an-rowBody' },
+      workspaceName ? h('div', { className: 'dsh-an-rowWorkspace', title: workspaceName }, workspaceName) : null,
       hasText ? h('div', { className: 'dsh-an-text' }, item.text) : null,
       h(AttachmentList, { attachments, say }),
     ),

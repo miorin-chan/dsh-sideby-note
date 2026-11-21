@@ -36,6 +36,10 @@ const IN_BETWEEN = `${MAJOR}.${MINOR}.${PATCH + 1}`
 const OLD = '0.0.1'
 const PRERELEASE = `${LATEST}-beta.1`
 const DRAFT = `${MAJOR + 1}.0.1`
+const WORKSPACE_KEY = 'dsh.aside-note.workspaces'
+const UNASSIGNED = 'sideby-note:unassigned'
+const browserWorkspaceItems = (window, workspaceId = UNASSIGNED) =>
+  JSON.parse(window.localStorage.getItem(WORKSPACE_KEY))?.workspaces[workspaceId]?.items ?? []
 
 test('the built bundle boots, applies, and seats its slots', async t => {
   const dom = new JSDOM(
@@ -49,9 +53,8 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   globalThis.document = window.document
   globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
-  // Seed the current keys before the plugin boots: one open note plus a stale
-  // send preference from the removed setting. No legacy key is read or copied,
-  // and the stale preference must no longer change what Enter does.
+  // Seed a legacy session note and a stale send preference. The note moves to
+  // the unassigned list when the session is captured. Enter still submits.
   window.localStorage.setItem('dsh.aside-note', JSON.stringify({
     version: 1,
     sessions: { 'session-1': { items: [{ id: 'seed', text: '旧便笺', done: false, createdAt: 1, updatedAt: 1 }] } },
@@ -249,7 +252,9 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   await t.test('NOTE-001 经表单新增便笺写入存储并刷新角标', async () => {
     const addField = popover.querySelector('.dsh-an-input')
     assert.ok(addField, 'the panel must render the add field')
-    assert.equal(addField.getAttribute('placeholder'), '随手记一条', 'the composer uses the finalized placeholder')
+    assert.equal(addField.getAttribute('placeholder'), '随手记一条')
+    assert.equal(document.getElementById(addField.getAttribute('aria-describedby'))?.textContent, '记到 未归属',
+      'the global composer names the destination while typing')
     const addButton = popover.querySelector('.dsh-an-addBtn')
     assert.equal(addButton.disabled, true)
     assert.equal(addButton.getAttribute('aria-label'), '添加')
@@ -257,6 +262,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.ok(addButton.querySelector('svg[aria-hidden="true"] path'), 'the submit button renders a decorative icon')
     const formCopy = addField.form.cloneNode(true)
     formCopy.querySelector('.dsh-an-attachBtn').remove()
+    formCopy.querySelector('.dsh-an-destination').remove()
     assert.equal(formCopy.textContent.trim(), '', 'the composer has no visible keyboard hint')
     // Set the value through the prototype setter so React's value tracker sees a
     // change, then dispatch the input event React listens for. fireEvent would
@@ -268,9 +274,10 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     })
     assert.equal(addButton.disabled, false, 'the add button enables once the draft has text')
     await act(async () => { addButton.click() })
-    const written = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-    assert.equal(written.sessions['session-1'].items[0].text, '新的一条')
-    assert.equal(written.sessions['session-1'].items.length, 2)
+    const written = browserWorkspaceItems(window)
+    assert.equal(written[0].text, '新的一条')
+    assert.equal(written.length, 2)
+    assert.deepEqual(JSON.parse(window.localStorage.getItem('dsh.aside-note')).sessions, {})
     // The entry refreshes on a rAF after the store write; give jsdom one frame.
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 40)) })
     assert.equal(document.querySelector('.dsh-an-headerCount').textContent, '2')
@@ -411,7 +418,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const addField = popover.querySelector('.dsh-an-input')
   const openRows = () => [...popover.querySelectorAll('.dsh-an-listSection:first-child .dsh-an-row')]
   const openTexts = () => openRows().map(node => node.querySelector('.dsh-an-text').textContent)
-  const storedTexts = () => JSON.parse(window.localStorage.getItem('dsh.aside-note')).sessions['session-1'].items.map(item => item.text)
+  const storedTexts = () => browserWorkspaceItems(window).map(item => item.text)
 
   await t.test('NOTE-010 键盘调整待续排序并保留焦点', async () => {
     assert.equal(popover.querySelector('.dsh-an-check'), null, 'notes are no longer completed by hand')
@@ -444,8 +451,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
       .querySelector('.dsh-an-iconBtn[aria-label="填入"]')
     await act(async () => { insertButton('新的一条').click() })
     assert.equal(composer.value, '', 'a hidden composer receives nothing')
-    assert.ok(storedTexts().length === 2 && JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-      .sessions['session-1'].items.every(item => item.done === false), 'a failed insert keeps the note open')
+    assert.ok(storedTexts().length === 2 && browserWorkspaceItems(window).every(item => item.done === false), 'a failed insert keeps the note open')
 
     // With the composer visible the note lands there and is archived in one step.
     composer.getBoundingClientRect = () => ({
@@ -453,8 +459,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     })
     await act(async () => { insertButton('新的一条').click() })
     assert.equal(composer.value, '新的一条', 'the note goes into the chat composer as plain text')
-    const inserted = JSON.parse(window.localStorage.getItem('dsh.aside-note')).sessions['session-1'].items
-      .find(item => item.text === '新的一条')
+    const inserted = browserWorkspaceItems(window).find(item => item.text === '新的一条')
     assert.equal(inserted.done, true, 'putting the note into the chat archives it')
     assert.ok(Number.isFinite(inserted.completedAt), 'the archive time is stamped')
     assert.equal(window.localStorage.getItem('dsh.aside-note.forwarded'), null, 'no forward marks are written')
@@ -478,9 +483,9 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     await act(async () => { clearButton.click() })
     assert.ok(popover.querySelector('.dsh-an-clearConfirm'), 'clearing asks for a second click')
     await act(async () => { popover.querySelector('.dsh-an-miniDanger').click() })
-    const afterClear = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-    assert.equal(afterClear.sessions['session-1'].items.length, 1)
-    assert.equal(afterClear.sessions['session-1'].items[0].done, false)
+    const afterClear = browserWorkspaceItems(window)
+    assert.equal(afterClear.length, 1)
+    assert.equal(afterClear[0].done, false)
   })
 
   await t.test('NOTE-003 退回顶部输入框后可续写并持久化', async () => {
@@ -493,8 +498,8 @@ test('the built bundle boots, applies, and seats its slots', async t => {
       addField.dispatchEvent(new window.Event('input', { bubbles: true }))
     })
     await act(async () => { recallButton.click() })
-    const blocked = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-    assert.equal(blocked.sessions['session-1'].items.length, 1, 'a non-empty composer blocks 退回')
+    const blocked = browserWorkspaceItems(window)
+    assert.equal(blocked.length, 1, 'a non-empty composer blocks 退回')
     assert.equal(addField.value, '未发送的草稿', 'the existing draft is left untouched')
     await act(async () => {
       valueSetter.call(addField, '')
@@ -502,8 +507,8 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     })
     await act(async () => { recallButton.click() })
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 40)) })
-    const afterRecall = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-    assert.equal(afterRecall.sessions['session-1'].items.length, 0, '退回 removes the row')
+    const afterRecall = browserWorkspaceItems(window)
+    assert.equal(afterRecall.length, 0, '退回 removes the row')
     assert.equal(addField.value, '旧便笺', 'the note text lands in the top composer')
     assert.equal(popover.querySelector('.dsh-an-editInput'), null, 'there is no inline editor')
     const empty = popover.querySelector('.dsh-an-empty')
@@ -517,9 +522,9 @@ test('the built bundle boots, applies, and seats its slots', async t => {
       addField.dispatchEvent(new window.Event('input', { bubbles: true }))
     })
     await act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
-    const afterReturn = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-    assert.equal(afterReturn.sessions['session-1'].items[0].text, '改过的便笺')
-    assert.equal(afterReturn.sessions['session-1'].items[0].done, false)
+    const afterReturn = browserWorkspaceItems(window)
+    assert.equal(afterReturn[0].text, '改过的便笺')
+    assert.equal(afterReturn[0].done, false)
     assert.equal(addField.value, '', 'the composer clears after adding the recalled note')
   })
 
@@ -541,8 +546,8 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     await act(async () => {
       addField.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }))
     })
-    const viaEnter = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-    assert.equal(viaEnter.sessions['session-1'].items[0].text, '回车提交', 'Enter must add the note')
+    const viaEnter = browserWorkspaceItems(window)
+    assert.equal(viaEnter[0].text, '回车提交', 'Enter must add the note')
     assert.equal(addField.value, '', 'Enter clears the composer after adding')
     // The main composer also sends on the command chord; so does this one.
     await act(async () => {
@@ -552,8 +557,8 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     await act(async () => {
       addField.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true, cancelable: true }))
     })
-    const viaChord = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-    assert.equal(viaChord.sessions['session-1'].items[0].text, '组合键提交', 'the command chord submits like the main composer')
+    const viaChord = browserWorkspaceItems(window)
+    assert.equal(viaChord[0].text, '组合键提交', 'the command chord submits like the main composer')
     await act(async () => {
       valueSetter.call(addField, '换行草稿')
       addField.dispatchEvent(new window.Event('input', { bubbles: true }))
@@ -561,10 +566,10 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     await act(async () => {
       addField.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', shiftKey: true, bubbles: true, cancelable: true }))
     })
-    const afterShift = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
+    const afterShift = browserWorkspaceItems(window)
     assert.equal(
-      afterShift.sessions['session-1'].items.length,
-      viaChord.sessions['session-1'].items.length,
+      afterShift.length,
+      viaChord.length,
       'Shift+Enter must not add a note',
     )
     assert.equal(addField.value, '换行草稿', 'Shift+Enter leaves the draft in the composer')
@@ -633,7 +638,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
 
 })
 
-test('one workspace shares its notes and forwards into the visible session', async t => {
+test('workspace notes share a list and global actions preserve ownership', async t => {
   const dom = new JSDOM(
     '<!doctype html><html><body>' +
       '<div class="_headerUtilities"></div>' +
@@ -655,13 +660,27 @@ test('one workspace shares its notes and forwards into the visible session', asy
     toJSON: () => ({}),
   })
 
-  // Two sessions in one workspace, each with a note written before the list
-  // was shared. Both must be folded into the workspace list exactly once.
+  // The second workspace already copied one legacy note at an earlier upgrade.
+  // Its original session still has that note and a newer, distinct item.
   window.localStorage.setItem('dsh.aside-note', JSON.stringify({
     version: 1,
     sessions: {
       'session-1': { items: [{ id: 'seed-1', text: '会话一的事项', done: false, createdAt: 1, updatedAt: 1 }] },
       'session-2': { items: [{ id: 'seed-2', text: '会话二的事项', done: false, createdAt: 2, updatedAt: 2 }] },
+      'session-3': { items: [
+        { id: 'seed-2', text: '另一工作区的旧事项', done: false, createdAt: 3, updatedAt: 3 },
+        { id: 'seed-3', text: '先前未并入的事项', done: false, createdAt: 4, updatedAt: 4 },
+      ] },
+    },
+  }))
+  window.localStorage.setItem(WORKSPACE_KEY, JSON.stringify({
+    version: 1,
+    workspaces: {
+      'ws-2': {
+        workspaceId: 'ws-2',
+        items: [{ id: 'seed-2', text: '另一工作区的旧事项', done: false, createdAt: 3, updatedAt: 3 }],
+        seededSessionIds: ['session-3'],
+      },
     },
   }))
   window.localStorage.setItem('dsh.aside-note.drafts', JSON.stringify({
@@ -725,7 +744,8 @@ test('one workspace shares its notes and forwards into the visible session', asy
     updatedAt: '',
   }
   // Stand-in for the global standard prop ui-workspace publishes on every slot.
-  const useWorkspaces = selector => selector({ items: [workspace], archivedSessionIds: [], pinnedSessionIds: [], state: 'idle', phase: 'ready', error: null })
+  const otherWorkspace = { ...workspace, workspaceId: 'ws-2', path: '/other', title: '另一工作区', sessionIds: ['session-3'] }
+  const useWorkspaces = selector => selector({ items: [workspace, otherWorkspace], archivedSessionIds: [], pinnedSessionIds: [], state: 'idle', phase: 'ready', error: null })
 
   // Cross-subtest bindings: the flow is one session, each step seeds the next.
   let header, popover, firstRoot, secondPopover, secondRoot
@@ -745,19 +765,35 @@ test('one workspace shares its notes and forwards into the visible session', asy
     const host = document.createElement('div')
     document.body.appendChild(host)
     firstRoot = ReactDOMClient.createRoot(host)
+    const pendingWorkspaces = selector => selector({ phase: 'pending', state: 'loading', items: [] })
+    await act(async () => {
+      firstRoot.render(React.createElement(capture, { sessionId: 'session-1', useWorkspaces: pendingWorkspaces }))
+    })
+    assert.ok(JSON.parse(window.localStorage.getItem('dsh.aside-note')).sessions['session-1'])
+    assert.deepEqual(browserWorkspaceItems(window, UNASSIGNED), [], 'pending workspace membership cannot trigger migration')
+    const button = document.querySelector('.dsh-an-headerBtn')
+    await act(async () => { button.click() })
+    const pendingPanel = document.querySelector('.dsh-an-popover')
+    assert.match(pendingPanel.textContent, /正在确认工作区归属/)
+    const pendingField = pendingPanel.querySelector('textarea')
+    assert.equal(pendingField.value, '会话一的旧草稿')
+    assert.equal(pendingPanel.querySelector('.dsh-an-addBtn').disabled, true, 'pending membership also prevents writing the draft')
     await act(async () => {
       firstRoot.render(React.createElement(capture, { sessionId: 'session-1', useWorkspaces }))
     })
 
     const sessionStore = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
     assert.equal(sessionStore.version, 1, 'the session key keeps its original shape')
-    assert.equal(sessionStore.workspaces, undefined, 'workspace data does not leak into the session key')
+    assert.deepEqual(sessionStore.sessions, {}, 'legacy browser rows are removed after both moves')
+    assert.equal(sessionStore.workspaces, undefined, 'workspace data stays under the workspace key')
     const workspaceStore = JSON.parse(window.localStorage.getItem('dsh.aside-note.workspaces'))
     assert.equal(workspaceStore.version, 1)
     const shared = workspaceStore.workspaces['ws-1']
     assert.ok(shared, 'the workspace list must be created on first sight')
     assert.deepEqual(shared.items.map(item => item.text).sort(), ['会话二的事项', '会话一的事项'].sort())
     assert.deepEqual(shared.seededSessionIds.sort(), ['session-1', 'session-2'])
+    assert.deepEqual(browserWorkspaceItems(window, 'ws-2').map(item => item.id).sort(), ['seed-2', 'seed-3'],
+      'a previously seeded session still contributes distinct IDs without repeating copied IDs')
     assert.equal(window.localStorage.getItem('dsh.aside-note.migrated'), null,
       'the fold is recorded in the store, not with a second marker key')
   })
@@ -768,8 +804,8 @@ test('one workspace shares its notes and forwards into the visible session', asy
     popover = document.querySelector('.dsh-an-popover')
     assert.ok(popover, 'the shared list opens from the header entry')
     const scopeButtons = () => [...popover.querySelectorAll('.dsh-an-scopeBtn')]
-    assert.deepEqual(scopeButtons().map(node => node.textContent), ['工作区', '会话'])
-    assert.equal(scopeButtons()[0].getAttribute('aria-pressed'), 'true',
+    assert.deepEqual(scopeButtons().map(node => node.textContent), ['全局', '工作区'])
+    assert.equal(popover.querySelector('[data-scope-mode="workspace"]').getAttribute('aria-pressed'), 'true',
       'the workspace list is the default scope')
     const footer = popover.querySelector('.dsh-an-popFoot')
     assert.equal(footer.querySelectorAll('details').length, 1)
@@ -799,18 +835,22 @@ test('one workspace shares its notes and forwards into the visible session', asy
     assert.equal(inputOf(popover).value, '会话一的旧草稿', 'the shared draft starts from the legacy text')
   })
 
-  await t.test('SCOPE-003 切到会话范围只显示本会话便笺', async () => {
-    // The header switch can drop to this session's own list without reopening.
-    await act(async () => { popover.querySelector('[data-scope-mode="session"]').click() })
+  await t.test('SCOPE-003 全局范围汇总各工作区便笺', async () => {
+    const workspaceRow = [...popover.querySelectorAll('.dsh-an-row')]
+      .find(row => row.querySelector('.dsh-an-text').textContent === '会话二的事项')
+    assert.equal(workspaceRow.dataset.rowId, 'seed-2')
+    await act(async () => { popover.querySelector('[data-scope-mode="global"]').click() })
     assertLocalStorageDetails(popover)
-    assert.deepEqual(
-      [...popover.querySelectorAll('.dsh-an-text')].map(node => node.textContent),
-      ['会话一的事项'],
-      'the session list holds only this session note',
-    )
-    assert.equal(window.localStorage.getItem('dsh.aside-note.scope-mode'), 'session')
+    const rows = [...popover.querySelectorAll('.dsh-an-row')]
+    assert.deepEqual(rows.map(row => row.querySelector('.dsh-an-text').textContent).sort(),
+      ['会话一的事项', '会话二的事项', '另一工作区的旧事项', '先前未并入的事项'].sort())
+    const duplicateRows = rows.filter(row => ['会话二的事项', '另一工作区的旧事项'].includes(row.querySelector('.dsh-an-text').textContent))
+    const ids = duplicateRows.map(row => row.dataset.rowId)
+    assert.equal(new Set(ids).size, 2, 'equal raw IDs in different workspaces get distinct row IDs')
+    assert.ok(ids.every(id => id && id !== 'seed-2'))
+    assert.equal(window.localStorage.getItem('dsh.aside-note.scope-mode'), 'global')
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 40)) })
-    assert.equal(header.querySelector('.dsh-an-headerCount').textContent, '1',
+    assert.equal(header.querySelector('.dsh-an-headerCount').textContent, '4',
       'the header count follows the chosen scope')
   })
 
@@ -828,14 +868,13 @@ test('one workspace shares its notes and forwards into the visible session', asy
   })
 
   await t.test('STORE-003 草稿在范围切换后保留', async () => {
-    // Drafts belong to the workspace, not to the tab: typing under one scope,
-    // switching to the other and coming back must keep the text.
+    // The workspace draft stays available across both filters.
     await typeInto(inputOf(popover), '工作区草稿')
     const sharedDrafts = JSON.parse(window.localStorage.getItem('dsh.aside-note.drafts'))
     assert.equal(sharedDrafts.sessions['ws:ws-1'].add, '工作区草稿')
     assert.equal(sharedDrafts.sessions['session-1'], undefined,
       'the workspace draft never falls back to the session key')
-    await act(async () => { popover.querySelector('[data-scope-mode="session"]').click() })
+    await act(async () => { popover.querySelector('[data-scope-mode="global"]').click() })
     assert.equal(inputOf(popover).value, '工作区草稿', 'the draft survives the scope switch')
     await act(async () => { popover.querySelector('[data-scope-mode="workspace"]').click() })
     assert.equal(inputOf(popover).value, '工作区草稿', 'and comes back with the workspace list')
@@ -849,7 +888,7 @@ test('one workspace shares its notes and forwards into the visible session', asy
     await act(async () => { seedRow.querySelector('button[aria-label="退回"]').click() })
     assert.equal(composer.value, '会话一的事项')
     await typeInto(composer, '会话一的事项 · 改')
-    await act(async () => { popover.querySelector('[data-scope-mode="session"]').click() })
+    await act(async () => { popover.querySelector('[data-scope-mode="global"]').click() })
     assert.equal(composer.value, '会话一的事项 · 改')
     await act(async () => { popover.querySelector('[data-scope-mode="workspace"]').click() })
     assert.equal(composer.value, '会话一的事项 · 改')
@@ -860,14 +899,13 @@ test('one workspace shares its notes and forwards into the visible session', asy
   })
 
   await t.test('SCOPE-005 工作区范围新增便笺落在共享清单', async () => {
-    // A note added in session-1 lands in the workspace list, not the session list.
+    // A note created from session-1 belongs to its workspace.
     await typeInto(inputOf(popover), '新增的共享事项')
     await act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
     const afterAdd = JSON.parse(window.localStorage.getItem('dsh.aside-note.workspaces'))
     assert.equal(afterAdd.workspaces['ws-1'].items.length, 3)
     const sessionAfterAdd = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-    assert.equal(sessionAfterAdd.sessions['session-1'].items.length, 1,
-      'the old per-session bucket stays as history and is not written again')
+    assert.deepEqual(sessionAfterAdd.sessions, {}, 'the removed session rows stay removed')
     assert.equal(JSON.parse(window.localStorage.getItem('dsh.aside-note.drafts')).sessions['ws:ws-1'], undefined,
       'submitting the shared draft consumes it')
   })
@@ -905,10 +943,10 @@ test('one workspace shares its notes and forwards into the visible session', asy
     // workspace owns the buffer, so switching conversations never strands it.
     assert.equal(inputOf(secondPopover).value, '跨会话草稿',
       'the unsaved draft stays visible after switching conversations')
-    await act(async () => { secondPopover.querySelector('[data-scope-mode="session"]').click() })
+    await act(async () => { secondPopover.querySelector('[data-scope-mode="global"]').click() })
     assert.equal(inputOf(secondPopover).value, '跨会话草稿',
-      'the shared draft stays visible in the session scope too')
-    assert.equal(window.localStorage.getItem('dsh.aside-note.scope-mode'), 'session')
+      'the shared draft stays visible in Global too')
+    assert.equal(window.localStorage.getItem('dsh.aside-note.scope-mode'), 'global')
     await act(async () => { secondPopover.querySelector('[data-scope-mode="workspace"]').click() })
     await openStorageDetails(secondPopover)
     assertLocalStorageDetails(secondPopover)
@@ -992,28 +1030,48 @@ test('one workspace shares its notes and forwards into the visible session', asy
       'every row returns to its own slot')
   })
 
-  await t.test('SCOPE-007 会话范围提交落到会话清单', async () => {
-    // One buffer is shared across the workspace's conversations, but the save
-    // lands in the scope selected at that moment: submitted from the session
-    // tab it must go into session-2's list, not the workspace list.
-    const secondInput = secondPopover.querySelector('.dsh-an-input')
+  await t.test('SCOPE-007 全局范围新增便笺写入当前工作区', async () => {
+    const secondInput = inputOf(secondPopover)
     await typeInto(secondInput, '第二个会话的草稿')
     const sharedAgain = JSON.parse(window.localStorage.getItem('dsh.aside-note.drafts'))
     assert.equal(sharedAgain.sessions['ws:ws-1'].add, '第二个会话的草稿',
       'session-2 types into the shared workspace draft')
-    await act(async () => { secondPopover.querySelector('[data-scope-mode="session"]').click() })
+    const otherBefore = browserWorkspaceItems(window, 'ws-2')
+    await act(async () => { secondPopover.querySelector('[data-scope-mode="global"]').click() })
     assert.equal(secondInput.value, '第二个会话的草稿', 'the draft follows the workspace across conversations')
     await act(async () => { secondPopover.querySelector('.dsh-an-addBtn').click() })
-    const sessionAfterSave = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-    assert.deepEqual(
-      sessionAfterSave.sessions['session-2'].items.map(item => item.text).sort(),
-      ['会话二的事项', '第二个会话的草稿'].sort(),
-      'the save lands in the session list',
-    )
-    const workspaceAfterSave = JSON.parse(window.localStorage.getItem('dsh.aside-note.workspaces'))
-    assert.equal(workspaceAfterSave.workspaces['ws-1'].items.length, 3, 'the workspace list is untouched')
+    assert.ok(workspaceItems().some(item => item.text === '第二个会话的草稿'))
+    assert.deepEqual(browserWorkspaceItems(window, 'ws-2'), otherBefore)
+    assert.deepEqual(JSON.parse(window.localStorage.getItem('dsh.aside-note')).sessions, {})
     assert.equal(JSON.parse(window.localStorage.getItem('dsh.aside-note.drafts')).sessions['ws:ws-1'], undefined,
       'the shared draft is consumed by the save')
+  })
+
+  await t.test('SCOPE-014 全局范围操作更新便笺所属工作区', async () => {
+    const rowByText = text => [...secondPopover.querySelectorAll('.dsh-an-row')]
+      .find(row => row.querySelector('.dsh-an-text').textContent === text)
+    const currentBefore = workspaceItems()
+    const otherText = '另一工作区的旧事项'
+    await act(async () => { rowByText(otherText).querySelector('.dsh-an-insert').click() })
+    assert.equal(document.querySelector('[data-conversation-session="session-2"] textarea').value,
+      `新增的共享事项\n${otherText}`)
+    assert.equal(browserWorkspaceItems(window, 'ws-2').find(item => item.id === 'seed-2').done, true)
+    assert.deepEqual(workspaceItems(), currentBefore, 'archiving a matching raw ID leaves the current workspace alone')
+
+    await act(async () => { secondPopover.querySelector('.dsh-an-doneHead .dsh-an-doneToggle').click() })
+    await act(async () => { secondPopover.querySelector('.dsh-an-clear').click() })
+    assert.match(secondPopover.querySelector('.dsh-an-clearConfirm').textContent, /清空所有工作区中这 2 条归档便笺/)
+    await act(async () => { secondPopover.querySelector('.dsh-an-clearConfirmActions button').click() })
+    await act(async () => { rowByText(otherText).querySelector('[aria-label="退回"]').click() })
+    assert.equal(inputOf(secondPopover).value, otherText)
+    assert.equal(secondPopover.querySelector('.dsh-an-destination').textContent, '记到 另一工作区')
+    assert.ok(!browserWorkspaceItems(window, 'ws-2').some(item => item.id === 'seed-2'))
+    assert.deepEqual(workspaceItems(), currentBefore)
+
+    await typeInto(inputOf(secondPopover), '另一工作区改过的事项')
+    await act(async () => { secondPopover.querySelector('.dsh-an-addBtn').click() })
+    assert.ok(browserWorkspaceItems(window, 'ws-2').some(item => item.text === '另一工作区改过的事项' && !item.done))
+    assert.deepEqual(workspaceItems(), currentBefore, 'resubmitting the recalled note keeps its ownership')
   })
 
   await act(async () => { secondRoot.unmount() })
@@ -1021,7 +1079,7 @@ test('one workspace shares its notes and forwards into the visible session', asy
   dom.window.close()
 })
 
-test('a blank new session opens the workspace list from the header corner', async t => {
+test('a blank new session opens a usable notes panel from the header corner', async t => {
   const dom = new JSDOM(
     '<!doctype html><html><body>' +
       '<div class="_headerCorner"><button type="button" id="host-rightbar">rightbar</button></div>' +
@@ -1140,18 +1198,16 @@ test('a blank new session opens the workspace list from the header corner', asyn
       'the corner entry counts the workspace notes')
   })
 
-  await t.test('SCOPE-008 空白会话只提供工作区范围并可写入', async () => {
+  await t.test('SCOPE-008 空白会话可切换筛选并写入工作区', async () => {
     await act(async () => { button.click() })
     popover = document.querySelector('.dsh-an-popover')
     assert.ok(popover, 'the corner entry opens the panel')
     scopeButtons = () => [...popover.querySelectorAll('.dsh-an-scopeBtn')]
-    assert.deepEqual(scopeButtons().map(node => node.textContent), ['工作区'],
-      'a blank session shows the workspace option alone')
-    assert.equal(scopeButtons()[0].getAttribute('aria-pressed'), 'true',
-      'a blank session opens on the workspace list')
-    assert.equal(scopeButtons()[0].getAttribute('data-tooltip'),
-      '当前只能记到工作区，会话开始后可切换',
-      'the lone workspace option explains why the session option is absent')
+    assert.deepEqual(scopeButtons().map(node => node.textContent), ['全局', '工作区'])
+    assert.equal(scopeButtons()[1].getAttribute('aria-pressed'), 'true',
+      'a bound blank session opens on the workspace list')
+    await act(async () => { scopeButtons()[0].click() })
+    assert.equal(scopeButtons()[0].getAttribute('aria-pressed'), 'true')
 
     input = popover.querySelector('.dsh-an-input')
     setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set
@@ -1167,9 +1223,8 @@ test('a blank new session opens the workspace list from the header corner', asyn
     )
   })
 
-  await t.test('SCOPE-009 首轮对话后入口迁移并解锁会话范围', async () => {
-    // The first turn makes the session list meaningful. The panel stays open,
-    // the header entry moves to the real utilities row and the switch wakes up.
+  await t.test('SCOPE-009 首轮对话后入口迁移并保留筛选', async () => {
+    // The panel stays open and the header entry moves to the utilities row.
     const utilities = document.createElement('div')
     utilities.className = '_headerUtilities'
     document.body.appendChild(utilities)
@@ -1183,23 +1238,16 @@ test('a blank new session opens the workspace list from the header corner', asyn
     assert.equal(document.querySelector('._headerUtilities > .dsh-an-headerBtn'), button,
       'the entry moves into the conversation utilities row once the session starts')
     assert.equal(button.dataset.anchor, 'utilities')
-    assert.deepEqual(scopeButtons().map(node => node.textContent), ['工作区', '会话'],
-      'the session option appears once the session starts')
-    assert.equal(scopeButtons()[0].getAttribute('data-tooltip'), '切换到工作区清单，所有会话共享')
-    assert.equal(scopeButtons()[1].getAttribute('data-tooltip'), '切换到会话清单，只属于当前会话')
-
-    await act(async () => { popover.querySelector('[data-scope-mode="session"]').click() })
-    assert.equal(scopeButtons()[1].getAttribute('aria-pressed'), 'true')
+    assert.deepEqual(scopeButtons().map(node => node.textContent), ['全局', '工作区'])
+    assert.equal(scopeButtons()[0].getAttribute('aria-pressed'), 'true', 'Global stays selected across the first turn')
     await act(async () => {
       setter.call(input, '会话开始后的事项')
       input.dispatchEvent(new window.Event('input', { bubbles: true }))
     })
     await act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
-    const sessionStore = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-    assert.ok(
-      sessionStore.sessions['session-new'].items.some(item => item.text === '会话开始后的事项'),
-      'the session list is writable after the first turn',
-    )
+    assert.ok(browserWorkspaceItems(window, 'ws-new').some(item => item.text === '会话开始后的事项'),
+      'notes still go to the workspace after the first turn')
+    assert.equal(JSON.parse(window.localStorage.getItem('dsh.aside-note')).sessions['session-new'], undefined)
   })
 
   await act(async () => { popover.querySelector('.dsh-an-popClose').click() })
@@ -1449,8 +1497,7 @@ test('a damaged note store is set aside before anything overwrites it', async t 
       field.dispatchEvent(new window.Event('input', { bubbles: true }))
     })
     await act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
-    const stored = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-    assert.equal(stored.sessions['session-1'].items.length, 1, 'the store recovers and accepts new notes')
+    assert.equal(browserWorkspaceItems(window).length, 1, 'the store recovers and accepts new notes')
     assert.equal(JSON.parse(window.localStorage.getItem('dsh.aside-note.corrupt')).raw, BROKEN,
       'writing again must not overwrite the backup')
   })
@@ -1476,9 +1523,9 @@ test('two tabs writing at once keep both sets of notes', async t => {
     toJSON: () => ({}),
   })
   const note = (id, text, createdAt, updatedAt = createdAt) => ({ id, text, done: false, createdAt, updatedAt })
-  window.localStorage.setItem('dsh.aside-note', JSON.stringify({
+  window.localStorage.setItem(WORKSPACE_KEY, JSON.stringify({
     version: 1,
-    sessions: { 'session-1': { sessionId: 'session-1', updatedAt: 2, items: [note('b', '乙', 2), note('a', '甲', 1)] } },
+    workspaces: { [UNASSIGNED]: { workspaceId: UNASSIGNED, updatedAt: 2, items: [note('b', '乙', 2), note('a', '甲', 1)] } },
   }))
   window.fetch = async () => ({ ok: false, status: 404, json: async () => ({}) })
 
@@ -1532,12 +1579,12 @@ test('two tabs writing at once keep both sets of notes', async t => {
   // Another tab writes without this one seeing the storage event: the panel
   // still renders its own last read, which is exactly the race to survive.
   const writeFromOtherTab = items => {
-    window.localStorage.setItem('dsh.aside-note', JSON.stringify({
+    window.localStorage.setItem(WORKSPACE_KEY, JSON.stringify({
       version: 1,
-      sessions: { 'session-1': { sessionId: 'session-1', updatedAt: Date.now(), items } },
+      workspaces: { [UNASSIGNED]: { workspaceId: UNASSIGNED, updatedAt: Date.now(), items } },
     }))
   }
-  const storedItems = () => JSON.parse(window.localStorage.getItem('dsh.aside-note')).sessions['session-1'].items
+  const storedItems = () => browserWorkspaceItems(window)
   const typeInto = async (node, text) => {
     await act(async () => {
       const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set
@@ -1656,10 +1703,7 @@ test('note text rules', async t => {
       field.dispatchEvent(new window.Event('input', { bubbles: true }))
     })
   }
-  const storedItems = () => {
-    const raw = window.localStorage.getItem('dsh.aside-note')
-    return raw ? JSON.parse(raw).sessions['session-1']?.items ?? [] : []
-  }
+  const storedItems = () => browserWorkspaceItems(window)
 
   await t.test('NOTE-005 纯空白文本不产生记录', async () => {
     await type('   \n\t  ')
@@ -1685,13 +1729,13 @@ test('note text rules', async t => {
 
     // The store itself can hold an over-long record (hand-edited, or written by
     // an older version): reading it must clip to 280 as well, not just the form.
-    const store = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
-    store.sessions['session-1'].items.unshift({
+    const store = JSON.parse(window.localStorage.getItem(WORKSPACE_KEY))
+    store.workspaces[UNASSIGNED].items.unshift({
       id: 'stored-long', text: '超'.repeat(300), done: false, createdAt: 9, updatedAt: 9,
     })
-    window.localStorage.setItem('dsh.aside-note', JSON.stringify(store))
+    window.localStorage.setItem(WORKSPACE_KEY, JSON.stringify(store))
     await act(async () => {
-      window.dispatchEvent(new window.StorageEvent('storage', { key: 'dsh.aside-note' }))
+      window.dispatchEvent(new window.StorageEvent('storage', { key: WORKSPACE_KEY }))
     })
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 60)) })
     const stored = [...popover.querySelectorAll('.dsh-an-text')]

@@ -89,6 +89,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
+    "@deepseek-ai/dsh-api-workspace-controller": "0.2.2-rc.5",
     "@deepseek-ai/dsh-client-shortcuts": "0.2.2-rc.5",
     "@deepseek-ai/dsh-host-webserver": "0.2.2-rc.5",
     "@testing-library/dom": "^10.4.2",

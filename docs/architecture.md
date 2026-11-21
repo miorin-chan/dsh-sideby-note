@@ -31,13 +31,13 @@
 src/client/
 ├─ index.ts              # apply(ctx)：样式、locale、slot 注册、入口、Toast 座位
 ├─ constants.ts          # 包身份、存储键、平台相关常量
-├─ scope.ts              # 会话 → 工作区绑定；按工作区/会话选择解析清单，工作区外回落会话
+├─ scope.ts              # 会话 → 工作区绑定；解析查看筛选与新增便笺的工作区
 ├─ dsh.d.ts              # 宿主 ctx / locale / slots 的最小 ambient 类型
 ├─ i18n/                 # zh.ts（键的唯一来源）、其余 7 种 DSH 官方语言、index.ts（fill / makeSay）
 ├─ domain/               # id、clipboard、forward（写入会话输入框）、items（归一化/排序/时间/手排移动）
 ├─ storage/              # 设备本地：codec（含损坏备份）、merge（本地回落时的并发合并）、drafts、设备级 prefs；
 │                        # 宿主：host-client（HTTP）、state（缓存/模式）、boot（探测/迁移）、
-│                        # ops（diff 写）、legacy（迁移来源与标记）；session/workspace/prefs 双介质分发
+│                        # ops（diff 写）、legacy（迁移来源与标记）；workspace/prefs 双介质分发
 ├─ ui/                   # 面板外壳与纯展示组件、hooks、primitives、定位
 │                        # 更新中心：useUpdateCenter（检查/说明/更新与命令兜底）、UpdateNotice
 ├─ update/               # latest（版本与 Release 探测）、releaseNotes（标记解析）、
@@ -65,19 +65,18 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 文案 | `i18n/` | `zh.ts` 定义键集合与 `MessageKey`；其余 7 种 DSH 官方语言用 `Record<MessageKey, string>`，缺键编译失败；运行时未知语言或缺键一律回退英文 |
 | 领域 | `domain/items.ts` | `normalizeItems`（防御性清洗、去重）、归档排序、`moveOpenItem`（只重排待续，归档留在原槽位）、相对时间文案 |
 | 领域 | `domain/forward.ts` | 「填入」：把便笺作为纯文本写进**当前会话**的 Lexical contenteditable 或 textarea，按换行接在已有内容后面；按 `[data-conversation-session]` 限定输入框。写入成功后由面板把该便笺归档 |
-| 存储 | `storage/session.ts` | 会话便笺的读写；宿主模式走缓存 + `list.patch` diff（宿主原子合并），本地复用 v1 键并做损坏备份与并发合并；失败返回 `false`，由调用方保留 UI 原状 |
-| 存储 | `storage/workspace.ts` | 工作区清单读写；首次见到工作区时把成员会话的旧便笺并入一次（宿主侧 `list.ensure` 原子完成），`seededSessionIds` 防重复 |
+| 存储 | `storage/workspace.ts` | 读写各工作区清单，供面板筛选和汇总。宿主写入使用 `list.patch` diff，本地写入先合并并发变更 |
 | 存储 | `storage/merge.ts` | 本地回落模式的按 id 合并：双方新增都保留，同一条目取较新的 `updatedAt`，本页相对上次读取删除的条目不再复活 |
 | 存储 | `storage/boot.ts` | 启动探测、一次性迁移、模式标记与提示；不可用不切换，成功后单向 host |
 | 存储 | `storage/state.ts` / `host-client.ts` / `ops.ts` | 内存快照、同标签广播、同源 HTTP、按 key 串行与乐观/回滚策略 |
 | 存储 | `storage/legacy.ts` | 旧 `localStorage` 快照（迁移来源）、兼容上游的 `dsh.aside-note.storage-mode` 切换标记与 `dsh.aside-note.storage-notice` 提示去重 |
-| 范围 | `scope.ts` | 记录 dock 当前会话的归属；按保存的「工作区 / 会话」选择解析清单，工作区外始终回落到会话 |
+| 范围 | `scope.ts` | 解析当前会话的工作区归属，区分列表筛选和新增便笺的写入目标 |
 | 更新 | `update/latest.ts` | npm → npmmirror → GitHub Release 的版本探测（1 小时缓存），按版本读取 Release 正文 |
 | 更新 | `update/releaseNotes.ts` | 提取 `app-update-notes` 标记块、按语言回退、压平 Markdown、上限兜底 |
 | 更新 | `update/releaseHistory.ts` | 从 releases feed 选出「本地 < 版本 ≤ 最新」的区间，剔除草稿/预发布，倒序与上限 |
 | 更新 | `ui/useUpdateCenter.ts` | 自动/手动检查、懒加载说明、更新状态机（starting/running/done/error）；只走宿主更新端点，没有市场分支 |
 | 更新 | `ui/UpdateNotice.ts` | 页脚「有新版本」展开后的内容：说明、完整说明链接、立即更新与刷新，宿主没有路由或拒绝时提供带版本号的命令与拷贝更新提示词 |
-| 存储 | `storage/prefs.ts` | 范围选择在宿主模式写入 `global`，面板宽高与分区状态留在设备本地 |
+| 存储 | `storage/prefs.ts` | 筛选选择在宿主模式写入 `global`，面板宽高与分区状态留在设备本地 |
 | UI 组件 | `ui/MemoPopover.ts` | 面板编排：组合 hook 与展示组件，由挂在 `body` 下的插件根节点渲染 |
 | UI 组件 | `PanelHead` / `ScopeSwitch` / `ComposerForm` / `NoteList` / `ClearConfirm` / `TodoRow` / `EmptyState` | 纯展示，数据与回调由面板传入 |
 | UI 组件 | `PanelFooter` / `StorageDetails` | 页脚「存储与更新」默认折叠，展开后显示存储状态并读取宿主文件路径。有新版时显示独立的「有新版本」入口 |
@@ -94,19 +93,19 @@ docs/assets/             # README 截图（preview-* 与 features/）
 ```json
 {
   "unit": { "name": "aside_note", "version": 1 },
-  "global": { "version": 1, "scopeMode": "workspace", "sendShortcut": "enter", "forwardPrefix": "…" },
+  "global": { "version": 1, "sidebyNoteScopeMode": "workspace", "sendShortcut": "enter", "forwardPrefix": "…" },
   "tables": {
-    "sessions": { "<sessionId>": { "sessionId": "…", "updatedAt": 0, "items": [] } },
+    "sessions": {},
     "workspaces": { "<workspaceId>": { "workspaceId": "…", "updatedAt": 0, "items": [], "seededSessionIds": [] } },
     "forwarded": { "ws:<workspaceId>": { "<itemId>": true } }
   }
 }
 ```
 
-- `sessions` 与 `workspaces` 是**平级两张表**：会话属于哪个工作区由 DSH 的工作区注册表提供，文件不存归属；
-  工作区清单是独立副本，首次见到工作区时把成员会话已有的便笺并入一次（`seededSessionIds` 防复活）。
-- `global` 存范围选择与迁移标记。
-  上游的 `sendShortcut`、`forwardPrefix` 与 `forwarded` 表保留在宿主格式中，供换回上游时继续使用。
+- `workspaces` 存放所有当前便笺，包含专用的未分配工作区 `sideby-note:unassigned`。
+  宿主格式保留 `sessions` 表的 schema 来读取旧会话记录，迁移成功后该表为空。
+- `global` 存筛选偏好与迁移标记。
+  上游的 `scopeMode`、`sendShortcut`、`forwardPrefix` 与 `forwarded` 表保留在宿主格式中，供换回上游时继续使用。
   边记部界面按自己的快捷键与归档规则运行。
 - 浏览器在宿主之外仍保留设备本地状态（`localStorage`）：面板宽高、分区展开、首次打开标记、
   未提交草稿（`dsh.aside-note.drafts`，按工作区/会话共享）。
@@ -117,6 +116,25 @@ docs/assets/             # README 截图（preview-* 与 features/）
 - `Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，
   **清单条数不设上限**（400 条仍可展示与新增，见 `STORE-018`）。
 - 每次写入整文件替换；数据量远小于文件系统压力，写入排队由领域写链串行化。
+
+### 工作区归属与筛选
+
+「全局」汇总所有工作区清单，包括未分配工作区。「工作区」只显示当前绑定的工作区，绑定后即可选择。
+两个筛选下新增便笺都写入当前工作区，会话独立于工作区时写入专用的未分配工作区。
+全局列表中的行保留所属工作区，归档、退回及重新提交等操作都写回该工作区。
+同一条 id 可出现在不同工作区，相应行通过工作区和便笺 id 一起定位。
+
+### 旧会话便笺迁移
+
+迁移用 DSH 的完整工作区成员关系解析旧会话记录，包含当前面板以外的会话和工作区。
+拿到完整成员关系后，将其中找不到归属的记录移入未分配工作区。
+
+每个目标工作区按便笺 id 合并，同一工作区内 id 重复时保留工作区已有版本，旧记录中其余便笺也一并保留。
+迁移会检查旧版仅复制便笺时已记录在 `seededSessionIds` 中的会话，找出旧记录独有的便笺。
+确认目标工作区已持久化合并后的便笺，才删除对应的旧会话记录。
+若在两步之间中断，重试按同一工作区内的 id 合并。
+
+### 浏览器与宿主存储切换
 
 **切换状态机**（[上游存储迁移设计 §7](./design/host-storage-migration.md)）：
 
@@ -135,27 +153,26 @@ docs/assets/             # README 截图（preview-* 与 features/）
 
 - `dsh.aside-note`、`.workspaces`、`.drafts` 读取前先校验；解析失败或字段类型不对，
   原始字符串先写到 `<键>.corrupt`（同一键只保留最后一份损坏内容），再把该键当作空清单继续，下一次写入不会静默覆盖证据。
-- 写入不是整份覆盖：`writeSessionRecord` / `writeWorkspaceRecord` 先读回最新记录，再按 id 合并（`storage/merge.ts`）。
+- `writeWorkspaceRecord` 先读回最新工作区记录，再按 id 合并（`storage/merge.ts`）。
   两个标签页同时记便笺时双方新增都保留；同一条目冲突取 `updatedAt` 较新的一方；
   本页相对上次读取删除的条目不被并发写入复活（反向可能复活，宁可复活不丢）。
 - 本地存储按浏览器 origin 隔离：桌面端与 `http://127.0.0.1:<port>` 是不同 origin 的两份数据；
   仅当整站存储被拒绝时 `storage()` 才返回 `null`，更常见的是写失败（配额/磁盘/profile 只读）返回 `false`。
   迁移到宿主后这一层只作为回退与恢复来源。
 
-草稿按 `draftKey` 存放：会话属于工作区时，整个工作区共用一份新增草稿，
-切换会话或在「工作区 / 会话」之间切换都不丢字；没有工作区的会话按会话保存。
-提交草稿时按面板当前范围写入对应清单，草稿本身按工作区或会话共享。
+草稿按 `draftKey` 存放：会话属于工作区时，整个工作区共用一份新增草稿，切换会话或列表筛选时保留草稿。
+没有工作区的会话按会话保存草稿，提交新增便笺时写入未分配工作区。
 升级后首次打开工作区，会把当前会话的旧草稿并入共享键并清理成员会话的旧副本。
 
-面板里只有顶部一个文字编辑区。
-点某行的「退回」会先把便笺从清单移除，再把正文放进顶部输入框（桌面端自动聚焦）；提交后作为一条新便笺重新加入。
-输入框已有未提交内容时不覆盖，改为提示先发送或清空。
+面板里只有顶部一个文字编辑区。点某行的「退回」会先把便笺从所属清单移除，再把正文放进顶部输入框（桌面端自动聚焦）。
+提交后重新加入原工作区。输入框已有未提交内容时不覆盖，改为提示先发送或清空。
 录入框的键位固定与主会话一致：Enter 发送，Shift+Enter 换行，输入法选词时的 Enter 交给浏览器。
 
 便笺没有手动勾选：「填入」把便笺作为纯文本写入会话输入框（已有内容时按换行接在后面），
 写入成功后同一步把它归档（`done: true` 与 `completedAt`，字段名沿用旧结构以便原样读取）；找不到输入框时不改任何数据。
-待续便笺的顺序就是存储数组里的顺序，`useRowReorder` 负责指针拖动与 ↑ / ↓ 键：拖动期间只改行的内联 `transform`，
-松手才经 `moveOpenItem` 写入一次，再在 layout effect 里把被拖行从松手处滑入新位置。
+各工作区的待续顺序由各自的存储数组决定。
+`useRowReorder` 处理指针拖动与 ↑ / ↓ 键，移动范围限于该便笺所属工作区。
+拖动期间只改行的内联 `transform`，松手才经 `moveOpenItem` 写入一次，再在 layout effect 里把被拖行从松手处滑入新位置。
 
 ## 5. 构建与产物
 
@@ -175,10 +192,10 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | `tests/catalog/design.yaml` | 业务规则与不变量（用例的唯一设计来源），字段见 [测试工程](./testing.md) |
 | `tests/catalog/*.yaml` | 测试用例目录：稳定 ID、优先级、规则引用、自动化指针 |
 | `tests/contract.test.mjs` | 清单与 patch 形状、工具链约定、样式令牌、无障碍与交互规则、字典完整性 |
-| `tests/resilience.test.mjs` | 排序与取消操作、无工作区/空白会话范围、存储读写失败、跨标签页刷新、宽度钳制、确认失效、未知语言回落、大清单 |
+| `tests/resilience.test.mjs` | 排序与取消操作、独立和空白会话的筛选、存储读写失败、跨标签页刷新、宽度钳制、确认失效、未知语言回落、大清单 |
 | `tests/testkit/bundle.mjs` | 在 jsdom 里启动构建产物的测试装置：可注入存储故障、压缩定时器、locale 与 slot props |
-| `tests/bundle.test.mjs` | 在 jsdom 里执行**构建产物**：模块表、slot 注册、样式注入、入口注入，并驱动完整面板流程（添加、页脚入口、方向键排序、填入并归档与找不到输入框时不变、清除确认、退回输入框、缩放、清空到空态、分区记忆）；另有工作区测试，验证两个会话共享清单、旧便笺只合入一次、工作区/会话切换与持久化、填入只写入当前会话输入框并归档、指针拖动排序与 Esc 取消；还有空白新会话测试，验证入口落在 header corner、只有工作区清单，以及首轮对话后入口移到 utilities 并解锁会话清单 |
-| `tests/host-store.test.mjs` | 宿主 store 契约：快照、diff/顺序/删除、并发新增保留、工作区只合并一次、偏好、迁移两阶段与中断恢复、不可用/损坏错误码、路由鉴权与体积上限 |
+| `tests/bundle.test.mjs` | 在 jsdom 里执行**构建产物**：模块表、slot 注册、样式注入、入口注入，并驱动完整面板流程（添加、页脚入口、方向键排序、填入并归档与找不到输入框时不变、清除确认、退回输入框、缩放、清空到空态、分区记忆）；工作区与空白会话测试涵盖共享清单、全局与工作区筛选、便笺归属和入口位置 |
+| `tests/host-store.test.mjs` | 宿主 store 契约：快照、diff/顺序/删除、并发新增保留、工作区归属迁移、偏好、宿主导入与中断恢复、不可用/损坏错误码、路由鉴权与体积上限 |
 | `tests/host-bundle.test.mjs` | 构建产物 + 假宿主端点：首次迁移后只写宿主、不可用时留在浏览器、已切换后不可用进入错误态且不写 `localStorage` |
 
 契约测试按模块读取源码（需要时读 bundle 或 CSS），断言的是约束而不是实现细节；集成测试提供行为兜底。

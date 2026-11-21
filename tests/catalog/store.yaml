@@ -65,7 +65,7 @@ cases:
     risk: ux
     expected:
       - 退回把条目移入顶部输入框，用户可继续编辑
-      - 切换范围后草稿依然可见，提交后回到所选清单
+      - 切换范围后草稿依然可见，提交后回到原工作区
     automation:
       - type: integration
         file: tests/bundle.test.mjs
@@ -277,7 +277,8 @@ cases:
       - 宿主为空时，启动后浏览器旧便笺与上游兼容元数据一同迁入宿主
       - 元数据仅用于兼容上游数据，边记部界面继续使用自己的递入和发送行为
       - 写入 storage-mode=host 标记
-      - 之后的写入只落在宿主，不再写浏览器便笺键
+      - 宿主启动时将旧会话条目移入未归属清单，新便笺也写入该清单
+      - 原浏览器副本保留供恢复
     automation:
       - type: integration
         file: tests/host-bundle.test.mjs
@@ -294,7 +295,7 @@ cases:
     risk: data_loss
     expected:
       - 不写模式标记，宿主保持为空
-      - 面板仍可新增，写入保留在浏览器
+      - 在无工作区的会话可继续新增，旧便笺和新便笺均保存在浏览器的未归属清单
     automation:
       - type: integration
         file: tests/host-bundle.test.mjs

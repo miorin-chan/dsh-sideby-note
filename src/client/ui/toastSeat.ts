@@ -17,6 +17,7 @@ const TOAST_COPY = {
   recalled: { key: 'toast.recalled', tone: 'success' },
   recallBlocked: { key: 'toast.recallBlocked' },
   cleared: { key: 'toast.cleared', tone: 'success' },
+  clearPartial: { key: 'toast.clearPartial' },
   copyFailed: { key: 'toast.copyFailed' },
   insertFailed: { key: 'toast.insertFailed' },
   archiveFailed: { key: 'toast.archiveFailed' },

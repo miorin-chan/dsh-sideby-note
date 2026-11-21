@@ -35,7 +35,7 @@ let _deepseek_ai_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-
 _deepseek_ai_dsh_client_ui_primitives = __toESM(_deepseek_ai_dsh_client_ui_primitives, 1);
 
 // \0dsh-css:src/client/styles/panel.css.mjs
-var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active{background:var(--an-active)}\n/* The list-scope switch sits at the far right of the title line. */\n.dsh-an-scope{display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:24px;padding:1px;margin-left:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-scopeBtn{display:inline-flex;align-items:center;justify-content:center;height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px;font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-scopeBtn[data-active=\"true\"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within,.dsh-an-add[data-file-drag]{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-composerTools{display:flex;align-items:center;gap:var(--an-space-1)}\n.dsh-an-attachBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}\n.dsh-an-attachBtn:disabled{cursor:not-allowed;opacity:.55}\n.dsh-an-attachmentStatus{grid-column:1/-1;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}\n.dsh-an-attachments{display:grid;gap:var(--an-space-1);padding:0;margin:0;list-style:none;min-width:0}\n.dsh-an-add>.dsh-an-attachments{grid-column:1/-1;max-height:128px;overflow:auto}\n.dsh-an-text+.dsh-an-attachments{margin-top:var(--an-space-1)}\n.dsh-an-attachment{min-width:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-attachmentBar{display:flex;align-items:center;gap:var(--an-space-1);min-height:28px;padding:0 var(--an-space-1)}\n.dsh-an-attachmentBar .dsh-an-iconBtn{flex:none;text-decoration:none}\n.dsh-an-attachmentName{flex:1;min-width:0;overflow:hidden;text-align:left;text-overflow:ellipsis;white-space:nowrap;padding:0 var(--an-space-1);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-row)}\nbutton.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-underline-offset:2px}\n.dsh-an-attachmentPreview{display:grid;justify-items:start;gap:var(--an-space-1);padding:var(--an-space-1);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption)}\n.dsh-an-attachmentPreview img,.dsh-an-attachmentPreview video{display:block;max-width:100%;max-height:160px;object-fit:contain}\n.dsh-an-attachmentPreview audio{width:100%;min-width:0}\n.dsh-an-rowBody{min-width:0}\n.dsh-an-input{display:block;align-self:center;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:focus-visible,.dsh-an-attachBtn:focus-visible,.dsh-an-attachmentName:focus-visible,.dsh-an-attachmentBar .dsh-an-iconBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n.dsh-an-addBtn:active:not(:disabled){background:var(--an-active)}\n.dsh-an-addBtn:disabled{color:var(--dsw-alias-label-secondary);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;display:flex;flex-direction:column;gap:2px;margin:0;padding:0}\n/* The leading column keeps both sections aligned with the section label. */\n.dsh-an-row{position:relative;display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:start;column-gap:var(--an-space-1);padding:var(--an-space-1);border-radius:var(--dsw-radius-sm);transition:var(--an-transition)}\n\n/* ── 6 一行便笺 · 左侧填入，正文 13/20，尾格静置显示时间、悬停换成操作 ── */\n.dsh-an-leading{display:flex;justify-content:center;margin:-2px 0 0}\n.dsh-an-leading>.dsh-an-insert{flex:none}\n.dsh-an-row[data-sortable]{cursor:grab}\n/* Reserve the body for direct touch dragging and leave the side columns available for scrolling. */\n.dsh-an-row[data-sortable] .dsh-an-rowBody{touch-action:none}\n.dsh-an-row[data-sortable] .dsh-an-text{user-select:none;-webkit-user-select:none}\n.dsh-an-text{display:block;min-width:0;margin:0;padding:0;color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}\n.dsh-an-rowArchived .dsh-an-text{color:var(--dsw-alias-label-secondary)}\n/* Age and actions share one grid cell, so the swap never reflows the text. */\n.dsh-an-trail{display:grid;align-items:center;justify-items:end;min-height:24px;margin:-2px 0 0}\n.dsh-an-trail>*{grid-area:1/1}\n.dsh-an-meta{padding:0 var(--an-space-1);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;opacity:0;transition:opacity var(--an-dur-fast) var(--an-ease)}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:2px;transition:opacity var(--an-dur-fast) var(--an-ease)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-glyphFlip{transform:scaleX(-1)}\n\n/* ── 7b 拖拽排序 · 抬起的行跟手，其余行用 transform 让位 ─────────────── */\n.dsh-an-rows[data-dragging=\"true\"],.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row{cursor:grabbing}\n.dsh-an-row[data-dragging=\"true\"]{z-index:1;background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-prominent);transition:none}\n/* During a drag, show ages and keep row actions out of the way. */\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row :is(.dsh-an-actions,.dsh-an-insert){opacity:0;pointer-events:none}\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-meta{opacity:1}\n\n/* ── 8 紧凑文字按钮 · 清空确认 ─────────────────────────────────── */\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 存储详情与更新 ─────────────────────────────────────────── */\n.dsh-an-storageBlock{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-storagePathRow{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-storagePath{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;user-select:all}\n.dsh-an-storageActions{display:flex;flex-wrap:wrap;gap:var(--an-space-1)}\n/* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */\n.dsh-an-updateCheck{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCheck:active{background:var(--an-active)}\n.dsh-an-updateCheck[aria-disabled=\"true\"]{color:var(--dsw-alias-label-secondary);cursor:default}\n.dsh-an-updateCheck:focus-visible{outline-offset:2px}\n.dsh-an-updateHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-updateHintError{color:var(--dsw-alias-state-error-primary)}\n.dsh-an-updateCard{display:flex;flex-direction:column;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-updateTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-updateFull:focus-visible,.dsh-an-updateLinkBtn:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateFull{flex:none;color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}\n.dsh-an-updateNotes{display:flex;flex-direction:column;gap:var(--an-space-2);max-height:220px;overflow-y:auto;padding-right:0;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);scrollbar-gutter:stable}\n.dsh-an-updateNotes[data-fade=\"true\"]{--dsh-an-fadeHeight:var(--an-space-5);-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n.dsh-an-updateVersions{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion+.dsh-an-updateVersion{padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateVersionHead{display:flex;align-items:center;gap:var(--an-space-1);width:100%;padding:2px 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer}\n.dsh-an-updateVersionHead:active{background:var(--an-active)}\n.dsh-an-updateVersionHead:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateChevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-updateChevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-updateVersionLabel{font-variant-numeric:tabular-nums}\n.dsh-an-updateLatest{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500}\n.dsh-an-updateVersionBody{display:flex;flex-direction:column;gap:var(--an-space-2);padding-left:var(--an-space-4);min-width:0}\n.dsh-an-updateGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateGroupTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-updateItems{display:flex;flex-direction:column;gap:var(--an-space-1);margin:0;padding-left:var(--an-space-4);color:var(--dsw-alias-label-primary)}\n.dsh-an-updateItem{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);overflow-wrap:anywhere}\n.dsh-an-updateItem strong{font-weight:500}\n.dsh-an-updateActions{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updatePrimary{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-3);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updatePrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-updatePrimary:disabled{opacity:.55;cursor:default}\n.dsh-an-updatePrimary:focus-visible{outline-offset:2px}\n.dsh-an-updateDone{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateErrorRow{display:flex;align-items:baseline;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateError{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere}\n.dsh-an-updateLinkBtn{padding:0;border:0;background:transparent;color:var(--dsw-alias-link);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer}\n.dsh-an-updateFallback{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateFallback .dsh-an-updateHint{flex:1 1 100%;min-width:0}\n.dsh-an-updateCopy{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCopy:active{background:var(--an-active)}\n.dsh-an-updateCopy:focus-visible{outline-offset:2px}\n\n/* ── 11 存储异常与面板底部入口 ─────────────────────────────────── */\n.dsh-an-storageStatus{display:flex;align-items:flex-start;flex-wrap:wrap;gap:var(--an-space-2);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);font-size:var(--an-fs-caption);overflow-wrap:anywhere}\n.dsh-an-storageStatus>div{flex:1 1 135px;min-width:0}\n.dsh-an-storageStatus p,.dsh-an-footerBody p{margin:0}\n.dsh-an-storageFailure{color:var(--dsw-alias-label-secondary)}\n.dsh-an-reconnect[aria-disabled=\"true\"]{color:var(--dsw-alias-label-secondary);cursor:progress}\n.dsh-an-popFoot{flex:0 1 auto;min-height:24px;max-height:40dvh;margin:0;padding:2px;overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-storageToggle,.dsh-an-updateToggle{width:fit-content;padding:2px var(--an-space-1);border-radius:var(--dsw-radius-sm);cursor:pointer}\n.dsh-an-storageToggle{display:block;list-style:none;text-decoration:underline;text-decoration-color:var(--dsw-alias-label-tertiary);text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-storageToggle::-webkit-details-marker{display:none}\n.dsh-an-storageToggle:focus-visible,.dsh-an-updateToggle:focus-visible{outline:2px solid var(--dsw-alias-label-primary)}\n.dsh-an-updateToggle{font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-footerBody{display:grid;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-versionRow{display:flex;align-items:center;flex-wrap:wrap;gap:var(--an-space-2)}\n.dsh-an-versionRow>span:empty{position:absolute}\n/* Keep controls reachable when errors or disclosures add more than the panel can fit. */\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]){overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-listViewport{min-height:48px}\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-popFoot{flex-shrink:0}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-meta{opacity:1}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta{opacity:0}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-popClose:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:hover:not([data-active=\"true\"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not(:disabled,:active),.dsh-an-attachBtn:hover:not(:disabled){background:var(--an-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover,.dsh-an-storageToggle:hover,.dsh-an-updateToggle:hover{background:var(--an-hover)}\n.dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) backwards}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
+var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active{background:var(--an-active)}\n/* The list-scope switch sits at the far right of the title line. */\n.dsh-an-scope{display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:24px;padding:1px;margin-left:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-scopeBtn{display:inline-flex;align-items:center;justify-content:center;height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px;font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-scopeBtn[data-active=\"true\"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within,.dsh-an-add[data-file-drag]{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-composerTools{display:flex;align-items:center;gap:var(--an-space-1)}\n.dsh-an-attachBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}\n.dsh-an-attachBtn:disabled{cursor:not-allowed;opacity:.55}\n.dsh-an-destination,.dsh-an-attachmentStatus{grid-column:1/-1;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}\n.dsh-an-attachments{display:grid;gap:var(--an-space-1);padding:0;margin:0;list-style:none;min-width:0}\n.dsh-an-add>.dsh-an-attachments{grid-column:1/-1;max-height:128px;overflow:auto}\n.dsh-an-text+.dsh-an-attachments{margin-top:var(--an-space-1)}\n.dsh-an-attachment{min-width:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-attachmentBar{display:flex;align-items:center;gap:var(--an-space-1);min-height:28px;padding:0 var(--an-space-1)}\n.dsh-an-attachmentBar .dsh-an-iconBtn{flex:none;text-decoration:none}\n.dsh-an-attachmentName{flex:1;min-width:0;overflow:hidden;text-align:left;text-overflow:ellipsis;white-space:nowrap;padding:0 var(--an-space-1);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-row)}\nbutton.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-underline-offset:2px}\n.dsh-an-attachmentPreview{display:grid;justify-items:start;gap:var(--an-space-1);padding:var(--an-space-1);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption)}\n.dsh-an-attachmentPreview img,.dsh-an-attachmentPreview video{display:block;max-width:100%;max-height:160px;object-fit:contain}\n.dsh-an-attachmentPreview audio{width:100%;min-width:0}\n.dsh-an-rowBody{min-width:0}\n.dsh-an-rowWorkspace{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-row)}\n.dsh-an-input{display:block;align-self:center;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:focus-visible,.dsh-an-attachBtn:focus-visible,.dsh-an-attachmentName:focus-visible,.dsh-an-attachmentBar .dsh-an-iconBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n.dsh-an-addBtn:active:not(:disabled){background:var(--an-active)}\n.dsh-an-addBtn:disabled{color:var(--dsw-alias-label-secondary);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;display:flex;flex-direction:column;gap:2px;margin:0;padding:0}\n/* The leading column keeps both sections aligned with the section label. */\n.dsh-an-row{position:relative;display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:start;column-gap:var(--an-space-1);padding:var(--an-space-1);border-radius:var(--dsw-radius-sm);transition:var(--an-transition)}\n\n/* ── 6 一行便笺 · 左侧填入，正文 13/20，尾格静置显示时间、悬停换成操作 ── */\n.dsh-an-leading{display:flex;justify-content:center;margin:-2px 0 0}\n.dsh-an-leading>.dsh-an-insert{flex:none}\n.dsh-an-row[data-sortable]{cursor:grab}\n/* Reserve the body for direct touch dragging and leave the side columns available for scrolling. */\n.dsh-an-row[data-sortable] .dsh-an-rowBody{touch-action:none}\n.dsh-an-row[data-sortable] .dsh-an-text{user-select:none;-webkit-user-select:none}\n.dsh-an-text{display:block;min-width:0;margin:0;padding:0;color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}\n.dsh-an-rowArchived .dsh-an-text{color:var(--dsw-alias-label-secondary)}\n/* Age and actions share one grid cell, so the swap never reflows the text. */\n.dsh-an-trail{display:grid;align-items:center;justify-items:end;min-height:24px;margin:-2px 0 0}\n.dsh-an-trail>*{grid-area:1/1}\n.dsh-an-meta{padding:0 var(--an-space-1);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;opacity:0;transition:opacity var(--an-dur-fast) var(--an-ease)}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:2px;transition:opacity var(--an-dur-fast) var(--an-ease)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-glyphFlip{transform:scaleX(-1)}\n\n/* ── 7b 拖拽排序 · 抬起的行跟手，其余行用 transform 让位 ─────────────── */\n.dsh-an-rows[data-dragging=\"true\"],.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row{cursor:grabbing}\n.dsh-an-row[data-dragging=\"true\"]{z-index:1;background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-prominent);transition:none}\n/* During a drag, show ages and keep row actions out of the way. */\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row :is(.dsh-an-actions,.dsh-an-insert){opacity:0;pointer-events:none}\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-meta{opacity:1}\n\n/* ── 8 紧凑文字按钮 · 清空确认 ─────────────────────────────────── */\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n\n/* ── 10 存储详情与更新 ─────────────────────────────────────────── */\n.dsh-an-storageBlock{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-storagePathRow{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-storagePath{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;user-select:all}\n.dsh-an-storageActions{display:flex;flex-wrap:wrap;gap:var(--an-space-1)}\n/* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */\n.dsh-an-updateCheck{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCheck:active{background:var(--an-active)}\n.dsh-an-updateCheck[aria-disabled=\"true\"]{color:var(--dsw-alias-label-secondary);cursor:default}\n.dsh-an-updateCheck:focus-visible{outline-offset:2px}\n.dsh-an-updateHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-updateHintError{color:var(--dsw-alias-state-error-primary)}\n.dsh-an-updateCard{display:flex;flex-direction:column;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-updateTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-updateFull:focus-visible,.dsh-an-updateLinkBtn:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateFull{flex:none;color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}\n.dsh-an-updateNotes{display:flex;flex-direction:column;gap:var(--an-space-2);max-height:220px;overflow-y:auto;padding-right:0;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);scrollbar-gutter:stable}\n.dsh-an-updateNotes[data-fade=\"true\"]{--dsh-an-fadeHeight:var(--an-space-5);-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n.dsh-an-updateVersions{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion+.dsh-an-updateVersion{padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateVersionHead{display:flex;align-items:center;gap:var(--an-space-1);width:100%;padding:2px 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer}\n.dsh-an-updateVersionHead:active{background:var(--an-active)}\n.dsh-an-updateVersionHead:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateChevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-updateChevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-updateVersionLabel{font-variant-numeric:tabular-nums}\n.dsh-an-updateLatest{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500}\n.dsh-an-updateVersionBody{display:flex;flex-direction:column;gap:var(--an-space-2);padding-left:var(--an-space-4);min-width:0}\n.dsh-an-updateGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateGroupTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-updateItems{display:flex;flex-direction:column;gap:var(--an-space-1);margin:0;padding-left:var(--an-space-4);color:var(--dsw-alias-label-primary)}\n.dsh-an-updateItem{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);overflow-wrap:anywhere}\n.dsh-an-updateItem strong{font-weight:500}\n.dsh-an-updateActions{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updatePrimary{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-3);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updatePrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-updatePrimary:disabled{opacity:.55;cursor:default}\n.dsh-an-updatePrimary:focus-visible{outline-offset:2px}\n.dsh-an-updateDone{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateErrorRow{display:flex;align-items:baseline;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateError{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere}\n.dsh-an-updateLinkBtn{padding:0;border:0;background:transparent;color:var(--dsw-alias-link);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer}\n.dsh-an-updateFallback{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateFallback .dsh-an-updateHint{flex:1 1 100%;min-width:0}\n.dsh-an-updateCopy{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCopy:active{background:var(--an-active)}\n.dsh-an-updateCopy:focus-visible{outline-offset:2px}\n\n/* ── 11 存储异常与面板底部入口 ─────────────────────────────────── */\n.dsh-an-storageStatus{display:flex;align-items:flex-start;flex-wrap:wrap;gap:var(--an-space-2);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);font-size:var(--an-fs-caption);overflow-wrap:anywhere}\n.dsh-an-storageStatus>div{flex:1 1 135px;min-width:0}\n.dsh-an-storageStatus p,.dsh-an-footerBody p{margin:0}\n.dsh-an-storageFailure{color:var(--dsw-alias-label-secondary)}\n.dsh-an-reconnect[aria-disabled=\"true\"]{color:var(--dsw-alias-label-secondary);cursor:progress}\n.dsh-an-popFoot{flex:0 1 auto;min-height:24px;max-height:40dvh;margin:0;padding:2px;overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-storageToggle,.dsh-an-updateToggle{width:fit-content;padding:2px var(--an-space-1);border-radius:var(--dsw-radius-sm);cursor:pointer}\n.dsh-an-storageToggle{display:block;list-style:none;text-decoration:underline;text-decoration-color:var(--dsw-alias-label-tertiary);text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-storageToggle::-webkit-details-marker{display:none}\n.dsh-an-storageToggle:focus-visible,.dsh-an-updateToggle:focus-visible{outline:2px solid var(--dsw-alias-label-primary)}\n.dsh-an-updateToggle{font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-footerBody{display:grid;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-versionRow{display:flex;align-items:center;flex-wrap:wrap;gap:var(--an-space-2)}\n.dsh-an-versionRow>span:empty{position:absolute}\n/* Keep controls reachable when errors or disclosures add more than the panel can fit. */\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]){overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-listViewport{min-height:48px}\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-popFoot{flex-shrink:0}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-meta{opacity:1}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta{opacity:0}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-popClose:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeBtn:hover:not([data-active=\"true\"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not(:disabled,:active),.dsh-an-attachBtn:hover:not(:disabled){background:var(--an-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover,.dsh-an-storageToggle:hover,.dsh-an-updateToggle:hover{background:var(--an-hover)}\n.dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) backwards}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
 
 // src/client/constants.ts
 /**
@@ -102,12 +102,15 @@ const de = {
 	"popover.clearConfirm": "{n} archivierte Notizen löschen?",
 	"popover.clearConfirmAction": "Löschen",
 	"popover.clearArchived": "Archivierte löschen",
-	"scope.label": "Notizbereich",
+	"scope.label": "Notizen filtern",
+	"scope.global": "Global",
 	"scope.workspace": "Arbeitsbereich",
-	"scope.session": "Sitzung",
-	"scope.workspaceHint": "Zur Liste des Arbeitsbereichs wechseln, die alle Sitzungen teilen",
-	"scope.sessionHint": "Zur Sitzungsliste wechseln, die nur in dieser Sitzung sichtbar ist",
-	"scope.newSessionHint": "Vorerst ist nur die Liste des Arbeitsbereichs verfügbar; die Sitzungsliste erscheint, sobald die Sitzung beginnt",
+	"scope.globalHint": "Notizen aus allen Arbeitsbereichen anzeigen",
+	"scope.workspaceHint": "Notizen aus dem aktuellen Arbeitsbereich anzeigen",
+	"scope.loading": "Arbeitsbereich wird ermittelt",
+	"scope.unassigned": "Nicht zugeordnet",
+	"add.destination": "Zu {workspace} hinzufügen",
+	"popover.clearGlobalConfirm": "Diese {n} archivierten Notizen aus allen Arbeitsbereichen löschen?",
 	"popover.empty.title": "Noch keine Notizen",
 	"popover.empty.body": "Ideen entwerfen, während der Agent arbeitet",
 	"shortcut.toggle": "Sideby Note ein- oder ausblenden",
@@ -174,8 +177,9 @@ const de = {
 	"toast.archiveFailed": "An den Chat übergeben, aber das Archiv konnte nicht gespeichert werden",
 	"toast.recalled": "Zurück in das Eingabefeld geholt",
 	"toast.recallBlocked": "Im Eingabefeld steht bereits Text – zuerst senden oder leeren",
+	"toast.clearPartial": "Einige archivierte Notizen wurden gelöscht. Erneut versuchen, um die übrigen zu löschen",
 	"toast.cleared": "Archiv geleert",
-	"toast.saveFailed": "Speichern fehlgeschlagen — nichts geändert",
+	"toast.saveFailed": "Speichern fehlgeschlagen. Bitte erneut versuchen",
 	"update.version": "Version",
 	"update.label": "Update verfügbar",
 	"update.check": "Nach Updates suchen",
@@ -231,12 +235,15 @@ const en = {
 	"popover.clearConfirm": "Clear {n} archived notes?",
 	"popover.clearConfirmAction": "Clear",
 	"popover.clearArchived": "Clear archived",
-	"scope.label": "Note scope",
+	"scope.label": "Filter notes",
+	"scope.global": "Global",
 	"scope.workspace": "Workspace",
-	"scope.session": "Session",
-	"scope.workspaceHint": "Switch to the workspace list, shared by all sessions",
-	"scope.sessionHint": "Switch to the session list, visible only in this session",
-	"scope.newSessionHint": "Only the workspace list is available for now; the session list appears once the session starts",
+	"scope.globalHint": "Show notes from all workspaces",
+	"scope.workspaceHint": "Show notes from the current workspace",
+	"scope.loading": "Finding the current workspace",
+	"scope.unassigned": "Unassigned",
+	"add.destination": "Add to {workspace}",
+	"popover.clearGlobalConfirm": "Clear these {n} archived notes across workspaces?",
 	"popover.empty.title": "No notes yet",
 	"popover.empty.body": "Asynchronously draft your ideas while the agent is working",
 	"shortcut.toggle": "Toggle Sideby Note",
@@ -303,8 +310,9 @@ const en = {
 	"toast.archiveFailed": "Inserted into the chat input, but the archive could not be saved",
 	"toast.recalled": "Moved back to the input",
 	"toast.recallBlocked": "The input already has text — send or clear it first",
+	"toast.clearPartial": "Some archived notes were cleared. Retry to clear the rest",
 	"toast.cleared": "Archive cleared",
-	"toast.saveFailed": "Save failed — nothing changed",
+	"toast.saveFailed": "Could not save. Please retry",
 	"update.version": "Version",
 	"update.label": "Update available",
 	"update.check": "Check for updates",
@@ -360,12 +368,15 @@ const es = {
 	"popover.clearConfirm": "¿Borrar {n} notas archivadas?",
 	"popover.clearConfirmAction": "Borrar",
 	"popover.clearArchived": "Borrar archivadas",
-	"scope.label": "Ámbito de las notas",
+	"scope.label": "Filtrar notas",
+	"scope.global": "Global",
 	"scope.workspace": "Espacio de trabajo",
-	"scope.session": "Sesión",
-	"scope.workspaceHint": "Cambiar a la lista del espacio de trabajo, compartida por todas las sesiones",
-	"scope.sessionHint": "Cambiar a la lista de la sesión, visible solo en esta sesión",
-	"scope.newSessionHint": "Por ahora solo está disponible la lista del espacio de trabajo; la lista de la sesión aparecerá cuando se inicie la sesión",
+	"scope.globalHint": "Mostrar notas de todos los espacios de trabajo",
+	"scope.workspaceHint": "Mostrar notas del espacio de trabajo actual",
+	"scope.loading": "Comprobando el espacio de trabajo actual",
+	"scope.unassigned": "Sin asignar",
+	"add.destination": "Añadir a {workspace}",
+	"popover.clearGlobalConfirm": "¿Borrar estas {n} notas archivadas de todos los espacios de trabajo?",
 	"popover.empty.title": "Aún no hay notas",
 	"popover.empty.body": "Esboza tus ideas de forma asíncrona mientras el agente trabaja",
 	"shortcut.toggle": "Mostrar u ocultar Sideby Note",
@@ -432,8 +443,9 @@ const es = {
 	"toast.archiveFailed": "La nota se pasó al chat, pero no se pudo archivar",
 	"toast.recalled": "Devuelta al cuadro de texto",
 	"toast.recallBlocked": "El cuadro de texto ya tiene contenido; envíalo o bórralo primero",
+	"toast.clearPartial": "Se borraron algunas notas archivadas. Vuelve a intentarlo para borrar las demás",
 	"toast.cleared": "Archivo borrado",
-	"toast.saveFailed": "Error al guardar — nada cambió",
+	"toast.saveFailed": "No se pudo guardar. Inténtalo de nuevo",
 	"update.version": "Versión",
 	"update.label": "Actualización disponible",
 	"update.check": "Buscar actualizaciones",
@@ -489,12 +501,15 @@ const fr = {
 	"popover.clearConfirm": "Effacer {n} notes archivées ?",
 	"popover.clearConfirmAction": "Effacer",
 	"popover.clearArchived": "Effacer les archivées",
-	"scope.label": "Portée des notes",
+	"scope.label": "Filtrer les notes",
+	"scope.global": "Global",
 	"scope.workspace": "Espace de travail",
-	"scope.session": "Session",
-	"scope.workspaceHint": "Passer à la liste de l'espace de travail, partagée par toutes les sessions",
-	"scope.sessionHint": "Passer à la liste de la session, visible uniquement dans cette session",
-	"scope.newSessionHint": "Seule la liste de l'espace de travail est disponible pour l'instant ; la liste de la session apparaîtra au démarrage de la session",
+	"scope.globalHint": "Afficher les notes de tous les espaces de travail",
+	"scope.workspaceHint": "Afficher les notes de l’espace de travail actuel",
+	"scope.loading": "Recherche de l’espace de travail actuel",
+	"scope.unassigned": "Non attribué",
+	"add.destination": "Ajouter à {workspace}",
+	"popover.clearGlobalConfirm": "Effacer ces {n} notes archivées dans tous les espaces de travail ?",
 	"popover.empty.title": "Aucune note pour l'instant",
 	"popover.empty.body": "Rédigez vos idées de façon asynchrone pendant que l'agent travaille",
 	"shortcut.toggle": "Afficher ou masquer Sideby Note",
@@ -561,8 +576,9 @@ const fr = {
 	"toast.archiveFailed": "Note transmise au chat, mais son archivage a échoué",
 	"toast.recalled": "Renvoyée dans la zone de saisie",
 	"toast.recallBlocked": "La zone de saisie contient déjà du texte ; envoyez-le ou effacez-le d'abord",
+	"toast.clearPartial": "Certaines notes archivées ont été effacées. Réessayez pour effacer les autres",
 	"toast.cleared": "Archive effacée",
-	"toast.saveFailed": "Échec de l'enregistrement — rien n'a changé",
+	"toast.saveFailed": "Échec de l’enregistrement. Veuillez réessayer",
 	"update.version": "Version",
 	"update.label": "Mise à jour disponible",
 	"update.check": "Rechercher des mises à jour",
@@ -618,12 +634,15 @@ const ja = {
 	"popover.clearConfirm": "アーカイブのメモ {n} 件を削除しますか？",
 	"popover.clearConfirmAction": "削除",
 	"popover.clearArchived": "アーカイブを削除",
-	"scope.label": "メモの範囲",
+	"scope.label": "メモの絞り込み",
+	"scope.global": "全体",
 	"scope.workspace": "ワークスペース",
-	"scope.session": "セッション",
-	"scope.workspaceHint": "すべてのセッションで共有されるワークスペースのリストに切り替えます",
-	"scope.sessionHint": "このセッションだけに表示されるセッションのリストに切り替えます",
-	"scope.newSessionHint": "現在はワークスペースのリストのみ利用できます。セッションを開始するとセッションのリストが表示されます",
+	"scope.globalHint": "すべてのワークスペースのメモを表示",
+	"scope.workspaceHint": "現在のワークスペースのメモを表示",
+	"scope.loading": "現在のワークスペースを確認中",
+	"scope.unassigned": "未割り当て",
+	"add.destination": "{workspace} に追加",
+	"popover.clearGlobalConfirm": "すべてのワークスペースでこの {n} 件のアーカイブ済みメモを削除しますか？",
 	"popover.empty.title": "メモはまだありません",
 	"popover.empty.body": "エージェントが作業している間に、アイデアを非同期で書き留める",
 	"shortcut.toggle": "Sideby Note の表示を切り替え",
@@ -690,8 +709,9 @@ const ja = {
 	"toast.archiveFailed": "チャットに渡しましたが、アーカイブを保存できませんでした",
 	"toast.recalled": "入力欄に戻しました",
 	"toast.recallBlocked": "入力欄に文字があります。送信するかクリアしてください",
+	"toast.clearPartial": "一部のアーカイブ済みメモを削除しました。残りを削除するには再試行してください",
 	"toast.cleared": "アーカイブを削除しました",
-	"toast.saveFailed": "保存に失敗しました — 変更はありません",
+	"toast.saveFailed": "保存できませんでした。再試行してください",
 	"update.version": "バージョン",
 	"update.label": "更新があります",
 	"update.check": "更新を確認",
@@ -747,12 +767,15 @@ const pt = {
 	"popover.clearConfirm": "Limpar {n} notas arquivadas?",
 	"popover.clearConfirmAction": "Limpar",
 	"popover.clearArchived": "Limpar arquivadas",
-	"scope.label": "Escopo das notas",
+	"scope.label": "Filtrar notas",
+	"scope.global": "Global",
 	"scope.workspace": "Espaço de trabalho",
-	"scope.session": "Sessão",
-	"scope.workspaceHint": "Mudar para a lista do espaço de trabalho, compartilhada por todas as sessões",
-	"scope.sessionHint": "Mudar para a lista da sessão, visível apenas nesta sessão",
-	"scope.newSessionHint": "Por enquanto, apenas a lista do espaço de trabalho está disponível; a lista da sessão aparece quando a sessão começar",
+	"scope.globalHint": "Mostrar notas de todos os espaços de trabalho",
+	"scope.workspaceHint": "Mostrar notas do espaço de trabalho atual",
+	"scope.loading": "Verificando o espaço de trabalho atual",
+	"scope.unassigned": "Sem atribuição",
+	"add.destination": "Adicionar a {workspace}",
+	"popover.clearGlobalConfirm": "Limpar estas {n} notas arquivadas em todos os espaços de trabalho?",
 	"popover.empty.title": "Nenhuma nota ainda",
 	"popover.empty.body": "Esboce suas ideias de forma assíncrona enquanto o agente trabalha",
 	"shortcut.toggle": "Mostrar ou ocultar Sideby Note",
@@ -819,8 +842,9 @@ const pt = {
 	"toast.archiveFailed": "A nota foi enviada para o chat, mas não pôde ser arquivada",
 	"toast.recalled": "Devolvida para a caixa de texto",
 	"toast.recallBlocked": "A caixa de texto já tem conteúdo; envie ou limpe primeiro",
+	"toast.clearPartial": "Algumas notas arquivadas foram limpas. Tente novamente para limpar as demais",
 	"toast.cleared": "Arquivo limpo",
-	"toast.saveFailed": "Falha ao salvar — nada mudou",
+	"toast.saveFailed": "Não foi possível salvar. Tente novamente",
 	"update.version": "Versão",
 	"update.label": "Atualização disponível",
 	"update.check": "Verificar atualizações",
@@ -876,12 +900,15 @@ const ru = {
 	"popover.clearConfirm": "Очистить архивные заметки ({n})?",
 	"popover.clearConfirmAction": "Очистить",
 	"popover.clearArchived": "Очистить архив",
-	"scope.label": "Область заметок",
+	"scope.label": "Фильтр заметок",
+	"scope.global": "Все",
 	"scope.workspace": "Рабочая область",
-	"scope.session": "Сеанс",
-	"scope.workspaceHint": "Переключиться на список рабочей области, общий для всех сеансов",
-	"scope.sessionHint": "Переключиться на список сеанса, видимый только в этом сеансе",
-	"scope.newSessionHint": "Пока доступен только список рабочей области; список сеанса появится после начала сеанса",
+	"scope.globalHint": "Показать заметки всех рабочих областей",
+	"scope.workspaceHint": "Показать заметки текущей рабочей области",
+	"scope.loading": "Определяется текущая рабочая область",
+	"scope.unassigned": "Без рабочей области",
+	"add.destination": "Добавить в {workspace}",
+	"popover.clearGlobalConfirm": "Удалить эти архивные заметки во всех рабочих областях ({n})?",
 	"popover.empty.title": "Заметок пока нет",
 	"popover.empty.body": "Набрасывайте идеи асинхронно, пока агент работает",
 	"shortcut.toggle": "Показать или скрыть Sideby Note",
@@ -948,8 +975,9 @@ const ru = {
 	"toast.archiveFailed": "Заметка передана в чат, но сохранить её в архиве не удалось",
 	"toast.recalled": "Возвращено в поле ввода",
 	"toast.recallBlocked": "В поле ввода уже есть текст — сначала отправьте или очистите его",
+	"toast.clearPartial": "Часть архивных заметок удалена. Повторите попытку, чтобы удалить остальные",
 	"toast.cleared": "Архив очищен",
-	"toast.saveFailed": "Не удалось сохранить — ничего не изменено",
+	"toast.saveFailed": "Не удалось сохранить. Повторите попытку",
 	"update.version": "Версия",
 	"update.label": "Доступно обновление",
 	"update.check": "Проверить обновления",
@@ -1005,12 +1033,15 @@ const zh = {
 	"popover.clearConfirm": "清空归档中的 {n} 条？",
 	"popover.clearConfirmAction": "清空",
 	"popover.clearArchived": "清空归档",
-	"scope.label": "便笺范围",
+	"scope.label": "便笺筛选",
+	"scope.global": "全局",
 	"scope.workspace": "工作区",
-	"scope.session": "会话",
-	"scope.workspaceHint": "切换到工作区清单，所有会话共享",
-	"scope.sessionHint": "切换到会话清单，只属于当前会话",
-	"scope.newSessionHint": "当前只能记到工作区，会话开始后可切换",
+	"scope.globalHint": "查看所有工作区的便笺",
+	"scope.workspaceHint": "只看当前工作区的便笺",
+	"scope.loading": "正在确认工作区归属",
+	"scope.unassigned": "未归属",
+	"add.destination": "记到 {workspace}",
+	"popover.clearGlobalConfirm": "清空所有工作区中这 {n} 条归档便笺？",
 	"popover.empty.title": "边记摸鱼中..",
 	"popover.empty.body": "趁 agent 工作时，异步记下你的想法",
 	"shortcut.toggle": "打开或收起边记部",
@@ -1077,8 +1108,9 @@ const zh = {
 	"toast.archiveFailed": "便笺已填入对话输入框，但存档未能保存",
 	"toast.recalled": "已退回输入框",
 	"toast.recallBlocked": "输入框已有内容，请先发送或清空",
+	"toast.clearPartial": "部分归档已清空，可以重试清除剩余便笺",
 	"toast.cleared": "归档已清空",
-	"toast.saveFailed": "保存失败，内容没有改动",
+	"toast.saveFailed": "保存失败，请重试",
 	"update.version": "版本",
 	"update.label": "有新版本",
 	"update.check": "检查更新",
@@ -1179,103 +1211,38 @@ function makeSay(ctx, getLocaleId) {
 }
 
 // src/client/scope.ts
-const EMPTY = {
+const UNASSIGNED_WORKSPACE = "sideby-note:unassigned";
+let binding = {
 	sessionId: "",
-	workspaceId: "",
-	title: "",
-	sessionIds: [],
-	ready: true
+	workspace: null,
+	ready: true,
+	catalogReady: false
 };
-let binding = EMPTY;
-let version = 0;
-const listeners = /* @__PURE__ */ new Set();
-const text$2 = (value) => value ? String(value) : "";
-const notify = () => {
-	version += 1;
-	for (const listener of listeners) listener();
-};
-/** Subscribe to binding changes; used by the open panel to gain session scope. */
-function subscribeScope(listener) {
-	listeners.add(listener);
-	return () => {
-		listeners.delete(listener);
+let workspaces = [];
+function bindWorkspace(sessionId, workspace, ready, catalog) {
+	binding = {
+		sessionId,
+		workspace,
+		ready,
+		catalogReady: catalog !== null
 	};
+	workspaces = catalog ?? [];
 }
-/** Monotonic version of the binding, read by useSyncExternalStore. */
-function scopeVersion() {
-	return version;
+function workspaceForSession(sessionId) {
+	return binding.sessionId === sessionId ? binding.workspace : null;
 }
-/**
-* Resolve the workspace of the captured session; null clears the binding.
-* `ready` is false only when the session is still the blank new-session page.
-*/
-function bindWorkspace(sessionId, workspace, ready = true) {
-	const next = workspace ? {
-		sessionId: text$2(sessionId),
-		workspaceId: text$2(workspace.workspaceId),
-		title: text$2(workspace.title),
-		sessionIds: Array.isArray(workspace.sessionIds) ? workspace.sessionIds.map(text$2).filter(Boolean) : [],
-		ready: ready !== false
-	} : {
-		...EMPTY,
-		sessionId: text$2(sessionId),
-		ready: ready !== false
-	};
-	if (next.sessionId === binding.sessionId && next.workspaceId === binding.workspaceId && next.title === binding.title && next.sessionIds.join("\0") === binding.sessionIds.join("\0") && next.ready === binding.ready) return false;
-	binding = next;
-	notify();
-	return true;
+function workspaceCatalogReady() {
+	return binding.catalogReady;
 }
-/** The workspace list available to this session, or null outside a workspace. */
-function workspaceScopeForSession(sessionId) {
-	const id = text$2(sessionId);
-	if (id && binding.sessionId === id && binding.workspaceId) return {
-		kind: "workspace",
-		id: binding.workspaceId,
-		title: binding.title,
-		sessionIds: binding.sessionIds
-	};
-	return null;
+function workspaceTitle(workspaceId) {
+	return workspaces.find((workspace) => workspace.workspaceId === workspaceId)?.title;
 }
-/** Whether the captured session has moved past the blank new-session page. */
 function sessionReadyFor(sessionId) {
-	const id = text$2(sessionId);
-	if (!id || binding.sessionId !== id) return true;
-	return binding.ready;
+	return binding.sessionId !== sessionId || binding.ready;
 }
-/** Whether the panel may offer the session list at all. */
-function canUseSessionScope(sessionId) {
-	return Boolean(text$2(sessionId)) && sessionReadyFor(sessionId);
-}
-/** The list this session reads and writes under the chosen scope mode. */
-function scopeForSession(sessionId, mode = "workspace") {
-	const workspace = workspaceScopeForSession(sessionId);
-	if (workspace && (mode !== "session" || !sessionReadyFor(sessionId))) return workspace;
-	const id = text$2(sessionId);
-	return {
-		kind: "session",
-		id,
-		title: "",
-		sessionIds: id ? [id] : []
-	};
-}
-/** Stable key of one list (a workspace or a session). */
-function scopeKey(scope) {
-	if (!scope || !scope.id) return "";
-	return scope.kind === "workspace" ? `ws:${scope.id}` : String(scope.id);
-}
-/**
-* Stable key for the drafts of a conversation.
-*
-* Drafts belong to the workspace, not to the tab the panel is showing: every
-* member conversation shares one buffer, so neither switching conversations
-* nor switching the workspace/session scope strands half-typed text. The save
-* itself still uses the scope selected at that moment. A session outside a
-* workspace keeps its own buffer.
-*/
 function draftKeyForSession(sessionId) {
-	const workspace = workspaceScopeForSession(sessionId);
-	return workspace ? scopeKey(workspace) : text$2(sessionId);
+	const workspace = workspaceForSession(sessionId);
+	return workspace ? `ws:${workspace.workspaceId}` : sessionId;
 }
 
 // src/client/domain/forward.ts
@@ -1342,47 +1309,6 @@ function appendToConversation(text) {
 	} catch {}
 	try {
 		return document.execCommand("insertText", false, payload);
-	} catch {
-		return false;
-	}
-}
-
-// src/client/storage/codec.ts
-/** The browser store, or null when storage is blocked. */
-function storage() {
-	try {
-		return window.localStorage;
-	} catch {
-		return null;
-	}
-}
-/** Suffix appended to a store key when its payload could not be read. */
-const CORRUPT_SUFFIX = ".corrupt";
-/**
-* Keep an unreadable payload beside its key before anything overwrites it.
-*
-* Notes only exist in this browser, so a bad parse must not be allowed to turn
-* into silent data loss: the raw string is parked under `<key>.corrupt` and the
-* store continues from empty. Best effort — when storage itself is blocked or
-* full there is nowhere to keep the copy.
-*
-* Repeated reads of the same damage do not rewrite the backup.
-*/
-function setAsideUnreadable(key, raw) {
-	const ls = storage();
-	if (!ls) return false;
-	try {
-		const backupKey = `${key}${CORRUPT_SUFFIX}`;
-		const previous = ls.getItem(backupKey);
-		if (previous) try {
-			const parsed = JSON.parse(previous);
-			if (parsed && parsed.raw === raw) return true;
-		} catch {}
-		ls.setItem(backupKey, JSON.stringify({
-			at: Date.now(),
-			raw
-		}));
-		return true;
 	} catch {
 		return false;
 	}
@@ -1755,9 +1681,6 @@ function report(error) {
 	if (isHostConnectionFailure(detail)) notifyTodoChange();
 	notifyStoreError(failure);
 }
-function tableFor(kind) {
-	return kind === "workspace" ? "workspaces" : "sessions";
-}
 function sameJson(a, b) {
 	return JSON.stringify(a) === JSON.stringify(b);
 }
@@ -1768,9 +1691,9 @@ function toItems(record) {
 * Persist the next ordered list for one scope.
 * @returns true when the host accepted (or nothing changed)
 */
-async function commitList(kind, listKey, nextItems) {
+async function commitList(listKey, nextItems) {
 	if (!listKey) return false;
-	const table = tableFor(kind);
+	const table = "workspaces";
 	const base = toItems(hostRecord(table, listKey));
 	const baseById = new Map(base.map((item) => [item.id, item]));
 	const nextById = new Map(nextItems.map((item) => [item.id, item]));
@@ -1787,7 +1710,7 @@ async function commitList(kind, listKey, nextItems) {
 			const previousFailure = storageFailure();
 			const result = await postOp({
 				op: "list.patch",
-				kind,
+				kind: "workspace",
 				listKey,
 				order,
 				upserts,
@@ -1818,20 +1741,16 @@ async function commitList(kind, listKey, nextItems) {
 /** Fold member sessions into a workspace list once, on the host. */
 async function ensureWorkspace(workspaceId, sessionIds) {
 	if (!workspaceId) return false;
-	const current = hostRecord("workspaces", workspaceId);
-	const seeded = new Set(Array.isArray(current?.seededSessionIds) ? current.seededSessionIds : []);
-	const pendingMembers = (Array.isArray(sessionIds) ? sessionIds : []).filter((id) => id && !seeded.has(id));
-	if (current && pendingMembers.length === 0) return true;
 	try {
 		await serialize(`workspaces:${workspaceId}`, async () => {
-			const latest = hostRecord("workspaces", workspaceId);
-			const seeded = new Set(Array.isArray(latest?.seededSessionIds) ? latest.seededSessionIds : []);
-			if (latest && pendingMembers.every((id) => seeded.has(id))) return;
+			if (!sessionIds.some((id) => hostRecord("sessions", id))) return;
 			const result = await postOp({
 				op: "list.ensure",
 				workspaceId,
-				sessionIds: Array.isArray(sessionIds) ? sessionIds : []
+				sessionIds
 			});
+			for (const id of result.migratedSessionIds ?? []) applyHostRecord("sessions", id, void 0);
+			requestHostRefresh();
 			applyHostRecord("workspaces", workspaceId, result.record);
 			broadcastHostChange({
 				kind: "record",
@@ -1852,7 +1771,7 @@ function setPrefs(patch) {
 	const previous = hostPrefs();
 	const next = {
 		...previous,
-		...patch,
+		sidebyNoteScopeMode: patch.scopeMode,
 		version: 1
 	};
 	applyHostPrefs(next);
@@ -1884,95 +1803,45 @@ async function migrate(snapshot) {
 	});
 }
 
-// src/client/storage/prefs.ts
-/** Panel geometry, list scope and section state. */
-/** Read the persisted right-panel width, clamped for the current viewport. */
-function readPanelWidth() {
-	const ls = storage();
-	const max = Math.min(720, Math.max(280, window.innerWidth - 32));
+// src/client/storage/codec.ts
+/** The browser store, or null when storage is blocked. */
+function storage() {
 	try {
-		const saved = ls && Number(ls.getItem("dsh.aside-note.panel-width"));
-		if (Number.isFinite(saved) && saved > 0) return Math.max(280, Math.min(max, saved));
-	} catch {}
-	return Math.max(280, Math.min(max, 360));
-}
-/** Persist the right-panel width so it survives reopening the popover. */
-function writePanelWidth(width) {
-	const ls = storage();
-	if (!ls) return;
-	try {
-		ls.setItem(PANEL_WIDTH_KEY, String(Math.round(width)));
-	} catch {}
-}
-/** Read the persisted right-panel height; 0 means content-sized. */
-function readPanelHeight() {
-	const ls = storage();
-	try {
-		const saved = ls && Number(ls.getItem("dsh.aside-note.panel-height"));
-		if (Number.isFinite(saved) && saved > 0) return saved;
-	} catch {}
-	return 0;
-}
-/** Persist the right-panel height; 0 restores content sizing. */
-function writePanelHeight(height) {
-	const ls = storage();
-	if (!ls) return;
-	try {
-		if (height > 0) ls.setItem(PANEL_HEIGHT_KEY, String(Math.round(height)));
-		else ls.removeItem(PANEL_HEIGHT_KEY);
-	} catch {}
-}
-/** Read the last chosen list scope; "workspace" is the default. */
-function readScopeMode() {
-	if (hostAuthoritative()) return hostPrefs().scopeMode === "session" ? "session" : SCOPE_MODE_DEFAULT;
-	try {
-		return (storage() && storage().getItem("dsh.aside-note.scope-mode")) === "session" ? "session" : SCOPE_MODE_DEFAULT;
+		return window.localStorage;
 	} catch {
-		return SCOPE_MODE_DEFAULT;
+		return null;
 	}
 }
-function writeScopeMode(mode) {
-	if (storageMode() === "error") return;
-	if (storageMode() === "host") {
-		setPrefs({ scopeMode: mode === "session" ? "session" : "workspace" });
-		return;
-	}
-	try {
-		const ls = storage();
-		if (ls) ls.setItem(SCOPE_MODE_KEY, mode === "session" ? "session" : "workspace");
-	} catch {}
-}
-/** Remembered section state; corrupt or missing storage falls back to defaults. */
-function readSectionState() {
-	const fallback = {
-		open: SECTION_STATE_DEFAULT.open,
-		done: SECTION_STATE_DEFAULT.done
-	};
+/** Suffix appended to a store key when its payload could not be read. */
+const CORRUPT_SUFFIX = ".corrupt";
+/**
+* Keep an unreadable payload beside its key before anything overwrites it.
+*
+* Notes only exist in this browser, so a bad parse must not be allowed to turn
+* into silent data loss: the raw string is parked under `<key>.corrupt` and the
+* store continues from empty. Best effort — when storage itself is blocked or
+* full there is nowhere to keep the copy.
+*
+* Repeated reads of the same damage do not rewrite the backup.
+*/
+function setAsideUnreadable(key, raw) {
 	const ls = storage();
-	if (!ls) return fallback;
+	if (!ls) return false;
 	try {
-		const raw = ls.getItem(SECTION_STATE_KEY);
-		if (!raw) return fallback;
-		const saved = JSON.parse(raw);
-		if (!saved || typeof saved !== "object") return fallback;
-		return {
-			open: typeof saved.open === "boolean" ? saved.open : fallback.open,
-			done: typeof saved.done === "boolean" ? saved.done : fallback.done
-		};
-	} catch {
-		return fallback;
-	}
-}
-/** Persist the section state immediately; storage failures are ignored. */
-function writeSectionState(state) {
-	const ls = storage();
-	if (!ls) return;
-	try {
-		ls.setItem(SECTION_STATE_KEY, JSON.stringify({
-			open: state.open === true,
-			done: state.done === true
+		const backupKey = `${key}${CORRUPT_SUFFIX}`;
+		const previous = ls.getItem(backupKey);
+		if (previous) try {
+			const parsed = JSON.parse(previous);
+			if (parsed && parsed.raw === raw) return true;
+		} catch {}
+		ls.setItem(backupKey, JSON.stringify({
+			at: Date.now(),
+			raw
 		}));
-	} catch {}
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 // src/client/storage/legacy.ts
@@ -2021,13 +1890,14 @@ function readLegacySnapshot() {
 	const forwardedStore = parse(readItem(FORWARDED_STORAGE_KEY));
 	const prefs = {};
 	const scope = readItem(SCOPE_MODE_KEY);
-	if (scope === "workspace" || scope === "session") prefs.scopeMode = scope;
+	if (scope === "workspace" || scope === "global") prefs.scopeMode = scope;
 	const shortcut = readItem(SEND_SHORTCUT_KEY);
 	if (shortcut === "enter" || shortcut === "ctrl-enter") prefs.sendShortcut = shortcut;
 	const prefix = readItem(FORWARD_PREFIX_STORAGE_KEY);
 	if (typeof prefix === "string") prefs.forwardPrefix = prefix.slice(0, 80);
+	const pendingCleanup = new Set(Array.isArray(workspaceStore?.pendingSessionCleanup) ? workspaceStore.pendingSessionCleanup : []);
 	return {
-		sessions: bucket$2(sessionStore?.sessions),
+		sessions: Object.fromEntries(Object.entries(bucket$2(sessionStore?.sessions)).filter(([id]) => !pendingCleanup.has(id))),
 		workspaces: bucket$2(workspaceStore?.workspaces),
 		forwarded: bucket$2(forwardedStore?.sessions),
 		prefs
@@ -2279,9 +2149,9 @@ function previewKind(type) {
 *
 * Records are keyed by draft scope, not by conversation: inside a workspace
 * every member session shares one buffer (`ws:<workspaceId>`), so switching
-* conversations or the workspace/session scope never strands half-typed text.
-* A session outside a workspace keeps its own key. Saving still writes the
-* list selected at that moment. The map field stays `sessions` so the existing
+* conversations or filters never strands half-typed text.
+* A session outside a workspace keeps its own key. Recalled notes remember
+* their original workspace. The map field stays `sessions` so the existing
 * store keeps its shape.
 */
 const keyOf = (value) => value ? String(value) : "";
@@ -2359,7 +2229,8 @@ function readScopeDrafts(key) {
 	const record = id ? readDraftStore().sessions[id] : null;
 	return {
 		add: typeof record?.add === "string" ? record.add : "",
-		attachments: normalizeAttachments(record?.attachments)
+		attachments: normalizeAttachments(record?.attachments),
+		workspaceId: typeof record?.workspaceId === "string" ? record.workspaceId : void 0
 	};
 }
 function pruneDraftScope(store, key) {
@@ -2367,7 +2238,7 @@ function pruneDraftScope(store, key) {
 	if (!record) return;
 	if (!(typeof record.add === "string" && record.add.length > 0) && normalizeAttachments(record.attachments).length === 0) delete store.sessions[key];
 }
-function saveAddDraft(key, text, attachments) {
+function saveAddDraft(key, text, attachments, workspaceId) {
 	const id = keyOf(key);
 	if (!id) return false;
 	const store = readDraftStore();
@@ -2377,6 +2248,8 @@ function saveAddDraft(key, text, attachments) {
 	else delete record.add;
 	if (attachments?.length) record.attachments = attachments;
 	else if (attachments) delete record.attachments;
+	if (workspaceId) record.workspaceId = workspaceId;
+	else if (workspaceId === null) delete record.workspaceId;
 	delete record.edits;
 	store.sessions[id] = record;
 	pruneDraftScope(store, id);
@@ -2385,7 +2258,7 @@ function saveAddDraft(key, text, attachments) {
 	return written;
 }
 function clearAddDraft(key) {
-	return saveAddDraft(key, "", []);
+	return saveAddDraft(key, "", [], null);
 }
 /**
 * Move a conversation's pre-workspace draft under the shared workspace key.
@@ -2409,7 +2282,8 @@ function ensureDraftScope(key, sessionId, sessionIds) {
 	if (!add && attachments.length === 0) return false;
 	store.sessions[target] = {
 		...add ? { add } : {},
-		...attachments.length ? { attachments } : {}
+		...attachments.length ? { attachments } : {},
+		...legacy.workspaceId ? { workspaceId: legacy.workspaceId } : {}
 	};
 	for (const member of members) delete store.sessions[member];
 	delete store.sessions[source];
@@ -2607,15 +2481,7 @@ function mergeItems(existing, incoming, base = null) {
 }
 
 // src/client/storage/session.ts
-/**
-* Session-scoped notes.
-*
-* Two media, one shape: while this browser is still on `localStorage` the
-* record lives under `SESSION_STORAGE_KEY`; after the one-way switch the same
-* record lives in the host snapshot's `sessions` table and writes go through
-* the host route. The workspace key is separate, so existing per-session data
-* is never rewritten into a new schema.
-*/
+/** Read and retire legacy session records during workspace migration. */
 /** Empty note store. */
 function emptySessionStore() {
 	return {
@@ -2679,62 +2545,9 @@ function writeSessionStore(store) {
 		return false;
 	}
 }
-/** Read one session's memo record. */
-function readSessionRecord(sessionId) {
-	const key = sessionId ? String(sessionId) : "";
-	if (!key) return {
-		items: [],
-		updatedAt: 0
-	};
-	if (hostAuthoritative()) {
-		const record = hostRecord("sessions", key);
-		return {
-			items: normalizeItems(record && record.items),
-			updatedAt: record && Number.isFinite(record.updatedAt) ? record.updatedAt : 0
-		};
-	}
-	const record = readLocalStore$1().sessions[key];
-	return {
-		items: normalizeItems(record && record.items),
-		updatedAt: record && Number.isFinite(record.updatedAt) ? record.updatedAt : 0
-	};
-}
-/**
-* Persist one session's memo record.
-*
-* Host mode sends only the changed notes; the host applies them atomically to
-* its latest record. Local mode reads the latest stored record first and merges
-* by id, so a note another tab added is not overwritten; `base` is the list this
-* tab rendered, and ids missing from `record.items` are this tab's deletions.
-*
-* @returns resolution with whether the write was accepted/durable
-*/
-async function writeSessionRecord(sessionId, record, base = null) {
-	const key = sessionId ? String(sessionId) : "";
-	if (!key) return false;
-	const mode = storageMode();
-	if (mode === "probing" || mode === "error") return false;
-	if (mode === "host") return commitList("session", key, normalizeItems(record && record.items));
-	const store = readLocalStore$1();
-	const previous = store.sessions[key];
-	store.sessions[key] = {
-		sessionId: key,
-		updatedAt: Math.max(record.updatedAt || 0, previous && Number.isFinite(previous.updatedAt) ? previous.updatedAt : 0) || Date.now(),
-		items: mergeItems(normalizeItems(previous && previous.items), normalizeItems(record.items), base)
-	};
-	return writeSessionStore(store);
-}
 
 // src/client/storage/workspace.ts
-/**
-* Workspace-scoped notes.
-*
-* One list is shared by every session of a workspace. The first time a
-* workspace is seen, notes already written per session are folded in once;
-* `seededSessionIds` records that so a later delete is not undone. After the
-* switch to host storage the fold runs on the host (`list.ensure`), where it is
-* atomic; before the switch it stays in the browser and merges before writing.
-*/
+/** Workspace note lists and migration of the browser's legacy session lists. */
 const text$1 = (value) => value ? String(value) : "";
 const bucket = (value) => value && typeof value === "object" && !Array.isArray(value) ? value : {};
 function seededOf(record) {
@@ -2754,7 +2567,8 @@ function seededOf(record) {
 function emptyWorkspaceStore() {
 	return {
 		version: 1,
-		workspaces: {}
+		workspaces: {},
+		pendingSessionCleanup: []
 	};
 }
 /**
@@ -2785,8 +2599,17 @@ function readLocalStore() {
 	}
 	return {
 		version: 1,
-		workspaces: bucket(workspaces)
+		workspaces: bucket(workspaces),
+		pendingSessionCleanup: Array.isArray(parsed.pendingSessionCleanup) ? parsed.pendingSessionCleanup.filter((id) => typeof id === "string") : []
 	};
+}
+/** Read the workspace-note store from the authoritative medium. */
+function readWorkspaceStore() {
+	if (hostAuthoritative()) return {
+		version: 1,
+		workspaces: { ...hostTable("workspaces") }
+	};
+	return readLocalStore();
 }
 /** Persist the whole browser workspace store. */
 function writeWorkspaceStore(store) {
@@ -2795,7 +2618,8 @@ function writeWorkspaceStore(store) {
 	try {
 		ls.setItem(WORKSPACE_STORAGE_KEY, JSON.stringify({
 			version: 1,
-			workspaces: bucket(store && store.workspaces)
+			workspaces: bucket(store && store.workspaces),
+			...store.pendingSessionCleanup?.length ? { pendingSessionCleanup: store.pendingSessionCleanup } : {}
 		}));
 		notifyTodoChange();
 		return true;
@@ -2840,7 +2664,7 @@ async function writeWorkspaceRecord(workspaceId, record, base = null) {
 	if (!key) return false;
 	const mode = storageMode();
 	if (mode === "probing" || mode === "error") return false;
-	if (mode === "host") return commitList("workspace", key, normalizeItems(record && record.items));
+	if (mode === "host") return commitList(key, normalizeItems(record && record.items));
 	const store = readLocalStore();
 	const previous = store.workspaces[key];
 	const seededSource = Array.isArray(record.seededSessionIds) ? record : previous;
@@ -2852,49 +2676,63 @@ async function writeWorkspaceRecord(workspaceId, record, base = null) {
 	};
 	return writeWorkspaceStore(store);
 }
-/**
-* Fold the member sessions' existing notes into the workspace list once.
-* @returns resolution with whether the store changed / was accepted
-*/
-async function ensureWorkspaceRecord(workspaceId, sessionIds) {
-	const key = text$1(workspaceId);
-	if (!key) return false;
-	if (storageMode() === "probing") await bootStorage();
-	const mode = storageMode();
-	if (mode === "probing" || mode === "error") return false;
-	if (mode === "host") return ensureWorkspace(key, Array.isArray(sessionIds) ? sessionIds : []);
-	const previous = readLocalStore().workspaces[key];
-	const seeded = new Set(seededOf(previous));
-	const items = normalizeItems(previous && previous.items);
-	const seen = new Set(items.map((item) => item.id));
-	let changed = !previous;
-	if (!changed && Array.isArray(sessionIds)) for (const value of sessionIds) {
-		const sessionId = text$1(value);
-		if (!sessionId) continue;
-		if (!seeded.has(sessionId)) {
-			changed = true;
-			break;
+/** Migrate known memberships, with a recovery bucket for unassigned browser notes. */
+async function migrateWorkspaceNotes(workspaces) {
+	if (storageMode() === "probing" || storageMode() === "error") return;
+	const sessions = readSessionStore();
+	if (Object.keys(sessions.sessions).length === 0) return;
+	const owners = new Map(workspaces.flatMap((workspace) => workspace.sessionIds.map((id) => [id, workspace.workspaceId])));
+	if (storageMode() === "host") {
+		const membersByWorkspace = /* @__PURE__ */ new Map();
+		for (const id of Object.keys(sessions.sessions)) {
+			const owner = owners.get(id) ?? "sideby-note:unassigned";
+			const members = membersByWorkspace.get(owner);
+			if (members) members.push(id);
+			else membersByWorkspace.set(owner, [id]);
 		}
+		for (const [workspaceId, members] of membersByWorkspace) await ensureWorkspace(workspaceId, members);
+		return;
 	}
-	if (!changed) return false;
-	const sessionStore = readSessionStore();
-	for (const value of Array.isArray(sessionIds) ? sessionIds : []) {
-		const sessionId = text$1(value);
-		if (!sessionId || seeded.has(sessionId)) continue;
-		seeded.add(sessionId);
-		changed = true;
-		const sessionRecord = sessionStore.sessions[sessionId];
-		for (const item of normalizeItems(sessionRecord && sessionRecord.items)) {
+	if (storageMode() === "local") moveBrowserSessions(sessions, owners);
+}
+function moveBrowserSessions(sessions, owners) {
+	const store = readLocalStore();
+	const moved = new Set(store.pendingSessionCleanup);
+	for (const [sessionId, source] of Object.entries(sessions.sessions)) {
+		if (moved.has(sessionId)) continue;
+		const workspaceId = owners.get(sessionId) ?? "sideby-note:unassigned";
+		const record = store.workspaces[workspaceId];
+		const items = normalizeItems(record?.items);
+		const seen = new Set(items.map((item) => item.id));
+		for (const item of normalizeItems(source?.items)) {
 			if (seen.has(item.id)) continue;
 			seen.add(item.id);
 			items.push(item);
 		}
+		store.workspaces[workspaceId] = {
+			workspaceId,
+			updatedAt: Math.max(record?.updatedAt || 0, source?.updatedAt || 0),
+			items,
+			seededSessionIds: [.../* @__PURE__ */ new Set([...seededOf(record), sessionId])]
+		};
+		moved.add(sessionId);
 	}
-	return writeWorkspaceRecord(key, {
-		items,
-		updatedAt: previous && Number.isFinite(previous.updatedAt) ? previous.updatedAt : Date.now(),
-		seededSessionIds: [...seeded]
+	if (writeWorkspaceStore({
+		...store,
+		pendingSessionCleanup: [...moved]
+	}) && writeSessionStore({ sessions: {} })) writeWorkspaceStore({
+		...store,
+		pendingSessionCleanup: []
 	});
+}
+/** Project the workspace filter or the aggregate view from the same records. */
+function readVisibleNotes(workspaceId) {
+	return (workspaceId ? [[workspaceId, readWorkspaceRecord(workspaceId)]] : Object.entries(readWorkspaceStore().workspaces)).flatMap(([owner, record]) => normalizeItems(record?.items).map((item) => ({
+		...item,
+		id: workspaceId ? item.id : JSON.stringify([owner, item.id]),
+		noteId: item.id,
+		workspaceId: owner
+	})));
 }
 
 // src/client/ui/primitives.ts
@@ -2997,6 +2835,7 @@ const TOAST_COPY = {
 		key: "toast.cleared",
 		tone: "success"
 	},
+	clearPartial: { key: "toast.clearPartial" },
 	copyFailed: { key: "toast.copyFailed" },
 	insertFailed: { key: "toast.insertFailed" },
 	archiveFailed: { key: "toast.archiveFailed" },
@@ -3074,6 +2913,97 @@ function createToastSeat(tr) {
 	};
 }
 
+// src/client/storage/prefs.ts
+/** Panel geometry, list scope and section state. */
+/** Read the persisted right-panel width, clamped for the current viewport. */
+function readPanelWidth() {
+	const ls = storage();
+	const max = Math.min(720, Math.max(280, window.innerWidth - 32));
+	try {
+		const saved = ls && Number(ls.getItem("dsh.aside-note.panel-width"));
+		if (Number.isFinite(saved) && saved > 0) return Math.max(280, Math.min(max, saved));
+	} catch {}
+	return Math.max(280, Math.min(max, 360));
+}
+/** Persist the right-panel width so it survives reopening the popover. */
+function writePanelWidth(width) {
+	const ls = storage();
+	if (!ls) return;
+	try {
+		ls.setItem(PANEL_WIDTH_KEY, String(Math.round(width)));
+	} catch {}
+}
+/** Read the persisted right-panel height; 0 means content-sized. */
+function readPanelHeight() {
+	const ls = storage();
+	try {
+		const saved = ls && Number(ls.getItem("dsh.aside-note.panel-height"));
+		if (Number.isFinite(saved) && saved > 0) return saved;
+	} catch {}
+	return 0;
+}
+/** Persist the right-panel height; 0 restores content sizing. */
+function writePanelHeight(height) {
+	const ls = storage();
+	if (!ls) return;
+	try {
+		if (height > 0) ls.setItem(PANEL_HEIGHT_KEY, String(Math.round(height)));
+		else ls.removeItem(PANEL_HEIGHT_KEY);
+	} catch {}
+}
+/** Read the last chosen list scope; "workspace" is the default. */
+function readScopeMode() {
+	if (hostAuthoritative()) return hostPrefs().sidebyNoteScopeMode === "global" ? "global" : SCOPE_MODE_DEFAULT;
+	try {
+		return (storage() && storage().getItem("dsh.aside-note.scope-mode")) === "global" ? "global" : SCOPE_MODE_DEFAULT;
+	} catch {
+		return SCOPE_MODE_DEFAULT;
+	}
+}
+function writeScopeMode(mode) {
+	if (storageMode() === "error") return;
+	if (storageMode() === "host") {
+		setPrefs({ scopeMode: mode === "global" ? "global" : "workspace" });
+		return;
+	}
+	try {
+		const ls = storage();
+		if (ls) ls.setItem(SCOPE_MODE_KEY, mode === "global" ? "global" : "workspace");
+	} catch {}
+}
+/** Remembered section state; corrupt or missing storage falls back to defaults. */
+function readSectionState() {
+	const fallback = {
+		open: SECTION_STATE_DEFAULT.open,
+		done: SECTION_STATE_DEFAULT.done
+	};
+	const ls = storage();
+	if (!ls) return fallback;
+	try {
+		const raw = ls.getItem(SECTION_STATE_KEY);
+		if (!raw) return fallback;
+		const saved = JSON.parse(raw);
+		if (!saved || typeof saved !== "object") return fallback;
+		return {
+			open: typeof saved.open === "boolean" ? saved.open : fallback.open,
+			done: typeof saved.done === "boolean" ? saved.done : fallback.done
+		};
+	} catch {
+		return fallback;
+	}
+}
+/** Persist the section state immediately; storage failures are ignored. */
+function writeSectionState(state) {
+	const ls = storage();
+	if (!ls) return;
+	try {
+		ls.setItem(SECTION_STATE_KEY, JSON.stringify({
+			open: state.open === true,
+			done: state.done === true
+		}));
+	} catch {}
+}
+
 // src/client/ui/headerEntry.ts
 const HEADER_ICON = "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.3\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.25 2.75h6.5l3 3v7.5c0 .55-.45 1-1 1H3.25c-.55 0-1-.45-1-1V3.75c0-.55.45-1 1-1Z\"/><path d=\"M9.75 2.75v3h3\"/><path d=\"M4.9 7.6h5.4M4.9 9.9h3.6\" stroke-linecap=\"round\"/></svg>";
 function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, getShortcut, tr, onOpen }) {
@@ -3100,11 +3030,6 @@ function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, getShor
 			return;
 		}
 		const ready = sessionReadyFor(sessionId);
-		const workspace = workspaceScopeForSession(sessionId);
-		if (!ready && !workspace) {
-			if (button) button.remove();
-			return;
-		}
 		const utilities = document.querySelector("[class*=\"_headerUtilities\"]");
 		const corner = ready ? null : document.querySelector("[class*=\"_headerCorner\"]");
 		const host = utilities || corner;
@@ -3112,9 +3037,9 @@ function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, getShor
 			if (button) button.remove();
 			return;
 		}
-		const scope = scopeForSession(sessionId, readScopeMode());
-		const store = readSessionStore();
-		const open = (scope.kind === "workspace" ? readWorkspaceRecord(scope.id).items : normalizeItems(store.sessions[sessionId] && store.sessions[sessionId].items)).filter((item) => !item.done).length;
+		const workspaceId = workspaceForSession(sessionId)?.workspaceId;
+		const workspaceFilter = readScopeMode() === "workspace" ? workspaceId ?? null : null;
+		const open = readVisibleNotes(workspaceFilter).filter((item) => !item.done).length;
 		if (!button) {
 			button = document.createElement("button");
 			button.type = "button";
@@ -3133,8 +3058,8 @@ function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, getShor
 		const expanded = getActiveAnchor() === button ? "true" : "false";
 		button.dataset.active = expanded;
 		button.setAttribute("aria-expanded", expanded);
-		button.dataset.scope = scope.kind;
-		const signature = `${getLocaleId()}:${scopeKey(scope)}:${open}`;
+		button.dataset.scope = workspaceFilter ? "workspace" : "global";
+		const signature = `${getLocaleId()}:${workspaceFilter ?? "global"}:${open}`;
 		if (button.dataset.signature !== signature) {
 			const icon = document.createElement("span");
 			icon.className = "dsh-an-headerIcon";
@@ -3192,81 +3117,54 @@ function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, getShor
 }
 
 // src/client/ui/useSessionMemoStore.ts
-/** Notes for the active scope plus its writer, serialized per mounted panel. */
-/** Read the record the current scope renders. */
-function readScope(scope) {
-	return scope.kind === "workspace" ? readWorkspaceRecord(scope.id) : readSessionRecord(scope.id);
-}
-/** Write the record the current scope renders; `base` is what this tab saw. */
-function writeScope(scope, record, base) {
-	return scope.kind === "workspace" ? writeWorkspaceRecord(scope.id, record, base) : writeSessionRecord(scope.id, record, base);
-}
-/** Notes of one list (a workspace, or a single session) and their writer. */
-function useMemoStore(scope) {
-	const kind = scope && scope.kind === "workspace" ? "workspace" : "session";
-	const id = scope && scope.id ? String(scope.id) : "";
-	const scopeRef = react.default.useRef({
-		kind,
-		id
-	});
-	scopeRef.current = {
-		kind,
-		id
-	};
-	const [record, setRecord] = react.default.useState(() => readScope(scopeRef.current));
+/** The filtered view and a serialized writer for workspace records. */
+function useMemoStore(workspaceFilter) {
+	const filterRef = react.default.useRef(workspaceFilter);
+	filterRef.current = workspaceFilter;
+	const [items, setItems] = react.default.useState(() => readVisibleNotes(workspaceFilter));
 	const [syncError, setSyncError] = react.default.useState(false);
 	const chainRef = react.default.useRef(Promise.resolve());
 	react.default.useLayoutEffect(() => {
-		setRecord(readScope(scopeRef.current));
+		setItems(readVisibleNotes(workspaceFilter));
 		setSyncError(false);
-	}, [kind, id]);
+	}, [workspaceFilter]);
 	react.default.useEffect(() => {
+		const refresh = () => setItems(readVisibleNotes(filterRef.current));
 		const onStorage = (event) => {
-			if (event.key !== "dsh.aside-note" && event.key !== "dsh.aside-note.workspaces") return;
-			setRecord(readScope(scopeRef.current));
+			if (event.key === "dsh.aside-note" || event.key === "dsh.aside-note.workspaces" || event.key === null) refresh();
 		};
-		const onLocal = () => setRecord(readScope(scopeRef.current));
 		const onReady = () => {
-			onLocal();
+			refresh();
 			if (storageMode() === "host") setSyncError(false);
 		};
-		TODO_LISTENERS.add(onLocal);
+		TODO_LISTENERS.add(refresh);
 		STORE_READY_LISTENERS.add(onReady);
 		window.addEventListener("storage", onStorage);
 		return () => {
-			TODO_LISTENERS.delete(onLocal);
+			TODO_LISTENERS.delete(refresh);
 			STORE_READY_LISTENERS.delete(onReady);
 			window.removeEventListener("storage", onStorage);
 		};
 	}, []);
 	return {
-		record,
+		items,
 		syncError,
-		commit: react.default.useCallback((updater) => {
-			const target = {
-				kind,
-				id
-			};
+		commit: react.default.useCallback((workspaceId, update) => {
 			const run = chainRef.current.then(async () => {
-				const current = readScope(target);
-				const base = current.items || [];
-				const nextItems = normalizeItems(updater(base));
+				const current = readWorkspaceRecord(workspaceId);
 				const next = {
 					...current,
-					items: nextItems,
+					items: normalizeItems(update(current.items)),
 					updatedAt: Date.now()
 				};
-				const ok = await writeScope(target, next, base);
-				const active = scopeRef.current;
-				if (active.kind !== target.kind || active.id !== target.id) return ok;
+				const ok = await writeWorkspaceRecord(workspaceId, next, current.items);
 				setSyncError(!ok);
-				if (!ok) return false;
-				setRecord(readScope(target));
-				return true;
+				if (ok) setItems(readVisibleNotes(filterRef.current));
+				return ok;
 			});
-			chainRef.current = run.then(() => void 0, () => void 0);
+			chainRef.current = run.catch(() => void 0);
 			return run;
-		}, [kind, id])
+		}, [])
 	};
 }
 
@@ -4318,7 +4216,7 @@ function useUpdateCenter(localeId) {
 /** The add box: draft persistence, auto-grow and the composer key gestures. */
 const uploadsByDraft = /* @__PURE__ */ new Set();
 const sameAttachments = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-function useComposerDraft({ draftKey, commit, report, storageInUse, canUpload }) {
+function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse, canUpload }) {
 	const key = draftKey ? String(draftKey) : "";
 	const [draft, setDraft] = react.default.useState(() => readScopeDrafts(key));
 	const draftRef = react.default.useRef(draft);
@@ -4329,10 +4227,11 @@ function useComposerDraft({ draftKey, commit, report, storageInUse, canUpload })
 		setIsUploading(uploadsByDraft.has(key));
 		if (pendingAction.current) return;
 		const saved = readScopeDrafts(key);
-		if (sameAttachments(saved.attachments, draftRef.current.attachments)) return;
+		if (sameAttachments(saved.attachments, draftRef.current.attachments) && saved.workspaceId === draftRef.current.workspaceId) return;
 		const next = {
 			...draftRef.current,
-			attachments: saved.attachments
+			attachments: saved.attachments,
+			workspaceId: saved.workspaceId
 		};
 		draftRef.current = next;
 		setDraft(next);
@@ -4395,14 +4294,16 @@ function useComposerDraft({ draftKey, commit, report, storageInUse, canUpload })
 			report("attachmentDraftChanged");
 			return;
 		}
-		if (!saveAddDraft(key, latest.add, latest.attachments.filter((_, position) => position !== index))) report("saveFailed");
+		const remaining = latest.attachments.filter((_, position) => position !== index);
+		if (!saveAddDraft(key, latest.add, remaining, latest.add.trim() || remaining.length ? latest.workspaceId : null)) report("saveFailed");
 	};
 	const add = async () => {
 		const submitted = draftRef.current;
 		const text = submitted.add.trim().slice(0, 280);
 		const { attachments } = submitted;
-		if (!hasContent(submitted) || pendingAction.current || uploadsByDraft.has(key) || storageInUse) return;
-		if (!sameAttachments(attachments, readScopeDrafts(key).attachments)) {
+		if (!submitted.workspaceId && !workspaceId || !hasContent(submitted) || pendingAction.current || uploadsByDraft.has(key) || storageInUse) return;
+		const latest = readScopeDrafts(key);
+		if (!sameAttachments(attachments, latest.attachments) || submitted.workspaceId !== latest.workspaceId) {
 			notifyDraftAttachments(key);
 			report("attachmentDraftChanged");
 			return;
@@ -4423,7 +4324,7 @@ function useComposerDraft({ draftKey, commit, report, storageInUse, canUpload })
 				createdAt: now,
 				updatedAt: now
 			};
-			if (!await commit((currentItems) => [item, ...currentItems])) {
+			if (!await commit(submitted.workspaceId ?? workspaceId, (currentItems) => [item, ...currentItems])) {
 				report("saveFailed");
 				return;
 			}
@@ -4433,18 +4334,20 @@ function useComposerDraft({ draftKey, commit, report, storageInUse, canUpload })
 			if (draftRef.current === submitted) {
 				showDraft({
 					add: "",
-					attachments: remaining
+					attachments: remaining,
+					workspaceId: remaining.length ? saved.workspaceId : void 0
 				});
 				if (saved.add === submitted.add.slice(0, 280)) {
 					if (sameFiles) clearAddDraft(key);
-					else saveAddDraft(key, "");
+					else saveAddDraft(key, "", void 0, remaining.length ? saved.workspaceId : null);
 				}
-			} else if (attachments.length) {
+			} else if (sameFiles && saved.workspaceId === submitted.workspaceId) {
 				showDraft({
 					...draftRef.current,
-					attachments: remaining
+					attachments: remaining,
+					workspaceId: void 0
 				});
-				if (sameFiles) saveAddDraft(key, saved.add, []);
+				saveAddDraft(key, saved.add, [], null);
 			}
 		} finally {
 			pendingAction.current = false;
@@ -4468,17 +4371,17 @@ function useComposerDraft({ draftKey, commit, report, storageInUse, canUpload })
 			const before = readScopeDrafts(key);
 			const next = {
 				add: String(item.text || "").slice(0, 280),
-				attachments: item.attachments ?? []
+				attachments: item.attachments ?? [],
+				workspaceId: item.workspaceId === workspaceId ? void 0 : item.workspaceId
 			};
-			if (next.attachments.length && !saveAddDraft(key, next.add, next.attachments)) {
+			if (!saveAddDraft(key, next.add, next.attachments, next.workspaceId ?? null)) {
 				report("saveFailed");
 				return;
 			}
 			if (!await takeBack(item)) {
-				if (next.attachments.length && JSON.stringify(readScopeDrafts(key)) === JSON.stringify(next)) saveAddDraft(key, before.add, before.attachments);
+				if (JSON.stringify(readScopeDrafts(key)) === JSON.stringify(next)) saveAddDraft(key, before.add, before.attachments, before.workspaceId ?? null);
 				return;
 			}
-			if (!next.attachments.length) saveAddDraft(key, next.add);
 			showDraft(next);
 			report("recalled");
 		} finally {
@@ -4500,12 +4403,15 @@ function useComposerDraft({ draftKey, commit, report, storageInUse, canUpload })
 	};
 	const onDraftChange = (event) => {
 		if (isRecalling) return;
+		const value = event.target.value;
+		const owner = value.trim() || draftRef.current.attachments.length ? draftRef.current.workspaceId : void 0;
 		const next = {
 			...draftRef.current,
-			add: event.target.value
+			add: value,
+			workspaceId: owner
 		};
 		showDraft(next);
-		saveAddDraft(key, next.add);
+		saveAddDraft(key, next.add, void 0, owner ?? null);
 		resizeAdd(event.target);
 	};
 	/**
@@ -4555,8 +4461,8 @@ function useNoteActions({ commit, report }) {
 	* The stored shape keeps `done` / `completedAt`, so existing lists read as-is.
 	*/
 	const archive = async (item) => {
-		return commit((currentItems) => currentItems.map((candidate) => {
-			if (candidate.id !== item.id || candidate.done) return candidate;
+		return commit(item.workspaceId, (currentItems) => currentItems.map((candidate) => {
+			if (candidate.id !== item.noteId || candidate.done) return candidate;
 			const now = Date.now();
 			return {
 				...candidate,
@@ -4567,10 +4473,10 @@ function useNoteActions({ commit, report }) {
 		}));
 	};
 	/** Move an open note to `toIndex` among the open notes; archived ones keep their order. */
-	const move = async (itemId, toIndex) => {
+	const move = async (item, toIndex) => {
 		let changed = false;
-		const ok = await commit((currentItems) => {
-			const next = moveOpenItem(currentItems, itemId, toIndex);
+		const ok = await commit(item.workspaceId, (currentItems) => {
+			const next = moveOpenItem(currentItems, item.noteId, toIndex);
 			changed = next !== currentItems;
 			return next;
 		});
@@ -4584,7 +4490,7 @@ function useNoteActions({ commit, report }) {
 	* caller writes the recalled text only after this succeeds.
 	*/
 	const takeBack = async (item) => {
-		if (!await commit((currentItems) => currentItems.filter((candidate) => candidate.id !== item.id))) {
+		if (!await commit(item.workspaceId, (currentItems) => currentItems.filter((candidate) => candidate.id !== item.noteId))) {
 			report("saveFailed");
 			return false;
 		}
@@ -4613,13 +4519,15 @@ const DRAG_THRESHOLD = 4;
 const EDGE_ZONE = 32;
 /** Fastest auto-scroll step, in pixels per frame, right at the edge. */
 const EDGE_SPEED = 8;
-function useRowReorder({ ids, scrollRef, onMove }) {
+function useRowReorder({ ids, groupFor, scrollRef, onMove }) {
 	const listRef = react.default.useRef(null);
 	const dragRef = react.default.useRef(null);
 	const settleRef = react.default.useRef(null);
 	const focusRef = react.default.useRef("");
 	const idsRef = react.default.useRef(ids);
 	idsRef.current = ids;
+	const groupRef = react.default.useRef(groupFor);
+	groupRef.current = groupFor;
 	const onMoveRef = react.default.useRef(onMove);
 	onMoveRef.current = onMove;
 	const [api] = react.default.useState(() => {
@@ -4635,9 +4543,9 @@ function useRowReorder({ ids, scrollRef, onMove }) {
 			drag.dy = dy;
 			const self = drag.rows[drag.from];
 			const center = self.top + dy + self.height / 2;
-			let to = 0;
+			let to = drag.first;
 			drag.rows.forEach((row, index) => {
-				if (index !== drag.from && row.top + row.height / 2 < center) to += 1;
+				if (index >= drag.first && index <= drag.last && index !== drag.from && row.top + row.height / 2 < center) to += 1;
 			});
 			drag.to = to;
 			const shift = self.height + drag.gap;
@@ -4731,6 +4639,12 @@ function useRowReorder({ ids, scrollRef, onMove }) {
 			const all = rows();
 			const from = all.findIndex((node) => node.dataset.rowId === id);
 			if (!list || from < 0) return;
+			const group = groupRef.current(id);
+			let first = from;
+			let last = from;
+			while (first > 0 && groupRef.current(all[first - 1].dataset.rowId) === group) first -= 1;
+			while (last < all.length - 1 && groupRef.current(all[last + 1].dataset.rowId) === group) last += 1;
+			if (first === last) return;
 			event.preventDefault();
 			try {
 				target.setPointerCapture(event.pointerId);
@@ -4740,6 +4654,8 @@ function useRowReorder({ ids, scrollRef, onMove }) {
 			dragRef.current = {
 				id,
 				from,
+				first,
+				last,
 				to: from,
 				target,
 				pointerId: event.pointerId,
@@ -4789,7 +4705,7 @@ function useRowReorder({ ids, scrollRef, onMove }) {
 			const order = idsRef.current;
 			const index = order.indexOf(id);
 			const to = index + (event.key === "ArrowUp" ? -1 : 1);
-			if (index < 0 || to < 0 || to >= order.length) return;
+			if (index < 0 || to < 0 || to >= order.length || groupRef.current(order[to]) !== groupRef.current(id)) return;
 			focusRef.current = id;
 			const clearFocus = () => {
 				if (focusRef.current === id) focusRef.current = "";
@@ -4854,7 +4770,7 @@ function useRowReorder({ ids, scrollRef, onMove }) {
 
 // src/client/ui/useClearConfirm.ts
 /** The inline second confirmation for clearing completed notes. */
-function useClearConfirm({ sessionId, showDone, doneCount, onConfirm }) {
+function useClearConfirm({ scope, showDone, doneCount, onConfirm }) {
 	const [confirmClear, setConfirmClear] = react.default.useState(false);
 	const clearConfirmTimerRef = react.default.useRef(0);
 	/** Drop the pending auto-dismiss clock without touching state. */
@@ -4892,7 +4808,7 @@ function useClearConfirm({ sessionId, showDone, doneCount, onConfirm }) {
 	]);
 	react.default.useEffect(() => {
 		dismissClearConfirm();
-	}, [sessionId]);
+	}, [scope]);
 	return {
 		confirmClear,
 		askClearConfirm,
@@ -5052,7 +4968,7 @@ function AttachmentList({ attachments, say, onRemove, disabled }) {
 /** A note with a leading insert action and a trailing cell for its age and secondary actions. */
 const h$11 = react.default.createElement;
 function TodoRow(props) {
-	const { item, archived, say, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey } = props;
+	const { item, archived, workspaceName, say, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey } = props;
 	const attachments = item.attachments ?? [];
 	const hasText = Boolean(item.text);
 	const insertLabel = say(hasText ? attachments.length ? "attachment.insertText" : "item.insert" : "attachment.archive");
@@ -5092,7 +5008,10 @@ function TodoRow(props) {
 	}, hasText ? h$11(IconInsert) : icon("IconArchiveOutlineRegular") ? h$11(Glyph, {
 		name: "IconArchiveOutlineRegular",
 		size: 14
-	}) : h$11("span", { "aria-hidden": true }, "✓")))), h$11("div", { className: "dsh-an-rowBody" }, hasText ? h$11("div", { className: "dsh-an-text" }, item.text) : null, h$11(AttachmentList, {
+	}) : h$11("span", { "aria-hidden": true }, "✓")))), h$11("div", { className: "dsh-an-rowBody" }, workspaceName ? h$11("div", {
+		className: "dsh-an-rowWorkspace",
+		title: workspaceName
+	}, workspaceName) : null, hasText ? h$11("div", { className: "dsh-an-text" }, item.text) : null, h$11(AttachmentList, {
 		attachments,
 		say
 	})), h$11("div", { className: "dsh-an-trail" }, h$11("span", {
@@ -5114,22 +5033,24 @@ function TodoRow(props) {
 }
 
 // src/client/ui/ScopeSwitch.tsx
-/** Segmented switch between the workspace list and the session list. */
+/** Segmented switch between the global and workspace filters. */
 const h$10 = react.default.createElement;
 function ScopeSwitch(props) {
-	const { say, mode, canUseSession, onChange } = props;
+	const { say, mode, canUseWorkspace, onChange } = props;
 	const options = [{
+		value: "global",
+		label: say("scope.global"),
+		hint: say("scope.globalHint")
+	}, ...canUseWorkspace ? [{
 		value: "workspace",
-		label: say("scope.workspace")
-	}, ...canUseSession ? [{
-		value: "session",
-		label: say("scope.session")
+		label: say("scope.workspace"),
+		hint: say("scope.workspaceHint")
 	}] : []];
 	return h$10("div", {
 		className: "dsh-an-scope",
 		role: "group",
 		"aria-label": say("scope.label")
-	}, options.map((option) => h$10(react.default.Fragment, { key: option.value }, withTooltip(option.value === "session" ? say("scope.sessionHint") : canUseSession ? say("scope.workspaceHint") : say("scope.newSessionHint"), h$10("button", {
+	}, options.map((option) => h$10(react.default.Fragment, { key: option.value }, withTooltip(option.hint, h$10("button", {
 		type: "button",
 		className: "dsh-an-scopeBtn",
 		"data-scope-mode": option.value,
@@ -5143,16 +5064,16 @@ function ScopeSwitch(props) {
 /** Panel title, counts, the list-scope switch and close action. */
 const h$9 = react.default.createElement;
 function PanelHead(props) {
-	const { say, openCount, total, onClose, scopeMode, canUseWorkspace, canUseSession, onScopeChange } = props;
+	const { say, openCount, total, onClose, scopeMode, canUseWorkspace, onScopeChange } = props;
 	return h$9("div", { className: "dsh-an-popHead" }, h$9("div", { className: "dsh-an-popTitleLine" }, h$9("div", { className: "dsh-an-popTitle" }, say("popover.title")), h$9("p", { className: "dsh-an-popMeta" }, say("popover.count", {
 		open: openCount,
 		total
-	})), canUseWorkspace ? h$9(ScopeSwitch, {
+	})), h$9(ScopeSwitch, {
 		say,
 		mode: scopeMode,
-		canUseSession,
+		canUseWorkspace,
 		onChange: onScopeChange
-	}) : null), h$9("div", { className: "dsh-an-popActions" }, withTooltip(say("popover.close"), h$9("button", {
+	})), h$9("div", { className: "dsh-an-popActions" }, withTooltip(say("popover.close"), h$9("button", {
 		type: "button",
 		className: "dsh-an-popClose",
 		"aria-label": say("popover.close"),
@@ -5453,13 +5374,14 @@ function PanelFooter({ say, mode, syncError, update, onToast }) {
 /** The add form: one growing textarea and its submit button. */
 const h$5 = react.default.createElement;
 function ComposerForm(props) {
-	const { say, draft, attachments, isSubmitting, isRecalling, isUploading, canUpload, storageInUse, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit, onFiles, onRemove, onUnavailable, onBusy } = props;
+	const { say, draft, destination, destinationPending, attachments, isSubmitting, isRecalling, isUploading, canUpload, storageInUse, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit, onFiles, onRemove, onUnavailable, onBusy } = props;
 	const pickerRef = react.default.useRef(null);
 	const attachRef = react.default.useRef(null);
 	const dragDepth = react.default.useRef(0);
 	const [dropping, setDropping] = react.default.useState(false);
 	const busy = isSubmitting || isRecalling || isUploading;
 	const addLabel = say("add.action");
+	const destinationId = react.default.useId();
 	const attachLabel = say("attachment.add");
 	const takeFiles = (files) => {
 		if (!files.length) return;
@@ -5496,7 +5418,10 @@ function ComposerForm(props) {
 			event.stopPropagation();
 			takeFiles(Array.from(event.dataTransfer.files));
 		}
-	}, h$5(AttachmentList, {
+	}, destination && h$5("div", {
+		id: destinationId,
+		className: "dsh-an-destination"
+	}, destination), h$5(AttachmentList, {
 		attachments,
 		say,
 		onRemove: (index) => {
@@ -5512,6 +5437,7 @@ function ComposerForm(props) {
 		maxLength: 280,
 		readOnly: isRecalling,
 		placeholder: say("add.placeholder"),
+		"aria-describedby": destination ? destinationId : void 0,
 		"aria-label": say("add.placeholder"),
 		onChange: onDraftChange,
 		onCompositionStart,
@@ -5549,7 +5475,7 @@ function ComposerForm(props) {
 		type: "submit",
 		className: "dsh-an-addBtn",
 		"aria-label": addLabel,
-		disabled: storageInUse || busy || !draft.trim() && !attachments.length
+		disabled: destinationPending || storageInUse || busy || !draft.trim() && !attachments.length
 	}, h$5("svg", {
 		width: 16,
 		height: 16,
@@ -5570,13 +5496,13 @@ function ComposerForm(props) {
 /** Inline second confirmation for clearing the completed notes. */
 const h$4 = react.default.createElement;
 function ClearConfirm(props) {
-	const { say, count, onCancel, onConfirm } = props;
+	const { say, text, onCancel, onConfirm } = props;
 	return h$4("div", {
 		className: "dsh-an-clearConfirm",
 		role: "group",
 		"aria-live": "polite",
-		"aria-label": say("popover.clearConfirm", { n: count })
-	}, h$4("p", { className: "dsh-an-clearConfirmText" }, say("popover.clearConfirm", { n: count })), h$4("div", { className: "dsh-an-clearConfirmActions" }, h$4("button", {
+		"aria-label": text
+	}, h$4("p", { className: "dsh-an-clearConfirmText" }, text), h$4("div", { className: "dsh-an-clearConfirmActions" }, h$4("button", {
 		type: "button",
 		className: "dsh-an-mini",
 		onClick: onCancel
@@ -5597,7 +5523,7 @@ function EmptyState(props) {
 /** Open/archived sections, their sticky heads, rows and the clear confirmation. */
 const h$2 = react.default.createElement;
 function NoteList(props) {
-	const { say, listRef, listHasMore, syncListEdge, showOpen, toggleOpen, openItems, openListRef, openCount, total, row, hideEmptyState, showDone, toggleDone, doneItems, confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = props;
+	const { say, listRef, listHasMore, syncListEdge, showOpen, toggleOpen, openItems, openListRef, openCount, total, row, hideEmptyState, showDone, toggleDone, doneItems, clearConfirmText, confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = props;
 	return h$2("div", {
 		className: "dsh-an-listViewport",
 		"data-bottom": listHasMore ? "true" : void 0
@@ -5634,7 +5560,7 @@ function NoteList(props) {
 		onClick: askClearConfirm
 	}, say("popover.clearArchived")) : null), showDone && confirmClear ? h$2(ClearConfirm, {
 		say,
-		count: doneItems.length,
+		text: clearConfirmText,
 		onCancel: dismissClearConfirm,
 		onConfirm: confirmClearDone
 	}) : null, showDone ? h$2("ul", { className: "dsh-an-rows dsh-an-doneRows" }, doneItems.map(row)) : null) : null));
@@ -5676,7 +5602,7 @@ function MemoPopover(props) {
 	react.default.useSyncExternalStore(subscribeLocale, readLocaleRevision, () => 0);
 	const localeId = typeof props.getLocaleId === "function" ? props.getLocaleId() : props.localeId || "en";
 	const sessionId = props.sessionId || "";
-	/** The header switch remembers its choice; a workspace-less session stays session-scoped. */
+	/** The saved filter applies whenever its workspace is available. */
 	const [mode, setMode] = react.default.useState(() => readScopeMode());
 	react.default.useEffect(() => {
 		const onStorage = (event) => {
@@ -5693,15 +5619,14 @@ function MemoPopover(props) {
 			window.removeEventListener("storage", onStorage);
 		};
 	}, []);
-	react.default.useSyncExternalStore(subscribeScope, scopeVersion, scopeVersion);
-	const canUseWorkspace = Boolean(workspaceScopeForSession(sessionId));
-	const canUseSession = canUseSessionScope(sessionId);
-	const effectiveMode = canUseSession ? mode : "workspace";
-	const scope = scopeForSession(sessionId, effectiveMode);
+	const workspace = workspaceForSession(sessionId);
+	const workspaceId = workspaceCatalogReady() ? workspace?.workspaceId ?? "sideby-note:unassigned" : null;
+	const workspaceFilter = mode === "workspace" ? workspace?.workspaceId ?? null : null;
+	const effectiveMode = workspaceFilter ? "workspace" : "global";
+	const nameOfWorkspace = (id) => id === "sideby-note:unassigned" ? say("scope.unassigned") : workspaceTitle(id) || id;
 	const draftKey = draftKeyForSession(sessionId);
-	/** Settled outcomes go to the frame-wide toast host, not to inline marks. */
 	const report = typeof props.onToast === "function" ? props.onToast : () => {};
-	const { record, syncError, commit } = useMemoStore(scope);
+	const { items, syncError, commit } = useMemoStore(workspaceFilter);
 	const storeMode = react.default.useSyncExternalStore(subscribeStorageStatus, storageMode, storageMode);
 	const failure = react.default.useSyncExternalStore(subscribeStorageStatus, storageFailure, storageFailure);
 	const connectionError = storeMode === "error" || storeMode === "host" && isHostConnectionFailure(failure);
@@ -5713,6 +5638,7 @@ function MemoPopover(props) {
 	const canUpload = storeMode === "host";
 	const { draft, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown } = useComposerDraft({
 		draftKey,
+		workspaceId,
 		commit,
 		report,
 		storageInUse,
@@ -5722,15 +5648,8 @@ function MemoPopover(props) {
 		commit,
 		report
 	});
-	const { confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = useClearConfirm({
-		sessionId,
-		showDone,
-		doneCount: record.items.filter((item) => item.done).length,
-		onConfirm: () => clearDone()
-	});
 	const panelRef = react.default.useRef(null);
 	const { style, commitPanelWidth, commitPanelHeight, startPanelResize, startPanelHeightResize, onPanelResizeKeyDown, onPanelHeightKeyDown } = usePanelGeometry(props.anchorRef, props.placement, panelRef);
-	const items = record.items || [];
 	const openItems = items.filter((item) => !item.done);
 	const doneItems = items.filter((item) => item.done).sort(compareDoneItems);
 	const openCount = openItems.length;
@@ -5740,35 +5659,52 @@ function MemoPopover(props) {
 		showOpen,
 		showDone
 	});
+	const openById = new Map(openItems.map((item) => [item.id, item]));
 	const reorder = useRowReorder({
 		ids: openItems.map((item) => item.id),
+		groupFor: (id) => openById.get(id)?.workspaceId,
 		scrollRef: listRef,
-		onMove: move
+		onMove: (id, index) => {
+			const item = openById.get(id);
+			if (!item) return Promise.resolve(false);
+			const first = openItems.findIndex((candidate) => candidate.workspaceId === item.workspaceId);
+			return move(item, index - first);
+		}
 	});
 	useOutsideDismiss(panelRef, props.anchorRef, props.onClose);
-	const chooseScope = (next) => {
-		if (next === mode) return;
-		if (next === "session" && !canUseSession) return;
-		if (next === "workspace" && !canUseWorkspace) return;
-		if (next === "workspace") {
-			const workspace = scopeForSession(sessionId, "workspace");
-			if (workspace.kind === "workspace") ensureWorkspaceRecord(workspace.id, workspace.sessionIds);
-		}
-		writeScopeMode(next);
-		setMode(next);
-		dismissClearConfirm();
-		notifyTodoChange();
-	};
 	const clearDone = async () => {
-		if (!await commit((currentItems) => currentItems.filter((item) => !item.done))) {
-			report("saveFailed");
-			return;
+		const idsByWorkspace = /* @__PURE__ */ new Map();
+		for (const item of doneItems) {
+			const ids = idsByWorkspace.get(item.workspaceId);
+			if (ids) ids.add(item.noteId);
+			else idsByWorkspace.set(item.workspaceId, /* @__PURE__ */ new Set([item.noteId]));
+		}
+		let clearedAny = false;
+		for (const [owner, ids] of idsByWorkspace) {
+			if (!await commit(owner, (current) => current.filter((item) => !item.done || !ids.has(item.id)))) {
+				report(clearedAny ? "clearPartial" : "saveFailed");
+				return;
+			}
+			clearedAny = true;
 		}
 		report("cleared");
 		applySections({
 			open: sectionsRef.current.open,
 			done: false
 		});
+	};
+	const { confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = useClearConfirm({
+		scope: workspaceFilter,
+		showDone,
+		doneCount: doneItems.length,
+		onConfirm: clearDone
+	});
+	const chooseScope = (next) => {
+		if (next === effectiveMode) return;
+		writeScopeMode(next);
+		setMode(next);
+		dismissClearConfirm();
+		notifyTodoChange();
 	};
 	/**
 	* Inserting a note into the conversation archives it: its text goes into the
@@ -5808,6 +5744,7 @@ function MemoPopover(props) {
 		key: item.id,
 		item,
 		archived: item.done === true,
+		workspaceName: workspaceFilter ? void 0 : nameOfWorkspace(item.workspaceId),
 		say,
 		localeId,
 		onToast: report,
@@ -5848,8 +5785,7 @@ function MemoPopover(props) {
 		total,
 		onClose: props.onClose,
 		scopeMode: effectiveMode,
-		canUseWorkspace,
-		canUseSession,
+		canUseWorkspace: Boolean(workspace),
 		onScopeChange: chooseScope
 	}), connectionError && h$1("div", { className: "dsh-an-storageStatus" }, h$1("div", { role: "status" }, h$1("p", null, say(storageInUse ? "storage.inUse" : "storage.hostError")), failure && h$1("p", { className: "dsh-an-storageFailure" }, say("storage.failure", { code: failure.code }))), h$1("button", {
 		type: "button",
@@ -5870,6 +5806,8 @@ function MemoPopover(props) {
 	}, say(retrying ? "storage.reconnecting" : "storage.retry"))), h$1(ComposerForm, {
 		say,
 		draft: draft.add,
+		destination: draft.workspaceId || workspaceId ? effectiveMode === "global" || draft.workspaceId ? say("add.destination", { workspace: nameOfWorkspace(draft.workspaceId ?? workspaceId) }) : void 0 : say("scope.loading"),
+		destinationPending: !draft.workspaceId && !workspaceId,
 		attachments: draft.attachments,
 		isSubmitting,
 		isRecalling,
@@ -5910,6 +5848,7 @@ function MemoPopover(props) {
 		showDone,
 		toggleDone,
 		doneItems,
+		clearConfirmText: say(workspaceFilter ? "popover.clearConfirm" : "popover.clearGlobalConfirm", { n: doneItems.length }),
 		confirmClear,
 		askClearConfirm,
 		dismissClearConfirm,
@@ -5942,13 +5881,17 @@ const webToggle = {
 	code: "KeyE",
 	modifiers: ["primary", "alt"]
 };
-/** Hosts without ui-workspace (and the bundle test) keep the session list. */
+/** Workspace hooks are optional on profiles without the workspace UI. */
 const useNoWorkspace = () => null;
 /** Hosts without a session list cannot tell a new session from an old one. */
 const useNoSessions = () => void 0;
+function isWorkspaceSnapshot(value) {
+	return Boolean(value && typeof value === "object" && "items" in value && Array.isArray(value.items));
+}
 /** Compact floating memo list, anchored to the entry that opened it. */
 function apply(ctx) {
 	const locale = ctx.get("locale");
+	let workspaceCatalog = null;
 	ctx.effect(() => {
 		const style = document.createElement("style");
 		style.dataset.dshPlugin = "dsh-sideby-note";
@@ -6015,10 +5958,9 @@ function apply(ctx) {
 			return;
 		}
 		closeMemoPopover();
-		const scope = scopeForSession(sessionId, readScopeMode());
 		if (storageMode() === "host") requestHostRefresh();
-		if (scope.kind === "workspace") ensureWorkspaceRecord(scope.id, scope.sessionIds);
-		const workspace = workspaceScopeForSession(sessionId);
+		if (workspaceCatalog) migrateWorkspaceNotes(workspaceCatalog);
+		const workspace = workspaceForSession(sessionId);
 		if (workspace) ensureDraftScope(draftKeyForSession(sessionId), sessionId, workspace.sessionIds);
 		setForwardTarget(sessionId);
 		const container = document.createElement("div");
@@ -6098,14 +6040,24 @@ function apply(ctx) {
 	});
 	function BoundSessionCapture(props) {
 		const sessionId = props.sessionId || "";
-		const useWorkspaces = typeof props.useWorkspaces === "function" ? props.useWorkspaces : useNoWorkspace;
+		const hasWorkspaceHook = typeof props.useWorkspaces === "function";
+		const useWorkspaces = hasWorkspaceHook ? props.useWorkspaces : useNoWorkspace;
 		const useSessions = typeof props.useSessions === "function" ? props.useSessions : useNoSessions;
 		const snapshot = useWorkspaces((state) => state);
-		const summary = useSessions((state) => state && state.byId ? state.byId[sessionId] : void 0);
-		const sessionReady = !(summary && summary.blank === true);
-		const workspace = react.default.useMemo(() => {
-			return (snapshot && Array.isArray(snapshot.items) ? snapshot.items : []).find((candidate) => candidate && Array.isArray(candidate.sessionIds) && candidate.sessionIds.includes(sessionId)) || null;
-		}, [snapshot, sessionId]);
+		const sessionReady = useSessions((state) => state?.byId?.[sessionId])?.blank !== true;
+		const catalog = react.default.useMemo(() => {
+			if (!hasWorkspaceHook) return [];
+			if (!isWorkspaceSnapshot(snapshot) || snapshot.phase !== void 0 && snapshot.phase !== "ready") return null;
+			return snapshot.items.flatMap((candidate) => {
+				if (!candidate || typeof candidate !== "object" || !("workspaceId" in candidate) || typeof candidate.workspaceId !== "string" || !candidate.workspaceId) return [];
+				return [{
+					workspaceId: candidate.workspaceId,
+					title: "title" in candidate && typeof candidate.title === "string" ? candidate.title : "",
+					sessionIds: "sessionIds" in candidate && Array.isArray(candidate.sessionIds) ? candidate.sessionIds.filter((id) => typeof id === "string") : []
+				}];
+			});
+		}, [hasWorkspaceHook, snapshot]);
+		const workspace = catalog?.find((candidate) => candidate.sessionIds.includes(sessionId)) ?? null;
 		const workspaceRef = react.default.useRef({
 			sessionId: "",
 			workspaceId: ""
@@ -6118,23 +6070,27 @@ function apply(ctx) {
 				sessionId,
 				workspaceId
 			};
-			bindWorkspace(sessionId, workspace, sessionReady);
+			workspaceCatalog = catalog;
+			bindWorkspace(sessionId, workspace, sessionReady, catalog);
 			if (activeSessionId !== sessionId) {
 				activeSessionId = sessionId;
 				setForwardTarget(sessionId);
 				closeMemoPopover();
 			} else if (workspaceChanged) closeMemoPopover();
-			if (workspace) ensureWorkspaceRecord(workspace.workspaceId, workspace.sessionIds);
+			if (catalog) migrateWorkspaceNotes(catalog);
+			notifyTodoChange();
 			refreshHeaderEntry();
 		}, [
 			sessionId,
 			workspace,
-			sessionReady
+			sessionReady,
+			catalog
 		]);
 		return null;
 	}
 	ctx.effect(() => {
 		const onReady = () => {
+			if (workspaceCatalog) migrateWorkspaceNotes(workspaceCatalog);
 			refreshHeaderEntry();
 			notifyTodoChange();
 		};

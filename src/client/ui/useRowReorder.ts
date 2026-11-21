@@ -16,13 +16,15 @@ const EDGE_ZONE = 32
 /** Fastest auto-scroll step, in pixels per frame, right at the edge. */
 const EDGE_SPEED = 8
 
-export function useRowReorder({ ids, scrollRef, onMove }) {
+export function useRowReorder({ ids, groupFor, scrollRef, onMove }) {
   const listRef = React.useRef<HTMLUListElement | null>(null)
   const dragRef = React.useRef<any>(null)
   const settleRef = React.useRef<{ id: string, top: number } | null>(null)
   const focusRef = React.useRef('')
   const idsRef = React.useRef(ids)
   idsRef.current = ids
+  const groupRef = React.useRef(groupFor)
+  groupRef.current = groupFor
   const onMoveRef = React.useRef(onMove)
   onMoveRef.current = onMove
 
@@ -42,9 +44,9 @@ export function useRowReorder({ ids, scrollRef, onMove }) {
       drag.dy = dy
       const self = drag.rows[drag.from]
       const center = self.top + dy + self.height / 2
-      let to = 0
+      let to = drag.first
       drag.rows.forEach((row, index) => {
-        if (index !== drag.from && row.top + row.height / 2 < center) to += 1
+        if (index >= drag.first && index <= drag.last && index !== drag.from && row.top + row.height / 2 < center) to += 1
       })
       drag.to = to
       const shift = self.height + drag.gap
@@ -147,6 +149,12 @@ export function useRowReorder({ ids, scrollRef, onMove }) {
       const all = rows()
       const from = all.findIndex(node => node.dataset.rowId === id)
       if (!list || from < 0) return
+      const group = groupRef.current(id)
+      let first = from
+      let last = from
+      while (first > 0 && groupRef.current(all[first - 1].dataset.rowId) === group) first -= 1
+      while (last < all.length - 1 && groupRef.current(all[last + 1].dataset.rowId) === group) last += 1
+      if (first === last) return
       event.preventDefault()
       try {
         target.setPointerCapture(event.pointerId)
@@ -158,6 +166,8 @@ export function useRowReorder({ ids, scrollRef, onMove }) {
       dragRef.current = {
         id,
         from,
+        first,
+        last,
         to: from,
         target,
         pointerId: event.pointerId,
@@ -206,7 +216,7 @@ export function useRowReorder({ ids, scrollRef, onMove }) {
       const order = idsRef.current
       const index = order.indexOf(id)
       const to = index + (event.key === 'ArrowUp' ? -1 : 1)
-      if (index < 0 || to < 0 || to >= order.length) return
+      if (index < 0 || to < 0 || to >= order.length || groupRef.current(order[to]) !== groupRef.current(id)) return
       focusRef.current = id
       const clearFocus = () => {
         if (focusRef.current === id) focusRef.current = ''

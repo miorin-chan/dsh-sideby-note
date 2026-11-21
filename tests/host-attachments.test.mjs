@@ -220,7 +220,7 @@ test('STORE-032 宿主清单兼容纯文本与仅附件便笺', async t => {
   }
 
   await store.apply({
-    op: 'list.patch', kind: 'session', listKey: 'session',
+    op: 'list.patch', kind: 'workspace', listKey: 'workspace',
     upserts: [
       { ...legacy, attachments: [] },
       { ...fileOnly, attachments: [invalid[0], ...fileOnly.attachments] },
@@ -228,5 +228,5 @@ test('STORE-032 宿主清单兼容纯文本与仅附件便笺', async t => {
       { ...fileOnly, id: 'empty', attachments: invalid },
     ],
   })
-  assert.deepEqual((await store.snapshot()).data.sessions.session.items, [legacy, fileOnly, maxed])
+  assert.deepEqual((await store.snapshot()).data.workspaces.workspace.items, [legacy, fileOnly, maxed])
 })

@@ -8,18 +8,18 @@ export function useNoteActions({ commit, report }) {
    * The stored shape keeps `done` / `completedAt`, so existing lists read as-is.
    */
   const archive = async item => {
-    return commit(currentItems => currentItems.map(candidate => {
-      if (candidate.id !== item.id || candidate.done) return candidate
+    return commit(item.workspaceId, currentItems => currentItems.map(candidate => {
+      if (candidate.id !== item.noteId || candidate.done) return candidate
       const now = Date.now()
       return { ...candidate, done: true, updatedAt: now, completedAt: now }
     }))
   }
 
   /** Move an open note to `toIndex` among the open notes; archived ones keep their order. */
-  const move = async (itemId, toIndex) => {
+  const move = async (item, toIndex) => {
     let changed = false
-    const ok = await commit(currentItems => {
-      const next = moveOpenItem(currentItems, itemId, toIndex)
+    const ok = await commit(item.workspaceId, currentItems => {
+      const next = moveOpenItem(currentItems, item.noteId, toIndex)
       changed = next !== currentItems
       return next
     })
@@ -34,7 +34,7 @@ export function useNoteActions({ commit, report }) {
    * caller writes the recalled text only after this succeeds.
    */
   const takeBack = async item => {
-    const ok = await commit(currentItems => currentItems.filter(candidate => candidate.id !== item.id))
+    const ok = await commit(item.workspaceId, currentItems => currentItems.filter(candidate => candidate.id !== item.noteId))
     if (!ok) {
       report('saveFailed')
       return false

@@ -16,12 +16,11 @@ import {
   endPending,
   hostPrefs,
   hostRecord,
+  requestHostRefresh,
   isHostConnectionFailure,
   setStorageFailure,
   storageFailure,
 } from './state'
-
-type TableName = 'sessions' | 'workspaces'
 
 const chains = new Map<string, Promise<unknown>>()
 
@@ -44,10 +43,6 @@ function report(error: unknown) {
   notifyStoreError(failure)
 }
 
-function tableFor(kind: 'workspace' | 'session'): TableName {
-  return kind === 'workspace' ? 'workspaces' : 'sessions'
-}
-
 function sameJson(a: unknown, b: unknown) {
   return JSON.stringify(a) === JSON.stringify(b)
 }
@@ -60,9 +55,9 @@ function toItems(record: any): any[] {
  * Persist the next ordered list for one scope.
  * @returns true when the host accepted (or nothing changed)
  */
-export async function commitList(kind: 'workspace' | 'session', listKey: string, nextItems: any[]): Promise<boolean> {
+export async function commitList(listKey: string, nextItems: any[]): Promise<boolean> {
   if (!listKey) return false
-  const table = tableFor(kind)
+  const table = 'workspaces'
   const current = hostRecord(table, listKey)
   const base = toItems(current)
   const baseById = new Map(base.map(item => [item.id, item]))
@@ -79,7 +74,7 @@ export async function commitList(kind: 'workspace' | 'session', listKey: string,
   try {
     await serialize(`${table}:${listKey}`, async () => {
       const previousFailure = storageFailure()
-      const result = await postOp({ op: 'list.patch', kind, listKey, order, upserts, deletes })
+      const result = await postOp({ op: 'list.patch', kind: 'workspace', listKey, order, upserts, deletes })
       if (storageFailure() === previousFailure && isHostConnectionFailure(previousFailure)) setStorageFailure(null)
       applyHostRecord(table, listKey, result.record)
       broadcastHostChange({ kind: 'record', name: table, key: listKey, value: result.record, rev: result.rev })
@@ -101,18 +96,12 @@ export async function commitList(kind: 'workspace' | 'session', listKey: string,
 /** Fold member sessions into a workspace list once, on the host. */
 export async function ensureWorkspace(workspaceId: string, sessionIds: string[]): Promise<boolean> {
   if (!workspaceId) return false
-  const current = hostRecord('workspaces', workspaceId)
-  const seeded = new Set(Array.isArray(current?.seededSessionIds) ? current.seededSessionIds : [])
-  const pendingMembers = (Array.isArray(sessionIds) ? sessionIds : []).filter(id => id && !seeded.has(id))
-  if (current && pendingMembers.length === 0) return true
   try {
     await serialize(`workspaces:${workspaceId}`, async () => {
-      const latest = hostRecord('workspaces', workspaceId)
-      const seeded = new Set(Array.isArray(latest?.seededSessionIds) ? latest.seededSessionIds : [])
-      if (latest && pendingMembers.every(id => seeded.has(id))) return
-      const result = await postOp({
-        op: 'list.ensure', workspaceId, sessionIds: Array.isArray(sessionIds) ? sessionIds : [],
-      })
+      if (!sessionIds.some(id => hostRecord('sessions', id))) return
+      const result = await postOp({ op: 'list.ensure', workspaceId, sessionIds })
+      for (const id of result.migratedSessionIds ?? []) applyHostRecord('sessions', id, undefined)
+      requestHostRefresh()
       applyHostRecord('workspaces', workspaceId, result.record)
       broadcastHostChange({ kind: 'record', name: 'workspaces', key: workspaceId, value: result.record, rev: result.rev })
     })
@@ -124,9 +113,9 @@ export async function ensureWorkspace(workspaceId: string, sessionIds: string[])
 }
 
 /** Merge user preferences on the host; optimistic with the same rollback rule. */
-export function setPrefs(patch: { scopeMode: 'workspace' | 'session' }): boolean {
+export function setPrefs(patch: { scopeMode: 'workspace' | 'global' }): boolean {
   const previous = hostPrefs()
-  const next = { ...previous, ...patch, version: 1 }
+  const next = { ...previous, sidebyNoteScopeMode: patch.scopeMode, version: 1 }
   applyHostPrefs(next)
 
   void serialize('prefs', async () => {

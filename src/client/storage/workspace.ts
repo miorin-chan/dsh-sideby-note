@@ -1,21 +1,13 @@
-/**
- * Workspace-scoped notes.
- *
- * One list is shared by every session of a workspace. The first time a
- * workspace is seen, notes already written per session are folded in once;
- * `seededSessionIds` records that so a later delete is not undone. After the
- * switch to host storage the fold runs on the host (`list.ensure`), where it is
- * atomic; before the switch it stays in the browser and merges before writing.
- */
+/** Workspace note lists and migration of the browser's legacy session lists. */
 import { WORKSPACE_STORAGE_KEY } from '../constants'
 import { normalizeItems } from '../domain/items'
-import { bootStorage } from './boot'
+import { UNASSIGNED_WORKSPACE, type NoteWorkspace } from '../scope'
 import { setAsideUnreadable, storage } from './codec'
 import { notifyTodoChange } from './events'
 import { mergeItems } from './merge'
 import { commitList, ensureWorkspace } from './ops'
 import { hostAuthoritative, hostRecord, hostTable, storageMode } from './state'
-import { readSessionStore } from './session'
+import { readSessionStore, writeSessionStore } from './session'
 
 const text = value => (value ? String(value) : '')
 const bucket = value => (value && typeof value === 'object' && !Array.isArray(value) ? value : {})
@@ -36,7 +28,7 @@ function seededOf(record) {
 
 /** Empty workspace-note store. */
 export function emptyWorkspaceStore() {
-  return { version: 1, workspaces: {} as Record<string, any> }
+  return { version: 1, workspaces: {} as Record<string, any>, pendingSessionCleanup: [] as string[] }
 }
 
 /**
@@ -67,7 +59,13 @@ function readLocalStore() {
     setAsideUnreadable(WORKSPACE_STORAGE_KEY, raw)
     return emptyWorkspaceStore()
   }
-  return { version: 1, workspaces: bucket(workspaces) }
+  return {
+    version: 1,
+    workspaces: bucket(workspaces) as Record<string, any>,
+    pendingSessionCleanup: Array.isArray(parsed.pendingSessionCleanup)
+      ? parsed.pendingSessionCleanup.filter((id: unknown): id is string => typeof id === 'string')
+      : [],
+  }
 }
 
 /** Read the workspace-note store from the authoritative medium. */
@@ -84,6 +82,7 @@ export function writeWorkspaceStore(store) {
     ls.setItem(WORKSPACE_STORAGE_KEY, JSON.stringify({
       version: 1,
       workspaces: bucket(store && store.workspaces),
+      ...(store.pendingSessionCleanup?.length ? { pendingSessionCleanup: store.pendingSessionCleanup } : {}),
     }))
     notifyTodoChange()
     return true
@@ -127,7 +126,7 @@ export async function writeWorkspaceRecord(workspaceId, record, base = null) {
   const mode = storageMode()
   if (mode === 'probing' || mode === 'error') return false
   if (mode === 'host') {
-    return commitList('workspace', key, normalizeItems(record && record.items))
+    return commitList(key, normalizeItems(record && record.items))
   }
   const store = readLocalStore()
   const previous = store.workspaces[key]
@@ -144,57 +143,64 @@ export async function writeWorkspaceRecord(workspaceId, record, base = null) {
   return writeWorkspaceStore(store)
 }
 
-/**
- * Fold the member sessions' existing notes into the workspace list once.
- * @returns resolution with whether the store changed / was accepted
- */
-export async function ensureWorkspaceRecord(workspaceId, sessionIds) {
-  const key = text(workspaceId)
-  if (!key) return false
-  // Seeding has no user draft or captured note data. It can wait for the
-  // authoritative store and read the member lists when that store is ready.
-  if (storageMode() === 'probing') await bootStorage()
-  const mode = storageMode()
-  if (mode === 'probing' || mode === 'error') return false
-  if (mode === 'host') return ensureWorkspace(key, Array.isArray(sessionIds) ? sessionIds : [])
-
-  const workspaceStore = readLocalStore()
-  const previous = workspaceStore.workspaces[key]
-  const seeded = new Set(seededOf(previous))
-  const items = normalizeItems(previous && previous.items)
-  const seen = new Set(items.map(item => item.id))
-  let changed = !previous
-
-  if (!changed && Array.isArray(sessionIds)) {
-    for (const value of sessionIds) {
-      const sessionId = text(value)
-      if (!sessionId) continue
-      if (!seeded.has(sessionId)) {
-        changed = true
-        break
-      }
+/** Migrate known memberships, with a recovery bucket for unassigned browser notes. */
+export async function migrateWorkspaceNotes(workspaces: NoteWorkspace[]) {
+  if (storageMode() === 'probing' || storageMode() === 'error') return
+  const sessions = readSessionStore()
+  if (Object.keys(sessions.sessions).length === 0) return
+  const owners = new Map(workspaces.flatMap(workspace => workspace.sessionIds.map(id => [id, workspace.workspaceId] as const)))
+  if (storageMode() === 'host') {
+    const membersByWorkspace = new Map<string, string[]>()
+    for (const id of Object.keys(sessions.sessions)) {
+      const owner = owners.get(id) ?? UNASSIGNED_WORKSPACE
+      const members = membersByWorkspace.get(owner)
+      if (members) members.push(id)
+      else membersByWorkspace.set(owner, [id])
     }
+    for (const [workspaceId, members] of membersByWorkspace) {
+      await ensureWorkspace(workspaceId, members)
+    }
+    return
   }
+  if (storageMode() === 'local') moveBrowserSessions(sessions, owners)
+}
 
-  if (!changed) return false
-
-  const sessionStore = readSessionStore()
-  for (const value of Array.isArray(sessionIds) ? sessionIds : []) {
-    const sessionId = text(value)
-    if (!sessionId || seeded.has(sessionId)) continue
-    seeded.add(sessionId)
-    changed = true
-    const sessionRecord = sessionStore.sessions[sessionId]
-    for (const item of normalizeItems(sessionRecord && sessionRecord.items)) {
+function moveBrowserSessions(sessions: ReturnType<typeof readSessionStore>, owners: Map<string, string>) {
+  const store = readLocalStore()
+  const moved = new Set(store.pendingSessionCleanup)
+  for (const [sessionId, source] of Object.entries(sessions.sessions)) {
+    if (moved.has(sessionId)) continue
+    const workspaceId = owners.get(sessionId) ?? UNASSIGNED_WORKSPACE
+    const record = store.workspaces[workspaceId]
+    const items = normalizeItems(record?.items)
+    const seen = new Set(items.map(item => item.id))
+    for (const item of normalizeItems(source?.items)) {
       if (seen.has(item.id)) continue
       seen.add(item.id)
       items.push(item)
     }
+    store.workspaces[workspaceId] = {
+      workspaceId,
+      updatedAt: Math.max(record?.updatedAt || 0, source?.updatedAt || 0),
+      items,
+      seededSessionIds: [...new Set([...seededOf(record), sessionId])],
+    }
+    moved.add(sessionId)
   }
+  // Save notes and the cleanup checkpoint together. Retrying a failed source
+  // removal must not resurrect notes edited or removed after the first write.
+  if (writeWorkspaceStore({ ...store, pendingSessionCleanup: [...moved] }) && writeSessionStore({ sessions: {} })) {
+    writeWorkspaceStore({ ...store, pendingSessionCleanup: [] })
+  }
+}
 
-  return writeWorkspaceRecord(key, {
-    items,
-    updatedAt: previous && Number.isFinite(previous.updatedAt) ? previous.updatedAt : Date.now(),
-    seededSessionIds: [...seeded],
-  })
+/** Project the workspace filter or the aggregate view from the same records. */
+export function readVisibleNotes(workspaceId: string | null) {
+  const records = workspaceId ? [[workspaceId, readWorkspaceRecord(workspaceId)]] as const : Object.entries(readWorkspaceStore().workspaces)
+  return records.flatMap(([owner, record]) => normalizeItems(record?.items).map(item => ({
+    ...item,
+    id: workspaceId ? item.id : JSON.stringify([owner, item.id]),
+    noteId: item.id,
+    workspaceId: owner,
+  })))
 }

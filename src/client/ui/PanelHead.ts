@@ -13,7 +13,6 @@ export function PanelHead(props) {
     onClose,
     scopeMode,
     canUseWorkspace,
-    canUseSession,
     onScopeChange,
   } = props
   return h(
@@ -24,9 +23,7 @@ export function PanelHead(props) {
       { className: 'dsh-an-popTitleLine' },
       h('div', { className: 'dsh-an-popTitle' }, say('popover.title')),
       h('p', { className: 'dsh-an-popMeta' }, say('popover.count', { open: openCount, total })),
-      canUseWorkspace
-        ? h(ScopeSwitch, { say, mode: scopeMode, canUseSession, onChange: onScopeChange })
-        : null,
+      h(ScopeSwitch, { say, mode: scopeMode, canUseWorkspace, onChange: onScopeChange }),
     ),
     h(
       'div',
