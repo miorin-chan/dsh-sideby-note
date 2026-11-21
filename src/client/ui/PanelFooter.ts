@@ -45,10 +45,7 @@ export function PanelFooter({ say, mode, syncError, update, onToast }: UpdateDet
 }) {
   const [detailsOpen, setDetailsOpen] = React.useState(false)
   const { check, latestVersion } = update
-  const status = mode === 'error' ? null
-    : syncError ? (mode === 'host' ? 'toast.saveFailed' : 'storage.failed')
-      : mode === 'host' ? 'storage.whereHost'
-        : mode === 'probing' ? 'storage.loading' : 'popover.local'
+  const saveError = syncError && mode !== 'error'
   const checkResult = check.status === 'current' ? say('update.current')
     : check.status === 'error' ? say('update.checkFailed')
       : check.status === 'available' ? say('update.available', { version: `v${latestVersion}` }) : null
@@ -56,15 +53,15 @@ export function PanelFooter({ say, mode, syncError, update, onToast }: UpdateDet
   const installing = update.run.phase === 'starting' || update.run.phase === 'running'
 
   return h('footer', { className: 'dsh-an-popFoot' },
-    h('div', { className: 'dsh-an-footerRow' },
-      status && h('span', { role: 'status', className: syncError ? 'dsh-an-error' : undefined }, say(status)),
-      h('details', {
-        className: 'dsh-an-footerDetails',
-        onToggle: (event: React.SyntheticEvent<HTMLDetailsElement>) => setDetailsOpen(event.currentTarget.open),
-      },
+    saveError && h('div', { role: 'status', className: 'dsh-an-error' },
+      say(mode === 'host' ? 'toast.saveFailed' : 'storage.failed')),
+    h('details', {
+      className: 'dsh-an-footerDetails',
+      onToggle: (event: React.SyntheticEvent<HTMLDetailsElement>) => setDetailsOpen(event.currentTarget.open),
+    },
       h('summary', { className: 'dsh-an-storageToggle' }, say('storage.details')),
       detailsOpen && h('div', { className: 'dsh-an-footerBody' },
-        h(StorageDetails, { say, mode, onToast }),
+        h(StorageDetails, { say, mode, showStatus: !saveError, onToast }),
         h('div', { className: 'dsh-an-versionRow' },
           h('span', null, `${say('update.version')} ${PLUGIN_VERSION}`),
           h('button', {
@@ -76,7 +73,7 @@ export function PanelFooter({ say, mode, syncError, update, onToast }: UpdateDet
             : check.status === 'error' ? 'update.retryCheck' : 'update.check')),
           h('span', { role: 'status', className: check.status === 'error' ? 'dsh-an-updateHintError' : undefined }, checkResult),
         ),
-      )),
+      ),
     ),
     latestVersion && h(UpdateDetails, { say, update, onToast }),
   )

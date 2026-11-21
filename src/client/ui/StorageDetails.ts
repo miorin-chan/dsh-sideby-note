@@ -8,6 +8,7 @@ const h = React.createElement
 type StorageDetailsProps = {
   say: (key: string, vars?: Record<string, string>) => string
   mode: StorageMode
+  showStatus: boolean
   onToast: (kind: string) => void
 }
 
@@ -41,14 +42,14 @@ function HostLocation({ say, onToast }: Pick<StorageDetailsProps, 'say' | 'onToa
   )
 }
 
-export function StorageDetails({ say, mode, onToast }: StorageDetailsProps) {
+export function StorageDetails({ say, mode, showStatus, onToast }: StorageDetailsProps) {
   const failure = storageFailure()
-  if (mode === 'error' || mode === 'probing') return null
+  if (mode === 'error') return null
+  if (mode === 'probing') return h('p', { role: 'status' }, say('storage.loading'))
 
   return h('div', { className: 'dsh-an-storageBlock' },
-    mode === 'host'
-      ? h(HostLocation, { say, onToast })
-      : h('p', null, say('storage.notSwitched')),
+    showStatus && h('p', { role: 'status' }, say(mode === 'host' ? 'storage.whereHost' : 'storage.notSwitched')),
+    mode === 'host' && h(HostLocation, { say, onToast }),
     failure && h('p', null, say('storage.failure', { code: failure.code })),
   )
 }

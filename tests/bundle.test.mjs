@@ -282,7 +282,8 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   await t.test('PANEL-004 页脚存储详情展示版本与检查入口', async () => {
     assert.ok(footer(), 'the panel footer always offers storage details')
     assert.equal(footer().open, false)
-    assert.equal(storageToggle().textContent.trim(), '存储详情')
+    assert.equal(footer().textContent.trim(), '存储')
+    assert.equal(footer().querySelector('.dsh-an-footerBody'), null)
     assert.equal(popover.querySelector('.dsh-an-settingsBtn, .dsh-an-settings, .dsh-an-settingsViewport'), null)
     assert.equal(popover.hasAttribute('data-settings'), false)
 
@@ -316,6 +317,8 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.deepEqual(registryCalls().map(call => call.url), REGISTRY_URLS, 'the npmjs miss must fall back to the npmmirror host')
     const details = updateDetails()
     assert.ok(details, 'a newer version gives the panel an update disclosure')
+    assert.equal(details.parentElement, footer().closest('.dsh-an-popFoot'))
+    assert.equal(footer().open, false, 'storage stays collapsed when a newer version is offered')
     const summary = details.querySelector(':scope > summary.dsh-an-updateToggle')
     assert.ok(summary.textContent.trim(), 'the available update has a visible label')
     assert.equal(details.open, false)
@@ -723,6 +726,18 @@ test('one workspace shares its notes and forwards into the visible session', asy
 
   // Cross-subtest bindings: the flow is one session, each step seeds the next.
   let header, popover, firstRoot, secondPopover, secondRoot
+  const openStorageDetails = async panel => {
+    const summary = panel.querySelector('summary.dsh-an-storageToggle')
+    await act(async () => {
+      const toggled = new Promise(resolve => summary.parentElement.addEventListener('toggle', resolve, { once: true }))
+      summary.click()
+      await toggled
+    })
+  }
+  const assertLocalStorageDetails = panel => {
+    assert.match(panel.querySelector('.dsh-an-footerBody')?.textContent ?? '', /便笺仍保存在本浏览器/)
+  }
+
   await t.test('SCOPE-001 首次见到工作区时一次性并入成员会话便笺', async () => {
     const host = document.createElement('div')
     document.body.appendChild(host)
@@ -753,7 +768,11 @@ test('one workspace shares its notes and forwards into the visible session', asy
     assert.deepEqual(scopeButtons().map(node => node.textContent), ['工作区', '会话'])
     assert.equal(scopeButtons()[0].getAttribute('aria-pressed'), 'true',
       'the workspace list is the default scope')
-    assert.match(popover.querySelector('.dsh-an-popFoot').textContent, /便笺数据仅保存在本地/)
+    const footer = popover.querySelector('.dsh-an-popFoot')
+    assert.equal(footer.querySelectorAll('details').length, 1)
+    assert.equal(footer.textContent.trim(), '存储')
+    await openStorageDetails(popover)
+    assertLocalStorageDetails(popover)
   })
 
   const inputOf = root => root.querySelector('.dsh-an-input')
@@ -780,8 +799,7 @@ test('one workspace shares its notes and forwards into the visible session', asy
   await t.test('SCOPE-003 切到会话范围只显示本会话便笺', async () => {
     // The header switch can drop to this session's own list without reopening.
     await act(async () => { popover.querySelector('[data-scope-mode="session"]').click() })
-    assert.match(popover.querySelector('.dsh-an-popFoot').textContent, /便笺数据仅保存在本地/,
-      'the footer stays the neutral storage line in either scope')
+    assertLocalStorageDetails(popover)
     assert.deepEqual(
       [...popover.querySelectorAll('.dsh-an-text')].map(node => node.textContent),
       ['会话一的事项'],
@@ -797,7 +815,7 @@ test('one workspace shares its notes and forwards into the visible session', asy
     // Switching back restores the shared list and remembers the choice.
     await act(async () => { popover.querySelector('[data-scope-mode="workspace"]').click() })
     assert.equal(window.localStorage.getItem('dsh.aside-note.scope-mode'), 'workspace')
-    assert.match(popover.querySelector('.dsh-an-popFoot').textContent, /便笺数据仅保存在本地/)
+    assertLocalStorageDetails(popover)
     assert.deepEqual(
       [...popover.querySelectorAll('.dsh-an-text')].map(node => node.textContent).sort(),
       ['会话二的事项', '会话一的事项'].sort(),
@@ -889,7 +907,8 @@ test('one workspace shares its notes and forwards into the visible session', asy
       'the shared draft stays visible in the session scope too')
     assert.equal(window.localStorage.getItem('dsh.aside-note.scope-mode'), 'session')
     await act(async () => { secondPopover.querySelector('[data-scope-mode="workspace"]').click() })
-    assert.match(secondPopover.querySelector('.dsh-an-popFoot').textContent, /便笺数据仅保存在本地/)
+    await openStorageDetails(secondPopover)
+    assertLocalStorageDetails(secondPopover)
   })
 
   const workspaceItems = () => JSON.parse(window.localStorage.getItem('dsh.aside-note.workspaces')).workspaces['ws-1'].items
@@ -1315,9 +1334,12 @@ test('handing notes to chat joins them on new lines, without a prefix or list ma
   await t.test('I18N-001 面板文案跟随当前语言且递入保留原文', async () => {
     assert.equal(popover.querySelector('.dsh-an-popTitle').textContent, '边记部')
     assert.equal(popover.querySelector('.dsh-an-input').placeholder, '随手记一条')
+    const storageToggle = popover.querySelector('summary.dsh-an-storageToggle')
+    assert.equal(storageToggle.textContent.trim(), '存储')
     await act(async () => { locale.setLocale('en') })
     assert.equal(popover.querySelector('.dsh-an-popTitle').textContent, 'Sideby Note')
     assert.equal(popover.querySelector('.dsh-an-input').placeholder, 'Jot one down')
+    assert.equal(storageToggle.textContent.trim(), 'Storage')
     assert.equal(await insert('Alpha'), 'Alpha')
   })
 

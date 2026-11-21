@@ -99,7 +99,7 @@ Click a note's **Insert** button to append its text to the current chat input; t
 - **Archive to look back on**: separate open and archived sections, with creation and archive times.
 - **Adjustable panel**: resize the width and height, with your preferences remembered.
 - **Fits into DSH**: follows the light/dark theme and all eight DSH-official languages (Chinese, English, Japanese, Spanish, French, German, Russian and Brazilian Portuguese).
-- **Host-file persistence**: notes live in `~/.dsh/storages/aside_note.json`, so page refreshes, DSH restarts and a different browser all keep them; tabs in the same browser stay in sync in real time, while other browsers on the same host refresh when they open the panel. Open **Storage details** in the panel footer to see the full path, copy it, or reveal the file in your file manager.
+- **Host-file persistence**: notes live in `~/.dsh/storages/aside_note.json`, so page refreshes, DSH restarts and a different browser all keep them; tabs in the same browser stay in sync in real time, while other browsers on the same host refresh when they open the panel. Open **Storage** in the panel footer to see the full path, copy it, or reveal the file in your file manager.
 
 > With host storage, browsers connected to the same DSH host share notes. See [Where data lives](#where-data-lives) for the upgrade and fallback behavior.
 
@@ -116,8 +116,9 @@ Click a note's **Insert** button to append its text to the current chat input; t
 - **Remembered state**: add drafts are saved per workspace (per session outside a workspace), so switching conversations or the Workspace/Session switch never loses them; submitting still writes the list selected at that moment. Drafts are restored when the panel reopens, and the open/archived expand state plus the scope choice are remembered too.
 - **Panel size**: drag the left edge for width and the bottom handle for height, double-click either to reset; both persist in the browser.
 - **List regions**: **Open** and **Archived** each keep a sticky header and its own scroll, and expanding the archive never compresses open; Insert sits to the left of open note text. On hover, the age gives way to Copy / Rewind; archived notes list newest archive first.
-- **Storage details** in the footer shows the file path, copy and reveal actions, the installed version, and a manual
-  update check. If the connection fails after switching to host storage, the panel shows the reason and a **Reconnect** action.
+- **Storage** in the footer starts collapsed. Expand it to see the storage status, host file path, and installed version.
+  You can also copy the path, reveal the file in your file manager, or check for updates. If the connection fails
+  after switching to host storage, the panel shows the reason and a **Reconnect** action.
 - **Update available** appears in the footer only when there is a newer version. Open it for release notes and the update
   action. See [Update notice](#update-notice).
 - **Native look**: colours, radii, elevation and scrollbars all reuse DSH design tokens, following light/dark and the DSH locale; see [Design tokens](#design-tokens).
@@ -190,7 +191,7 @@ Feedback reuses product surfaces too: copy, rewind, insert, clear-archived, and 
 
 ## Where data lives
 
-Notes live in `$DSH_HOME/storages/aside_note.json` when host storage is available. The default path is `~/.dsh/storages/aside_note.json`. DSH writes session and workspace lists to two tables in this file. Open **Storage details** in the panel footer to see the actual path.
+Notes live in `$DSH_HOME/storages/aside_note.json` when host storage is available. The default path is `~/.dsh/storages/aside_note.json`. DSH writes session and workspace lists to two tables in this file. Open **Storage** in the panel footer to see the actual path.
 
 - The first start checks the host. If its store is empty, Sideby Note imports notes from `dsh.aside-note` and `dsh.aside-note.workspaces` and keeps the browser originals for recovery. If the host already contains notes, those lists take precedence and the browser originals remain available for recovery.
 - If the host is unavailable before the switch, Sideby Note uses browser storage and retries on the next start. Once the switch completes, an unavailable or damaged host file pauses writes. The panel shows the reason inline, with a **Reconnect** action to use once the host is available again.
@@ -203,7 +204,7 @@ Sideby Note uses the same host file and format as AsideNote 1.2.0. It reads exis
 
 When the panel opens, the plugin quietly checks the latest published version (npm, falling back to npmmirror and then the latest GitHub Release) and caches the answer for an hour. The footer shows a separate **Update available** control only when there is a newer version.
 
-- **Check for updates** in **Storage details** reads the registry immediately, bypassing the hourly cache. The check status and result appear beside the button.
+- **Check for updates** in **Storage** reads the registry immediately, bypassing the hourly cache. The check status and result appear beside the button.
 - **Release notes** appear when you expand the update control. The plugin displays the text between the `app-update-notes:en` / `app-update-notes:zh` markers in the GitHub Release body as plain text.
 - **Across several versions:** when the published release is several versions ahead, the notes list every release in the gap, newest first. The newest stays open and each older version expands on its own. Drafts and prereleases are skipped, at most six releases are listed, and a link points at the releases page when more were left out.
 - **Full release notes** sits to the right of the update button and opens the matching GitHub Release page in a new tab.

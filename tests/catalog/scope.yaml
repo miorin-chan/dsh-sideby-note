@@ -32,7 +32,7 @@ cases:
     risk: ux
     expected:
       - 范围开关有「工作区」「会话」两项，默认选中工作区
-      - 页脚始终说明数据仅保存在本地
+      - 展开页脚「存储」后说明便笺仍保存在本浏览器
     automation:
       - type: integration
         file: tests/bundle.test.mjs

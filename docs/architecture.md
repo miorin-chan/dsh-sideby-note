@@ -80,7 +80,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 存储 | `storage/prefs.ts` | 范围选择在宿主模式写入 `global`，面板宽高与分区状态留在设备本地 |
 | UI 组件 | `ui/MemoPopover.ts` | 面板编排：组合 hook 与展示组件，由挂在 `body` 下的插件根节点渲染 |
 | UI 组件 | `PanelHead` / `ScopeSwitch` / `ComposerForm` / `NoteList` / `ClearConfirm` / `TodoRow` / `EmptyState` | 纯展示，数据与回调由面板传入 |
-| UI 组件 | `PanelFooter` / `StorageDetails` | 组织页脚的两个原生折叠入口，展开存储详情时读取宿主文件路径 |
+| UI 组件 | `PanelFooter` / `StorageDetails` | 页脚「存储」默认折叠，展开后显示存储状态并读取宿主文件路径。有新版时显示独立的「有新版本」入口 |
 | UI hooks | `useSessionMemoStore` / `usePanelGeometry` / `useSections` / `useComposerDraft` / `useNoteActions` / `useRowReorder` / `useClearConfirm` / `useListEdge` / `useOutsideDismiss` | 把状态与副作用从 JSX 里分离；每个 hook 只做一件事 |
 | UI 基础设施 | `primitives` / `position` / `toastSeat` / `headerEntry` | 共享图标与 Tooltip、浮层定位与吸顶、跨面板 Toast、宿主 header 入口（空白新会话回落到 header corner） |
 
@@ -111,7 +111,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 - 浏览器在宿主之外仍保留设备本地状态（`localStorage`）：面板宽高、分区展开、首次打开标记、
   未提交草稿（`dsh.aside-note.drafts`，按工作区/会话共享）。
 - 领域 `version` 是当前格式版本；读旧版本要配 `compatibleVersions`，删字段前必须重写所有记录（官方无值迁移 runner）。
-- 页脚的「存储详情」通过 `GET /store/location` 读取该文件的完整路径，可复制路径。
+- 展开页脚「存储」后，通过 `GET /store/location` 读取该文件的完整路径，可复制路径。
   `POST /store/reveal` 让宿主在文件管理器中定位它。
   后端不是 JSON 文件时明确显示「无法定位」，不猜路径。
 - `Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，

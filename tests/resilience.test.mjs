@@ -192,8 +192,11 @@ test('STORE-012 写入失败时读取不降级且保留输入', async t => {
 
   assert.equal(input.value, '写不进去的', 'the typed text is kept')
   assert.deepEqual(rowsOf(app.popover).map(textOf), ['已经保存的'], 'the failed note never appears')
-  assert.match(app.popover.querySelector('.dsh-an-popFoot').textContent, /本地存储不可用/,
-    'the failure is visible')
+  const footer = app.popover.querySelector('.dsh-an-popFoot')
+  assert.equal(footer.querySelector('details.dsh-an-footerDetails').open, false)
+  assert.equal(footer.querySelector('.dsh-an-footerBody'), null)
+  assert.match(footer.querySelector(':scope > [role="status"]')?.textContent ?? '', /本地存储不可用/,
+    'the failure is visible outside the collapsed disclosure')
 
   const raw = JSON.parse(app.window.__realStorage.getItem('dsh.aside-note'))
   assert.equal(raw.sessions['session-1'].items.length, 1, 'nothing half-written reached the store')

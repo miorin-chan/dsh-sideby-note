@@ -176,8 +176,6 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 .dsh-an-storageFailure{color:var(--dsw-alias-label-secondary)}
 .dsh-an-reconnect[aria-disabled="true"]{color:var(--dsw-alias-label-secondary);cursor:progress}
 .dsh-an-popFoot{flex:0 1 auto;min-height:24px;max-height:40dvh;margin:0;padding:2px;overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}
-.dsh-an-footerRow{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;column-gap:var(--an-space-2)}
-.dsh-an-footerDetails[open]{flex-basis:100%}
 .dsh-an-storageToggle,.dsh-an-updateToggle{width:fit-content;padding:2px var(--an-space-1);border-radius:var(--dsw-radius-sm);cursor:pointer}
 .dsh-an-storageToggle:focus-visible,.dsh-an-updateToggle:focus-visible{outline:2px solid var(--dsw-alias-label-primary)}
 .dsh-an-updateToggle{font-weight:500;color:var(--dsw-alias-label-primary)}

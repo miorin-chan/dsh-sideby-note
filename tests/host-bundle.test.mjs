@@ -87,6 +87,7 @@ async function setup(options = {}) {
         })
       }
       if (method === 'GET') {
+        await options.storeReady
         const snapshot = await store.snapshot()
         return json(200, { ok: true, ...snapshot })
       }
@@ -218,7 +219,9 @@ test('STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记'
   assert.deepEqual(snapshot.data.sessions['session-1'].items.map(item => item.text), ['宿主新条目', '旧便笺'])
   const legacy = JSON.parse(ctx.window.localStorage.getItem(SESSION_KEY))
   assert.equal(legacy.sessions['session-1'].items.length, 1, 'host mode never writes the legacy browser store')
-  assert.match(popover.querySelector('.dsh-an-popFoot').textContent, /DSH 本地文件/)
+  await ctx.act(async () => { popover.querySelector('summary.dsh-an-storageToggle').click() })
+  await ctx.settle()
+  assert.match(popover.querySelector('.dsh-an-footerBody').textContent, /便笺保存在 DSH 本地文件/)
   const migratedRow = [...popover.querySelectorAll('.dsh-an-row')]
     .find(row => row.querySelector('.dsh-an-text').textContent === '旧便笺')
   assert.ok(migratedRow.querySelector('.dsh-an-insert'), 'compatibility marks do not disable the fork insert action')
@@ -380,7 +383,9 @@ test('STORE-025 宿主文件打不开时不切换并提示', async t => {
 
 test('STORE-028 存储详情按需加载路径并支持拷贝与定位', async t => {
   const file = '/Users/me/.dsh/storages/aside_note.json'
-  const options = { legacyNote: true, storePath: file }
+  const probe = Promise.withResolvers()
+  const options = { legacyNote: true, storePath: file, storeReady: probe.promise }
+  t.after(() => probe.resolve())
   const ctx = await setup(options)
   t.after(() => ctx.window.close())
   const copied = []
@@ -392,17 +397,37 @@ test('STORE-028 存储详情按需加载路径并支持拷贝与定位', async t
   const { button } = await ctx.openPanel()
   await ctx.act(async () => { button.click() })
   const popover = ctx.window.document.querySelector('.dsh-an-popover')
-  const details = popover.querySelector('.dsh-an-popFoot details.dsh-an-footerDetails')
+  const footer = popover.querySelector('.dsh-an-popFoot')
+  const details = footer.querySelector('details.dsh-an-footerDetails')
   const summary = details.querySelector(':scope > summary.dsh-an-storageToggle')
+  const body = () => details.querySelector('.dsh-an-footerBody')
   const locationCalls = () => ctx.calls.filter(call => call.url === LOCATION_PATH)
-  await ctx.settle()
+  const toggleStorage = async () => {
+    await ctx.act(async () => { summary.click() })
+    await ctx.settle()
+  }
+
   assert.equal(details.open, false)
-  assert.equal(details.querySelector('.dsh-an-storagePath'), null)
+  assert.equal(footer.textContent.trim(), '存储')
+  assert.equal(body(), null)
   assert.deepEqual(locationCalls(), [], 'opening the panel does not fetch a file path')
 
-  await ctx.act(async () => { summary.click() })
-  await ctx.settle()
+  await toggleStorage()
   assert.equal(details.open, true)
+  assert.match(body().textContent, /正在读取便笺…/)
+  assert.deepEqual(locationCalls(), [], 'the path is unavailable while the host probe is pending')
+
+  await toggleStorage()
+  await ctx.act(async () => { probe.resolve() })
+  await ctx.settle()
+  assert.equal(ctx.window.localStorage.getItem(MODE_KEY), 'host')
+  assert.equal(footer.textContent.trim(), '存储')
+  assert.equal(body(), null)
+  assert.deepEqual(locationCalls(), [], 'connecting to the host with the disclosure closed does not fetch a path')
+
+  await toggleStorage()
+  assert.equal(details.open, true)
+  assert.match(body().textContent, /便笺保存在 DSH 本地文件/)
   assert.deepEqual(locationCalls(), [{ url: LOCATION_PATH, method: 'GET' }])
   assert.equal(details.querySelector('.dsh-an-storagePath').textContent, file)
   const actions = [...details.querySelectorAll('button.dsh-an-storageAction')]
@@ -416,15 +441,13 @@ test('STORE-028 存储详情按需加载路径并支持拷贝与定位', async t
   await ctx.settle(10)
   assert.ok(ctx.calls.some(call => call.url === REVEAL_PATH && call.method === 'POST'))
 
-  await ctx.act(async () => { summary.click() })
-  await ctx.settle()
+  await toggleStorage()
   assert.equal(details.open, false)
-  assert.equal(details.querySelector('.dsh-an-storagePath'), null)
+  assert.equal(body(), null)
   assert.equal(locationCalls().length, 1, 'closing the disclosure does not fetch the path again')
 
   options.storePath = null
-  await ctx.act(async () => { summary.click() })
-  await ctx.settle()
+  await toggleStorage()
   assert.equal(locationCalls().length, 2)
   assert.match(details.textContent, /无法定位存储文件/)
   assert.equal(details.querySelector('.dsh-an-storagePath, .dsh-an-storageAction'), null)

@@ -203,7 +203,7 @@ features:
         reviewed: { by: "LighghtEeloo", at: '2026-11-21', hash: '30c310f8861277f3' }
 
       - id: R-STORE-HOST-PATH
-        statement: 展开页脚「存储详情」后才请求并展示宿主存储文件的完整路径，可拷贝或在宿主文件管理器中定位；无法定位时须说明原因。
+        statement: 宿主连接完成且页脚「存储」展开后才请求并展示宿主存储文件的完整路径，可拷贝或在宿主文件管理器中定位；无法定位时须说明原因。
         failure: 想备份或排查却找不到文件，只能猜默认目录；或显示一个实际不存在的路径。
         kind: presentation
         branches:
@@ -456,14 +456,14 @@ features:
         reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: '25d0468e3383a6ee' }
 
       - id: R-PANEL-FOOTER
-        statement: 面板页脚始终提供「存储详情」；展开后可查看存储信息和当前版本，并可手动检查更新。
-        failure: 用户无法查看存储信息或找到手动检查入口，或仍要通过齿轮和设置卡进入。
+        statement: 正常页脚折叠时只显示「存储」；展开后可查看存储信息和当前版本，并可手动检查更新。保存警告与新版本入口独立显示。
+        failure: 折叠时仍显示存储说明，保存警告被折叠隐藏，或用户无法查看存储信息和手动检查更新。
         kind: presentation
         branches:
           - kind: valid
-            text: 展开页脚「存储详情」后可以查看版本和手动检查更新
+            text: 展开页脚「存储」后可以查看存储信息和版本，并可手动检查更新
           - kind: invalid
-            text: 页脚详情缺失，或面板仍展示旧版设置控件
+            text: 折叠时仍显示存储说明，或保存警告与新版本入口受存储折叠状态影响
         technique: [等价类]
 
       - id: R-PANEL-NO-ANALYTICS
@@ -494,8 +494,8 @@ features:
     owner: panel
     rules:
       - id: R-PANEL-COPY
-        statement: 面板标题、输入占位、页脚数据保存说明和「存储详情」均使用当前语言；页脚说明便笺数据保存在哪里。
-        failure: 用户看不到「数据只在本地」的说明，或界面冒出另一种语言的文案。
+        statement: 面板标题、输入占位、页脚「存储」入口及展开后的保存说明均使用当前语言；展开内容说明便笺数据保存在哪里。
+        failure: 展开「存储」后没有当前模式的保存说明，或界面冒出另一种语言的文案。
         kind: presentation
         branches:
           - kind: valid
