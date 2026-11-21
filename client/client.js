@@ -5131,7 +5131,7 @@ function ComposerForm(props) {
 		strokeLinecap: "round",
 		strokeLinejoin: "round",
 		"aria-hidden": true
-	}, h$5("path", { d: "M13 3v5a2 2 0 0 1-2 2H3m0 0 3-3m-3 3 3 3" })))));
+	}, h$5("path", { d: "M13 4v3a2 2 0 0 1-2 2H3m0 0 3-3m-3 3 3 3" })))));
 }
 
 // src/client/ui/ClearConfirm.ts
