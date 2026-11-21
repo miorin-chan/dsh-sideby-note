@@ -343,8 +343,8 @@ test('locale files carry metadata and the dictionary stays in sync', () => {
   const zhMeta = metas.zh
   const enMeta = metas.en
   assert.match(zhMeta.meta.title, /边记部/, 'the Chinese listing must use the product name')
-  assert.equal(zhMeta.meta.description, '边记部 (Sideby Note)：趁 agent 工作时，异步记下你的想法。', 'the Chinese listing carries the finalized copy')
-  assert.equal(enMeta.meta.description, 'Sideby Note — asynchronously draft your ideas while the agent is working. A lightweight session notes panel.', 'the English listing mirrors the Chinese copy')
+  assert.match(zhMeta.meta.description, /按工作区保存.*全局查看/)
+  assert.match(enMeta.meta.description, /by workspace.*view them all/)
 
   const dict = readDict()
   assert.equal(dict.zh['nav.label'], '边记部')

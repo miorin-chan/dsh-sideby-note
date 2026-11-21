@@ -1072,6 +1072,12 @@ test('workspace notes share a list and global actions preserve ownership', async
     await act(async () => { secondPopover.querySelector('.dsh-an-addBtn').click() })
     assert.ok(browserWorkspaceItems(window, 'ws-2').some(item => item.text === '另一工作区改过的事项' && !item.done))
     assert.deepEqual(workspaceItems(), currentBefore, 'resubmitting the recalled note keeps its ownership')
+
+    await act(async () => { rowByText('另一工作区改过的事项').querySelector('.dsh-an-insert').click() })
+    await act(async () => { secondPopover.querySelector('.dsh-an-clear').click() })
+    await act(async () => { secondPopover.querySelector('.dsh-an-miniDanger').click() })
+    assert.ok(workspaceItems().every(item => !item.done), 'global clear reaches the current workspace')
+    assert.ok(browserWorkspaceItems(window, 'ws-2').every(item => !item.done), 'global clear reaches other workspaces')
   })
 
   await act(async () => { secondRoot.unmount() })
