@@ -35,7 +35,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - In **Global**, click a workspace’s arrow or name to start a new conversation there.
   The panel stays open during the jump.
   Selecting the current workspace keeps the current conversation.
-  **Insert** sits to the left of the note content below the workspace name.
+  The workspace link sits below the note content, with **Insert** to the left of the content.
 - Existing session notes move to their owning workspaces.
   Notes with unknown ownership remain visible under **Global**.
   The migration keeps unique legacy notes and preserves the current workspace version when IDs match.
@@ -70,7 +70,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   行操作和排序都在便笺所属工作区内生效。
 - 全局模式下，点击工作区图标或名称可在对应工作区打开新会话，跳转时面板保持打开。
   如果已在该工作区，则保留当前会话。
-  「填入」放在下一行正文的左侧。
+  工作区链接放在便笺内容下方，「填入」在正文左侧。
 - 旧会话便笺会移入所属工作区，归属未知的便笺可在「全局」查看。
   迁移保留旧会话清单独有的便笺，同一工作区有相同 ID 时保留工作区现有版本。
 - DSH 宿主存储可用时，便笺改存宿主文件。
