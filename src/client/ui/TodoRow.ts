@@ -8,10 +8,13 @@ import { Glyph, IconCopy, IconInsert, IconRewind, icon, withTooltip } from './pr
 const h = React.createElement
 
 export function TodoRow(props) {
-  const { item, archived, workspaceName, say, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey } = props
+  const { item, archived, workspaceName, isCurrentWorkspace, onOpenWorkspace, say, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey } = props
   const attachments = item.attachments ?? []
   const hasText = Boolean(item.text)
   const insertLabel = say(hasText ? (attachments.length ? 'attachment.insertText' : 'item.insert') : 'attachment.archive')
+  const workspaceLabel = onOpenWorkspace
+    ? say(isCurrentWorkspace ? 'item.currentWorkspace' : 'item.openWorkspace', { workspace: workspaceName })
+    : undefined
   const [pending, setPending] = React.useState('')
   const mountedRef = React.useRef(true)
 
@@ -44,6 +47,16 @@ export function TodoRow(props) {
       'data-sortable': dragProps ? 'true' : undefined,
       ...dragProps,
     },
+    workspaceName ? h('div', { className: 'dsh-an-rowWorkspace' },
+      workspaceLabel && withTooltip(workspaceLabel, h('button', {
+        type: 'button',
+        className: 'dsh-an-iconBtn dsh-an-workspaceJump',
+        'aria-label': workspaceLabel,
+        'aria-current': isCurrentWorkspace ? 'location' : undefined,
+        onClick: onOpenWorkspace,
+      }, h('span', { 'aria-hidden': true }, isCurrentWorkspace ? '•' : '↗'))),
+      h('span', { className: 'dsh-an-workspaceName', title: workspaceName }, workspaceName),
+    ) : null,
     h('div', { className: 'dsh-an-leading' }, archived ? null : withTooltip(insertLabel, h(
       'button',
       {
@@ -60,7 +73,6 @@ export function TodoRow(props) {
         : h('span', { 'aria-hidden': true }, '✓'),
     ))),
     h('div', { className: 'dsh-an-rowBody' },
-      workspaceName ? h('div', { className: 'dsh-an-rowWorkspace', title: workspaceName }, workspaceName) : null,
       hasText ? h('div', { className: 'dsh-an-text' }, item.text) : null,
       h(AttachmentList, { attachments, say }),
     ),

@@ -48,6 +48,8 @@ export const ru: Record<MessageKey, string> = {
   "item.copy": "Копировать",
   "item.recall": "Вернуть",
   "item.insert": "Вставить",
+  "item.openWorkspace": "Начать новый сеанс в пространстве «{workspace}»",
+  "item.currentWorkspace": "Текущее рабочее пространство: {workspace}",
   "item.reorder": "Перетащите или нажмите ↑ / ↓",
   "time.now": "только что",
   "time.minutes": "{n} мин назад",

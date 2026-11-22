@@ -8,13 +8,14 @@
  */
 import React from 'react'
 import ReactDOMClient from 'react-dom/client'
-import type { WorkspaceSnapshot } from '@deepseek-ai/dsh-api-workspace-controller/client'
+import type { WorkspaceId, WorkspaceSnapshot } from '@deepseek-ai/dsh-api-workspace-controller/client'
+import type { UiWorkspace } from '@deepseek-ai/dsh-client-ui-workspace/client'
 import type { ShortcutBinding, ShortcutCatalogEntry, ShortcutCommandId, Shortcuts } from '@deepseek-ai/dsh-client-shortcuts/client'
 
 import CSS from './styles/panel.css?inline'
 import { NS, PANEL_ID, STORAGE_MODE_KEY } from './constants'
 import { DICT, fill, makeSay } from './i18n'
-import { bindWorkspace, draftKeyForSession, workspaceForSession, type NoteWorkspace } from './scope'
+import { bindWorkspace, draftKeyForSession, workspaceById, workspaceForSession, type NoteWorkspace } from './scope'
 import { setForwardTarget } from './domain/forward'
 import { bootStorage, retryStorage } from './storage/boot'
 import { ensureDraftScope } from './storage/drafts'
@@ -191,6 +192,17 @@ function apply(ctx: DshClientCtx) {
     refreshHeaderEntry()
   }
 
+  const getWorkspaceNavigation = (): Pick<UiWorkspace, 'startSession'> | undefined => {
+    const service: UiWorkspace | undefined = ctx.get('uiWorkspace')
+    return typeof service?.startSession === 'function' ? service : undefined
+  }
+
+  const openNoteWorkspace = (targetId: string) => {
+    if (workspaceForSession(activeSessionId)?.workspaceId === targetId) return
+    const target = workspaceById(targetId)
+    if (target) getWorkspaceNavigation()?.startSession(target.workspaceId)
+  }
+
   const openMemoPopover = (sessionId, anchor, placement = 'popover') => {
     if (activePopover && activePopover.anchor === anchor) {
       closeMemoPopover()
@@ -215,6 +227,7 @@ function apply(ctx: DshClientCtx) {
       anchorRef: { current: anchor },
       placement,
       onClose: closeMemoPopover,
+      onOpenWorkspace: getWorkspaceNavigation() ? openNoteWorkspace : undefined,
       onToast: kind => toastSeat.show(kind),
     }))
     refreshHeaderEntry()
@@ -297,7 +310,7 @@ function apply(ctx: DshClientCtx) {
         if (!candidate || typeof candidate !== 'object' || !('workspaceId' in candidate)
           || typeof candidate.workspaceId !== 'string' || !candidate.workspaceId) return []
         return [{
-          workspaceId: candidate.workspaceId,
+          workspaceId: candidate.workspaceId as WorkspaceId,
           title: 'title' in candidate && typeof candidate.title === 'string' ? candidate.title : '',
           sessionIds: 'sessionIds' in candidate && Array.isArray(candidate.sessionIds)
             ? candidate.sessionIds.filter((id: unknown): id is string => typeof id === 'string')

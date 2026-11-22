@@ -3,9 +3,9 @@ import type { WorkspaceView } from '@deepseek-ai/dsh-api-workspace-controller/cl
 /** The active conversation and workspace catalog shared by the panel and badge. */
 export type ScopeMode = 'global' | 'workspace'
 
-export type NoteWorkspace = {
-  [Field in keyof Pick<WorkspaceView, 'workspaceId' | 'title'>]: string
-} & { sessionIds: readonly string[] }
+export type NoteWorkspace = Pick<WorkspaceView, 'workspaceId' | 'title'> & {
+  sessionIds: readonly string[]
+}
 
 export const UNASSIGNED_WORKSPACE = 'sideby-note:unassigned'
 
@@ -27,8 +27,8 @@ export function workspaceCatalogReady() {
   return binding.catalogReady
 }
 
-export function workspaceTitle(workspaceId: string) {
-  return workspaces.find(workspace => workspace.workspaceId === workspaceId)?.title
+export function workspaceById(workspaceId: string) {
+  return workspaces.find(workspace => workspace.workspaceId === workspaceId)
 }
 
 export function sessionReadyFor(sessionId: string) {

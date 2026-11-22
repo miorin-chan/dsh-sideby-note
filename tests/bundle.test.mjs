@@ -423,8 +423,10 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   await t.test('NOTE-010 键盘调整待续排序并保留焦点', async () => {
     assert.equal(popover.querySelector('.dsh-an-check'), null, 'notes are no longer completed by hand')
     assert.deepEqual(openTexts(), ['新的一条', '旧便笺'])
-    const firstInsert = openRows()[0].firstElementChild.querySelector('.dsh-an-insert')
-    assert.ok(firstInsert, 'Insert leads the open row')
+    const firstInsert = openRows()[0].querySelector('.dsh-an-leading .dsh-an-insert')
+    assert.ok(firstInsert, 'Insert leads the note content')
+    assert.equal(openRows()[0].querySelector('.dsh-an-workspaceName').textContent, '未归属')
+    assert.equal(openRows()[0].querySelector('.dsh-an-workspaceJump'), null)
     assert.equal(firstInsert.getAttribute('aria-label'), '填入')
     assert.equal(firstInsert.getAttribute('aria-keyshortcuts'), 'ArrowUp ArrowDown')
     firstInsert.focus()
@@ -718,8 +720,10 @@ test('workspace notes share a list and global actions preserve ownership', async
     register: () => {},
     getLocale: () => ({ active: 'zh' }),
   }
+  const workspaceStarts = []
+  const uiWorkspace = { startSession: id => workspaceStarts.push(id) }
   const ctx = {
-    get: name => (name === 'locale' ? locale : undefined),
+    get: name => ({ locale, uiWorkspace })[name],
     effect: fn => {
       const dispose = fn()
       if (typeof dispose === 'function') disposers.push(dispose)
@@ -839,6 +843,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     const workspaceRow = [...popover.querySelectorAll('.dsh-an-row')]
       .find(row => row.querySelector('.dsh-an-text').textContent === '会话二的事项')
     assert.equal(workspaceRow.dataset.rowId, 'seed-2')
+    assert.equal(workspaceRow.querySelector('.dsh-an-workspaceJump'), null)
     await act(async () => { popover.querySelector('[data-scope-mode="global"]').click() })
     assertLocalStorageDetails(popover)
     const rows = [...popover.querySelectorAll('.dsh-an-row')]
@@ -848,6 +853,19 @@ test('workspace notes share a list and global actions preserve ownership', async
     const ids = duplicateRows.map(row => row.dataset.rowId)
     assert.equal(new Set(ids).size, 2, 'equal raw IDs in different workspaces get distinct row IDs')
     assert.ok(ids.every(id => id && id !== 'seed-2'))
+    const currentJump = popover.querySelector('button[aria-label="当前工作区：共享工作区"]')
+    const otherJump = popover.querySelector('button[aria-label="在 另一工作区 打开新会话"]')
+    assert.equal(currentJump.getAttribute('aria-current'), 'location')
+    assert.equal(otherJump.getAttribute('aria-current'), null)
+    const workspaceLine = otherJump.closest('.dsh-an-rowWorkspace')
+    assert.equal(otherJump.nextElementSibling.textContent, '另一工作区')
+    assert.ok(workspaceLine.nextElementSibling.querySelector('.dsh-an-insert'))
+    assert.ok(workspaceLine.nextElementSibling.nextElementSibling.querySelector('.dsh-an-text'))
+    await act(async () => { currentJump.click() })
+    assert.deepEqual(workspaceStarts, [], 'the current workspace keeps the current conversation')
+    assert.equal(document.querySelector('.dsh-an-popover'), popover)
+    await act(async () => { otherJump.click() })
+    assert.deepEqual(workspaceStarts, ['ws-2'], 'cross-workspace navigation starts a session in the target')
     assert.equal(window.localStorage.getItem('dsh.aside-note.scope-mode'), 'global')
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 40)) })
     assert.equal(header.querySelector('.dsh-an-headerCount').textContent, '4',
@@ -1059,6 +1077,9 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.deepEqual(workspaceItems(), currentBefore, 'archiving a matching raw ID leaves the current workspace alone')
 
     await act(async () => { secondPopover.querySelector('.dsh-an-doneHead .dsh-an-doneToggle').click() })
+    const archivedRow = rowByText(otherText)
+    assert.ok(archivedRow.querySelector('button[aria-label="在 另一工作区 打开新会话"]'))
+    assert.equal(archivedRow.querySelector('.dsh-an-insert'), null)
     await act(async () => { secondPopover.querySelector('.dsh-an-clear').click() })
     assert.match(secondPopover.querySelector('.dsh-an-clearConfirm').textContent, /清空所有工作区中这 2 条归档便笺/)
     await act(async () => { secondPopover.querySelector('.dsh-an-clearConfirmActions button').click() })

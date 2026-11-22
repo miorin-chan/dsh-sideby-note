@@ -7,7 +7,7 @@
  */
 import React from 'react'
 import { PANEL_DEFAULT_WIDTH, SCOPE_MODE_KEY } from '../constants'
-import { draftKeyForSession, UNASSIGNED_WORKSPACE, workspaceCatalogReady, workspaceForSession, workspaceTitle, type ScopeMode } from '../scope'
+import { draftKeyForSession, UNASSIGNED_WORKSPACE, workspaceCatalogReady, workspaceForSession, workspaceById, type ScopeMode } from '../scope'
 import { STORE_READY_LISTENERS, TODO_LISTENERS, notifyTodoChange } from '../storage/events'
 import { retryStorage } from '../storage/boot'
 import { readScopeMode, writeScopeMode } from '../storage/prefs'
@@ -92,7 +92,7 @@ export function MemoPopover(props) {
   const effectiveMode = workspaceFilter ? 'workspace' : 'global'
   const nameOfWorkspace = (id: string) => id === UNASSIGNED_WORKSPACE
     ? say('scope.unassigned')
-    : workspaceTitle(id) || id
+    : workspaceById(id)?.title || id
   const draftKey = draftKeyForSession(sessionId)
   const report = typeof props.onToast === 'function' ? props.onToast : () => {}
   const { items, syncError, commit } = useMemoStore(workspaceFilter)
@@ -217,19 +217,27 @@ export function MemoPopover(props) {
     if (!inserting.current.has(item.id)) void recall(item, takeBack)
   }
 
-  const row = item => h(TodoRow, {
-    key: item.id,
-    item,
-    archived: item.done === true,
-    workspaceName: workspaceFilter ? undefined : nameOfWorkspace(item.workspaceId),
-    say,
-    localeId,
-    onToast: report,
-    onInsert: insertItem,
-    onRecall: recallItem,
-    dragProps: item.done ? undefined : reorder.dragProps(item.id),
-    onReorderKey: item.done ? undefined : reorder.reorderKey(item.id),
-  })
+  const row = item => {
+    const owner: string = item.workspaceId
+    const showWorkspace = effectiveMode === 'global'
+    const canOpenWorkspace = showWorkspace && owner !== UNASSIGNED_WORKSPACE
+      && workspaceById(owner) !== undefined && props.onOpenWorkspace
+    return h(TodoRow, {
+      key: item.id,
+      item,
+      archived: item.done === true,
+      workspaceName: showWorkspace ? nameOfWorkspace(owner) : undefined,
+      isCurrentWorkspace: workspace?.workspaceId === owner,
+      onOpenWorkspace: canOpenWorkspace ? () => props.onOpenWorkspace(owner) : undefined,
+      say,
+      localeId,
+      onToast: report,
+      onInsert: insertItem,
+      onRecall: recallItem,
+      dragProps: item.done ? undefined : reorder.dragProps(item.id),
+      onReorderKey: item.done ? undefined : reorder.reorderKey(item.id),
+    })
+  }
 
   const content = h(
     'div',

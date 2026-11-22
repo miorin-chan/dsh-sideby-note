@@ -46,6 +46,8 @@ export const zh = {
   "item.copy": "复制",
   "item.recall": "退回",
   "item.insert": "填入",
+  "item.openWorkspace": "在 {workspace} 打开新会话",
+  "item.currentWorkspace": "当前工作区：{workspace}",
   "item.reorder": "拖动排序，↑↓ 亦可",
   "time.now": "刚刚",
   "time.minutes": "{n} 分钟前",

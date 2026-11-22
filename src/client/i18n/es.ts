@@ -48,6 +48,8 @@ export const es: Record<MessageKey, string> = {
   "item.copy": "Copiar",
   "item.recall": "Devolver",
   "item.insert": "Insertar",
+  "item.openWorkspace": "Iniciar una sesión nueva en {workspace}",
+  "item.currentWorkspace": "Espacio de trabajo actual: {workspace}",
   "item.reorder": "Arrastra para ordenar o usa ↑ / ↓",
   "time.now": "ahora mismo",
   "time.minutes": "hace {n} min",

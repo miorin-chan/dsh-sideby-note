@@ -48,6 +48,8 @@ export const ja: Record<MessageKey, string> = {
   "item.copy": "コピー",
   "item.recall": "戻す",
   "item.insert": "挿入",
+  "item.openWorkspace": "{workspace} で新しいセッションを開始",
+  "item.currentWorkspace": "現在のワークスペース：{workspace}",
   "item.reorder": "ドラッグか ↑↓ で並べ替え",
   "time.now": "たった今",
   "time.minutes": "{n} 分前",
