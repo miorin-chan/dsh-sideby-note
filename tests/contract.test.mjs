@@ -582,7 +582,7 @@ test('spacing snaps to the 4px scale', () => {
 
 test('radii use the shared scale and pills declare their curve', () => {
   const rules = cssRules()
-  const allowed = new Set(['var(--dsw-radius-sm)', 'var(--dsw-radius-md)', 'var(--dsw-radius-lg)', 'var(--dsw-radius-panel)', 'var(--an-radius-pill)'])
+  const allowed = new Set(['0', 'var(--dsw-radius-sm)', 'var(--dsw-radius-md)', 'var(--dsw-radius-lg)', 'var(--dsw-radius-panel)', 'var(--an-radius-pill)'])
   for (const rule of rules) {
     for (const match of rule.body.matchAll(/border-radius:([^;}]+)/g)) {
       assert.ok(allowed.has(match[1].trim()), `off-scale radius ${match[1].trim()} in ${rule.selector}`)
@@ -869,6 +869,15 @@ test('the section counts carry the status hierarchy', () => {
   assert.match(css, /\.dsh-an-add\{[^}]*border:0\.5px solid var\(--dsw-alias-settings-card-stroke\)[^}]*background:var\(--dsw-alias-settings-card-fill\)/)
   // The notes themselves sit bare on the panel, so the add card is the one framed surface.
   assert.doesNotMatch(css, /\.dsh-an-rows\{[^}]*(?:border|background):/)
+})
+
+test('scope hover covers the whole segment around the inset selection pill', () => {
+  const css = readCss()
+  assert.match(css, /\.dsh-an-scope\{[^}]*border-radius:var\(--an-radius-pill\)[^}]*overflow:hidden/)
+  assert.match(css, /\.dsh-an-scopeBtn\{[^}]*align-self:stretch[^}]*border-radius:0/)
+  assert.match(css, /\.dsh-an-scopeBtn:hover\{background:var\(--an-hover\)/)
+  assert.match(css, /\.dsh-an-scopeBtn\[aria-pressed="true"\]::before\{background:var\(--dsw-alias-interactive-bg-hover-solid\)/)
+  assert.match(css, /\.dsh-an-scopeBtn:focus-visible::before\{[^}]*outline-offset:-2px/)
 })
 
 test('the panel never raises the soft keyboard on touch devices', () => {
