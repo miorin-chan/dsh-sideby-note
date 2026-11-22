@@ -873,10 +873,9 @@ test('workspace notes share a list and global actions preserve ownership', async
     const workspaceLine = otherJump.closest('.dsh-an-rowWorkspace')
     const otherName = otherJump.querySelector('.dsh-an-workspaceName')
     assert.equal(otherName.textContent, '另一工作区')
-    const body = workspaceLine.parentElement
-    assert.ok(body.matches('.dsh-an-rowBody'))
-    assert.ok(body.firstElementChild.matches('.dsh-an-text'))
-    assert.equal(body.lastElementChild, workspaceLine, 'the workspace link follows the note content')
+    const body = workspaceLine.previousElementSibling
+    assert.ok(body.matches('.dsh-an-rowBody'), 'the workspace link follows the draggable note content')
+    assert.ok(body.querySelector('.dsh-an-text'))
     assert.ok(body.previousElementSibling.querySelector('.dsh-an-insert'))
     await act(async () => { currentJump.querySelector('.dsh-an-workspaceName').click() })
     assert.deepEqual(workspaceStarts, [], 'the current workspace keeps the current conversation')

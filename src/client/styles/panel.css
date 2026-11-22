@@ -45,7 +45,7 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 .dsh-an-attachmentPreview img,.dsh-an-attachmentPreview video{display:block;max-width:100%;max-height:160px;object-fit:contain}
 .dsh-an-attachmentPreview audio{width:100%;min-width:0}
 .dsh-an-rowBody{min-width:0}
-.dsh-an-rowWorkspace{margin-top:2px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-row)}
+.dsh-an-rowWorkspace{grid-area:2/2;margin-top:2px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-row)}
 .dsh-an-workspaceJump{display:flex;align-items:center;gap:var(--an-space-1);max-width:100%;min-height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer;transition:var(--an-transition)}
 .dsh-an-workspaceJump:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}
 .dsh-an-workspaceJump[aria-current]{cursor:default}
