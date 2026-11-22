@@ -775,8 +775,8 @@ test('icon-only controls use the shared tooltip', () => {
   const client = read('src/client/index.ts') + read('src/client/ui/primitives.ts') + read('src/client/ui/TodoRow.ts')
   assert.match(client, /function withTooltip\(/)
   assert.match(client, /h\(Tooltip, \{ label, side: 'top'/)
-  const iconButtons = [...client.matchAll(/className: 'dsh-an-iconBtn[^']*',\n\s+'aria-label': (?:say\([^)]+\)|insertLabel|workspaceLabel)/g)]
-  assert.equal(iconButtons.length, 4, 'workspace navigation, rewind, copy and insert or archive are icon actions')
+  const iconButtons = [...client.matchAll(/className: 'dsh-an-iconBtn[^']*',\n\s+'aria-label': (?:say\([^)]+\)|insertLabel)/g)]
+  assert.equal(iconButtons.length, 3, 'rewind, copy and insert or archive are icon actions')
   const buttonTitles = [...client.matchAll(/'aria-label': say\('[^']+'\),\n\s+title:/g)]
   assert.deepEqual(buttonTitles, [], 'aria-labelled buttons must not carry a second native title')
 })

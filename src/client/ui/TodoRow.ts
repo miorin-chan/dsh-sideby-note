@@ -15,6 +15,10 @@ export function TodoRow(props) {
   const workspaceLabel = onOpenWorkspace
     ? say(isCurrentWorkspace ? 'item.currentWorkspace' : 'item.openWorkspace', { workspace: workspaceName })
     : undefined
+  const workspaceText = h('span', {
+    className: 'dsh-an-workspaceName',
+    title: workspaceLabel ? undefined : workspaceName,
+  }, workspaceName)
   const [pending, setPending] = React.useState('')
   const mountedRef = React.useRef(true)
 
@@ -48,14 +52,16 @@ export function TodoRow(props) {
       ...dragProps,
     },
     workspaceName ? h('div', { className: 'dsh-an-rowWorkspace' },
-      workspaceLabel && withTooltip(workspaceLabel, h('button', {
+      workspaceLabel ? withTooltip(workspaceLabel, h('button', {
         type: 'button',
-        className: 'dsh-an-iconBtn dsh-an-workspaceJump',
+        className: 'dsh-an-workspaceJump',
         'aria-label': workspaceLabel,
         'aria-current': isCurrentWorkspace ? 'location' : undefined,
         onClick: onOpenWorkspace,
-      }, h('span', { 'aria-hidden': true }, isCurrentWorkspace ? '•' : '↗'))),
-      h('span', { className: 'dsh-an-workspaceName', title: workspaceName }, workspaceName),
+      },
+      h('span', { className: 'dsh-an-workspaceGlyph', 'aria-hidden': true }, isCurrentWorkspace ? '•' : '↗'),
+      workspaceText,
+      )) : workspaceText,
     ) : null,
     h('div', { className: 'dsh-an-leading' }, archived ? null : withTooltip(insertLabel, h(
       'button',

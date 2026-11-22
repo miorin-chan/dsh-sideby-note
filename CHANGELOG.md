@@ -32,7 +32,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   New notes save to the current workspace regardless of the filter.
   Standalone sessions save to an unassigned workspace.
   Row actions and reordering apply within the note’s own workspace.
-- In **Global**, use the arrow before a workspace name to start a new conversation there.
+- In **Global**, click a workspace’s arrow or name to start a new conversation there.
   Selecting the current workspace keeps the current conversation.
   **Insert** sits to the left of the note content below the workspace name.
 - Existing session notes move to their owning workspaces.
@@ -67,7 +67,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - 面板可用「全局」查看各工作区的便笺，也可在绑定工作区后用「工作区」查看当前工作区的便笺。
   空白新会话也能用「全局」。新增便笺始终写入当前工作区，独立会话写入未分配工作区。
   行操作和排序都在便笺所属工作区内生效。
-- 全局模式下，点工作区名称前的箭头可在对应工作区打开新会话。
+- 全局模式下，点击工作区图标或名称可在对应工作区打开新会话。
   如果已在该工作区，则保留当前会话。
   「填入」放在下一行正文的左侧。
 - 旧会话便笺会移入所属工作区，归属未知的便笺可在「全局」查看。
