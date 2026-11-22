@@ -286,3 +286,21 @@ cases:
         status: automated
     suites: [pr, nightly, release]
     tags: [scope, workspace, badge]
+
+  - id: SCOPE-017
+    title: 连续切换范围时旧保存响应不覆盖最新选择
+    priority: P1
+    class: E
+    rules: [R-SCOPE-DEFAULT]
+    risk: ux
+    expected:
+      - 宿主仍在保存上一次选择时，第二次点击立即切换筛选
+      - 较早的保存响应返回后，界面保持最新选择，最终以最新选择持久化
+      - 最新选择未能保存时，恢复已保存的筛选
+    automation:
+      - type: integration
+        file: tests/host-bundle.test.mjs
+        test: SCOPE-017 连续切换范围时旧保存响应不覆盖最新选择
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [scope-switch, race]

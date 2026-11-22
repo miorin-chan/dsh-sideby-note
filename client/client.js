@@ -1645,14 +1645,6 @@ function startCrossTabSync() {
 }
 
 // src/client/storage/ops.ts
-/**
-* Host mutations.
-*
-* Notes are written as a diff (`order` + changed `upserts` + removed ids) and
-* the host applies it atomically, so two tabs editing different rows merge
-* instead of replacing each other's whole list. The scope preference is
-* optimistic and rolls back on failure.
-*/
 const chains = /* @__PURE__ */ new Map();
 function serialize(key, task) {
 	const run = (chains.get(key) ?? Promise.resolve()).then(task, task);
@@ -1758,21 +1750,21 @@ async function ensureWorkspace(workspaceId, sessionIds) {
 		return false;
 	}
 }
-/** Merge user preferences on the host; optimistic with the same rollback rule. */
-function setPrefs(patch) {
-	const previous = hostPrefs();
-	const next = {
-		...previous,
-		sidebyNoteScopeMode: patch.scopeMode,
-		version: 1
-	};
-	applyHostPrefs(next);
+let pendingScopeWrite;
+function pendingHostScopeMode() {
+	return pendingScopeWrite?.scopeMode;
+}
+/** Keep the latest selection visible while older writes update the durable snapshot. */
+function setHostScopeMode(scopeMode) {
+	const patch = { scopeMode };
+	pendingScopeWrite = patch;
 	serialize("prefs", async () => {
 		try {
 			const result = await postOp({
 				op: "prefs.set",
 				patch
 			});
+			if (pendingScopeWrite === patch) pendingScopeWrite = void 0;
 			applyHostPrefs(result.prefs);
 			broadcastHostChange({
 				kind: "prefs",
@@ -1780,11 +1772,14 @@ function setPrefs(patch) {
 				rev: result.rev
 			});
 		} catch (error) {
-			if (sameJson(hostPrefs(), next)) applyHostPrefs(previous);
+			if (pendingScopeWrite === patch) {
+				pendingScopeWrite = void 0;
+				notifyTodoChange();
+			}
 			report(error);
 		}
 	});
-	return true;
+	notifyTodoChange();
 }
 /** Upload the pre-switch browser store; safe to re-run after an interruption. */
 async function migrate(snapshot) {
@@ -3063,7 +3058,7 @@ function writePanelHeight(height) {
 }
 /** Read the last chosen list scope; "workspace" is the default. */
 function readScopeMode() {
-	if (hostAuthoritative()) return hostPrefs().sidebyNoteScopeMode === "global" ? "global" : SCOPE_MODE_DEFAULT;
+	if (hostAuthoritative()) return (pendingHostScopeMode() ?? hostPrefs().sidebyNoteScopeMode) === "global" ? "global" : SCOPE_MODE_DEFAULT;
 	try {
 		return (storage() && storage().getItem("dsh.aside-note.scope-mode")) === "global" ? "global" : SCOPE_MODE_DEFAULT;
 	} catch {
@@ -3073,7 +3068,7 @@ function readScopeMode() {
 function writeScopeMode(mode) {
 	if (storageMode() === "error") return;
 	if (storageMode() === "host") {
-		setPrefs({ scopeMode: mode === "global" ? "global" : "workspace" });
+		setHostScopeMode(mode);
 		return;
 	}
 	try {

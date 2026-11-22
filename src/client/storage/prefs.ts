@@ -12,7 +12,7 @@ import {
 } from '../constants'
 import type { ScopeMode } from '../scope'
 import { storage } from './codec'
-import { setPrefs } from './ops'
+import { pendingHostScopeMode, setHostScopeMode } from './ops'
 import { hostAuthoritative, hostPrefs, storageMode } from './state'
 
 /** Read the persisted right-panel width, clamped for the current viewport. */
@@ -66,7 +66,8 @@ export function writePanelHeight(height) {
 /** Read the last chosen list scope; "workspace" is the default. */
 export function readScopeMode(): ScopeMode {
   if (hostAuthoritative()) {
-    return hostPrefs().sidebyNoteScopeMode === 'global' ? 'global' : SCOPE_MODE_DEFAULT
+    const mode = pendingHostScopeMode() ?? hostPrefs().sidebyNoteScopeMode
+    return mode === 'global' ? 'global' : SCOPE_MODE_DEFAULT
   }
   try {
     const saved = storage() && storage().getItem(SCOPE_MODE_KEY)
@@ -79,7 +80,7 @@ export function readScopeMode(): ScopeMode {
 export function writeScopeMode(mode: ScopeMode) {
   if (storageMode() === 'error') return
   if (storageMode() === 'host') {
-    setPrefs({ scopeMode: mode === 'global' ? 'global' : 'workspace' })
+    setHostScopeMode(mode)
     return
   }
   try {

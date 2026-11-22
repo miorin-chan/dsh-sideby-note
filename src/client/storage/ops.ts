@@ -6,6 +6,7 @@
  * instead of replacing each other's whole list. The scope preference is
  * optimistic and rolls back on failure.
  */
+import type { ScopeMode } from '../scope'
 import { postOp, type HostOpResult } from './host-client'
 import { notifyStoreError, notifyTodoChange } from './events'
 import {
@@ -14,7 +15,6 @@ import {
   beginPending,
   broadcastHostChange,
   endPending,
-  hostPrefs,
   hostRecord,
   requestHostRefresh,
   isHostConnectionFailure,
@@ -112,23 +112,31 @@ export async function ensureWorkspace(workspaceId: string, sessionIds: string[])
   }
 }
 
-/** Merge user preferences on the host; optimistic with the same rollback rule. */
-export function setPrefs(patch: { scopeMode: 'workspace' | 'global' }): boolean {
-  const previous = hostPrefs()
-  const next = { ...previous, sidebyNoteScopeMode: patch.scopeMode, version: 1 }
-  applyHostPrefs(next)
+let pendingScopeWrite: { scopeMode: ScopeMode } | undefined
 
+export function pendingHostScopeMode(): ScopeMode | undefined {
+  return pendingScopeWrite?.scopeMode
+}
+
+/** Keep the latest selection visible while older writes update the durable snapshot. */
+export function setHostScopeMode(scopeMode: ScopeMode) {
+  const patch = { scopeMode }
+  pendingScopeWrite = patch
   void serialize('prefs', async () => {
     try {
       const result = await postOp({ op: 'prefs.set', patch })
+      if (pendingScopeWrite === patch) pendingScopeWrite = undefined
       applyHostPrefs(result.prefs)
       broadcastHostChange({ kind: 'prefs', prefs: result.prefs, rev: result.rev })
     } catch (error) {
-      if (sameJson(hostPrefs(), next)) applyHostPrefs(previous)
+      if (pendingScopeWrite === patch) {
+        pendingScopeWrite = undefined
+        notifyTodoChange()
+      }
       report(error)
     }
   })
-  return true
+  notifyTodoChange()
 }
 
 /** Upload the pre-switch browser store; safe to re-run after an interruption. */

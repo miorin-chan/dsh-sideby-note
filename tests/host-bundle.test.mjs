@@ -88,7 +88,12 @@ async function setup(options = {}) {
         const snapshot = await store.snapshot()
         return json(200, { ok: true, ...snapshot })
       }
-      const result = await store.apply(JSON.parse(init.body))
+      const op = JSON.parse(init.body)
+      if (op.op === 'prefs.set') {
+        const rejection = await options.beforeSetPrefs?.(op.patch.scopeMode)
+        if (rejection) return rejection
+      }
+      const result = await store.apply(op)
       return json(200, { ok: true, ...result })
     }
     if (url === '/dsh-sideby-note/attachments' && method === 'POST') {
@@ -167,13 +172,13 @@ async function setup(options = {}) {
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, ms)) })
   }
 
-  const openPanel = async () => {
+  const openPanel = async (props = {}) => {
     const capture = registered.find(entry => entry.meta.name === 'conversation.composer.dock').component
     const container = window.document.createElement('div')
     window.document.body.appendChild(container)
     const reactRoot = ReactDOMClient.createRoot(container)
     await act(async () => {
-      reactRoot.render(React.createElement(capture, { sessionId: 'session-1' }))
+      reactRoot.render(React.createElement(capture, { sessionId: 'session-1', ...props }))
     })
     await settle()
     const button = window.document.querySelector('._headerUtilities > .dsh-an-headerBtn')
@@ -226,6 +231,55 @@ test('STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记'
     .find(row => row.querySelector('.dsh-an-text').textContent === '旧便笺')
   assert.ok(migratedRow.querySelector('.dsh-an-insert'), 'compatibility marks do not disable the fork insert action')
   assert.equal(migratedRow.querySelector('[data-forwarded]'), null)
+})
+
+test('SCOPE-017 连续切换范围时旧保存响应不覆盖最新选择', async t => {
+  const globalWrite = Promise.withResolvers()
+  const workspaceWrite = Promise.withResolvers()
+  const rejectedWrite = Promise.withResolvers()
+  let globalRequests = 0
+  const ctx = await setup({
+    beforeSetPrefs: mode => {
+      if (mode === 'workspace') return workspaceWrite.promise
+      globalRequests += 1
+      return globalRequests === 1 ? globalWrite.promise : rejectedWrite.promise
+    },
+  })
+  t.after(async () => {
+    await ctx.act(async () => {
+      globalWrite.resolve()
+      workspaceWrite.resolve()
+      rejectedWrite.resolve(json(400, { code: 'STORE_BAD_REQUEST' }))
+    })
+    ctx.window.close()
+  })
+
+  const { button } = await ctx.openPanel({
+    useWorkspaces: select => select({ phase: 'ready', items: [{
+      workspaceId: 'ws-1', title: '工作区 A', sessionIds: ['session-1'],
+    }] }),
+  })
+  await ctx.act(async () => { button.click() })
+  const scopeButton = mode => ctx.window.document.querySelector(`[data-scope-mode="${mode}"]`)
+  const selectedScope = () => ctx.window.document.querySelector('[data-scope-mode][aria-pressed="true"]').dataset.scopeMode
+  await ctx.act(async () => { scopeButton('global').click() })
+  assert.equal(selectedScope(), 'global')
+  await ctx.act(async () => { scopeButton('workspace').click() })
+  assert.equal(selectedScope(), 'workspace')
+
+  await ctx.act(async () => { globalWrite.resolve() })
+  assert.equal((await ctx.store.snapshot()).data.prefs.sidebyNoteScopeMode, 'global', 'the first click was saved first')
+  assert.equal(selectedScope(), 'workspace', 'the first response cannot undo the second click')
+
+  await ctx.act(async () => { workspaceWrite.resolve() })
+  assert.equal((await ctx.store.snapshot()).data.prefs.sidebyNoteScopeMode, 'workspace')
+  assert.equal(selectedScope(), 'workspace')
+
+  await ctx.act(async () => { scopeButton('global').click() })
+  assert.equal(selectedScope(), 'global')
+  await ctx.act(async () => { rejectedWrite.resolve(json(400, { code: 'STORE_BAD_REQUEST' })) })
+  assert.equal(selectedScope(), 'workspace', 'a rejected latest selection restores the saved scope')
+  assert.equal((await ctx.store.snapshot()).data.prefs.sidebyNoteScopeMode, 'workspace')
 })
 
 test('STORE-020 宿主不可用时不切换并保留浏览器写入', async t => {
