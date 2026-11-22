@@ -139,7 +139,8 @@ export function MemoPopover(props) {
     }
   }, [])
   const workspace = workspaceForSession(sessionId)
-  const workspaceId = workspace?.workspaceId ?? (workspaceCatalogReady() ? UNASSIGNED_WORKSPACE : null)
+  const catalogReady = workspaceCatalogReady()
+  const workspaceId = workspace?.workspaceId ?? (catalogReady ? UNASSIGNED_WORKSPACE : null)
   const workspaceFilter = mode === 'workspace' ? workspace?.workspaceId ?? null : null
   const effectiveMode = workspaceFilter ? 'workspace' : 'global'
   const nameOfWorkspace = (id: string) => id === UNASSIGNED_WORKSPACE
@@ -147,8 +148,18 @@ export function MemoPopover(props) {
     : workspaceById(id)?.title || id
   const draftKey = draftKeyForSession(sessionId)
   const report = typeof props.onToast === 'function' ? props.onToast : () => {}
-  const { items, syncError, commit } = useMemoStore(workspaceFilter)
+  const { allItems, syncError, commit } = useMemoStore(workspaceFilter)
+  const workspaceItems = React.useMemo(() => workspace
+    ? allItems.filter(item => item.workspaceId === workspace.workspaceId)
+    : [], [allItems, workspace])
+  const items = React.useMemo(() => workspaceFilter
+    ? workspaceItems.map(item => ({ ...item, id: item.noteId }))
+    : allItems, [allItems, workspaceFilter, workspaceItems])
   const storeMode = React.useSyncExternalStore(subscribeStorageStatus, storageMode, storageMode)
+  const countsAvailable = storeMode === 'host' || storeMode === 'local'
+  const globalOpenCount = countsAvailable ? allItems.filter(item => !item.done).length : null
+  const workspaceOpenCount = countsAvailable && workspace ? workspaceItems.filter(item => !item.done).length : null
+  const countStatus = storeMode === 'error' ? say('storage.hostError') : say('storage.loading')
   const failure = React.useSyncExternalStore(subscribeStorageStatus, storageFailure, storageFailure)
   const connectionError = storeMode === 'error' || (storeMode === 'host' && isHostConnectionFailure(failure))
   const storageInUse = connectionError && failure?.code === 'STORE_IN_USE'
@@ -321,11 +332,13 @@ export function MemoPopover(props) {
       : null,
     h(PanelHead, {
       say,
-      openCount,
-      total,
+      globalOpenCount,
+      workspaceOpenCount,
+      workspaceName: workspace ? workspace.title || say('scope.workspace') : null,
+      workspacePending: !workspace && !catalogReady,
+      countStatus,
       onClose: props.onClose,
       scopeMode: effectiveMode,
-      canUseWorkspace: Boolean(workspace),
       onScopeChange: chooseScope,
     }),
     connectionError && h('div', { className: 'dsh-an-storageStatus' },
@@ -368,7 +381,8 @@ export function MemoPopover(props) {
       canUpload,
       focusOnMount: props.focusComposerOnMount,
     }),
-    h(NoteList, {
+    storeMode === 'probing' && h('p', { className: 'dsh-an-listStatus', role: 'status' }, countStatus),
+    storeMode !== 'probing' && h(NoteList, {
       say,
       listRef,
       listHasMore,

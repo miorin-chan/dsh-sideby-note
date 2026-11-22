@@ -10,19 +10,16 @@ export type WorkspaceNote = ReturnType<typeof readVisibleNotes>[number]
 type NoteUpdater = (items: ReturnType<typeof normalizeItems>) => ReturnType<typeof normalizeItems>
 
 export function useMemoStore(workspaceFilter: string | null) {
-  const filterRef = React.useRef(workspaceFilter)
-  filterRef.current = workspaceFilter
-  const [items, setItems] = React.useState(() => readVisibleNotes(workspaceFilter))
+  const [allItems, setAllItems] = React.useState(() => readVisibleNotes(null))
   const [syncError, setSyncError] = React.useState(false)
   const chainRef = React.useRef<Promise<unknown>>(Promise.resolve())
 
   React.useLayoutEffect(() => {
-    setItems(readVisibleNotes(workspaceFilter))
     setSyncError(false)
   }, [workspaceFilter])
 
   React.useEffect(() => {
-    const refresh = () => setItems(readVisibleNotes(filterRef.current))
+    const refresh = () => setAllItems(readVisibleNotes(null))
     const onStorage = (event: StorageEvent) => {
       if (event.key === SESSION_STORAGE_KEY || event.key === WORKSPACE_STORAGE_KEY || event.key === null) refresh()
     }
@@ -46,12 +43,12 @@ export function useMemoStore(workspaceFilter: string | null) {
       const next = { ...current, items: normalizeItems(update(current.items)), updatedAt: Date.now() }
       const ok = await writeWorkspaceRecord(workspaceId, next, current.items)
       setSyncError(!ok)
-      if (ok) setItems(readVisibleNotes(filterRef.current))
+      if (ok) setAllItems(readVisibleNotes(null))
       return ok
     })
     chainRef.current = run.catch(() => undefined)
     return run
   }, [])
 
-  return { items, syncError, commit }
+  return { allItems, syncError, commit }
 }

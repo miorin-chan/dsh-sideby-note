@@ -91,7 +91,8 @@ Click the **Sideby Note** button at the top right of the conversation to open th
 
 ### Keep it in the workspace and pick it up later
 
-**Global** shows notes from all workspaces. **Workspace** shows notes from the current workspace.
+**Global** shows notes from all workspaces. Select the workspace name beside the folder icon to see notes from the current workspace.
+Both filters show their open counts. The entry badge shows the current workspace count, or the global count in a standalone session.
 Whichever filter you use, new notes are saved to the current workspace for its sessions to share.
 In a standalone session, new notes go into a reserved unassigned workspace and appear under **Global**.
 
@@ -194,7 +195,7 @@ Feedback reuses product surfaces too: copy, rewind, insert, clear-archived, and 
 ## Usage
 
 1. Click the **Sideby Note** button at the top right of the conversation to open the right-side panel.
-   Its badge shows the open count. Use **Global / Workspace** in the panel header to filter notes.
+   Select **Global** or the workspace name beside the folder icon in the panel header to filter notes.
 2. Write a follow-up in the panel. Click the return button (↵) beside the input or press Enter to save it.
    Press Shift+Enter for a new line.
 3. To edit a note, click **Rewind** (↺) to return it to the note composer. Submitting the edit saves it in the

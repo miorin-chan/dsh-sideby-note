@@ -32,6 +32,9 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   New notes save to the current workspace regardless of the filter.
   Standalone sessions save to an unassigned workspace.
   Row actions and reordering apply within the note’s own workspace.
+- The title bar shows open counts for Global and the current workspace on one line.
+  A folder icon and the workspace name identify the workspace filter.
+  The entry badge shows the current workspace count when available, or the global count in a standalone session.
 - In **Global**, click a workspace’s arrow or name to start a new conversation there.
   The panel stays open during the jump.
   Selecting the current workspace keeps the current conversation.
@@ -68,6 +71,8 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - 面板可用「全局」查看各工作区的便笺，也可在绑定工作区后用「工作区」查看当前工作区的便笺。
   空白新会话也能用「全局」。新增便笺始终写入当前工作区，独立会话写入未分配工作区。
   行操作和排序都在便笺所属工作区内生效。
+- 单行标题栏显示全局和当前工作区各自的待续数，工作区由文件夹图标和名称表示。
+  入口角标显示所在工作区的待续数，独立会话显示全局待续数。
 - 全局模式下，点击工作区图标或名称可在对应工作区打开新会话，跳转时面板保持打开。
   如果已在该工作区，则保留当前会话。
   工作区链接放在便笺内容下方，「填入」在正文左侧。

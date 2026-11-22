@@ -31,7 +31,7 @@ cases:
     rules: [R-SCOPE-DEFAULT, R-PANEL-COPY]
     risk: ux
     expected:
-      - 范围开关有「全局」「工作区」两项，默认选中工作区
+      - 标题栏同行显示全局和所在工作区的待续数，工作区使用文件夹图标与名称，默认选中工作区
       - 展开页脚「存储与更新」后说明便笺仍保存在本浏览器
     automation:
       - type: integration
@@ -51,7 +51,7 @@ cases:
       - 全局显示两个工作区的便笺，相同原始 ID 的行可分别操作
       - 工作区图标和名称在便笺内容下方共用一个链接式按钮，填入按钮在正文左侧
       - 点击当前工作区按钮保留会话，点击其他工作区的图标或名称在目标工作区打开新会话
-      - 选择写入存储，入口角标跟随所选范围
+      - 选择写入存储，入口角标保持显示当前工作区的待续数
     automation:
       - type: integration
         file: tests/bundle.test.mjs
@@ -268,3 +268,21 @@ cases:
         status: automated
     suites: [pr, nightly, release]
     tags: [scope, workspace, draft]
+
+  - id: SCOPE-016
+    title: 待续计数等待宿主快照并保留完整工作区名称
+    priority: P1
+    class: B
+    rules: [R-SCOPE-DEFAULT, R-PANEL-ENTRY]
+    risk: ux
+    expected:
+      - 加载存储时标题栏计数用破折号，入口隐藏角标，列表显示读取状态
+      - 快照就绪后两边只统计待续，空工作区显示 0 且入口隐藏零角标
+      - 长工作区名称完整保留在无障碍标签里
+    automation:
+      - type: integration
+        file: tests/resilience.test.mjs
+        test: SCOPE-016 待续计数等待宿主快照并保留完整工作区名称
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [scope, workspace, badge]

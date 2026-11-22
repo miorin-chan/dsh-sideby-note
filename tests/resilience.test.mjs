@@ -30,10 +30,10 @@ const seedStandalone = (window, items) => {
   }))
 }
 
-const workspaceProps = () => ({
+const workspaceProps = (title = '共享工作区') => ({
   useWorkspaces: selector => selector({
     items: [{
-      workspaceId: 'ws-1', path: '/repo', title: '共享工作区',
+      workspaceId: 'ws-1', path: '/repo', title,
       sessionIds: ['session-1'], createdAt: '', updatedAt: '',
     }],
     archivedSessionIds: [],
@@ -121,9 +121,10 @@ test('SCOPE-010 无工作区时只显示全局并写入未归属清单', async t
   })
   await app.open()
 
-  const scopes = [...app.popover.querySelectorAll('.dsh-an-scopeBtn')].map(node => node.textContent)
-  assert.deepEqual(scopes, ['全局'])
-  assert.equal(app.popover.querySelector('[data-scope-mode="global"]').getAttribute('aria-pressed'), 'true')
+  assert.equal(app.popover.querySelector('.dsh-an-scopeBtn'), null, 'a single available scope has no switch')
+  assert.equal(app.popover.querySelector('.dsh-an-scopeSummary .dsh-an-scopeCount').textContent, '1')
+  assert.equal(app.button.dataset.scope, 'global')
+  assert.match(app.button.title, /全局 · 1 条待续/)
   assert.deepEqual(rowsOf(app.popover).map(textOf), ['其他工作区的便笺'])
 
   await typeInto(app, app.popover.querySelector('.dsh-an-input'), '不绑定工作区的便笺')
@@ -146,12 +147,48 @@ test('SCOPE-011 空白会话遵循显式全局选择', async t => {
   })
   await app.open()
 
-  const scopes = [...app.popover.querySelectorAll('.dsh-an-scopeBtn')].map(node => node.textContent)
-  assert.deepEqual(scopes, ['全局', '工作区'])
+  const counts = [...app.popover.querySelectorAll('.dsh-an-scopeCount')].map(node => node.textContent)
+  assert.deepEqual(counts, ['1', '1'])
+  assert.equal(app.popover.querySelector('.dsh-an-scopeName').textContent, '共享工作区')
   assert.equal(app.popover.querySelector('[data-scope-mode="global"]').getAttribute('aria-pressed'), 'true')
   assert.deepEqual(rowsOf(app.popover).map(textOf), ['甲'])
   assert.equal(app.window.localStorage.getItem('dsh.aside-note.scope-mode'), 'global',
     'opening a blank session does not rewrite the stored choice')
+  await app.dispose()
+})
+
+test('SCOPE-016 待续计数等待宿主快照并保留完整工作区名称', async t => {
+  const workspaceName = '一个用于检验单行标题栏在空间不足时如何显示完整名称的工作区'
+  let resolveSnapshot
+  const snapshot = new Promise(resolve => { resolveSnapshot = resolve })
+  t.after(() => resolveSnapshot({ ok: false, status: 404, json: async () => ({}) }))
+  const app = await bootBundle(t, {
+    props: workspaceProps(workspaceName),
+    fetch: url => url === '/dsh-sideby-note/store' ? snapshot : Promise.resolve({ ok: false, status: 404 }),
+  })
+  await app.open()
+  const countTexts = () => [...app.popover.querySelectorAll('.dsh-an-scopeCount')].map(node => node.textContent)
+  const workspaceButton = app.popover.querySelector('[data-scope-mode="workspace"]')
+  assert.deepEqual(countTexts(), ['—', '—'])
+  assert.equal(workspaceButton.querySelector('.dsh-an-scopeName').textContent, workspaceName)
+  assert.match(workspaceButton.getAttribute('aria-label'), /正在读取便笺/)
+  assert.match(app.popover.querySelector('.dsh-an-listStatus').textContent, /正在读取便笺/)
+  assert.equal(app.popover.querySelector('.dsh-an-empty'), null)
+  assert.equal(app.button.querySelector('.dsh-an-headerCount'), null)
+
+  await app.act(async () => {
+    resolveSnapshot({ ok: true, status: 200, json: async () => ({
+      ok: true, data: { sessions: {}, prefs: {}, workspaces: {
+        'ws-1': { workspaceId: 'ws-1', updatedAt: 1, items: [note('a', '归档', 1, { done: true, completedAt: 2 })] },
+        'ws-2': { workspaceId: 'ws-2', updatedAt: 1, items: [note('b', '待续', 1)] },
+      } },
+    }) })
+  })
+  assert.deepEqual(countTexts(), ['1', '0'], 'archive does not count toward either scope')
+  assert.equal(workspaceButton.getAttribute('aria-label'), `当前工作区：${workspaceName} · 0 条待续`)
+  assert.equal(app.popover.querySelector('.dsh-an-listStatus'), null)
+  assert.equal(app.button.querySelector('.dsh-an-headerCount'), null)
+  assert.match(app.button.title, /0 条待续/)
   await app.dispose()
 })
 

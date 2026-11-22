@@ -792,12 +792,17 @@ test('workspace notes share a list and global actions preserve ownership', async
     await act(async () => { button.click() })
     const pendingPanel = document.querySelector('.dsh-an-popover')
     assert.match(pendingPanel.textContent, /正在确认工作区归属/)
+    assert.equal(pendingPanel.querySelector('.dsh-an-scopePending .dsh-an-scopeCount').textContent, '—')
+    assert.equal(pendingPanel.querySelector('[data-scope-mode="workspace"]'), null)
+    assert.equal(button.querySelector('.dsh-an-headerCount'), null, 'pending membership hides the badge')
     const pendingField = pendingPanel.querySelector('textarea')
     assert.equal(pendingField.value, '会话一的旧草稿')
     assert.equal(pendingPanel.querySelector('.dsh-an-addBtn').disabled, true, 'pending membership also prevents writing the draft')
     await act(async () => {
       firstRoot.render(React.createElement(capture, { sessionId: 'session-1', useWorkspaces }))
     })
+    assert.equal(document.querySelector('.dsh-an-popover'), pendingPanel, 'workspace resolution keeps the open panel')
+    assert.equal(pendingPanel.querySelector('.dsh-an-scopePending'), null)
 
     const sessionStore = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
     assert.equal(sessionStore.version, 1, 'the session key keeps its original shape')
@@ -817,11 +822,14 @@ test('workspace notes share a list and global actions preserve ownership', async
 
   await t.test('SCOPE-002 面板默认工作区范围并显示本地存储提示', async () => {
     header = document.querySelector('.dsh-an-headerBtn')
-    await act(async () => { header.click() })
     popover = document.querySelector('.dsh-an-popover')
-    assert.ok(popover, 'the shared list opens from the header entry')
+    assert.ok(popover, 'the shared list is visible after the workspace resolves')
     const scopeButtons = () => [...popover.querySelectorAll('.dsh-an-scopeBtn')]
-    assert.deepEqual(scopeButtons().map(node => node.textContent), ['全局', '工作区'])
+    assert.deepEqual(scopeButtons().map(node => node.querySelector('.dsh-an-scopeCount').textContent), ['4', '2'])
+    assert.equal(scopeButtons()[1].querySelector('.dsh-an-scopeName').textContent, '共享工作区')
+    assert.equal(scopeButtons()[1].getAttribute('aria-label'), '当前工作区：共享工作区 · 2 条待续')
+    assert.ok(scopeButtons()[1].querySelector('.dsh-an-scopeIcon'))
+    assert.equal(popover.querySelector('.dsh-an-popMeta'), null)
     assert.equal(popover.querySelector('[data-scope-mode="workspace"]').getAttribute('aria-pressed'), 'true',
       'the workspace list is the default scope')
     const footer = popover.querySelector('.dsh-an-popFoot')
@@ -886,8 +894,10 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.deepEqual(workspaceStarts, ['ws-2', 'ws-2'], 'the glyph activates the same button')
     assert.equal(window.localStorage.getItem('dsh.aside-note.scope-mode'), 'global')
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 40)) })
-    assert.equal(header.querySelector('.dsh-an-headerCount').textContent, '4',
-      'the header count follows the chosen scope')
+    assert.equal(header.querySelector('.dsh-an-headerCount').textContent, '2',
+      'the entry badge counts the current workspace even when Global is selected')
+    assert.match(header.title, /当前工作区：共享工作区 · 2 条待续/)
+    assert.deepEqual([...popover.querySelectorAll('.dsh-an-scopeCount')].map(node => node.textContent), ['4', '2'])
   })
 
   await t.test('SCOPE-004 切回工作区恢复共享清单并记住选择', async () => {
@@ -1087,12 +1097,15 @@ test('workspace notes share a list and global actions preserve ownership', async
     const rowByText = text => [...secondPopover.querySelectorAll('.dsh-an-row')]
       .find(row => row.querySelector('.dsh-an-text').textContent === text)
     const currentBefore = workspaceItems()
+    const scopeCounts = () => [...secondPopover.querySelectorAll('.dsh-an-scopeCount')].map(node => Number(node.textContent))
+    const [globalBefore, workspaceBefore] = scopeCounts()
     const otherText = '另一工作区的旧事项'
     await act(async () => { rowByText(otherText).querySelector('.dsh-an-insert').click() })
     assert.equal(document.querySelector('[data-conversation-session="session-2"] textarea').value,
       `新增的共享事项\n${otherText}`)
     assert.equal(browserWorkspaceItems(window, 'ws-2').find(item => item.id === 'seed-2').done, true)
     assert.deepEqual(workspaceItems(), currentBefore, 'archiving a matching raw ID leaves the current workspace alone')
+    assert.deepEqual(scopeCounts(), [globalBefore - 1, workspaceBefore])
 
     await act(async () => { secondPopover.querySelector('.dsh-an-doneHead .dsh-an-doneToggle').click() })
     const archivedRow = rowByText(otherText)
@@ -1305,7 +1318,8 @@ test('a blank new session opens a usable notes panel from the header corner', as
     popover = document.querySelector('.dsh-an-popover')
     assert.ok(popover, 'the corner entry opens the panel')
     scopeButtons = () => [...popover.querySelectorAll('.dsh-an-scopeBtn')]
-    assert.deepEqual(scopeButtons().map(node => node.textContent), ['全局', '工作区'])
+    assert.deepEqual(scopeButtons().map(node => node.dataset.scopeMode), ['global', 'workspace'])
+    assert.equal(scopeButtons()[1].querySelector('.dsh-an-scopeName').textContent, '新会话工作区')
     assert.equal(scopeButtons()[1].getAttribute('aria-pressed'), 'true',
       'a bound blank session opens on the workspace list')
     await act(async () => { scopeButtons()[0].click() })
@@ -1340,7 +1354,8 @@ test('a blank new session opens a usable notes panel from the header corner', as
     assert.equal(document.querySelector('._headerUtilities > .dsh-an-headerBtn'), button,
       'the entry moves into the conversation utilities row once the session starts')
     assert.equal(button.dataset.anchor, 'utilities')
-    assert.deepEqual(scopeButtons().map(node => node.textContent), ['全局', '工作区'])
+    assert.deepEqual(scopeButtons().map(node => node.dataset.scopeMode), ['global', 'workspace'])
+    assert.equal(scopeButtons()[1].querySelector('.dsh-an-scopeName').textContent, '新会话工作区')
     assert.equal(scopeButtons()[0].getAttribute('aria-pressed'), 'true', 'Global stays selected across the first turn')
     await act(async () => {
       setter.call(input, '会话开始后的事项')

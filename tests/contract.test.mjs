@@ -256,7 +256,7 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /function MemoPopover/)
   assert.match(client, /refreshHeaderEntry/)
   assert.match(client, /dsh-an-headerBtn/)
-  assert.match(client, /header\.tooltip/)
+  assert.match(read('src/client/ui/headerEntry.ts'), /button\.dataset\.entryTitle = `\$\{tr\('title'\)\}/)
   assert.match(client, /scope\.workspaceHint/)
   assert.match(client, /scope\.globalHint/)
   assert.doesNotMatch(client, /add\.shortcut/)
@@ -744,7 +744,7 @@ test('a failed write keeps the row and says so', () => {
   const client = read('src/client/index.ts') + read('src/client/ui/useSessionMemoStore.ts') + read('src/client/ui/MemoPopover.ts') + read('src/client/ui/useNoteActions.ts') + read('src/client/ui/useComposerDraft.ts')
   // The store writer returns a promise now; a rejection becomes `false`, and
   // only a successful durable write may replace the rendered record.
-  assert.match(client, /setSyncError\(!ok\)\n\s+if \(ok\) setItems\(readVisibleNotes\(filterRef\.current\)\)/)
+  assert.match(client, /setSyncError\(!ok\)\n\s+if \(ok\) setAllItems\(readVisibleNotes\(null\)\)/)
   assert.match(client, /if \(!ok\) \{\n\s+report\('saveFailed'\)/)
   assert.match(client, /A failed write keeps the row/)
 })
@@ -846,16 +846,13 @@ test('the section counts carry the status hierarchy', () => {
   // 14px/500 line at the top of the popover.
   assert.match(css, /\.dsh-an-doneToggle\{[^}]*font-size:var\(--an-fs-caption\)/)
   assert.match(css, /\.dsh-an-doneToggle\{[^}]*color:var\(--dsw-alias-label-secondary\)/)
-  assert.match(css, /\.dsh-an-popMeta\{[^}]*font-size:var\(--an-fs-caption\)/)
-  assert.match(css, /\.dsh-an-popMeta\{[^}]*font-weight:400/)
-  assert.match(css, /\.dsh-an-popMeta\{[^}]*line-height:16px/)
-  // The title and count share one line, and the two icon actions sit together
-  // at the right, so the meta reads as a status instead of a second title.
+  assert.match(css, /\.dsh-an-scopeCount\{[^}]*flex:none[^}]*font-size:var\(--an-fs-caption\)[^}]*line-height:16px[^}]*font-weight:400/)
+  assert.match(css, /\.dsh-an-scopeName\{[^}]*min-width:0[^}]*overflow:hidden[^}]*text-overflow:ellipsis/)
   assert.match(css, /\.dsh-an-popTitleLine\{[^}]*flex:1 1 auto/)
   assert.match(css, /\.dsh-an-popActions\{[^}]*display:flex/)
   const client = read('src/client/index.ts') + read('src/client/ui/PanelHead.ts') + read('src/client/ui/NoteList.ts')
   assert.match(client, /className: 'dsh-an-popActions'/)
-  assert.match(client, /className: 'dsh-an-popTitleLine' \},\n\s+h\('div', \{ className: 'dsh-an-popTitle' \}[^]*?h\('p', \{ className: 'dsh-an-popMeta' \}/)
+  assert.match(client, /className: 'dsh-an-popTitleLine' \},\n\s+h\('div', \{ className: 'dsh-an-popTitle' \}[^]*?h\(ScopeSwitch, scope\)/)
   // Both counts share the one neutral badge style: the completed number is not
   // important, so it must not draw attention with a success tint. An empty open
   // section still shows no zero badge, which is noise rather than information.

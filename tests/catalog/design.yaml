@@ -112,11 +112,11 @@ features:
     rules:
       - id: R-SCOPE-DEFAULT
         statement: 有工作区绑定时默认展示工作区清单；全局汇总各工作区及未归属便笺，范围选择会记住。
-        failure: 工作区筛选显示其他工作区的条目，全局漏掉条目，或角标与筛选不一致。
+        failure: 工作区筛选显示其他工作区的条目，全局漏掉条目，或标题栏计入已归档的便笺。
         kind: scope
         branches:
           - kind: valid
-            text: 全局显示各工作区条目；工作区仅显示当前工作区，角标跟随筛选
+            text: 全局显示各工作区条目，工作区仅显示当前工作区，标题栏分别显示对应范围的待续数
           - kind: boundary
             text: 有工作区绑定的空白会话遵循已保存的全局选择
         technique: [决策表, 状态迁移]
@@ -427,8 +427,8 @@ features:
     owner: panel
     rules:
       - id: R-PANEL-ENTRY
-        statement: 入口出现在会话工具行；空白新会话没有工具行时出现在右上角。入口显示未完成数量，点击打开面板。
-        failure: 找不到入口；角标数字和列表对不上。
+        statement: 入口出现在会话工具行；空白新会话没有工具行时出现在右上角。点击入口打开面板。角标显示所在工作区的待续数，独立会话显示全局待续数。
+        failure: 找不到入口、角标随面板筛选改变，或尚未读到数据时显示待续数量。
         kind: presentation
         branches:
           - kind: valid
@@ -436,7 +436,6 @@ features:
           - kind: n-a
             reason: 入口缺失等于功能不可用，没有合法的“不显示入口”分支
         technique: [决策表]
-        reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: 'f15ee9c2df6d8f6f' }
 
       - id: R-PANEL-SHORTCUT
         statement: 会话工具行的入口可用时，DSH 快捷键可打开或收起面板，入口提示随有效键位更新。

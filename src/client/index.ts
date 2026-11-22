@@ -357,12 +357,13 @@ function apply(ctx: DshClientCtx) {
       const workspace = listedWorkspace ?? (followedJump ? navigation.workspace : null)
       const sessionChanged = activeSessionId !== sessionId
       const workspaceChanged = workspaceForSession(activeSessionId)?.workspaceId !== workspace?.workspaceId
+      const resolvedCurrentWorkspace = !sessionChanged && workspaceCatalog === null && catalog !== null
       workspaceCatalog = catalog
       bindWorkspace(sessionId, workspace, sessionReady, catalog)
       activeSessionId = sessionId
       if (sessionChanged) setForwardTarget(sessionId)
-      if (panel && followedJump) {
-        if (listedWorkspace) delete panel.navigation
+      if (panel && (followedJump || resolvedCurrentWorkspace)) {
+        if (followedJump && listedWorkspace) delete panel.navigation
         if (sessionChanged || workspaceChanged) {
           prepareMemoSession(sessionId)
           panel.sessionId = sessionId

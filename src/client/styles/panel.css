@@ -15,15 +15,22 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 /* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */
 .dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}
 .dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}
-.dsh-an-popTitle{min-width:0;overflow:hidden;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap;text-overflow:ellipsis}
-.dsh-an-popMeta{min-width:0;margin:0;overflow:hidden;font-size:var(--an-fs-caption);line-height:16px;color:var(--dsw-alias-label-secondary);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis}
+.dsh-an-popTitle{flex:none;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap}
 .dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}
 .dsh-an-popClose{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}
 .dsh-an-popClose:active{background:var(--an-active)}
 /* The list-scope switch sits at the far right of the title line. */
-.dsh-an-scope{display:inline-flex;align-items:center;flex:none;box-sizing:border-box;height:24px;padding:1px;margin-left:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}
-.dsh-an-scopeBtn{display:inline-flex;align-items:center;justify-content:center;height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px;font-weight:500;cursor:pointer;transition:var(--an-transition)}
-.dsh-an-scopeBtn[data-active="true"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}
+.dsh-an-scope{display:inline-flex;align-items:center;min-width:0;box-sizing:border-box;height:24px;padding:1px;margin-inline-start:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}
+.dsh-an-scopeBtn,.dsh-an-scopeSummaryContent,.dsh-an-scopePending{display:inline-flex;align-items:center;gap:var(--an-space-1);flex:none;white-space:nowrap;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px}
+.dsh-an-scopeBtn{height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;font-weight:500;cursor:pointer;transition:var(--an-transition)}
+.dsh-an-scopeBtn[aria-pressed="true"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}
+.dsh-an-scopeWorkspace{flex:0 1 auto;min-width:0}
+.dsh-an-scopeIcon{display:grid;place-items:center;flex:none;width:14px;height:14px}
+.dsh-an-scopeName{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.dsh-an-scopeCount{flex:none;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:16px;font-weight:400;font-variant-numeric:tabular-nums}
+.dsh-an-scopeSummary{margin-inline-start:auto}
+.dsh-an-scope>.dsh-an-scopeSummaryContent,.dsh-an-scopePending{padding:0 var(--an-space-2)}
+.dsh-an-srOnly{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .dsh-an-scopeBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}
 
 /* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */
@@ -126,6 +133,7 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 .dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}
 .dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}
 .dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}
+.dsh-an-listStatus{margin:0;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}
 
 /* ── 10 存储详情与更新 ─────────────────────────────────────────── */
 .dsh-an-storageBlock{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}
@@ -230,7 +238,7 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 .dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-workspaceJump:not([aria-current]):hover .dsh-an-workspaceName{text-decoration:underline;text-underline-offset:2px}
 .dsh-an-popClose:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
-.dsh-an-scopeBtn:hover:not([data-active="true"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}
+.dsh-an-scopeBtn:hover:not([aria-pressed="true"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-addBtn:hover:not(:disabled,:active),.dsh-an-attachBtn:hover:not(:disabled){background:var(--an-hover)}
 .dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}
 .dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}
@@ -262,7 +270,7 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 @media (max-width:480px){
 .dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}
 .dsh-an-popoverRight{padding-left:var(--an-space-4)}
-.dsh-an-popHead{gap:var(--an-space-2)}
+.dsh-an-popHead,.dsh-an-popTitleLine{gap:var(--an-space-2)}
 .dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}
 .dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}
 }

@@ -5,9 +5,9 @@
  * would be reconciled away. The glyph is inlined for the same reason.
  */
 import type { ShortcutCatalogEntry } from '@deepseek-ai/dsh-client-shortcuts/client'
-import { SCOPE_MODE_KEY, SESSION_STORAGE_KEY, WORKSPACE_STORAGE_KEY } from '../constants'
-import { sessionReadyFor, workspaceForSession } from '../scope'
-import { readScopeMode } from '../storage/prefs'
+import { SESSION_STORAGE_KEY, WORKSPACE_STORAGE_KEY } from '../constants'
+import { sessionReadyFor, workspaceCatalogReady, workspaceForSession } from '../scope'
+import { storageMode } from '../storage/state'
 import { readVisibleNotes } from '../storage/workspace'
 import { TODO_LISTENERS } from '../storage/events'
 
@@ -18,7 +18,7 @@ interface HeaderEntryOptions {
   getActiveAnchor: () => HTMLButtonElement | null
   getLocaleId: () => string
   getShortcut: () => ShortcutCatalogEntry | undefined
-  tr: (key: string, vars?: { n: number }) => string
+  tr: (key: string, vars?: Record<string, string | number>) => string
   onOpen: (sessionId: string, anchor: HTMLButtonElement) => void
   onAnchor: (sessionId: string, anchor: HTMLButtonElement) => void
 }
@@ -55,9 +55,13 @@ export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, 
       if (button) button.remove()
       return
     }
-    const workspaceId = workspaceForSession(sessionId)?.workspaceId
-    const workspaceFilter = readScopeMode() === 'workspace' ? workspaceId ?? null : null
-    const open = readVisibleNotes(workspaceFilter).filter(item => !item.done).length
+    const workspace = workspaceForSession(sessionId)
+    const workspaceFilter = workspace?.workspaceId ?? null
+    const catalogPending = !workspace && !workspaceCatalogReady()
+    const mode = storageMode()
+    const open = !catalogPending && (mode === 'host' || mode === 'local')
+      ? readVisibleNotes(workspaceFilter).filter(item => !item.done).length
+      : null
     if (!button) {
       button = document.createElement('button')
       button.type = 'button'
@@ -84,14 +88,14 @@ export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, 
     const expanded = getActiveAnchor() === button ? 'true' : 'false'
     button.dataset.active = expanded
     button.setAttribute('aria-expanded', expanded)
-    button.dataset.scope = workspaceFilter ? 'workspace' : 'global'
-    const signature = `${getLocaleId()}:${workspaceFilter ?? 'global'}:${open}`
+    button.dataset.scope = catalogPending ? 'pending' : workspace ? 'workspace' : 'global'
+    const signature = `${getLocaleId()}:${open}`
     if (button.dataset.signature !== signature) {
       const icon = document.createElement('span')
       icon.className = 'dsh-an-headerIcon'
       icon.innerHTML = HEADER_ICON
       button.replaceChildren(icon)
-      if (open > 0) {
+      if (open !== null && open > 0) {
         const count = document.createElement('span')
         count.className = 'dsh-an-headerCount'
         count.textContent = open > 99 ? '99+' : String(open)
@@ -102,11 +106,16 @@ export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, 
     // The header entry is host-owned DOM (a React portal beside it would be
     // reconciled away), so the shared Tooltip cannot wrap it; a native title
     // keeps the icon-only control explained on hover.
-    button.dataset.entryTitle = open > 0 ? tr('header.tooltip', { n: open }) : tr('header.tooltipEmpty')
+    const scope = workspace
+      ? tr('item.currentWorkspace', { workspace: workspace.title || tr('scope.workspace') })
+      : tr('scope.global')
+    const count = open === null
+      ? tr(mode === 'error' ? 'storage.hostError' : 'storage.loading')
+      : tr('dock.count', { n: open })
+    const detail = catalogPending ? tr('scope.loading') : `${scope} · ${count}`
+    button.dataset.entryTitle = `${tr('title')} · ${detail}`
     refreshShortcut()
-    button.setAttribute('aria-label', open > 0
-      ? `${tr('dock.open')}, ${tr('dock.count', { n: open })}`
-      : tr('dock.open'))
+    button.setAttribute('aria-label', `${tr('dock.open')} · ${detail}`)
   }
 
   /** Watch the store, the DOM and the viewport; returns the cleanup. */
@@ -121,7 +130,7 @@ export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, 
       })
     }
     const onStorage = event => {
-      if (event.key === SESSION_STORAGE_KEY || event.key === WORKSPACE_STORAGE_KEY || event.key === SCOPE_MODE_KEY) schedule()
+      if (event.key === SESSION_STORAGE_KEY || event.key === WORKSPACE_STORAGE_KEY || event.key === null) schedule()
     }
     TODO_LISTENERS.add(schedule)
     window.addEventListener('storage', onStorage)
