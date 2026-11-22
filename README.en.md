@@ -116,7 +116,8 @@ Click a note's **Insert** button to append its text to the current chat input; t
 - **See notes across workspaces**. Under **Global**, actions on a note still save changes to the workspace that owns
   it. Tabs in the same browser stay in sync in real time.
 - **Entry and panel**. The top-right button shows the open count and opens a fixed panel aligned to the button.
-  The panel shifts left when the DSH right sidebar opens and closes when you switch sessions.
+  The panel shifts left when the DSH right sidebar opens. It stays open when you jump to a workspace from a note
+  and closes when you switch sessions elsewhere.
 - **Note actions**: add, reorder, copy, insert a note into the chat input, and rewind one into the composer to edit; there is no manual checkbox — inserting it archives it. Clearing archived notes asks for confirmation, and archived notes expand for review. Clearing the composer after rewinding a note removes it.
 - **Attachments**: choose files with the paperclip, paste them from the clipboard, or drop them onto the note composer. A note can hold up to 10 nonempty files of up to 25 MiB each, with optional text. Select a file name to preview supported images, audio, and video. Each attachment can be downloaded, and recalling a note restores its attachments with the text.
 - **Insert**: the note's text is appended on a new line to the **currently open conversation's** composer and the note moves to **Archived**. You decide when to send. To include an attachment, download it and add it through the DSH composer. Notes that contain only attachments can be archived directly.

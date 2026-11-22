@@ -137,7 +137,14 @@ function apply(ctx: DshClientCtx) {
   const say = makeSay(ctx, localeId)
 
   const tr = (key: string, vars?: Record<string, any>) => fill(say(key), vars)
-  let activePopover = null
+  let activePopover: {
+    container: HTMLElement
+    root: ReturnType<typeof ReactDOMClient.createRoot>
+    anchorRef: { current: HTMLButtonElement }
+    sessionId: string
+    focusComposerOnMount: boolean
+    navigation?: { sessionId: string; workspace: NoteWorkspace }
+  } | null = null
   let activeSessionId = ''
 
   const toastSeat = createToastSeat(tr)
@@ -185,51 +192,67 @@ function apply(ctx: DshClientCtx) {
       /* already unmounted */
     }
     current.container.remove()
-    const anchor = current.anchor
+    const anchor = current.anchorRef.current
     if (hadFocus && anchor && anchor.isConnected && typeof anchor.focus === 'function') {
       anchor.focus({ preventScroll: true })
     }
     refreshHeaderEntry()
   }
 
-  const getWorkspaceNavigation = (): Pick<UiWorkspace, 'startSession'> | undefined => {
+  const getWorkspaceNavigation = (): Pick<UiWorkspace, 'openWorkspace'> | undefined => {
     const service: UiWorkspace | undefined = ctx.get('uiWorkspace')
-    return typeof service?.startSession === 'function' ? service : undefined
+    return typeof service?.openWorkspace === 'function' ? service : undefined
   }
 
   const openNoteWorkspace = (targetId: string) => {
     if (workspaceForSession(activeSessionId)?.workspaceId === targetId) return
+    const panel = activePopover
     const target = workspaceById(targetId)
-    if (target) getWorkspaceNavigation()?.startSession(target.workspaceId)
+    const navigation = getWorkspaceNavigation()
+    if (!panel || !target || !navigation) return
+    // Record the exact session only when the host is about to open it. Failed
+    // or superseded requests leave ordinary conversation switches alone.
+    void navigation.openWorkspace(target.workspaceId, sessionId => {
+      if (activePopover === panel) panel.navigation = { sessionId, workspace: target }
+    }).catch((error: unknown) => { console.warn('workspace jump failed:', error) })
   }
 
-  const openMemoPopover = (sessionId, anchor, placement = 'popover') => {
-    if (activePopover && activePopover.anchor === anchor) {
+  const prepareMemoSession = (sessionId: string) => {
+    const workspace = workspaceForSession(sessionId)
+    if (workspace) ensureDraftScope(draftKeyForSession(sessionId), sessionId, workspace.sessionIds)
+  }
+
+  const renderMemoPopover = (panel: NonNullable<typeof activePopover>) => {
+    panel.root.render(h(MemoPopover, {
+      sessionId: panel.sessionId,
+      say: tr,
+      locale,
+      getLocaleId: localeId,
+      anchorRef: panel.anchorRef,
+      placement: 'right',
+      focusComposerOnMount: panel.focusComposerOnMount,
+      onClose: closeMemoPopover,
+      onOpenWorkspace: getWorkspaceNavigation() ? openNoteWorkspace : undefined,
+      onToast: kind => toastSeat.show(kind),
+    }))
+  }
+
+  const openMemoPopover = (sessionId: string, anchor: HTMLButtonElement) => {
+    if (activePopover && activePopover.anchorRef.current === anchor) {
       closeMemoPopover()
       return
     }
     closeMemoPopover()
     if (storageMode() === 'host') requestHostRefresh()
     if (workspaceCatalog) void migrateWorkspaceNotes(workspaceCatalog)
-    const workspace = workspaceForSession(sessionId)
-    if (workspace) ensureDraftScope(draftKeyForSession(sessionId), sessionId, workspace.sessionIds)
+    prepareMemoSession(sessionId)
     setForwardTarget(sessionId)
     const container = document.createElement('div')
     container.dataset.dshMemoPopoverRoot = 'true'
     document.body.appendChild(container)
     const root = ReactDOMClient.createRoot(container)
-    activePopover = { container, root, anchor, placement }
-    root.render(h(MemoPopover, {
-      sessionId,
-      say: tr,
-      locale,
-      getLocaleId: localeId,
-      anchorRef: { current: anchor },
-      placement,
-      onClose: closeMemoPopover,
-      onOpenWorkspace: getWorkspaceNavigation() ? openNoteWorkspace : undefined,
-      onToast: kind => toastSeat.show(kind),
-    }))
+    activePopover = { container, root, anchorRef: { current: anchor }, sessionId, focusComposerOnMount: true }
+    renderMemoPopover(activePopover)
     refreshHeaderEntry()
   }
 
@@ -241,10 +264,16 @@ function apply(ctx: DshClientCtx) {
   const headerEntry = createHeaderEntry({
     getShortcut: readToggleShortcut,
     getSessionId: () => activeSessionId,
-    getActiveAnchor: () => (activePopover ? activePopover.anchor : null),
+    getActiveAnchor: () => activePopover?.anchorRef.current ?? null,
     getLocaleId: () => localeId(),
     tr,
-    onOpen: (sessionId, anchor) => openMemoPopover(sessionId, anchor, 'right'),
+    onOpen: openMemoPopover,
+    onAnchor: (sessionId, anchor) => {
+      const panel = activePopover
+      if (!panel || panel.sessionId !== sessionId || panel.anchorRef.current === anchor) return
+      panel.anchorRef = { current: anchor }
+      renderMemoPopover(panel)
+    },
   })
   refreshHeaderEntry = headerEntry.refresh
 
@@ -318,29 +347,35 @@ function apply(ctx: DshClientCtx) {
         }]
       })
     }, [hasWorkspaceHook, snapshot])
-    const workspace = catalog?.find(candidate => candidate.sessionIds.includes(sessionId)) ?? null
-    const workspaceRef = React.useRef({ sessionId: '', workspaceId: '' })
+    const listedWorkspace = catalog?.find(candidate => candidate.sessionIds.includes(sessionId))
 
     React.useEffect(() => {
-      const workspaceId = workspace ? String(workspace.workspaceId) : ''
-      const previous = workspaceRef.current
-      const workspaceChanged = previous.sessionId === sessionId && previous.workspaceId !== workspaceId
-      workspaceRef.current = { sessionId, workspaceId }
+      const panel = activePopover
+      const navigation = panel?.navigation
+      const followedJump = navigation?.sessionId === sessionId
+      // The host can select the new session before its membership reaches the catalog.
+      const workspace = listedWorkspace ?? (followedJump ? navigation.workspace : null)
+      const sessionChanged = activeSessionId !== sessionId
+      const workspaceChanged = workspaceForSession(activeSessionId)?.workspaceId !== workspace?.workspaceId
       workspaceCatalog = catalog
       bindWorkspace(sessionId, workspace, sessionReady, catalog)
-      if (activeSessionId !== sessionId) {
-        activeSessionId = sessionId
-        setForwardTarget(sessionId)
-        closeMemoPopover()
-      } else if (workspaceChanged) {
-        // The same conversation gained (or lost) a workspace: the open panel
-        // was reading the other list, so reopen it against the right one.
+      activeSessionId = sessionId
+      if (sessionChanged) setForwardTarget(sessionId)
+      if (panel && followedJump) {
+        if (listedWorkspace) delete panel.navigation
+        if (sessionChanged || workspaceChanged) {
+          prepareMemoSession(sessionId)
+          panel.sessionId = sessionId
+          panel.focusComposerOnMount = false
+          renderMemoPopover(panel)
+        }
+      } else if (sessionChanged || workspaceChanged) {
         closeMemoPopover()
       }
       if (catalog) void migrateWorkspaceNotes(catalog)
       notifyTodoChange()
       refreshHeaderEntry()
-    }, [sessionId, workspace, sessionReady, catalog])
+    }, [sessionId, listedWorkspace, sessionReady, catalog])
     return null
   }
 

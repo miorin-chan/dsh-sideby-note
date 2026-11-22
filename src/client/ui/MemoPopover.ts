@@ -43,6 +43,58 @@ function subscribeStorageStatus(callback: () => void) {
   }
 }
 
+interface MemoComposerHandle {
+  recall: ReturnType<typeof useComposerDraft>['recall']
+  focus: () => void
+}
+
+type MemoComposerProps = Parameters<typeof useComposerDraft>[0] & {
+  composerRef: React.Ref<MemoComposerHandle>
+  nameOfWorkspace: (id: string) => string
+  showDestination: boolean
+  say: (key: string, vars?: Record<string, string>) => string
+}
+
+function MemoComposer({ composerRef, nameOfWorkspace, showDestination, say, ...options }: MemoComposerProps) {
+  const { workspaceId, canUpload, storageInUse, report } = options
+  const { draft, draftLocked, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown } = useComposerDraft(options)
+  React.useImperativeHandle(composerRef, (): MemoComposerHandle => ({
+    recall,
+    focus: () => addRef.current?.focus({ preventScroll: true }),
+  }))
+  const destination = draft.workspaceId ?? workspaceId
+  return h(ComposerForm, {
+    say,
+    draft: draft.add,
+    destination: destination
+      ? showDestination || draft.workspaceId
+        ? say('add.destination', { workspace: nameOfWorkspace(destination) })
+        : undefined
+      : say('scope.loading'),
+    destinationPending: !destination,
+    attachments: draft.attachments,
+    draftLocked,
+    isSubmitting,
+    isRecalling,
+    isUploading,
+    canUpload,
+    storageInUse,
+    onFiles: addFiles,
+    onRemove: removeAttachment,
+    onUnavailable: () => report('attachmentUnavailable'),
+    onBusy: () => report('attachmentBusy'),
+    inputRef: addRef,
+    onDraftChange,
+    onCompositionStart: () => { composingRef.current = true },
+    onCompositionEnd: () => { composingRef.current = false },
+    onKeyDown: onDraftKeyDown,
+    onSubmit: event => {
+      event.preventDefault()
+      if (!composingRef.current) add()
+    },
+  })
+}
+
 export function MemoPopover(props) {
   const say = props.say
   const localeService = props.locale
@@ -87,7 +139,7 @@ export function MemoPopover(props) {
     }
   }, [])
   const workspace = workspaceForSession(sessionId)
-  const workspaceId = workspaceCatalogReady() ? workspace?.workspaceId ?? UNASSIGNED_WORKSPACE : null
+  const workspaceId = workspace?.workspaceId ?? (workspaceCatalogReady() ? UNASSIGNED_WORKSPACE : null)
   const workspaceFilter = mode === 'workspace' ? workspace?.workspaceId ?? null : null
   const effectiveMode = workspaceFilter ? 'workspace' : 'global'
   const nameOfWorkspace = (id: string) => id === UNASSIGNED_WORKSPACE
@@ -107,14 +159,7 @@ export function MemoPopover(props) {
   const update = useUpdateCenter(localeId)
   const inserting = React.useRef(new Set<string>())
   const canUpload = storeMode === 'host'
-  const { draft, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown } = useComposerDraft({
-    draftKey,
-    workspaceId,
-    commit,
-    report,
-    storageInUse,
-    canUpload,
-  })
+  const composerRef = React.useRef<MemoComposerHandle>(null)
   const { archive, move, takeBack } = useNoteActions({ commit, report })
   const panelRef = React.useRef(null)
   const {
@@ -214,7 +259,7 @@ export function MemoPopover(props) {
    * would silently destroy it; ask the user to send or clear it first instead.
    */
   const recallItem = item => {
-    if (!inserting.current.has(item.id)) void recall(item, takeBack)
+    if (!inserting.current.has(item.id)) void composerRef.current?.recall(item, takeBack)
   }
 
   const row = item => {
@@ -301,7 +346,7 @@ export function MemoPopover(props) {
           try {
             const restored = await retryStorage() === 'host'
             if (restored && hadFocus && (document.activeElement === button || document.activeElement === document.body)) {
-              addRef.current?.focus({ preventScroll: true })
+              composerRef.current?.focus()
             }
           } finally {
             setRetrying(false)
@@ -309,35 +354,19 @@ export function MemoPopover(props) {
         },
       }, say(retrying ? 'storage.reconnecting' : 'storage.retry')),
     ),
-    h(ComposerForm, {
+    h(MemoComposer, {
+      key: draftKey,
+      composerRef,
+      nameOfWorkspace,
+      showDestination: effectiveMode === 'global',
       say,
-      draft: draft.add,
-      destination: draft.workspaceId || workspaceId
-        ? effectiveMode === 'global' || draft.workspaceId
-          ? say('add.destination', { workspace: nameOfWorkspace(draft.workspaceId ?? workspaceId) })
-          : undefined
-        : say('scope.loading'),
-      destinationPending: !draft.workspaceId && !workspaceId,
-      attachments: draft.attachments,
-      isSubmitting,
-      isRecalling,
-      isUploading,
-      canUpload,
+      draftKey,
+      workspaceId,
+      commit,
+      report,
       storageInUse,
-      onFiles: addFiles,
-      onRemove: removeAttachment,
-      onUnavailable: () => report('attachmentUnavailable'),
-      onBusy: () => report('attachmentBusy'),
-      inputRef: addRef,
-      onDraftChange,
-      onCompositionStart: () => { composingRef.current = true },
-      onCompositionEnd: () => { composingRef.current = false },
-      onKeyDown: onDraftKeyDown,
-      onSubmit: event => {
-        event.preventDefault()
-        if (composingRef.current) return
-        add()
-      },
+      canUpload,
+      focusOnMount: props.focusComposerOnMount,
     }),
     h(NoteList, {
       say,

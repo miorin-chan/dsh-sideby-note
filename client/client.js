@@ -3022,7 +3022,7 @@ function writeSectionState(state) {
 
 // src/client/ui/headerEntry.ts
 const HEADER_ICON = "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.3\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3.25 2.75h6.5l3 3v7.5c0 .55-.45 1-1 1H3.25c-.55 0-1-.45-1-1V3.75c0-.55.45-1 1-1Z\"/><path d=\"M9.75 2.75v3h3\"/><path d=\"M4.9 7.6h5.4M4.9 9.9h3.6\" stroke-linecap=\"round\"/></svg>";
-function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, getShortcut, tr, onOpen }) {
+function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, getShortcut, tr, onOpen, onAnchor }) {
 	const buttonForSession = () => {
 		const button = document.querySelector(".dsh-an-headerBtn");
 		return button?.dataset.sessionId === getSessionId() ? button : null;
@@ -3071,6 +3071,8 @@ function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, getShor
 			if (host.firstElementChild !== button) host.insertBefore(button, host.firstElementChild);
 		} else if (button.parentElement !== host) host.appendChild(button);
 		button.dataset.anchor = host === utilities ? "utilities" : "corner";
+		button.dataset.sessionId = sessionId;
+		onAnchor(sessionId, button);
 		const expanded = getActiveAnchor() === button ? "true" : "false";
 		button.dataset.active = expanded;
 		button.setAttribute("aria-expanded", expanded);
@@ -3089,7 +3091,6 @@ function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, getShor
 			}
 			button.dataset.signature = signature;
 		}
-		button.dataset.sessionId = sessionId;
 		button.dataset.entryTitle = open > 0 ? tr("header.tooltip", { n: open }) : tr("header.tooltipEmpty");
 		refreshShortcut();
 		button.setAttribute("aria-label", open > 0 ? `${tr("dock.open")}, ${tr("dock.count", { n: open })}` : tr("dock.open"));
@@ -3273,6 +3274,7 @@ function usePanelGeometry(anchorRef, placement, panelRef) {
 	const panelHeightRef = react.default.useRef(panelHeight);
 	const lastStyleRef = react.default.useRef("");
 	const updatePosition = react.default.useCallback(() => {
+		if (anchorRef.current && !anchorRef.current.isConnected) return;
 		if (anchorRef.current || placement === "right") {
 			const next = memoPopoverStyle(anchorRef.current, placement, panelWidth, panelHeight);
 			const key = JSON.stringify(next);
@@ -4231,29 +4233,44 @@ function useUpdateCenter(localeId) {
 // src/client/ui/useComposerDraft.ts
 /** The add box: draft persistence, auto-grow and the composer key gestures. */
 const uploadsByDraft = /* @__PURE__ */ new Set();
+const actionsByDraft = /* @__PURE__ */ new Map();
 const sameAttachments = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse, canUpload }) {
+function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse, canUpload, focusOnMount }) {
 	const key = draftKey ? String(draftKey) : "";
 	const [draft, setDraft] = react.default.useState(() => readScopeDrafts(key));
 	const draftRef = react.default.useRef(draft);
 	const [isUploading, setIsUploading] = react.default.useState(() => uploadsByDraft.has(key));
-	const pendingAction = react.default.useRef(false);
-	react.default.useEffect(() => subscribeDraftAttachments((changedKey) => {
-		if (changedKey && changedKey !== key) return;
-		setIsUploading(uploadsByDraft.has(key));
-		if (pendingAction.current) return;
-		const saved = readScopeDrafts(key);
-		if (sameAttachments(saved.attachments, draftRef.current.attachments) && saved.workspaceId === draftRef.current.workspaceId) return;
-		const next = {
-			...draftRef.current,
-			attachments: saved.attachments,
-			workspaceId: saved.workspaceId
+	const inheritedAction = react.default.useRef(actionsByDraft.get(key));
+	const [action, setAction] = react.default.useState(inheritedAction.current);
+	react.default.useLayoutEffect(() => {
+		const syncDraft = (changedKey) => {
+			if (changedKey && changedKey !== key) return;
+			setIsUploading(uploadsByDraft.has(key));
+			const pending = actionsByDraft.get(key);
+			setAction(pending);
+			if (pending) return;
+			const saved = readScopeDrafts(key);
+			const next = inheritedAction.current ? saved : {
+				...saved,
+				add: draftRef.current.add
+			};
+			inheritedAction.current = void 0;
+			const current = draftRef.current;
+			if (next.add === current.add && next.workspaceId === current.workspaceId && sameAttachments(next.attachments, current.attachments)) return;
+			draftRef.current = next;
+			setDraft(next);
 		};
-		draftRef.current = next;
-		setDraft(next);
-	}), [key]);
-	const [isSubmitting, setIsSubmitting] = react.default.useState(false);
-	const [isRecalling, setIsRecalling] = react.default.useState(false);
+		const unsubscribe = subscribeDraftAttachments(syncDraft);
+		syncDraft(key);
+		return unsubscribe;
+	}, [key]);
+	const isSubmitting = action === "submit";
+	const isRecalling = action === "recall";
+	const draftLocked = isRecalling || Boolean(inheritedAction.current);
+	const finishAction = () => {
+		actionsByDraft.delete(key);
+		notifyDraftAttachments(key);
+	};
 	const addRef = react.default.useRef(null);
 	const composingRef = react.default.useRef(false);
 	const resizeAdd = (node) => {
@@ -4267,8 +4284,7 @@ function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse,
 	const hasFinePointer = () => typeof window.matchMedia !== "function" || window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 	react.default.useLayoutEffect(() => {
 		const node = addRef.current;
-		if (!node) return;
-		if (!hasFinePointer()) return;
+		if (!node || !focusOnMount || !hasFinePointer()) return;
 		node.focus();
 		const end = node.value.length;
 		try {
@@ -4281,7 +4297,7 @@ function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse,
 		setDraft(next);
 	};
 	const addFiles = async (files) => {
-		if (!files.length || !canUpload || pendingAction.current || uploadsByDraft.has(key)) return;
+		if (!files.length || !canUpload || actionsByDraft.has(key) || uploadsByDraft.has(key)) return;
 		if (files.length + readScopeDrafts(key).attachments.length > 10 || files.some((file) => file.size < 1 || file.size > 26214400)) {
 			report("attachmentLimit");
 			return;
@@ -4303,7 +4319,7 @@ function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse,
 		}
 	};
 	const removeAttachment = (index) => {
-		if (pendingAction.current || uploadsByDraft.has(key)) return;
+		if (actionsByDraft.has(key) || uploadsByDraft.has(key)) return;
 		const latest = readScopeDrafts(key);
 		if (!sameAttachments(latest.attachments, draftRef.current.attachments)) {
 			notifyDraftAttachments(key);
@@ -4317,7 +4333,7 @@ function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse,
 		const submitted = draftRef.current;
 		const text = submitted.add.trim().slice(0, 280);
 		const { attachments } = submitted;
-		if (!submitted.workspaceId && !workspaceId || !hasContent(submitted) || pendingAction.current || uploadsByDraft.has(key) || storageInUse) return;
+		if (!submitted.workspaceId && !workspaceId || !hasContent(submitted) || actionsByDraft.has(key) || uploadsByDraft.has(key) || storageInUse) return;
 		const latest = readScopeDrafts(key);
 		if (!sameAttachments(attachments, latest.attachments) || submitted.workspaceId !== latest.workspaceId) {
 			notifyDraftAttachments(key);
@@ -4328,8 +4344,8 @@ function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse,
 			report("attachmentUploadFailed");
 			return;
 		}
-		pendingAction.current = true;
-		setIsSubmitting(true);
+		actionsByDraft.set(key, "submit");
+		notifyDraftAttachments(key);
 		try {
 			const now = Date.now();
 			const item = {
@@ -4366,8 +4382,7 @@ function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse,
 				saveAddDraft(key, saved.add, [], null);
 			}
 		} finally {
-			pendingAction.current = false;
-			setIsSubmitting(false);
+			finishAction();
 		}
 	};
 	/**
@@ -4377,12 +4392,12 @@ function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse,
 	* text lands here, where the user can change it and submit it again.
 	*/
 	const recall = async (item, takeBack) => {
-		if (pendingAction.current || uploadsByDraft.has(key) || hasContent(draftRef.current) || hasContent(readScopeDrafts(key))) {
+		if (actionsByDraft.has(key) || uploadsByDraft.has(key) || hasContent(draftRef.current) || hasContent(readScopeDrafts(key))) {
 			report("recallBlocked");
 			return;
 		}
-		pendingAction.current = true;
-		setIsRecalling(true);
+		actionsByDraft.set(key, "recall");
+		notifyDraftAttachments(key);
 		try {
 			const before = readScopeDrafts(key);
 			const next = {
@@ -4401,8 +4416,7 @@ function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse,
 			showDraft(next);
 			report("recalled");
 		} finally {
-			pendingAction.current = false;
-			setIsRecalling(false);
+			finishAction();
 		}
 		window.requestAnimationFrame(() => {
 			const node = addRef.current;
@@ -4418,7 +4432,7 @@ function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse,
 		});
 	};
 	const onDraftChange = (event) => {
-		if (isRecalling) return;
+		if (draftLocked) return;
 		const value = event.target.value;
 		const owner = value.trim() || draftRef.current.attachments.length ? draftRef.current.workspaceId : void 0;
 		const next = {
@@ -4454,6 +4468,7 @@ function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse,
 	};
 	return {
 		draft,
+		draftLocked,
 		isSubmitting,
 		isRecalling,
 		isUploading,
@@ -5402,7 +5417,7 @@ function PanelFooter({ say, mode, syncError, update, onToast }) {
 /** The add form: one growing textarea and its submit button. */
 const h$5 = react.default.createElement;
 function ComposerForm(props) {
-	const { say, draft, destination, destinationPending, attachments, isSubmitting, isRecalling, isUploading, canUpload, storageInUse, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit, onFiles, onRemove, onUnavailable, onBusy } = props;
+	const { say, draft, destination, destinationPending, attachments, draftLocked, isSubmitting, isRecalling, isUploading, canUpload, storageInUse, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit, onFiles, onRemove, onUnavailable, onBusy } = props;
 	const pickerRef = react.default.useRef(null);
 	const attachRef = react.default.useRef(null);
 	const dragDepth = react.default.useRef(0);
@@ -5463,7 +5478,7 @@ function ComposerForm(props) {
 		value: draft,
 		rows: 1,
 		maxLength: 280,
-		readOnly: isRecalling,
+		readOnly: draftLocked,
 		placeholder: say("add.placeholder"),
 		"aria-describedby": destination ? destinationId : void 0,
 		"aria-label": say("add.placeholder"),
@@ -5611,6 +5626,45 @@ function subscribeStorageStatus(callback) {
 		TODO_LISTENERS.delete(callback);
 	};
 }
+function MemoComposer({ composerRef, nameOfWorkspace, showDestination, say, ...options }) {
+	const { workspaceId, canUpload, storageInUse, report } = options;
+	const { draft, draftLocked, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown } = useComposerDraft(options);
+	react.default.useImperativeHandle(composerRef, () => ({
+		recall,
+		focus: () => addRef.current?.focus({ preventScroll: true })
+	}));
+	const destination = draft.workspaceId ?? workspaceId;
+	return h$1(ComposerForm, {
+		say,
+		draft: draft.add,
+		destination: destination ? showDestination || draft.workspaceId ? say("add.destination", { workspace: nameOfWorkspace(destination) }) : void 0 : say("scope.loading"),
+		destinationPending: !destination,
+		attachments: draft.attachments,
+		draftLocked,
+		isSubmitting,
+		isRecalling,
+		isUploading,
+		canUpload,
+		storageInUse,
+		onFiles: addFiles,
+		onRemove: removeAttachment,
+		onUnavailable: () => report("attachmentUnavailable"),
+		onBusy: () => report("attachmentBusy"),
+		inputRef: addRef,
+		onDraftChange,
+		onCompositionStart: () => {
+			composingRef.current = true;
+		},
+		onCompositionEnd: () => {
+			composingRef.current = false;
+		},
+		onKeyDown: onDraftKeyDown,
+		onSubmit: (event) => {
+			event.preventDefault();
+			if (!composingRef.current) add();
+		}
+	});
+}
 function MemoPopover(props) {
 	const say = props.say;
 	const localeService = props.locale;
@@ -5648,7 +5702,7 @@ function MemoPopover(props) {
 		};
 	}, []);
 	const workspace = workspaceForSession(sessionId);
-	const workspaceId = workspaceCatalogReady() ? workspace?.workspaceId ?? "sideby-note:unassigned" : null;
+	const workspaceId = workspace?.workspaceId ?? (workspaceCatalogReady() ? "sideby-note:unassigned" : null);
 	const workspaceFilter = mode === "workspace" ? workspace?.workspaceId ?? null : null;
 	const effectiveMode = workspaceFilter ? "workspace" : "global";
 	const nameOfWorkspace = (id) => id === "sideby-note:unassigned" ? say("scope.unassigned") : workspaceById(id)?.title || id;
@@ -5664,14 +5718,7 @@ function MemoPopover(props) {
 	const update = useUpdateCenter(localeId);
 	const inserting = react.default.useRef(/* @__PURE__ */ new Set());
 	const canUpload = storeMode === "host";
-	const { draft, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown } = useComposerDraft({
-		draftKey,
-		workspaceId,
-		commit,
-		report,
-		storageInUse,
-		canUpload
-	});
+	const composerRef = react.default.useRef(null);
 	const { archive, move, takeBack } = useNoteActions({
 		commit,
 		report
@@ -5766,7 +5813,7 @@ function MemoPopover(props) {
 	* would silently destroy it; ask the user to send or clear it first instead.
 	*/
 	const recallItem = (item) => {
-		if (!inserting.current.has(item.id)) recall(item, takeBack);
+		if (!inserting.current.has(item.id)) composerRef.current?.recall(item, takeBack);
 	};
 	const row = (item) => {
 		const owner = item.workspaceId;
@@ -5833,40 +5880,24 @@ function MemoPopover(props) {
 			const hadFocus = document.activeElement === button;
 			setRetrying(true);
 			try {
-				if (await retryStorage() === "host" && hadFocus && (document.activeElement === button || document.activeElement === document.body)) addRef.current?.focus({ preventScroll: true });
+				if (await retryStorage() === "host" && hadFocus && (document.activeElement === button || document.activeElement === document.body)) composerRef.current?.focus();
 			} finally {
 				setRetrying(false);
 			}
 		}
-	}, say(retrying ? "storage.reconnecting" : "storage.retry"))), h$1(ComposerForm, {
+	}, say(retrying ? "storage.reconnecting" : "storage.retry"))), h$1(MemoComposer, {
+		key: draftKey,
+		composerRef,
+		nameOfWorkspace,
+		showDestination: effectiveMode === "global",
 		say,
-		draft: draft.add,
-		destination: draft.workspaceId || workspaceId ? effectiveMode === "global" || draft.workspaceId ? say("add.destination", { workspace: nameOfWorkspace(draft.workspaceId ?? workspaceId) }) : void 0 : say("scope.loading"),
-		destinationPending: !draft.workspaceId && !workspaceId,
-		attachments: draft.attachments,
-		isSubmitting,
-		isRecalling,
-		isUploading,
-		canUpload,
+		draftKey,
+		workspaceId,
+		commit,
+		report,
 		storageInUse,
-		onFiles: addFiles,
-		onRemove: removeAttachment,
-		onUnavailable: () => report("attachmentUnavailable"),
-		onBusy: () => report("attachmentBusy"),
-		inputRef: addRef,
-		onDraftChange,
-		onCompositionStart: () => {
-			composingRef.current = true;
-		},
-		onCompositionEnd: () => {
-			composingRef.current = false;
-		},
-		onKeyDown: onDraftKeyDown,
-		onSubmit: (event) => {
-			event.preventDefault();
-			if (composingRef.current) return;
-			add();
-		}
+		canUpload,
+		focusOnMount: props.focusComposerOnMount
 	}), h$1(NoteList, {
 		say,
 		listRef,
@@ -5983,51 +6014,68 @@ function apply(ctx) {
 			current.root.unmount();
 		} catch {}
 		current.container.remove();
-		const anchor = current.anchor;
+		const anchor = current.anchorRef.current;
 		if (hadFocus && anchor && anchor.isConnected && typeof anchor.focus === "function") anchor.focus({ preventScroll: true });
 		refreshHeaderEntry();
 	};
 	const getWorkspaceNavigation = () => {
 		const service = ctx.get("uiWorkspace");
-		return typeof service?.startSession === "function" ? service : void 0;
+		return typeof service?.openWorkspace === "function" ? service : void 0;
 	};
 	const openNoteWorkspace = (targetId) => {
 		if (workspaceForSession(activeSessionId)?.workspaceId === targetId) return;
+		const panel = activePopover;
 		const target = workspaceById(targetId);
-		if (target) getWorkspaceNavigation()?.startSession(target.workspaceId);
+		const navigation = getWorkspaceNavigation();
+		if (!panel || !target || !navigation) return;
+		navigation.openWorkspace(target.workspaceId, (sessionId) => {
+			if (activePopover === panel) panel.navigation = {
+				sessionId,
+				workspace: target
+			};
+		}).catch((error) => {
+			console.warn("workspace jump failed:", error);
+		});
 	};
-	const openMemoPopover = (sessionId, anchor, placement = "popover") => {
-		if (activePopover && activePopover.anchor === anchor) {
+	const prepareMemoSession = (sessionId) => {
+		const workspace = workspaceForSession(sessionId);
+		if (workspace) ensureDraftScope(draftKeyForSession(sessionId), sessionId, workspace.sessionIds);
+	};
+	const renderMemoPopover = (panel) => {
+		panel.root.render(h(MemoPopover, {
+			sessionId: panel.sessionId,
+			say: tr,
+			locale,
+			getLocaleId: localeId,
+			anchorRef: panel.anchorRef,
+			placement: "right",
+			focusComposerOnMount: panel.focusComposerOnMount,
+			onClose: closeMemoPopover,
+			onOpenWorkspace: getWorkspaceNavigation() ? openNoteWorkspace : void 0,
+			onToast: (kind) => toastSeat.show(kind)
+		}));
+	};
+	const openMemoPopover = (sessionId, anchor) => {
+		if (activePopover && activePopover.anchorRef.current === anchor) {
 			closeMemoPopover();
 			return;
 		}
 		closeMemoPopover();
 		if (storageMode() === "host") requestHostRefresh();
 		if (workspaceCatalog) migrateWorkspaceNotes(workspaceCatalog);
-		const workspace = workspaceForSession(sessionId);
-		if (workspace) ensureDraftScope(draftKeyForSession(sessionId), sessionId, workspace.sessionIds);
+		prepareMemoSession(sessionId);
 		setForwardTarget(sessionId);
 		const container = document.createElement("div");
 		container.dataset.dshMemoPopoverRoot = "true";
 		document.body.appendChild(container);
-		const root = react_dom_client.default.createRoot(container);
 		activePopover = {
 			container,
-			root,
-			anchor,
-			placement
-		};
-		root.render(h(MemoPopover, {
-			sessionId,
-			say: tr,
-			locale,
-			getLocaleId: localeId,
+			root: react_dom_client.default.createRoot(container),
 			anchorRef: { current: anchor },
-			placement,
-			onClose: closeMemoPopover,
-			onOpenWorkspace: getWorkspaceNavigation() ? openNoteWorkspace : void 0,
-			onToast: (kind) => toastSeat.show(kind)
-		}));
+			sessionId,
+			focusComposerOnMount: true
+		};
+		renderMemoPopover(activePopover);
 		refreshHeaderEntry();
 	};
 	let shortcuts;
@@ -6038,10 +6086,16 @@ function apply(ctx) {
 	const headerEntry = createHeaderEntry({
 		getShortcut: readToggleShortcut,
 		getSessionId: () => activeSessionId,
-		getActiveAnchor: () => activePopover ? activePopover.anchor : null,
+		getActiveAnchor: () => activePopover?.anchorRef.current ?? null,
 		getLocaleId: () => localeId(),
 		tr,
-		onOpen: (sessionId, anchor) => openMemoPopover(sessionId, anchor, "right")
+		onOpen: openMemoPopover,
+		onAnchor: (sessionId, anchor) => {
+			const panel = activePopover;
+			if (!panel || panel.sessionId !== sessionId || panel.anchorRef.current === anchor) return;
+			panel.anchorRef = { current: anchor };
+			renderMemoPopover(panel);
+		}
 	});
 	refreshHeaderEntry = headerEntry.refresh;
 	if (locale && typeof locale.subscribe === "function") ctx.effect(() => locale.subscribe(() => refreshHeaderEntry()), "dsh-sideby-note: locale changes");
@@ -6102,32 +6156,33 @@ function apply(ctx) {
 				}];
 			});
 		}, [hasWorkspaceHook, snapshot]);
-		const workspace = catalog?.find((candidate) => candidate.sessionIds.includes(sessionId)) ?? null;
-		const workspaceRef = react.default.useRef({
-			sessionId: "",
-			workspaceId: ""
-		});
+		const listedWorkspace = catalog?.find((candidate) => candidate.sessionIds.includes(sessionId));
 		react.default.useEffect(() => {
-			const workspaceId = workspace ? String(workspace.workspaceId) : "";
-			const previous = workspaceRef.current;
-			const workspaceChanged = previous.sessionId === sessionId && previous.workspaceId !== workspaceId;
-			workspaceRef.current = {
-				sessionId,
-				workspaceId
-			};
+			const panel = activePopover;
+			const navigation = panel?.navigation;
+			const followedJump = navigation?.sessionId === sessionId;
+			const workspace = listedWorkspace ?? (followedJump ? navigation.workspace : null);
+			const sessionChanged = activeSessionId !== sessionId;
+			const workspaceChanged = workspaceForSession(activeSessionId)?.workspaceId !== workspace?.workspaceId;
 			workspaceCatalog = catalog;
 			bindWorkspace(sessionId, workspace, sessionReady, catalog);
-			if (activeSessionId !== sessionId) {
-				activeSessionId = sessionId;
-				setForwardTarget(sessionId);
-				closeMemoPopover();
-			} else if (workspaceChanged) closeMemoPopover();
+			activeSessionId = sessionId;
+			if (sessionChanged) setForwardTarget(sessionId);
+			if (panel && followedJump) {
+				if (listedWorkspace) delete panel.navigation;
+				if (sessionChanged || workspaceChanged) {
+					prepareMemoSession(sessionId);
+					panel.sessionId = sessionId;
+					panel.focusComposerOnMount = false;
+					renderMemoPopover(panel);
+				}
+			} else if (sessionChanged || workspaceChanged) closeMemoPopover();
 			if (catalog) migrateWorkspaceNotes(catalog);
 			notifyTodoChange();
 			refreshHeaderEntry();
 		}, [
 			sessionId,
-			workspace,
+			listedWorkspace,
 			sessionReady,
 			catalog
 		]);

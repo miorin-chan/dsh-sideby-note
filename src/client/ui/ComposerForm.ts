@@ -13,6 +13,7 @@ interface ComposerFormProps {
   destination?: string
   destinationPending: boolean
   attachments: NoteAttachment[]
+  draftLocked: boolean
   isSubmitting: boolean
   isRecalling: boolean
   isUploading: boolean
@@ -31,7 +32,7 @@ interface ComposerFormProps {
 }
 
 export function ComposerForm(props: ComposerFormProps) {
-  const { say, draft, destination, destinationPending, attachments, isSubmitting, isRecalling, isUploading, canUpload, storageInUse, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit, onFiles, onRemove, onUnavailable, onBusy } = props
+  const { say, draft, destination, destinationPending, attachments, draftLocked, isSubmitting, isRecalling, isUploading, canUpload, storageInUse, inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit, onFiles, onRemove, onUnavailable, onBusy } = props
   const pickerRef = React.useRef<HTMLInputElement>(null)
   const attachRef = React.useRef<HTMLButtonElement>(null)
   const dragDepth = React.useRef(0)
@@ -89,7 +90,7 @@ export function ComposerForm(props: ComposerFormProps) {
       value: draft,
       rows: 1,
       maxLength: MAX_TEXT,
-      readOnly: isRecalling,
+      readOnly: draftLocked,
       placeholder: say('add.placeholder'),
       'aria-describedby': destination ? destinationId : undefined,
       'aria-label': say('add.placeholder'),

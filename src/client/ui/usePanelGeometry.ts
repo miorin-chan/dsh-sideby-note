@@ -18,6 +18,8 @@ export function usePanelGeometry(anchorRef, placement, panelRef) {
   const lastStyleRef = React.useRef('')
 
   const updatePosition = React.useCallback(() => {
+    // Keep the last position while the host replaces the conversation header.
+    if (anchorRef.current && !anchorRef.current.isConnected) return
     if (anchorRef.current || placement === 'right') {
       const next = memoPopoverStyle(anchorRef.current, placement, panelWidth, panelHeight)
       const key = JSON.stringify(next)

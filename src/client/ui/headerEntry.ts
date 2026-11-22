@@ -20,9 +20,10 @@ interface HeaderEntryOptions {
   getShortcut: () => ShortcutCatalogEntry | undefined
   tr: (key: string, vars?: { n: number }) => string
   onOpen: (sessionId: string, anchor: HTMLButtonElement) => void
+  onAnchor: (sessionId: string, anchor: HTMLButtonElement) => void
 }
 
-export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, getShortcut, tr, onOpen }: HeaderEntryOptions) {
+export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, getShortcut, tr, onOpen, onAnchor }: HeaderEntryOptions) {
   const buttonForSession = () => {
     const button = document.querySelector<HTMLButtonElement>('.dsh-an-headerBtn')
     return button?.dataset.sessionId === getSessionId() ? button : null
@@ -78,6 +79,8 @@ export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, 
       host.appendChild(button)
     }
     button.dataset.anchor = host === utilities ? 'utilities' : 'corner'
+    button.dataset.sessionId = sessionId
+    onAnchor(sessionId, button)
     const expanded = getActiveAnchor() === button ? 'true' : 'false'
     button.dataset.active = expanded
     button.setAttribute('aria-expanded', expanded)
@@ -96,7 +99,6 @@ export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, 
       }
       button.dataset.signature = signature
     }
-    button.dataset.sessionId = sessionId
     // The header entry is host-owned DOM (a React portal beside it would be
     // reconciled away), so the shared Tooltip cannot wrap it; a native title
     // keeps the icon-only control explained on hover.

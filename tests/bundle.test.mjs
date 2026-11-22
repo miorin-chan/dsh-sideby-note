@@ -721,7 +721,20 @@ test('workspace notes share a list and global actions preserve ownership', async
     getLocale: () => ({ active: 'zh' }),
   }
   const workspaceStarts = []
-  const uiWorkspace = { startSession: id => workspaceStarts.push(id) }
+  let finishWorkspaceOpen
+  const uiWorkspace = {
+    openWorkspace(id, beforeOpen) {
+      workspaceStarts.push(id)
+      finishWorkspaceOpen?.()
+      return new Promise(resolve => {
+        finishWorkspaceOpen = sessionId => {
+          if (sessionId) beforeOpen(sessionId)
+          finishWorkspaceOpen = undefined
+          resolve()
+        }
+      })
+    },
+  }
   const ctx = {
     get: name => ({ locale, uiWorkspace })[name],
     effect: fn => {
@@ -1102,6 +1115,63 @@ test('workspace notes share a list and global actions preserve ownership', async
     await act(async () => { secondPopover.querySelector('.dsh-an-miniDanger').click() })
     assert.ok(workspaceItems().every(item => !item.done), 'global clear reaches the current workspace')
     assert.ok(browserWorkspaceItems(window, 'ws-2').every(item => !item.done), 'global clear reaches other workspaces')
+  })
+
+  await t.test('SCOPE-015 面板内跳转工作区时保持面板打开', async () => {
+    await typeInto(inputOf(secondPopover), '原工作区的草稿')
+    const draftsKey = 'dsh.aside-note.drafts'
+    const drafts = JSON.parse(window.localStorage.getItem(draftsKey))
+    drafts.sessions['ws:ws-2'] = { add: '目标工作区的草稿' }
+    window.localStorage.setItem(draftsKey, JSON.stringify(drafts))
+    const fieldBeforeJump = inputOf(secondPopover)
+    const list = secondPopover.querySelector('.dsh-an-listArea')
+    list.scrollTop = 32
+    const jump = secondPopover.querySelector('button[aria-label="在 另一工作区 打开新会话"]')
+    await act(async () => { jump.click() })
+    assert.equal(document.querySelector('.dsh-an-popover'), secondPopover)
+    assert.equal(fieldBeforeJump.value, '原工作区的草稿')
+
+    const utilities = document.querySelector('._headerUtilities')
+    const useBlankSessions = selector => selector({ byId: { 'session-4': { blank: true } } })
+    await act(async () => {
+      finishWorkspaceOpen('session-4')
+      utilities.remove()
+      secondRoot.render(React.createElement(capture, { sessionId: 'session-4', useWorkspaces, useSessions: useBlankSessions }))
+    })
+    assert.equal(document.querySelector('.dsh-an-popover'), secondPopover, 'the same panel stays open while the header is absent')
+    assert.equal(secondPopover.querySelector('.dsh-an-listArea'), list)
+    assert.equal(list.scrollTop, 32)
+    assert.equal(inputOf(secondPopover).value, '目标工作区的草稿')
+    assert.equal(secondPopover.querySelector('.dsh-an-destination').textContent, '记到 另一工作区')
+    assert.equal(jump.getAttribute('aria-current'), 'location')
+
+    const corner = document.createElement('div')
+    corner.className = '_headerCorner'
+    const confirmedWorkspaces = selector => useWorkspaces(snapshot => selector({
+      ...snapshot,
+      items: [workspace, { ...otherWorkspace, sessionIds: [...otherWorkspace.sessionIds, 'session-4'] }],
+    }))
+    await act(async () => {
+      document.body.append(corner)
+      secondRoot.render(React.createElement(capture, { sessionId: 'session-4', useWorkspaces: confirmedWorkspaces, useSessions: useBlankSessions }))
+    })
+    const newEntry = corner.querySelector('.dsh-an-headerBtn')
+    assert.equal(newEntry.getAttribute('aria-expanded'), 'true')
+    assert.equal(document.querySelector('.dsh-an-popover'), secondPopover)
+    await typeInto(inputOf(secondPopover), '目标工作区的新草稿')
+    const saved = JSON.parse(window.localStorage.getItem(draftsKey)).sessions
+    assert.equal(saved['ws:ws-1'].add, '原工作区的草稿')
+    assert.equal(saved['ws:ws-2'].add, '目标工作区的新草稿')
+
+    await act(async () => { secondPopover.querySelector('button[aria-label="在 共享工作区 打开新会话"]').click() })
+    assert.equal(workspaceStarts.at(-1), 'ws-1')
+    await act(async () => {
+      finishWorkspaceOpen()
+      corner.replaceWith(utilities)
+      secondRoot.render(React.createElement(capture, { sessionId: 'session-1', useWorkspaces: confirmedWorkspaces }))
+    })
+    assert.equal(document.querySelector('.dsh-an-popover'), null,
+      'an ordinary session switch superseding the jump still closes the panel')
   })
 
   await act(async () => { secondRoot.unmount() })

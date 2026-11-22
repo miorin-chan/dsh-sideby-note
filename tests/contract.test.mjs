@@ -1080,7 +1080,7 @@ test('the open panel follows a live locale switch', () => {
   const popover = read('src/client/ui/MemoPopover.ts')
   assert.match(popover, /React\.useSyncExternalStore\(subscribeLocale, readLocaleRevision/)
   assert.match(popover, /const localeId = typeof props\.getLocaleId === 'function'/)
-  assert.match(read('src/client/index.ts'), /root\.render\(h\(MemoPopover, \{\n\s+sessionId,\n\s+say: tr,\n\s+locale,/)
+  assert.match(read('src/client/index.ts'), /root\.render\(h\(MemoPopover, \{\n\s+sessionId: panel\.sessionId,\n\s+say: tr,\n\s+locale,/)
 })
 
 

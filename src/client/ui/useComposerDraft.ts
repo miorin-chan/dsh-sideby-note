@@ -6,26 +6,43 @@ import { uid } from '../domain/id'
 import { MAX_ATTACHMENTS, MAX_ATTACHMENT_BYTES, uploadAttachment, type NoteAttachment } from '../domain/attachments'
 
 const uploadsByDraft = new Set<string>()
+// A write can outlive the composer when the panel follows a workspace jump.
+const actionsByDraft = new Map<string, 'submit' | 'recall'>()
 const sameAttachments = (a: NoteAttachment[], b: NoteAttachment[]) => JSON.stringify(a) === JSON.stringify(b)
 
-export function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse, canUpload }) {
+export function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse, canUpload, focusOnMount }) {
   const key = draftKey ? String(draftKey) : ''
   const [draft, setDraft] = React.useState(() => readScopeDrafts(key))
   const draftRef = React.useRef(draft)
   const [isUploading, setIsUploading] = React.useState(() => uploadsByDraft.has(key))
-  const pendingAction = React.useRef(false)
-  React.useEffect(() => subscribeDraftAttachments(changedKey => {
-    if (changedKey && changedKey !== key) return
-    setIsUploading(uploadsByDraft.has(key))
-    if (pendingAction.current) return
-    const saved = readScopeDrafts(key)
-    if (sameAttachments(saved.attachments, draftRef.current.attachments) && saved.workspaceId === draftRef.current.workspaceId) return
-    const next = { ...draftRef.current, attachments: saved.attachments, workspaceId: saved.workspaceId }
-    draftRef.current = next
-    setDraft(next)
-  }), [key])
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
-  const [isRecalling, setIsRecalling] = React.useState(false)
+  const inheritedAction = React.useRef(actionsByDraft.get(key))
+  const [action, setAction] = React.useState(inheritedAction.current)
+  React.useLayoutEffect(() => {
+    const syncDraft = (changedKey: string) => {
+      if (changedKey && changedKey !== key) return
+      setIsUploading(uploadsByDraft.has(key))
+      const pending = actionsByDraft.get(key)
+      setAction(pending)
+      if (pending) return
+      const saved = readScopeDrafts(key)
+      const next = inheritedAction.current ? saved : { ...saved, add: draftRef.current.add }
+      inheritedAction.current = undefined
+      const current = draftRef.current
+      if (next.add === current.add && next.workspaceId === current.workspaceId && sameAttachments(next.attachments, current.attachments)) return
+      draftRef.current = next
+      setDraft(next)
+    }
+    const unsubscribe = subscribeDraftAttachments(syncDraft)
+    syncDraft(key)
+    return unsubscribe
+  }, [key])
+  const isSubmitting = action === 'submit'
+  const isRecalling = action === 'recall'
+  const draftLocked = isRecalling || Boolean(inheritedAction.current)
+  const finishAction = () => {
+    actionsByDraft.delete(key)
+    notifyDraftAttachments(key)
+  }
   const addRef = React.useRef(null)
   const composingRef = React.useRef(false)
 
@@ -47,8 +64,7 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
 
   React.useLayoutEffect(() => {
     const node = addRef.current
-    if (!node) return
-    if (!hasFinePointer()) return
+    if (!node || !focusOnMount || !hasFinePointer()) return
     node.focus()
     const end = node.value.length
     try {
@@ -64,7 +80,7 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
     setDraft(next)
   }
   const addFiles = async (files: readonly File[]) => {
-    if (!files.length || !canUpload || pendingAction.current || uploadsByDraft.has(key)) return
+    if (!files.length || !canUpload || actionsByDraft.has(key) || uploadsByDraft.has(key)) return
     if (files.length + readScopeDrafts(key).attachments.length > MAX_ATTACHMENTS
       || files.some(file => file.size < 1 || file.size > MAX_ATTACHMENT_BYTES)) {
       report('attachmentLimit')
@@ -88,7 +104,7 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
   }
 
   const removeAttachment = (index: number) => {
-    if (pendingAction.current || uploadsByDraft.has(key)) return
+    if (actionsByDraft.has(key) || uploadsByDraft.has(key)) return
     const latest = readScopeDrafts(key)
     if (!sameAttachments(latest.attachments, draftRef.current.attachments)) {
       notifyDraftAttachments(key)
@@ -103,7 +119,7 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
     const submitted = draftRef.current
     const text = submitted.add.trim().slice(0, MAX_TEXT)
     const { attachments } = submitted
-    if ((!submitted.workspaceId && !workspaceId) || !hasContent(submitted) || pendingAction.current || uploadsByDraft.has(key) || storageInUse) return
+    if ((!submitted.workspaceId && !workspaceId) || !hasContent(submitted) || actionsByDraft.has(key) || uploadsByDraft.has(key) || storageInUse) return
     const latest = readScopeDrafts(key)
     if (!sameAttachments(attachments, latest.attachments) || submitted.workspaceId !== latest.workspaceId) {
       notifyDraftAttachments(key)
@@ -114,8 +130,8 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
       report('attachmentUploadFailed')
       return
     }
-    pendingAction.current = true
-    setIsSubmitting(true)
+    actionsByDraft.set(key, 'submit')
+    notifyDraftAttachments(key)
     try {
       const now = Date.now()
       const item = { id: uid(), text, ...(attachments.length ? { attachments } : {}), done: false, createdAt: now, updatedAt: now }
@@ -138,8 +154,7 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
         saveAddDraft(key, saved.add, [], null)
       }
     } finally {
-      pendingAction.current = false
-      setIsSubmitting(false)
+      finishAction()
     }
   }
 
@@ -150,12 +165,12 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
    * text lands here, where the user can change it and submit it again.
    */
   const recall = async (item, takeBack) => {
-    if (pendingAction.current || uploadsByDraft.has(key) || hasContent(draftRef.current) || hasContent(readScopeDrafts(key))) {
+    if (actionsByDraft.has(key) || uploadsByDraft.has(key) || hasContent(draftRef.current) || hasContent(readScopeDrafts(key))) {
       report('recallBlocked')
       return
     }
-    pendingAction.current = true
-    setIsRecalling(true)
+    actionsByDraft.set(key, 'recall')
+    notifyDraftAttachments(key)
     try {
       const before = readScopeDrafts(key)
       const next = {
@@ -176,8 +191,7 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
       showDraft(next)
       report('recalled')
     } finally {
-      pendingAction.current = false
-      setIsRecalling(false)
+      finishAction()
     }
     window.requestAnimationFrame(() => {
       const node = addRef.current
@@ -197,7 +211,7 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
   }
 
   const onDraftChange = event => {
-    if (isRecalling) return
+    if (draftLocked) return
     const value = event.target.value
     const owner = value.trim() || draftRef.current.attachments.length ? draftRef.current.workspaceId : undefined
     const next = { ...draftRef.current, add: value, workspaceId: owner }
@@ -229,5 +243,5 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
     add()
   }
 
-  return { draft, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown }
+  return { draft, draftLocked, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown }
 }

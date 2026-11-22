@@ -250,3 +250,21 @@ cases:
         status: automated
     suites: [pr, nightly, release]
     tags: [scope, workspace, ownership]
+
+  - id: SCOPE-015
+    title: 面板内跳转工作区时保持面板打开
+    priority: P1
+    class: B
+    rules: [R-SCOPE-DEFAULT, R-SCOPE-OWNER]
+    risk: ux
+    expected:
+      - 跳转时面板和列表保持打开，新的页头入口显示已展开
+      - 目标会话选中后，录入区切换到目标工作区草稿，原工作区草稿保留
+      - 通过其他入口切换会话仍会收起面板
+    automation:
+      - type: integration
+        file: tests/bundle.test.mjs
+        test: SCOPE-015 面板内跳转工作区时保持面板打开
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [scope, workspace, draft]
