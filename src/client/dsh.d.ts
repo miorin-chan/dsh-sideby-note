@@ -56,8 +56,20 @@ interface DshClientCtx {
 declare module '@deepseek-ai/dsh-client-ui-primitives' {
   export const Tooltip: any
   export const Toast: any
+  export const FileTypeIcon: import('react').ComponentType<{ path: string }>
+  export const IconCloseFillRegular: import('react').ComponentType<{ size?: number }>
+  export const IconChevronLeftOutlineRegular: import('react').ComponentType
+  export const IconChevronRightOutlineRegular: import('react').ComponentType
+  export function fileExtension(name: string): string
+  export function fileSizeText(bytes: number): string
   const primitives: Record<string, any>
   export default primitives
+}
+
+declare module '*.module.css' {
+  const classes: Readonly<Record<string, string>>
+  export const stylesheet: string
+  export default classes
 }
 
 /** `?inline` stylesheets arrive as a string, not as a side-effectful import. */

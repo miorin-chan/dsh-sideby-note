@@ -11,13 +11,19 @@
  * https://github.com/bowenliang123/dsh-context and https://github.com/dsh-market/dsh-market
  */
 import { readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { dirname, relative, resolve as resolvePath } from 'node:path'
+import { transform } from 'lightningcss'
 import { defineConfig, type TsdownPlugin } from 'tsdown'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
 
 const CSS_INLINE = '?inline'
 const CSS_VIRTUAL_PREFIX = '\0dsh-css:'
+const require = createRequire(import.meta.url)
+const ATTACHMENT_PACKAGE = '@deepseek-ai/dsh-client-ui-attachment'
+const OFFICIAL_ATTACHMENT_CSS = new Set(['FileCard.module.css', 'AttachmentRail.module.css']
+  .map(file => require.resolve(`${ATTACHMENT_PACKAGE}/src/${file}`)))
 
 /**
  * `import css from './x.css?inline'` yields the file's text.
@@ -30,9 +36,13 @@ function inlineCss(): TsdownPlugin {
   return {
     name: 'dsh-css-inline',
     resolveId(source: string, importer: string | undefined) {
-      if (!source.endsWith(`.css${CSS_INLINE}`)) return null
-      const file = source.slice(0, -CSS_INLINE.length)
-      const absolute = importer ? resolvePath(dirname(importer), file) : file
+      const inline = source.endsWith(`.css${CSS_INLINE}`)
+      const file = inline ? source.slice(0, -CSS_INLINE.length) : source
+      if (!inline && !file.endsWith('.module.css')) return null
+      const absolute = file.startsWith(`${ATTACHMENT_PACKAGE}/src/`)
+        ? require.resolve(file)
+        : resolvePath(importer ? dirname(importer) : process.cwd(), file)
+      if (!inline && !OFFICIAL_ATTACHMENT_CSS.has(absolute)) return null
       // Keep the virtual id relative and slash-separated: rolldown echoes it in
       // a comment, so an absolute path would leak the author's machine, and a
       // Windows "\" would make the bundle differ from the Linux CI artifact by
@@ -43,7 +53,16 @@ function inlineCss(): TsdownPlugin {
     load(id: string) {
       if (!id.startsWith(CSS_VIRTUAL_PREFIX)) return null
       const file = resolvePath(process.cwd(), id.slice(CSS_VIRTUAL_PREFIX.length, -'.mjs'.length))
-      return `export default ${JSON.stringify(readFileSync(file, 'utf8'))}`
+      const source = readFileSync(file)
+      if (!OFFICIAL_ATTACHMENT_CSS.has(file)) return `export default ${JSON.stringify(source.toString())}`
+      const { code, exports: classes } = transform({
+        filename: relative(process.cwd(), file).replaceAll('\\', '/'),
+        code: source,
+        cssModules: { pattern: 'dsh-an-official-[name]-[local]' },
+      })
+      if (!classes) throw new Error(`Missing CSS Module exports for ${file}`)
+      const names = Object.fromEntries(Object.entries(classes).map(([local, value]) => [local, value.name]))
+      return `export default ${JSON.stringify(names)}; export const stylesheet = ${JSON.stringify(code.toString())}`
     },
   }
 }
@@ -75,6 +94,7 @@ export default defineConfig({
   // platform rather than inheriting the format default.
   inputOptions: { platform: 'browser' },
   deps: {
+    onlyBundle: [ATTACHMENT_PACKAGE, 'clsx'],
     neverBundle: CLIENT_EXTERNALS,
     // Anything not in the loader's module table must inline: a require() the
     // table cannot answer throws at boot.

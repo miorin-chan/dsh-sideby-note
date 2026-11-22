@@ -33,9 +33,553 @@ let react_dom_client = require("react-dom/client");
 react_dom_client = __toESM(react_dom_client, 1);
 let _deepseek_ai_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
 _deepseek_ai_dsh_client_ui_primitives = __toESM(_deepseek_ai_dsh_client_ui_primitives, 1);
+let react_jsx_runtime = require("react/jsx-runtime");
 
 // \0dsh-css:src/client/styles/panel.css.mjs
-var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{flex:none;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active{background:var(--an-active)}\n/* The list-scope switch sits at the far right of the title line. */\n.dsh-an-scope{display:inline-flex;align-items:center;min-width:0;box-sizing:border-box;height:24px;padding:1px;margin-inline-start:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-scopeBtn,.dsh-an-scopeSummaryContent,.dsh-an-scopePending{display:inline-flex;align-items:center;gap:var(--an-space-1);flex:none;white-space:nowrap;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px}\n.dsh-an-scopeBtn{height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-scopeBtn[aria-pressed=\"true\"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeWorkspace{flex:0 1 auto;min-width:0}\n.dsh-an-scopeIcon{display:grid;place-items:center;flex:none;width:14px;height:14px}\n.dsh-an-scopeName{min-width:0;overflow:hidden;text-overflow:ellipsis}\n.dsh-an-scopeCount{flex:none;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:16px;font-weight:400;font-variant-numeric:tabular-nums}\n.dsh-an-scopeSummary{margin-inline-start:auto}\n.dsh-an-scope>.dsh-an-scopeSummaryContent,.dsh-an-scopePending{padding:0 var(--an-space-2)}\n.dsh-an-srOnly{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}\n.dsh-an-scopeBtn:focus-visible{outline:2px solid var(--dsw-focus-ring-color,var(--dsw-alias-label-primary));outline-offset:1px}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within,.dsh-an-add[data-file-drag]{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-composerTools{display:flex;align-items:center;gap:var(--an-space-1)}\n.dsh-an-attachBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}\n.dsh-an-attachBtn:disabled{cursor:not-allowed;opacity:.55}\n.dsh-an-destination,.dsh-an-attachmentStatus{grid-column:1/-1;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}\n/* Adapted from @deepseek-ai/dsh-client-ui-attachment 0.2.2-rc.5,\n   src/FileCard.module.css (.card, .icon, .body, .name, .meta).\n   Copyright (c) 2026 DeepSeek, MIT. See LICENSE. */\n.dsh-an-attachments{min-width:0}\n.dsh-an-add>.dsh-an-attachments{grid-column:1/-1}\n.dsh-an-text+.dsh-an-attachments{margin-top:var(--an-space-1)}\n.dsh-an-attachmentCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:var(--an-space-2);padding:0;margin:0;list-style:none}\n.dsh-an-attachments[data-draft] .dsh-an-attachmentCards{display:flex;padding:2px;overflow-x:auto;overscroll-behavior-inline:contain}\n.dsh-an-attachments[data-draft] .dsh-an-attachment{flex:0 0 min(100%,240px)}\n.dsh-an-attachments[data-draft] .dsh-an-attachment:not(:only-child){flex-basis:min(calc(100% - var(--an-space-5)),240px)}\n.dsh-an-attachmentCards:focus-visible{outline:2px solid var(--dsw-focus-ring-color,var(--dsw-alias-label-primary));outline-offset:2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-attachment{display:flex;align-items:center;gap:var(--an-space-1);box-sizing:border-box;min-width:0;min-height:52px;padding:var(--an-space-1) var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-lg);background:var(--dsw-specific-input-major,transparent)}\n.dsh-an-attachmentIcon{display:grid;place-items:center;flex:none;width:28px;height:28px;color:var(--dsw-alias-label-secondary)}\n.dsh-an-attachmentIcon svg{max-width:100%;max-height:100%}\n.dsh-an-attachmentBody{display:flex;flex:1;align-items:center;min-width:0;padding:0 var(--an-space-1);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;text-align:start}\n.dsh-an-attachmentText{display:flex;flex:1;flex-direction:column;min-width:0}\n.dsh-an-attachmentDisclosure{display:grid;place-items:center;flex:none;color:var(--dsw-alias-label-secondary)}\nbutton.dsh-an-attachmentBody{cursor:pointer}\nbutton.dsh-an-attachmentBody[aria-expanded='true']{background:var(--an-active)}\nbutton.dsh-an-attachmentBody[aria-expanded='true'] .dsh-an-attachmentDisclosure{transform:rotate(90deg)}\n.dsh-an-attachmentName,.dsh-an-attachmentMeta{width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.dsh-an-attachmentName{font-size:var(--an-fs-row);font-weight:500}\n.dsh-an-attachmentMeta{color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:16px}\n.dsh-an-attachment .dsh-an-attachmentAction{flex:none;text-decoration:none}\n.dsh-an-attachmentAction:disabled{opacity:.55;cursor:not-allowed}\n.dsh-an-attachmentPreviewRow{grid-column:1/-1;min-width:0}\n.dsh-an-attachments[data-draft]>.dsh-an-attachmentPreview{margin-top:var(--an-space-1)}\n.dsh-an-attachmentPreview{display:grid;grid-template-columns:minmax(0,1fr);justify-items:start;padding:var(--an-space-2);border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption)}\n.dsh-an-attachmentPreview img,.dsh-an-attachmentPreview video{display:block;max-width:100%;max-height:160px;object-fit:contain}\n.dsh-an-attachments[data-draft] .dsh-an-attachmentPreview img,.dsh-an-attachments[data-draft] .dsh-an-attachmentPreview video{max-height:96px}\n.dsh-an-attachmentPreview audio{width:100%;min-width:0}\n.dsh-an-rowBody{min-width:0}\n.dsh-an-rowWorkspace{grid-area:2/2;margin-top:2px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-row)}\n.dsh-an-workspaceJump{display:flex;align-items:center;gap:var(--an-space-1);max-width:100%;min-height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-workspaceJump:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n.dsh-an-workspaceJump[aria-current]{cursor:default}\n.dsh-an-workspaceJump:not([aria-current]):active{color:var(--dsw-alias-label-primary);background:var(--an-active)}\n.dsh-an-workspaceGlyph{flex:none}\n.dsh-an-workspaceName{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.dsh-an-input{display:block;align-self:center;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:focus-visible,.dsh-an-attachBtn:focus-visible,.dsh-an-attachmentBody:focus-visible,.dsh-an-attachmentAction:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n.dsh-an-addBtn:active:not(:disabled){background:var(--an-active)}\n.dsh-an-addBtn:disabled{color:var(--dsw-alias-label-secondary);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;display:flex;flex-direction:column;gap:2px;margin:0;padding:0}\n/* The leading column keeps both sections aligned with the section label. */\n.dsh-an-row{position:relative;display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:start;column-gap:var(--an-space-1);padding:var(--an-space-1);border-radius:var(--dsw-radius-sm);transition:var(--an-transition)}\n\n/* ── 6 一行便笺 · 左侧填入，正文 13/20，尾格静置显示时间、悬停换成操作 ── */\n.dsh-an-leading{display:flex;justify-content:center;margin:-2px 0 0}\n.dsh-an-leading>.dsh-an-insert{flex:none}\n.dsh-an-row[data-sortable]{cursor:grab}\n/* Reserve the body for direct touch dragging and leave the side columns available for scrolling. */\n.dsh-an-row[data-sortable] .dsh-an-rowBody{touch-action:none}\n.dsh-an-row[data-sortable] .dsh-an-text{user-select:none;-webkit-user-select:none}\n.dsh-an-text{display:block;min-width:0;margin:0;padding:0;color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}\n.dsh-an-rowArchived .dsh-an-text{color:var(--dsw-alias-label-secondary)}\n/* Age and actions share one grid cell, so the swap never reflows the text. */\n.dsh-an-trail{display:grid;align-items:center;justify-items:end;min-height:24px;margin:-2px 0 0}\n.dsh-an-trail>*{grid-area:1/1}\n.dsh-an-meta{padding:0 var(--an-space-1);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;opacity:0;transition:opacity var(--an-dur-fast) var(--an-ease)}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:2px;transition:opacity var(--an-dur-fast) var(--an-ease)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-glyphFlip{transform:scaleX(-1)}\n\n/* ── 7b 拖拽排序 · 抬起的行跟手，其余行用 transform 让位 ─────────────── */\n.dsh-an-rows[data-dragging=\"true\"],.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row{cursor:grabbing}\n.dsh-an-row[data-dragging=\"true\"]{z-index:1;background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-prominent);transition:none}\n/* During a drag, show ages and keep row actions out of the way. */\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row :is(.dsh-an-actions,.dsh-an-insert){opacity:0;pointer-events:none}\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-meta{opacity:1}\n\n/* ── 8 紧凑文字按钮 · 清空确认 ─────────────────────────────────── */\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-listStatus{margin:0;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}\n\n/* ── 10 存储详情与更新 ─────────────────────────────────────────── */\n.dsh-an-storageBlock{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-storagePathRow{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-storagePath{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;user-select:all}\n.dsh-an-storageActions{display:flex;flex-wrap:wrap;gap:var(--an-space-1)}\n/* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */\n.dsh-an-updateCheck{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCheck:active{background:var(--an-active)}\n.dsh-an-updateCheck[aria-disabled=\"true\"]{color:var(--dsw-alias-label-secondary);cursor:default}\n.dsh-an-updateCheck:focus-visible{outline-offset:2px}\n.dsh-an-updateHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-updateHintError{color:var(--dsw-alias-state-error-primary)}\n.dsh-an-updateCard{display:flex;flex-direction:column;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-updateTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-updateFull:focus-visible,.dsh-an-updateLinkBtn:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateFull{flex:none;color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}\n.dsh-an-updateNotes{display:flex;flex-direction:column;gap:var(--an-space-2);max-height:220px;overflow-y:auto;padding-right:0;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);scrollbar-gutter:stable}\n.dsh-an-updateNotes[data-fade=\"true\"]{--dsh-an-fadeHeight:var(--an-space-5);-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n.dsh-an-updateVersions{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion+.dsh-an-updateVersion{padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateVersionHead{display:flex;align-items:center;gap:var(--an-space-1);width:100%;padding:2px 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer}\n.dsh-an-updateVersionHead:active{background:var(--an-active)}\n.dsh-an-updateVersionHead:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateChevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-updateChevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-updateVersionLabel{font-variant-numeric:tabular-nums}\n.dsh-an-updateLatest{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500}\n.dsh-an-updateVersionBody{display:flex;flex-direction:column;gap:var(--an-space-2);padding-left:var(--an-space-4);min-width:0}\n.dsh-an-updateGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateGroupTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-updateItems{display:flex;flex-direction:column;gap:var(--an-space-1);margin:0;padding-left:var(--an-space-4);color:var(--dsw-alias-label-primary)}\n.dsh-an-updateItem{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);overflow-wrap:anywhere}\n.dsh-an-updateItem strong{font-weight:500}\n.dsh-an-updateActions{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updatePrimary{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-3);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updatePrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-updatePrimary:disabled{opacity:.55;cursor:default}\n.dsh-an-updatePrimary:focus-visible{outline-offset:2px}\n.dsh-an-updateDone{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateErrorRow{display:flex;align-items:baseline;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateError{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere}\n.dsh-an-updateLinkBtn{padding:0;border:0;background:transparent;color:var(--dsw-alias-link);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer}\n.dsh-an-updateFallback{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateFallback .dsh-an-updateHint{flex:1 1 100%;min-width:0}\n.dsh-an-updateCopy{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCopy:active{background:var(--an-active)}\n.dsh-an-updateCopy:focus-visible{outline-offset:2px}\n\n/* ── 11 存储异常与面板底部入口 ─────────────────────────────────── */\n.dsh-an-storageStatus{display:flex;align-items:flex-start;flex-wrap:wrap;gap:var(--an-space-2);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);font-size:var(--an-fs-caption);overflow-wrap:anywhere}\n.dsh-an-storageStatus>div{flex:1 1 135px;min-width:0}\n.dsh-an-storageStatus p,.dsh-an-footerBody p{margin:0}\n.dsh-an-storageFailure{color:var(--dsw-alias-label-secondary)}\n.dsh-an-reconnect[aria-disabled=\"true\"]{color:var(--dsw-alias-label-secondary);cursor:progress}\n.dsh-an-popFoot{flex:0 1 auto;min-height:24px;max-height:40dvh;margin:0;padding:2px;overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-storageToggle,.dsh-an-updateToggle{width:fit-content;padding:2px var(--an-space-1);border-radius:var(--dsw-radius-sm);cursor:pointer}\n.dsh-an-storageToggle{display:block;list-style:none;text-decoration:underline;text-decoration-color:var(--dsw-alias-label-tertiary);text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-storageToggle::-webkit-details-marker{display:none}\n.dsh-an-storageToggle:focus-visible,.dsh-an-updateToggle:focus-visible{outline:2px solid var(--dsw-alias-label-primary)}\n.dsh-an-updateToggle{font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-footerBody{display:grid;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-versionRow{display:flex;align-items:center;flex-wrap:wrap;gap:var(--an-space-2)}\n.dsh-an-versionRow>span:empty{position:absolute}\n/* Keep controls reachable when errors or disclosures add more than the panel can fit. */\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]){overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-listViewport{min-height:48px}\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-popFoot{flex-shrink:0}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n  button.dsh-an-attachmentBody:hover{background:var(--an-hover)}\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-meta{opacity:1}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta{opacity:0}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-workspaceJump:not([aria-current]):hover .dsh-an-workspaceName{text-decoration:underline;text-underline-offset:2px}\n.dsh-an-popClose:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-scope[role=\"group\"]:hover{background-color:color-mix(in srgb,var(--dsw-alias-bg-layer-1) 70%,var(--dsw-alias-interactive-bg-hover-solid))}\n.dsh-an-scopeBtn:hover{color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not(:disabled,:active),.dsh-an-attachBtn:hover:not(:disabled){background:var(--an-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover,.dsh-an-storageToggle:hover,.dsh-an-updateToggle:hover{background:var(--an-hover)}\n.dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) backwards}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead,.dsh-an-popTitleLine{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
+var panel_css_default = "/*\n * Panel, composer dock, header entry and toast styles.\n *\n * Only DSH semantic aliases and the shared scale are used here — no palette of\n * its own. The entry point injects this sheet once for the whole frame, because\n * the dock mounts outside the panel tree.\n */\n/* ── 1 令牌 · 只映射 DSH 语义别名与共享尺度，不新建调色板 ─────────── */\nbody{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-space-5:24px;--an-space-6:32px;--an-radius-pill:999px;--an-fs-caption:12px;--an-lh-caption:20px;--an-fs-row:13px;--an-lh-row:20px;--an-fs-title:14px;--an-lh-title:20px;--an-hover:var(--dsw-alias-interactive-bg-hover);--an-active:var(--dsw-alias-interactive-bg-active);--an-field:var(--dsw-alias-bg-layer-1);--an-divider:var(--dsw-alias-border-l2);--an-dur-fast:var(--ds-transition-duration-fast);--an-dur-base:var(--ds-transition-duration);--an-dur-spin:700ms;--an-ease:var(--ds-ease-in-out);--an-transition:background-color var(--an-dur-fast) var(--an-ease),border-color var(--an-dur-fast) var(--an-ease),color var(--an-dur-fast) var(--an-ease),opacity var(--an-dur-fast) var(--an-ease),transform var(--an-dur-fast) var(--an-ease),box-shadow var(--an-dur-fast) var(--an-ease)}\n\n/* ── 2 浮层 · 菜单材质 + 三层阴影，边框为 0（发丝线在阴影第一层） ── */\n.dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n\n/* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */\n.dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}\n.dsh-an-popTitleLine{display:flex;align-items:center;gap:var(--an-space-3);flex:1 1 auto;min-width:0}\n.dsh-an-popTitle{flex:none;font-size:var(--an-fs-title);line-height:var(--an-lh-title);font-weight:500;color:var(--dsw-alias-label-primary);white-space:nowrap}\n.dsh-an-popActions{display:flex;align-items:center;flex:none;gap:var(--an-space-2)}\n.dsh-an-popClose{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-popClose:active{background:var(--an-active)}\n/* The list-scope switch sits at the far right of the title line. */\n.dsh-an-scope{display:inline-flex;align-items:center;min-width:0;box-sizing:border-box;height:24px;padding:1px;margin-inline-start:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-scopeBtn,.dsh-an-scopeSummaryContent,.dsh-an-scopePending{display:inline-flex;align-items:center;gap:var(--an-space-1);flex:none;white-space:nowrap;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px}\n.dsh-an-scopeBtn{height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-scopeBtn[aria-pressed=\"true\"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}\n.dsh-an-scopeWorkspace{flex:0 1 auto;min-width:0}\n.dsh-an-scopeIcon{display:grid;place-items:center;flex:none;width:14px;height:14px}\n.dsh-an-scopeName{min-width:0;overflow:hidden;text-overflow:ellipsis}\n.dsh-an-scopeCount{flex:none;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:16px;font-weight:400;font-variant-numeric:tabular-nums}\n.dsh-an-scopeSummary{margin-inline-start:auto}\n.dsh-an-scope>.dsh-an-scopeSummaryContent,.dsh-an-scopePending{padding:0 var(--an-space-2)}\n.dsh-an-srOnly{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}\n.dsh-an-scopeBtn:focus-visible{outline:2px solid var(--dsw-focus-ring-color,var(--dsw-alias-label-primary));outline-offset:1px}\n\n/* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */\n.dsh-an-add{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}\n.dsh-an-add:focus-within,.dsh-an-add[data-file-drag]{border-color:var(--dsw-alias-state-business-primary)}\n.dsh-an-composerTools{display:flex;align-items:center;gap:var(--an-space-1)}\n.dsh-an-attachBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}\n.dsh-an-attachBtn:disabled{cursor:not-allowed;opacity:.55}\n.dsh-an-destination,.dsh-an-attachmentStatus{grid-column:1/-1;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}\n.dsh-an-attachments{min-width:0;container-type:inline-size}\n.dsh-an-add>.dsh-an-attachments{grid-column:1/-1}\n.dsh-an-text+.dsh-an-attachments{margin-top:var(--an-space-1)}\n.dsh-an-attachmentCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),240px));gap:var(--an-space-2);padding:0;margin:0;list-style:none}\n.dsh-an-attachment{position:relative;width:fit-content;max-width:100%}\n.dsh-an-attachmentBody{position:absolute;inset-block:2px;inset-inline:2px var(--an-space-6);display:flex;align-items:center;justify-content:flex-end;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}\n.dsh-an-attachmentBody>span{display:flex}\n.dsh-an-attachmentBody[aria-expanded='true']>span{transform:rotate(90deg)}\n.dsh-an-attachment .dsh-an-attachmentAction{position:absolute;inset-inline-end:var(--an-space-1);bottom:var(--an-space-1);text-decoration:none}\n.dsh-an-attachmentPreviewRow{grid-column:1/-1;min-width:0}\n.dsh-an-attachments[data-draft]>.dsh-an-attachmentPreview{margin-top:var(--an-space-1)}\n.dsh-an-attachmentPreview{display:grid;grid-template-columns:minmax(0,1fr);justify-items:start;padding:var(--an-space-2);border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption)}\n.dsh-an-attachmentPreview img,.dsh-an-attachmentPreview video{display:block;max-width:100%;max-height:160px;object-fit:contain}\n.dsh-an-attachments[data-draft] .dsh-an-attachmentPreview img,.dsh-an-attachments[data-draft] .dsh-an-attachmentPreview video{max-height:96px}\n.dsh-an-attachmentPreview audio{width:100%;min-width:0}\n.dsh-an-rowBody{min-width:0}\n.dsh-an-rowWorkspace{grid-area:2/2;margin-top:2px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-row)}\n.dsh-an-workspaceJump{display:flex;align-items:center;gap:var(--an-space-1);max-width:100%;min-height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-workspaceJump:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n.dsh-an-workspaceJump[aria-current]{cursor:default}\n.dsh-an-workspaceJump:not([aria-current]):active{color:var(--dsw-alias-label-primary);background:var(--an-active)}\n.dsh-an-workspaceGlyph{flex:none}\n.dsh-an-workspaceName{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.dsh-an-input{display:block;align-self:center;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}\n.dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}\n.dsh-an-addBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);cursor:pointer;transition:var(--an-transition)}\n.dsh-an-addBtn:focus-visible,.dsh-an-attachBtn:focus-visible,.dsh-an-attachmentBody:focus-visible,.dsh-an-attachmentAction:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}\n.dsh-an-addBtn:active:not(:disabled){background:var(--an-active)}\n.dsh-an-addBtn:disabled{color:var(--dsw-alias-label-secondary);cursor:not-allowed}\n\n/* ── 5 分区与列表 · 9px 轨道内嵌 2px，底部羽化只盖内容不盖滚动条 ──── */\n/* The viewport grows into the popover padding so the 9px rail does not steal from the cards; the list pays the padding back minus the rail, so cards and the add field keep one content width at every panel size. */\n.dsh-an-listViewport{position:relative;display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-right:calc(var(--dsh-an-listGutter) * -1)}\n/* Bottom edge treatment: a viewport-fixed alpha mask over the scroller itself, exactly like the DSH scroll areas. The first gradient fades the last 48px to transparent; the second keeps the 9px scrollbar rail opaque so the thumb stays crisp. There is no backdrop-filter layer, so there is no hard compositing edge to see. */\n.dsh-an-listViewport[data-bottom=\"true\"] .dsh-an-listArea{--dsh-an-fadeHeight:calc(var(--an-space-6) + var(--an-space-4));-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n/* Geometry only: the shared DSH skin paints the thumb, so the plugin declares no scrollbar pseudo-elements. The popover already binds the l2 thumb pair for the menu material. */\n.dsh-an-listArea{--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-right:calc(var(--dsh-an-listGutter) - var(--dsh-an-scrollRail));overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}\n.dsh-an-listSection{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-listSection+.dsh-an-listSection{margin-top:var(--an-space-2)}\n.dsh-an-sectionHead,.dsh-an-doneHead{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-height:28px;margin:0;padding:var(--an-space-1) 0;background:transparent;transition:background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-sectionHead[data-stuck],.dsh-an-doneHead[data-stuck]{background:var(--dsh-an-panelSurface,var(--dsw-alias-bg-layer-2))}\n.dsh-an-doneToggle{display:flex;align-items:center;gap:var(--an-space-2);flex:none;min-width:0;margin:0;padding:var(--an-space-1) var(--an-space-2) var(--an-space-1) 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-doneToggle:active{background:var(--an-active)}\n.dsh-an-doneToggle[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-chevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-chevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-sectionCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500;font-variant-numeric:tabular-nums}\n.dsh-an-clear{display:inline-flex;align-items:center;flex:none;height:24px;margin-left:auto;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-clear:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-clearConfirm{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-2);min-width:0;margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill)}\n.dsh-an-clearConfirmText{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}\n.dsh-an-clearConfirmActions{display:flex;align-items:center;flex:none;gap:var(--an-space-1)}\n.dsh-an-doneRows{margin-top:var(--an-space-2)}\n.dsh-an-rows{list-style:none;display:flex;flex-direction:column;gap:2px;margin:0;padding:0}\n/* The leading column keeps both sections aligned with the section label. */\n.dsh-an-row{position:relative;display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:start;column-gap:var(--an-space-1);padding:var(--an-space-1);border-radius:var(--dsw-radius-sm);transition:var(--an-transition)}\n\n/* ── 6 一行便笺 · 左侧填入，正文 13/20，尾格静置显示时间、悬停换成操作 ── */\n.dsh-an-leading{display:flex;justify-content:center;margin:-2px 0 0}\n.dsh-an-leading>.dsh-an-insert{flex:none}\n.dsh-an-row[data-sortable]{cursor:grab}\n/* Reserve the body for direct touch dragging and leave the side columns available for scrolling. */\n.dsh-an-row[data-sortable] .dsh-an-rowBody{touch-action:none}\n.dsh-an-row[data-sortable] .dsh-an-text{user-select:none;-webkit-user-select:none}\n.dsh-an-text{display:block;min-width:0;margin:0;padding:0;color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}\n.dsh-an-rowArchived .dsh-an-text{color:var(--dsw-alias-label-secondary)}\n/* Age and actions share one grid cell, so the swap never reflows the text. */\n.dsh-an-trail{display:grid;align-items:center;justify-items:end;min-height:24px;margin:-2px 0 0}\n.dsh-an-trail>*{grid-area:1/1}\n.dsh-an-meta{padding:0 var(--an-space-1);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);font-variant-numeric:tabular-nums;white-space:nowrap;opacity:0;transition:opacity var(--an-dur-fast) var(--an-ease)}\n\n/* ── 7 行操作 · 图标按钮 H24/R8，触摸端常显 ────────────────────────── */\n.dsh-an-actions{display:flex;flex:none;gap:2px;transition:opacity var(--an-dur-fast) var(--an-ease)}\n.dsh-an-iconBtn{position:relative;display:flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-iconBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary);transform:scale(.94)}\n.dsh-an-iconBtn:disabled,.dsh-an-iconBtn[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-glyphFlip{transform:scaleX(-1)}\n\n/* ── 7b 拖拽排序 · 抬起的行跟手，其余行用 transform 让位 ─────────────── */\n.dsh-an-rows[data-dragging=\"true\"],.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row{cursor:grabbing}\n.dsh-an-row[data-dragging=\"true\"]{z-index:1;background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-prominent);transition:none}\n/* During a drag, show ages and keep row actions out of the way. */\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row :is(.dsh-an-actions,.dsh-an-insert){opacity:0;pointer-events:none}\n.dsh-an-rows[data-dragging=\"true\"] .dsh-an-row .dsh-an-meta{opacity:1}\n\n/* ── 8 紧凑文字按钮 · 清空确认 ─────────────────────────────────── */\n.dsh-an-mini{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-mini:active{background:var(--an-active)}\n.dsh-an-mini[disabled]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-miniDanger{border-color:transparent;background:var(--dsw-alias-state-error-primary);color:var(--dsw-alias-label-primary-foreground)}\n.dsh-an-miniDanger:active{background:var(--dsw-alias-state-error-primary)}\n\n/* ── 9 空态 · 虚线 1px，说明 12/次级墨色 ──────────────────────────── */\n.dsh-an-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--an-space-2);padding:var(--an-space-5) var(--an-space-4);border:1px dashed var(--an-divider);border-radius:var(--dsw-radius-lg);text-align:center}\n.dsh-an-emptyIcon{display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 0 var(--an-space-1);border-radius:var(--dsw-radius-md);background:var(--an-hover);color:var(--dsw-alias-label-secondary)}\n.dsh-an-emptyTitle{font-size:var(--an-fs-row);line-height:var(--an-lh-row);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-listStatus{margin:0;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}\n\n/* ── 10 存储详情与更新 ─────────────────────────────────────────── */\n.dsh-an-storageBlock{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}\n.dsh-an-storagePathRow{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-storagePath{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;user-select:all}\n.dsh-an-storageActions{display:flex;flex-wrap:wrap;gap:var(--an-space-1)}\n/* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */\n.dsh-an-updateCheck{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCheck:active{background:var(--an-active)}\n.dsh-an-updateCheck[aria-disabled=\"true\"]{color:var(--dsw-alias-label-secondary);cursor:default}\n.dsh-an-updateCheck:focus-visible{outline-offset:2px}\n.dsh-an-updateHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}\n.dsh-an-updateHintError{color:var(--dsw-alias-state-error-primary)}\n.dsh-an-updateCard{display:flex;flex-direction:column;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-updateTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-updateFull:focus-visible,.dsh-an-updateLinkBtn:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateFull{flex:none;color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}\n.dsh-an-updateNotes{display:flex;flex-direction:column;gap:var(--an-space-2);max-height:220px;overflow-y:auto;padding-right:0;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);scrollbar-gutter:stable}\n.dsh-an-updateNotes[data-fade=\"true\"]{--dsh-an-fadeHeight:var(--an-space-5);-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}\n.dsh-an-updateVersions{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateVersion+.dsh-an-updateVersion{padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateVersionHead{display:flex;align-items:center;gap:var(--an-space-1);width:100%;padding:2px 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer}\n.dsh-an-updateVersionHead:active{background:var(--an-active)}\n.dsh-an-updateVersionHead:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-updateChevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);transition:transform var(--an-dur-fast) var(--an-ease)}\n.dsh-an-updateChevron[data-open=\"true\"]{transform:rotate(90deg)}\n.dsh-an-updateVersionLabel{font-variant-numeric:tabular-nums}\n.dsh-an-updateLatest{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500}\n.dsh-an-updateVersionBody{display:flex;flex-direction:column;gap:var(--an-space-2);padding-left:var(--an-space-4);min-width:0}\n.dsh-an-updateGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}\n.dsh-an-updateGroupTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}\n.dsh-an-updateItems{display:flex;flex-direction:column;gap:var(--an-space-1);margin:0;padding-left:var(--an-space-4);color:var(--dsw-alias-label-primary)}\n.dsh-an-updateItem{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);overflow-wrap:anywhere}\n.dsh-an-updateItem strong{font-weight:500}\n.dsh-an-updateActions{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updatePrimary{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-3);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updatePrimary:active{background:var(--dsw-alias-button-primary-dimmed)}\n.dsh-an-updatePrimary:disabled{opacity:.55;cursor:default}\n.dsh-an-updatePrimary:focus-visible{outline-offset:2px}\n.dsh-an-updateDone{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateErrorRow{display:flex;align-items:baseline;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}\n.dsh-an-updateError{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere}\n.dsh-an-updateLinkBtn{padding:0;border:0;background:transparent;color:var(--dsw-alias-link);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer}\n.dsh-an-updateFallback{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}\n.dsh-an-updateFallback .dsh-an-updateHint{flex:1 1 100%;min-width:0}\n.dsh-an-updateCopy{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-updateCopy:active{background:var(--an-active)}\n.dsh-an-updateCopy:focus-visible{outline-offset:2px}\n\n/* ── 11 存储异常与面板底部入口 ─────────────────────────────────── */\n.dsh-an-storageStatus{display:flex;align-items:flex-start;flex-wrap:wrap;gap:var(--an-space-2);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);font-size:var(--an-fs-caption);overflow-wrap:anywhere}\n.dsh-an-storageStatus>div{flex:1 1 135px;min-width:0}\n.dsh-an-storageStatus p,.dsh-an-footerBody p{margin:0}\n.dsh-an-storageFailure{color:var(--dsw-alias-label-secondary)}\n.dsh-an-reconnect[aria-disabled=\"true\"]{color:var(--dsw-alias-label-secondary);cursor:progress}\n.dsh-an-popFoot{flex:0 1 auto;min-height:24px;max-height:40dvh;margin:0;padding:2px;overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}\n.dsh-an-storageToggle,.dsh-an-updateToggle{width:fit-content;padding:2px var(--an-space-1);border-radius:var(--dsw-radius-sm);cursor:pointer}\n.dsh-an-storageToggle{display:block;list-style:none;text-decoration:underline;text-decoration-color:var(--dsw-alias-label-tertiary);text-decoration-thickness:1px;text-underline-offset:3px}\n.dsh-an-storageToggle::-webkit-details-marker{display:none}\n.dsh-an-storageToggle:focus-visible,.dsh-an-updateToggle:focus-visible{outline:2px solid var(--dsw-alias-label-primary)}\n.dsh-an-updateToggle{font-weight:500;color:var(--dsw-alias-label-primary)}\n.dsh-an-footerBody{display:grid;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}\n.dsh-an-versionRow{display:flex;align-items:center;flex-wrap:wrap;gap:var(--an-space-2)}\n.dsh-an-versionRow>span:empty{position:absolute}\n/* Keep controls reachable when errors or disclosures add more than the panel can fit. */\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]){overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-listViewport{min-height:48px}\n.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-popFoot{flex-shrink:0}\n.dsh-an-error{color:var(--dsw-alias-state-error-primary)}\n\n/* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */\n.dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}\n.dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-active=\"true\"]{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-headerBtn[data-disabled=\"true\"]{color:var(--dsw-alias-label-tertiary);cursor:not-allowed;pointer-events:none}\n.dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}\n.dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}\n\n/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */\n.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandle::before{content:\"\";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}\n.dsh-an-resizeHandleBottom::before{content:\"\";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}\n.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}\n\n/* ── 14 加载 · 控件内 12px 环，文字隐藏，不报\"进行中\" ──────────────── */\n[data-loading=\"true\"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}\n[data-loading=\"true\"]>*{visibility:hidden}\n[data-loading=\"true\"]::after{content:\"\";position:absolute;left:50%;top:50%;box-sizing:border-box;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid var(--dsw-alias-label-secondary);border-top-color:transparent;border-radius:var(--an-radius-pill);corner-shape:round;animation:dsh-an-spin var(--an-dur-spin) linear infinite}\n\n/* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */\n@media (hover:hover){\n  button.dsh-an-attachmentBody:hover{background:var(--an-hover)}\n.dsh-an-row:hover{background:var(--an-hover)}\n.dsh-an-meta{opacity:1}\n.dsh-an-actions{opacity:0;pointer-events:none}\n.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}\n.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta{opacity:0}\n.dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-workspaceJump:not([aria-current]):hover .dsh-an-workspaceName{text-decoration:underline;text-underline-offset:2px}\n.dsh-an-popClose:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-scope[role=\"group\"]:hover{background-color:color-mix(in srgb,var(--dsw-alias-bg-layer-1) 70%,var(--dsw-alias-interactive-bg-hover-solid))}\n.dsh-an-scopeBtn:hover{color:var(--dsw-alias-label-primary)}\n.dsh-an-addBtn:hover:not(:disabled,:active),.dsh-an-attachBtn:hover:not(:disabled){background:var(--an-hover)}\n.dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}\n.dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}\n.dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-doneToggle:hover,.dsh-an-storageToggle:hover,.dsh-an-updateToggle:hover{background:var(--an-hover)}\n.dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}\n.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}\n.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}\n.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}\n}\n\n/* ── 16 动效 · 只动 opacity/transform，错峰出场封顶 ─────────────────── */\n@media (prefers-reduced-motion:no-preference){\n.dsh-an-rows>.dsh-an-row{animation:dsh-an-row-in var(--an-dur-base) var(--an-ease) backwards}\n.dsh-an-rows>.dsh-an-row:nth-child(2){animation-delay:var(--an-space-1)}\n.dsh-an-rows>.dsh-an-row:nth-child(3){animation-delay:var(--an-space-2)}\n.dsh-an-rows>.dsh-an-row:nth-child(4){animation-delay:calc(var(--an-space-2) + var(--an-space-1))}\n.dsh-an-rows>.dsh-an-row:nth-child(n+5){animation-delay:var(--an-space-3)}\n}\n@keyframes dsh-an-pop-in{from{opacity:0}to{opacity:1}}\n@keyframes dsh-an-row-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}\n@keyframes dsh-an-spin{to{transform:rotate(360deg)}}\n@media (prefers-reduced-motion:reduce){\n.dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading=\"true\"]::after{animation:none}\n.dsh-an-popover,.dsh-an-row,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}\n}\n\n/* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */\n@media (max-width:480px){\n.dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}\n.dsh-an-popoverRight{padding-left:var(--an-space-4)}\n.dsh-an-popHead,.dsh-an-popTitleLine{gap:var(--an-space-2)}\n.dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}\n.dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}\n}\n\n";
+
+// node_modules/clsx/dist/clsx.mjs
+function r(e) {
+	var t, f, n = "";
+	if ("string" == typeof e || "number" == typeof e) n += e;
+	else if ("object" == typeof e) if (Array.isArray(e)) {
+		var o = e.length;
+		for (t = 0; t < o; t++) e[t] && (f = r(e[t])) && (n && (n += " "), n += f);
+	} else for (f in e) e[f] && (n && (n += " "), n += f);
+	return n;
+}
+function clsx() {
+	for (var e, t, f = 0, n = "", o = arguments.length; f < o; f++) (e = arguments[f]) && (t = r(e)) && (n && (n += " "), n += t);
+	return n;
+}
+
+// \0dsh-css:node_modules/@deepseek-ai/dsh-client-ui-attachment/src/AttachmentRail.module.css.mjs
+var AttachmentRail_module_css_default = {
+	"item": "dsh-an-official-AttachmentRail-module-item",
+	"rail": "dsh-an-official-AttachmentRail-module-rail",
+	"arrow": "dsh-an-official-AttachmentRail-module-arrow",
+	"arrowLeft": "dsh-an-official-AttachmentRail-module-arrowLeft",
+	"root": "dsh-an-official-AttachmentRail-module-root",
+	"arrowRight": "dsh-an-official-AttachmentRail-module-arrowRight",
+	"remove": "dsh-an-official-AttachmentRail-module-remove",
+	"thumbnail": "dsh-an-official-AttachmentRail-module-thumbnail"
+};
+const stylesheet$1 = ".dsh-an-official-AttachmentRail-module-root {\n  min-width: 0;\n  position: relative;\n}\n\n.dsh-an-official-AttachmentRail-module-rail {\n  scrollbar-width: none;\n  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);\n  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);\n  align-items: stretch;\n  gap: 10px;\n  display: flex;\n  overflow: auto hidden;\n}\n\n.dsh-an-official-AttachmentRail-module-rail::-webkit-scrollbar {\n  display: none;\n}\n\n.dsh-an-official-AttachmentRail-module-item {\n  flex: none;\n  height: 64px;\n}\n\n.dsh-an-official-AttachmentRail-module-thumbnail {\n  border: .5px solid var(--dsw-alias-border-l2-darkmode-thin);\n  border-radius: var(--dsw-radius-xl);\n  background: var(--dsw-alias-interactive-bg-hover);\n  cursor: zoom-in;\n  width: 64px;\n  height: 64px;\n  padding: 0;\n  overflow: hidden;\n}\n\n.dsh-an-official-AttachmentRail-module-thumbnail img {\n  object-fit: cover;\n  width: 100%;\n  height: 100%;\n  display: block;\n}\n\n.dsh-an-official-AttachmentRail-module-remove {\n  z-index: 1;\n  corner-shape: round;\n  background: var(--dsw-alias-button-contrast-fill);\n  width: 18px;\n  height: 18px;\n  color: var(--dsw-alias-label-primary-inverted);\n  cursor: pointer;\n  opacity: 0;\n  border: none;\n  border-radius: 50%;\n  place-items: center;\n  padding: 0;\n  transition: opacity .2s ease-in-out;\n  display: grid;\n  position: absolute;\n  top: 4px;\n  right: 4px;\n}\n\n.dsh-an-official-AttachmentRail-module-remove:focus-visible {\n  opacity: 1;\n}\n\n@media (hover: hover) {\n  .dsh-an-official-AttachmentRail-module-item:hover .dsh-an-official-AttachmentRail-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (hover: none), (pointer: coarse) {\n  .dsh-an-official-AttachmentRail-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .dsh-an-official-AttachmentRail-module-remove {\n    transition: none;\n  }\n}\n\n.dsh-an-official-AttachmentRail-module-arrow {\n  z-index: 2;\n  --dsw-elevation-stroke-color: var(--dsw-alias-border-l2-darkmode-thin);\n  corner-shape: round;\n  background: var(--dsw-specific-input-major);\n  width: 24px;\n  height: 24px;\n  color: var(--dsw-alias-label-secondary);\n  box-shadow: var(--dsw-elevation-panel);\n  cursor: pointer;\n  border: 0;\n  border-radius: 999px;\n  place-items: center;\n  padding: 0;\n  display: grid;\n  position: absolute;\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n@media (hover: hover) {\n  .dsh-an-official-AttachmentRail-module-arrow:hover {\n    background: var(--dsw-alias-interactive-bg-hover-solid);\n  }\n}\n\n.dsh-an-official-AttachmentRail-module-arrowLeft {\n  left: 4px;\n}\n\n.dsh-an-official-AttachmentRail-module-arrowRight {\n  right: 4px;\n}\n";
+
+// node_modules/@deepseek-ai/dsh-client-ui-attachment/src/AttachmentRail.tsx
+/** Draft-attachment rail: scrollbar-less horizontal overflow paged by edge arrows. */
+/** Approximate pixels per wheel step for `deltaMode` LINE deltas (Firefox
+* notch wheels report lines, not pixels). */
+const WHEEL_LINE_PX = 16;
+/** Smooth paging unless the user asked for reduced motion. */
+function pageBehavior() {
+	const matchMedia = window.matchMedia;
+	return matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+}
+/**
+* Horizontal rail over the caller's ordered draft attachments.
+*
+* The rail scrolls with its scrollbar hidden; overflow is announced by edge
+* arrows recomputed from scroll geometry on scroll, item-count changes, and
+* rail size changes (a ResizeObserver on the rail element, so sidebar or
+* panel resizes count, not only window resizes). A vertical wheel pans the
+* rail horizontally and is consumed exclusively (non-passive listener), a
+* newly added item is revealed at the rail's end while a rail that mounts
+* over an existing draft keeps its start position. The owner renders each
+* item and decides mounting; it renders the rail only while items exist.
+*
+* @param props.items - attachments in draft order.
+* @param props.labels - rail-level strings (group name and paging arrows).
+* @param props.renderItem - render one attachment card in draft order.
+* @returns the rail group with its paging arrows.
+*/
+function AttachmentRail({ items, labels, renderItem }) {
+	const railRef = (0, react.useRef)(null);
+	const countRef = (0, react.useRef)(null);
+	const [edges, setEdges] = (0, react.useState)({
+		left: false,
+		right: false
+	});
+	const updateEdges = (0, react.useCallback)(() => {
+		const el = railRef.current;
+		/* v8 ignore next -- defensive: every caller runs while the rail element is mounted. */
+		if (el === null) return;
+		const left = el.scrollLeft > 1;
+		const right = el.scrollLeft < el.scrollWidth - el.clientWidth - 1;
+		setEdges((prev) => prev.left === left && prev.right === right ? prev : {
+			left,
+			right
+		});
+	}, []);
+	(0, react.useLayoutEffect)(() => {
+		const grew = countRef.current !== null && items.length > countRef.current;
+		countRef.current = items.length;
+		const el = railRef.current;
+		/* v8 ignore next -- defensive: the rail div renders unconditionally, so the layout effect always finds it. */
+		if (el === null) return;
+		if (grew) el.scrollLeft = el.scrollWidth - el.clientWidth;
+		updateEdges();
+	}, [items.length, updateEdges]);
+	(0, react.useEffect)(() => {
+		const el = railRef.current;
+		/* v8 ignore next -- defensive: the rail div renders unconditionally, so the mount effect always finds it. */
+		if (el === null) return;
+		let disconnect = () => {};
+		if (typeof ResizeObserver !== "undefined") {
+			const observer = new ResizeObserver(updateEdges);
+			observer.observe(el);
+			disconnect = () => {
+				observer.disconnect();
+			};
+		}
+		const onWheel = (event) => {
+			if (event.deltaY === 0) return;
+			const scale = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? WHEEL_LINE_PX : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? el.clientWidth : 1;
+			event.preventDefault();
+			el.scrollBy({
+				left: event.deltaX !== 0 ? event.deltaX * scale : Math.sign(event.deltaY) * Math.min(Math.abs(event.deltaY) * scale, 60),
+				behavior: "auto"
+			});
+		};
+		el.addEventListener("wheel", onWheel, { passive: false });
+		return () => {
+			disconnect();
+			el.removeEventListener("wheel", onWheel);
+		};
+	}, [updateEdges]);
+	const page = (direction) => {
+		const el = railRef.current;
+		/* v8 ignore next -- defensive: the arrows render only while the rail is mounted, so a click cannot find a null ref. */
+		if (el === null) return;
+		el.scrollBy({
+			left: direction * Math.max(el.clientWidth - 64, 200),
+			behavior: pageBehavior()
+		});
+	};
+	return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+		className: AttachmentRail_module_css_default.root,
+		children: [
+			edges.left && /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+				type: "button",
+				className: clsx(AttachmentRail_module_css_default.arrow, AttachmentRail_module_css_default.arrowLeft),
+				"aria-label": labels.scrollLeft,
+				onClick: () => {
+					page(-1);
+				},
+				children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconChevronLeftOutlineRegular, {})
+			}),
+			/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+				ref: railRef,
+				className: AttachmentRail_module_css_default.rail,
+				role: "group",
+				"aria-label": labels.group,
+				onScroll: updateEdges,
+				children: items.map((item) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+					className: AttachmentRail_module_css_default.item,
+					children: renderItem(item)
+				}, item.id))
+			}),
+			edges.right && /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+				type: "button",
+				className: clsx(AttachmentRail_module_css_default.arrow, AttachmentRail_module_css_default.arrowRight),
+				"aria-label": labels.scrollRight,
+				onClick: () => {
+					page(1);
+				},
+				children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconChevronRightOutlineRegular, {})
+			})
+		]
+	});
+}
+
+// \0dsh-css:node_modules/@deepseek-ai/dsh-client-ui-attachment/src/FileCard.module.css.mjs
+var FileCard_module_css_default = {
+	"removeFailed": "dsh-an-official-FileCard-module-removeFailed",
+	"body": "dsh-an-official-FileCard-module-body",
+	"progressTrack": "dsh-an-official-FileCard-module-progressTrack",
+	"spinner": "dsh-an-official-FileCard-module-spinner",
+	"icon": "dsh-an-official-FileCard-module-icon",
+	"metaFailed": "dsh-an-official-FileCard-module-metaFailed",
+	"name": "dsh-an-official-FileCard-module-name",
+	"progressBar": "dsh-an-official-FileCard-module-progressBar",
+	"retry": "dsh-an-official-FileCard-module-retry",
+	"file-card-progress": "dsh-an-official-FileCard-module-file-card-progress",
+	"failed": "dsh-an-official-FileCard-module-failed",
+	"file-card-spin": "dsh-an-official-FileCard-module-file-card-spin",
+	"remove": "dsh-an-official-FileCard-module-remove",
+	"meta": "dsh-an-official-FileCard-module-meta",
+	"card": "dsh-an-official-FileCard-module-card"
+};
+const stylesheet = ".dsh-an-official-FileCard-module-card {\n  border: .5px solid var(--dsw-alias-border-l2);\n  border-radius: var(--dsw-radius-lg);\n  background: var(--dsw-specific-input-major, transparent);\n  box-sizing: border-box;\n  text-align: left;\n  align-items: center;\n  gap: 10px;\n  width: 240px;\n  height: 64px;\n  padding: 0 12px;\n  display: inline-flex;\n  position: relative;\n}\n\n.dsh-an-official-FileCard-module-failed {\n  border-color: var(--dsw-alias-state-error-primary);\n}\n\n.dsh-an-official-FileCard-module-icon {\n  flex: none;\n  justify-content: center;\n  align-items: center;\n  width: 28px;\n  height: 28px;\n  display: inline-flex;\n}\n\n.dsh-an-official-FileCard-module-spinner {\n  corner-shape: round;\n  border: 2px solid;\n  border-top-color: #0000;\n  border-radius: 50%;\n  width: 20px;\n  height: 20px;\n  animation: .8s linear infinite dsh-an-official-FileCard-module-file-card-spin;\n}\n\n@keyframes dsh-an-official-FileCard-module-file-card-spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.dsh-an-official-FileCard-module-body {\n  flex-direction: column;\n  flex: 1;\n  min-width: 0;\n  padding: 8px 0;\n  display: flex;\n}\n\n.dsh-an-official-FileCard-module-retry {\n  color: inherit;\n  font: inherit;\n  text-align: left;\n  cursor: pointer;\n  background: none;\n  border: 0;\n  padding: 0;\n}\n\n.dsh-an-official-FileCard-module-name {\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--dsw-alias-label-primary);\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 22px;\n  overflow: hidden;\n}\n\n.dsh-an-official-FileCard-module-meta {\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 12px;\n  line-height: 15px;\n  overflow: hidden;\n}\n\n.dsh-an-official-FileCard-module-metaFailed {\n  color: var(--dsw-alias-state-error-primary);\n}\n\n.dsh-an-official-FileCard-module-remove {\n  corner-shape: round;\n  background: var(--dsw-alias-button-contrast-fill);\n  width: 18px;\n  height: 18px;\n  color: var(--dsw-alias-label-primary-inverted);\n  opacity: 0;\n  cursor: pointer;\n  border: none;\n  border-radius: 50%;\n  justify-content: center;\n  align-items: center;\n  padding: 0;\n  transition: opacity .2s ease-in-out;\n  display: inline-flex;\n  position: absolute;\n  top: 6px;\n  right: 6px;\n}\n\n.dsh-an-official-FileCard-module-remove:focus-visible {\n  opacity: 1;\n}\n\n@media (hover: hover) {\n  .dsh-an-official-FileCard-module-card:hover .dsh-an-official-FileCard-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (hover: none), (pointer: coarse) {\n  .dsh-an-official-FileCard-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .dsh-an-official-FileCard-module-remove {\n    transition: none;\n  }\n}\n\n.dsh-an-official-FileCard-module-card:focus-within .dsh-an-official-FileCard-module-name {\n  padding-right: 18px;\n}\n\n@media (hover: hover) {\n  .dsh-an-official-FileCard-module-card:hover .dsh-an-official-FileCard-module-name {\n    padding-right: 18px;\n  }\n}\n\n.dsh-an-official-FileCard-module-removeFailed {\n  background: var(--dsw-alias-state-error-primary);\n  color: var(--dsw-alias-label-on-color);\n  opacity: 1;\n}\n\n.dsh-an-official-FileCard-module-progressTrack {\n  background: var(--dsw-specific-file-upload-track);\n  border-radius: 1px;\n  height: 2px;\n  position: absolute;\n  bottom: 5px;\n  left: 12px;\n  right: 12px;\n  overflow: hidden;\n}\n\n.dsh-an-official-FileCard-module-progressBar {\n  border-radius: inherit;\n  background: var(--dsw-alias-brand-primary);\n  width: 35%;\n  height: 100%;\n  animation: 1.2s ease-in-out infinite alternate dsh-an-official-FileCard-module-file-card-progress;\n  display: block;\n}\n\n.dsh-an-official-FileCard-module-progressBar[style] {\n  animation: none;\n}\n\n@keyframes dsh-an-official-FileCard-module-file-card-progress {\n  from {\n    transform: translateX(-70%);\n  }\n\n  to {\n    transform: translateX(220%);\n  }\n}\n\n@media (hover: none), (pointer: coarse) {\n  .dsh-an-official-FileCard-module-remove {\n    opacity: 1;\n  }\n}\n";
+
+// node_modules/@deepseek-ai/dsh-client-ui-attachment/src/FileCard.tsx
+/** One pending file card: type glyph, name, size or upload status, remove, retry. */
+function FileCard({ name, bytes, state, progress, labels, onRemove, onRetry }) {
+	const extension = (0, _deepseek_ai_dsh_client_ui_primitives.fileExtension)(name).toUpperCase().slice(0, 8);
+	const meta = state === "uploading" ? labels.uploading : state === "error" ? labels.failed : [extension, (0, _deepseek_ai_dsh_client_ui_primitives.fileSizeText)(bytes)].filter((part) => part !== "").join(" ");
+	const retryable = state === "error";
+	return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+		className: `${FileCard_module_css_default.card}${retryable ? ` ${FileCard_module_css_default.failed}` : ""}`,
+		title: name,
+		children: [
+			/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+				className: FileCard_module_css_default.icon,
+				"aria-hidden": true,
+				children: state === "uploading" ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { className: FileCard_module_css_default.spinner }) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.FileTypeIcon, { path: name })
+			}),
+			retryable ? /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+				type: "button",
+				className: `${FileCard_module_css_default.body} ${FileCard_module_css_default.retry}`,
+				"aria-label": labels.retry,
+				onClick: onRetry,
+				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: FileCard_module_css_default.name,
+					children: name
+				}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: `${FileCard_module_css_default.meta} ${FileCard_module_css_default.metaFailed}`,
+					children: meta
+				})]
+			}) : /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+				className: FileCard_module_css_default.body,
+				"aria-label": labels.label,
+				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: FileCard_module_css_default.name,
+					children: name
+				}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: FileCard_module_css_default.meta,
+					children: meta
+				})]
+			}),
+			/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+				type: "button",
+				className: retryable ? `${FileCard_module_css_default.remove} ${FileCard_module_css_default.removeFailed}` : FileCard_module_css_default.remove,
+				"aria-label": labels.remove,
+				onClick: onRemove,
+				children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconCloseFillRegular, { size: 12 })
+			}),
+			state === "uploading" && /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+				className: FileCard_module_css_default.progressTrack,
+				"aria-hidden": true,
+				children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+					className: FileCard_module_css_default.progressBar,
+					style: progress === void 0 ? void 0 : { width: `${String(Math.min(1, Math.max(0, progress)) * 100)}%` }
+				})
+			})
+		]
+	});
+}
+
+// host/attachment-metadata.ts
+const MAX_ATTACHMENT_BYTES = 26214400;
+const MAX_ATTACHMENTS = 10;
+const MAX_ATTACHMENT_NAME = 255;
+const MAX_ATTACHMENT_MIME = 127;
+const ATTACHMENT_ID = /^[a-f0-9]{64}$/;
+const ATTACHMENT_MIME = /^(?:[a-z0-9][a-z0-9!#$&^_.+-]*\/[a-z0-9][a-z0-9!#$&^_.+-]*)?$/;
+function normalizeAttachment(raw) {
+	if (!raw || typeof raw !== "object" || Array.isArray(raw)) return;
+	const { id, name, type, size } = raw;
+	if (typeof id !== "string" || !ATTACHMENT_ID.test(id)) return;
+	if (typeof name !== "string" || !name || name.length > 255) return;
+	if (typeof type !== "string" || type.length > 127 || !ATTACHMENT_MIME.test(type)) return;
+	if (typeof size !== "number" || !Number.isInteger(size) || size < 1 || size > 26214400) return;
+	return {
+		id,
+		name,
+		type,
+		size
+	};
+}
+function normalizeAttachments(raw) {
+	if (!Array.isArray(raw)) return [];
+	const attachments = [];
+	for (const candidate of raw) {
+		const attachment = normalizeAttachment(candidate);
+		if (attachment) attachments.push(attachment);
+		if (attachments.length === 10) break;
+	}
+	return attachments;
+}
+
+// src/client/domain/attachments.ts
+const ATTACHMENT_PATH = "/dsh-sideby-note/attachments";
+async function uploadAttachment(file, signal) {
+	const response = await fetch(ATTACHMENT_PATH, {
+		method: "POST",
+		headers: { "Content-Type": "application/octet-stream" },
+		body: file,
+		signal
+	});
+	if (!response.ok) throw new Error("Attachment upload failed");
+	const result = await response.json();
+	if (!result || typeof result !== "object" || !("ok" in result) || result.ok !== true || !("id" in result)) throw new Error("Invalid attachment upload response");
+	const type = file.type.toLowerCase();
+	const [attachment] = normalizeAttachments([{
+		id: result.id,
+		name: file.name.slice(0, 255),
+		type: type.length <= 127 && ATTACHMENT_MIME.test(type) ? type : "",
+		size: file.size
+	}]);
+	if (!attachment) throw new Error("Invalid attachment metadata");
+	return attachment;
+}
+function attachmentUrl(attachment) {
+	const query = new URLSearchParams({
+		id: attachment.id,
+		name: attachment.name
+	});
+	return `${ATTACHMENT_PATH}?${query}`;
+}
+async function readAttachment(attachment, signal) {
+	const response = await fetch(attachmentUrl(attachment), { signal });
+	if (!response.ok) throw new Error("Attachment download failed");
+	const blob = await response.blob();
+	if (blob.size !== attachment.size) throw new Error("Attachment size mismatch");
+	return blob.slice(0, blob.size, attachment.type);
+}
+const imageTypes = /* @__PURE__ */ new Set([
+	"image/png",
+	"image/jpeg",
+	"image/webp",
+	"image/gif",
+	"image/avif",
+	"image/bmp"
+]);
+const audioTypes = /* @__PURE__ */ new Set([
+	"audio/aac",
+	"audio/flac",
+	"audio/mp4",
+	"audio/mpeg",
+	"audio/ogg",
+	"audio/wav",
+	"audio/webm",
+	"audio/x-wav",
+	"audio/x-m4a"
+]);
+const videoTypes = /* @__PURE__ */ new Set([
+	"video/mp4",
+	"video/ogg",
+	"video/quicktime",
+	"video/webm"
+]);
+function previewKind(type) {
+	if (imageTypes.has(type)) return "img";
+	if (audioTypes.has(type)) return "audio";
+	if (videoTypes.has(type)) return "video";
+	return null;
+}
+
+// src/client/ui/primitives.ts
+/**
+* Shared glyphs and the tooltip wrapper.
+*
+* Glyphs come from the product icon set; this plugin draws none of its own, so
+* stroke weight, optical size and currentColor stay consistent with the shell.
+* Tooltip and Toast are the seeded primitives — the bundle keeps them external.
+*/
+const h$13 = react.default.createElement;
+const PRIMITIVES = _deepseek_ai_dsh_client_ui_primitives;
+const Tooltip = typeof PRIMITIVES.Tooltip === "function" ? PRIMITIVES.Tooltip : null;
+const Toast = typeof PRIMITIVES.Toast === "function" ? PRIMITIVES.Toast : null;
+const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name] : null;
+/**
+* Glyphs come from the shared product icon set; this plugin draws none of
+* its own, so stroke weight, optical size and currentColor stay consistent
+* with the surrounding shell.
+*/
+function Glyph(props) {
+	const Component = icon(props.name);
+	if (!Component) return null;
+	return h$13(Component, {
+		size: props.size,
+		className: props.className
+	});
+}
+const IconCopy = () => h$13(Glyph, {
+	name: "IconCopyOutlineRegular",
+	size: 14
+});
+const IconInsert = () => h$13(Glyph, {
+	name: "IconListPenOutlineRegular",
+	size: 14
+});
+/**
+* Rewind is the product refresh arc mirrored to run counter-clockwise (↺):
+* the set has no undo glyph, and flipping keeps the shell's stroke and size.
+*/
+const IconRewind = () => h$13(Glyph, {
+	name: "IconRefreshOutlineRegular",
+	size: 14,
+	className: "dsh-an-glyphFlip"
+});
+const IconChevron = () => h$13(Glyph, {
+	name: "IconChevronRightOutlineRegular",
+	size: 12
+});
+const IconEmpty = () => h$13(Glyph, {
+	name: "IconChecklistOutlineRegular",
+	size: 18
+});
+const IconClose = () => h$13(Glyph, {
+	name: "IconCloseOutlineRegular",
+	size: 14
+});
+/** Wrap one icon-only control in the shared tooltip; a bare button when absent. */
+function withTooltip(label, node) {
+	if (!Tooltip) return node;
+	return h$13(Tooltip, {
+		label,
+		side: "top",
+		portal: true,
+		gap: 6
+	}, node);
+}
+
+// src/client/ui/AttachmentList.tsx
+/** @jsxRuntime classic */
+const officialAttachmentCSS = `${stylesheet$1}\n${stylesheet}
+.dsh-an-attachment[data-remove-disabled] .${FileCard_module_css_default.remove}{display:none}
+.dsh-an-attachment > .${FileCard_module_css_default.card}{max-width:100%;width:min(240px,100cqi);padding-inline-end:var(--an-space-6);vertical-align:top}
+.dsh-an-attachment[data-previewable] > .${FileCard_module_css_default.card}{padding-inline-end:calc(var(--an-space-6) + var(--an-space-4))}
+@media (hover:hover){.dsh-an-attachment:hover .${FileCard_module_css_default.remove}{opacity:1}}`;
+function AttachmentPreview({ attachment, id, say }) {
+	const { id: attachmentId, name, size, type } = attachment;
+	const [preview, setPreview] = react.default.useState({});
+	react.default.useEffect(() => {
+		const controller = new AbortController();
+		let url;
+		readAttachment({
+			id: attachmentId,
+			name,
+			size,
+			type
+		}, controller.signal).then((blob) => {
+			if (controller.signal.aborted) return;
+			url = URL.createObjectURL(blob);
+			setPreview({ url });
+		}).catch(() => {
+			if (!controller.signal.aborted) setPreview({ failed: true });
+		});
+		return () => {
+			controller.abort();
+			if (url) URL.revokeObjectURL(url);
+		};
+	}, [
+		attachmentId,
+		name,
+		size,
+		type
+	]);
+	const kind = previewKind(type);
+	const fail = () => setPreview({ failed: true });
+	return /* @__PURE__ */ react.default.createElement("div", {
+		id,
+		className: "dsh-an-attachmentPreview"
+	}, preview.failed ? /* @__PURE__ */ react.default.createElement("span", { role: "status" }, say("attachment.previewFailed")) : !preview.url ? /* @__PURE__ */ react.default.createElement("span", { role: "status" }, say("attachment.loading")) : kind === "img" ? /* @__PURE__ */ react.default.createElement("img", {
+		src: preview.url,
+		alt: name,
+		onError: fail
+	}) : kind && react.default.createElement(kind, {
+		src: preview.url,
+		controls: true,
+		preload: "metadata",
+		"aria-label": name,
+		onError: fail
+	}));
+}
+function AttachmentList({ attachments, say, onRemove, disabled }) {
+	const [openKey, setOpenKey] = react.default.useState();
+	const previewId = react.default.useId();
+	const occurrences = /* @__PURE__ */ new Map();
+	const entries = attachments.map((attachment, index) => {
+		const identity = JSON.stringify([
+			attachment.id,
+			attachment.name,
+			attachment.type,
+			attachment.size
+		]);
+		const occurrence = occurrences.get(identity) ?? 0;
+		occurrences.set(identity, occurrence + 1);
+		return {
+			attachment,
+			id: `${identity}:${occurrence}`,
+			index
+		};
+	});
+	const selected = entries.find((entry) => entry.id === openKey);
+	react.default.useEffect(() => {
+		if (openKey && !selected) setOpenKey(void 0);
+	}, [openKey, selected]);
+	if (!entries.length) return null;
+	const preview = selected && /* @__PURE__ */ react.default.createElement(AttachmentPreview, {
+		key: selected.id,
+		attachment: selected.attachment,
+		id: previewId,
+		say
+	});
+	const renderCard = ({ attachment, id, index }) => {
+		const { name, size, type } = attachment;
+		const open = id === openKey;
+		const download = say("attachment.download", { name });
+		const previewLabel = say("attachment.preview", { name });
+		const canPreview = previewKind(type) !== null;
+		return /* @__PURE__ */ react.default.createElement("div", {
+			className: "dsh-an-attachment",
+			"data-previewable": canPreview ? "" : void 0,
+			"data-remove-disabled": !onRemove || disabled ? "" : void 0
+		}, /* @__PURE__ */ react.default.createElement(FileCard, {
+			name,
+			bytes: size,
+			state: "ready",
+			labels: {
+				label: name,
+				remove: say("attachment.remove", { name }),
+				uploading: "",
+				failed: "",
+				retry: ""
+			},
+			onRemove: () => {
+				if (!onRemove || disabled) return;
+				if (open) setOpenKey(void 0);
+				onRemove(index);
+			},
+			onRetry: () => {}
+		}), canPreview && withTooltip(previewLabel, /* @__PURE__ */ react.default.createElement("button", {
+			type: "button",
+			className: "dsh-an-attachmentBody",
+			"aria-label": previewLabel,
+			"aria-expanded": open,
+			"aria-controls": open ? previewId : void 0,
+			onClick: () => setOpenKey(open ? void 0 : id)
+		}, /* @__PURE__ */ react.default.createElement("span", { "aria-hidden": "true" }, /* @__PURE__ */ react.default.createElement(Glyph, {
+			name: "IconChevronRightOutlineRegular",
+			size: 12
+		})))), withTooltip(download, /* @__PURE__ */ react.default.createElement("a", {
+			className: "dsh-an-iconBtn dsh-an-attachmentAction",
+			href: attachmentUrl(attachment),
+			download: name,
+			"aria-label": download
+		}, icon("IconDownloadOutlineRegular") ? /* @__PURE__ */ react.default.createElement(Glyph, {
+			name: "IconDownloadOutlineRegular",
+			size: 14
+		}) : /* @__PURE__ */ react.default.createElement("span", { "aria-hidden": "true" }, "↓"))));
+	};
+	return /* @__PURE__ */ react.default.createElement("div", {
+		className: "dsh-an-attachments",
+		"data-draft": onRemove ? "" : void 0
+	}, onRemove ? /* @__PURE__ */ react.default.createElement(AttachmentRail, {
+		items: entries,
+		renderItem: renderCard,
+		labels: {
+			group: say("attachment.list"),
+			scrollLeft: say("attachment.scrollLeft"),
+			scrollRight: say("attachment.scrollRight")
+		}
+	}) : /* @__PURE__ */ react.default.createElement("ul", {
+		className: "dsh-an-attachmentCards",
+		"aria-label": say("attachment.list")
+	}, entries.map((entry) => /* @__PURE__ */ react.default.createElement(react.default.Fragment, { key: entry.id }, /* @__PURE__ */ react.default.createElement("li", null, renderCard(entry)), selected === entry && /* @__PURE__ */ react.default.createElement("li", { className: "dsh-an-attachmentPreviewRow" }, preview)))), onRemove && preview);
+}
 
 // src/client/constants.ts
 /**
@@ -117,6 +661,9 @@ const de = {
 	"add.action": "Hinzufügen",
 	"attachment.add": "Anhänge hinzufügen",
 	"attachment.list": "Anhänge",
+	"attachment.scrollLeft": "Anhänge nach links scrollen",
+	"attachment.scrollRight": "Anhänge nach rechts scrollen",
+	"attachment.preview": "Vorschau für {name}",
 	"attachment.download": "{name} herunterladen",
 	"attachment.remove": "{name} entfernen",
 	"attachment.uploading": "Wird hochgeladen…",
@@ -249,6 +796,9 @@ const en = {
 	"add.action": "Add",
 	"attachment.add": "Add attachments",
 	"attachment.list": "Attachments",
+	"attachment.scrollLeft": "Scroll attachments left",
+	"attachment.scrollRight": "Scroll attachments right",
+	"attachment.preview": "Preview {name}",
 	"attachment.download": "Download {name}",
 	"attachment.remove": "Remove {name}",
 	"attachment.uploading": "Uploading…",
@@ -381,6 +931,9 @@ const es = {
 	"add.action": "Añadir",
 	"attachment.add": "Añadir adjuntos",
 	"attachment.list": "Adjuntos",
+	"attachment.scrollLeft": "Desplazar adjuntos a la izquierda",
+	"attachment.scrollRight": "Desplazar adjuntos a la derecha",
+	"attachment.preview": "Vista previa de {name}",
 	"attachment.download": "Descargar {name}",
 	"attachment.remove": "Quitar {name}",
 	"attachment.uploading": "Subiendo…",
@@ -513,6 +1066,9 @@ const fr = {
 	"add.action": "Ajouter",
 	"attachment.add": "Joindre des fichiers",
 	"attachment.list": "Pièces jointes",
+	"attachment.scrollLeft": "Faire défiler les pièces jointes vers la gauche",
+	"attachment.scrollRight": "Faire défiler les pièces jointes vers la droite",
+	"attachment.preview": "Aperçu de {name}",
 	"attachment.download": "Télécharger {name}",
 	"attachment.remove": "Retirer {name}",
 	"attachment.uploading": "Envoi en cours…",
@@ -645,6 +1201,9 @@ const ja = {
 	"add.action": "追加",
 	"attachment.add": "添付ファイルを追加",
 	"attachment.list": "添付ファイル",
+	"attachment.scrollLeft": "添付ファイルを左にスクロール",
+	"attachment.scrollRight": "添付ファイルを右にスクロール",
+	"attachment.preview": "{name} をプレビュー",
 	"attachment.download": "{name} をダウンロード",
 	"attachment.remove": "{name} を削除",
 	"attachment.uploading": "アップロード中…",
@@ -777,6 +1336,9 @@ const pt = {
 	"add.action": "Adicionar",
 	"attachment.add": "Adicionar anexos",
 	"attachment.list": "Anexos",
+	"attachment.scrollLeft": "Rolar anexos para a esquerda",
+	"attachment.scrollRight": "Rolar anexos para a direita",
+	"attachment.preview": "Prévia de {name}",
 	"attachment.download": "Baixar {name}",
 	"attachment.remove": "Remover {name}",
 	"attachment.uploading": "Enviando…",
@@ -909,6 +1471,9 @@ const ru = {
 	"add.action": "Добавить",
 	"attachment.add": "Прикрепить файлы",
 	"attachment.list": "Вложения",
+	"attachment.scrollLeft": "Прокрутить вложения влево",
+	"attachment.scrollRight": "Прокрутить вложения вправо",
+	"attachment.preview": "Предпросмотр: {name}",
 	"attachment.download": "Скачать {name}",
 	"attachment.remove": "Удалить {name}",
 	"attachment.uploading": "Отправка…",
@@ -1041,6 +1606,9 @@ const zh = {
 	"add.action": "添加",
 	"attachment.add": "添加附件",
 	"attachment.list": "附件",
+	"attachment.scrollLeft": "向左滚动附件",
+	"attachment.scrollRight": "向右滚动附件",
+	"attachment.preview": "预览 {name}",
 	"attachment.download": "下载 {name}",
 	"attachment.remove": "移除 {name}",
 	"attachment.uploading": "上传中…",
@@ -2031,106 +2599,6 @@ function startBoot() {
 	return booting;
 }
 
-// host/attachment-metadata.ts
-const MAX_ATTACHMENT_BYTES = 26214400;
-const MAX_ATTACHMENTS = 10;
-const MAX_ATTACHMENT_NAME = 255;
-const MAX_ATTACHMENT_MIME = 127;
-const ATTACHMENT_ID = /^[a-f0-9]{64}$/;
-const ATTACHMENT_MIME = /^(?:[a-z0-9][a-z0-9!#$&^_.+-]*\/[a-z0-9][a-z0-9!#$&^_.+-]*)?$/;
-function normalizeAttachment(raw) {
-	if (!raw || typeof raw !== "object" || Array.isArray(raw)) return;
-	const { id, name, type, size } = raw;
-	if (typeof id !== "string" || !ATTACHMENT_ID.test(id)) return;
-	if (typeof name !== "string" || !name || name.length > 255) return;
-	if (typeof type !== "string" || type.length > 127 || !ATTACHMENT_MIME.test(type)) return;
-	if (typeof size !== "number" || !Number.isInteger(size) || size < 1 || size > 26214400) return;
-	return {
-		id,
-		name,
-		type,
-		size
-	};
-}
-function normalizeAttachments(raw) {
-	if (!Array.isArray(raw)) return [];
-	const attachments = [];
-	for (const candidate of raw) {
-		const attachment = normalizeAttachment(candidate);
-		if (attachment) attachments.push(attachment);
-		if (attachments.length === 10) break;
-	}
-	return attachments;
-}
-
-// src/client/domain/attachments.ts
-const ATTACHMENT_PATH = "/dsh-sideby-note/attachments";
-async function uploadAttachment(file, signal) {
-	const response = await fetch(ATTACHMENT_PATH, {
-		method: "POST",
-		headers: { "Content-Type": "application/octet-stream" },
-		body: file,
-		signal
-	});
-	if (!response.ok) throw new Error("Attachment upload failed");
-	const result = await response.json();
-	if (!result || typeof result !== "object" || !("ok" in result) || result.ok !== true || !("id" in result)) throw new Error("Invalid attachment upload response");
-	const type = file.type.toLowerCase();
-	const [attachment] = normalizeAttachments([{
-		id: result.id,
-		name: file.name.slice(0, 255),
-		type: type.length <= 127 && ATTACHMENT_MIME.test(type) ? type : "",
-		size: file.size
-	}]);
-	if (!attachment) throw new Error("Invalid attachment metadata");
-	return attachment;
-}
-function attachmentUrl(attachment) {
-	const query = new URLSearchParams({
-		id: attachment.id,
-		name: attachment.name
-	});
-	return `${ATTACHMENT_PATH}?${query}`;
-}
-async function readAttachment(attachment, signal) {
-	const response = await fetch(attachmentUrl(attachment), { signal });
-	if (!response.ok) throw new Error("Attachment download failed");
-	const blob = await response.blob();
-	if (blob.size !== attachment.size) throw new Error("Attachment size mismatch");
-	return blob.slice(0, blob.size, attachment.type);
-}
-const imageTypes = /* @__PURE__ */ new Set([
-	"image/png",
-	"image/jpeg",
-	"image/webp",
-	"image/gif",
-	"image/avif",
-	"image/bmp"
-]);
-const audioTypes = /* @__PURE__ */ new Set([
-	"audio/aac",
-	"audio/flac",
-	"audio/mp4",
-	"audio/mpeg",
-	"audio/ogg",
-	"audio/wav",
-	"audio/webm",
-	"audio/x-wav",
-	"audio/x-m4a"
-]);
-const videoTypes = /* @__PURE__ */ new Set([
-	"video/mp4",
-	"video/ogg",
-	"video/quicktime",
-	"video/webm"
-]);
-function previewKind(type) {
-	if (imageTypes.has(type)) return "img";
-	if (audioTypes.has(type)) return "audio";
-	if (videoTypes.has(type)) return "video";
-	return null;
-}
-
 // src/client/storage/drafts.ts
 /**
 * The unsaved composer draft, so closing the panel never loses text.
@@ -2721,72 +3189,6 @@ function readVisibleNotes(workspaceId) {
 		noteId: item.id,
 		workspaceId: owner
 	})));
-}
-
-// src/client/ui/primitives.ts
-/**
-* Shared glyphs and the tooltip wrapper.
-*
-* Glyphs come from the product icon set; this plugin draws none of its own, so
-* stroke weight, optical size and currentColor stay consistent with the shell.
-* Tooltip and Toast are the seeded primitives — the bundle keeps them external.
-*/
-const h$13 = react.default.createElement;
-const PRIMITIVES = _deepseek_ai_dsh_client_ui_primitives;
-const Tooltip = typeof PRIMITIVES.Tooltip === "function" ? PRIMITIVES.Tooltip : null;
-const Toast = typeof PRIMITIVES.Toast === "function" ? PRIMITIVES.Toast : null;
-const icon = (name) => typeof PRIMITIVES[name] === "function" ? PRIMITIVES[name] : null;
-/**
-* Glyphs come from the shared product icon set; this plugin draws none of
-* its own, so stroke weight, optical size and currentColor stay consistent
-* with the surrounding shell.
-*/
-function Glyph(props) {
-	const Component = icon(props.name);
-	if (!Component) return null;
-	return h$13(Component, {
-		size: props.size,
-		className: props.className
-	});
-}
-const IconCopy = () => h$13(Glyph, {
-	name: "IconCopyOutlineRegular",
-	size: 14
-});
-const IconInsert = () => h$13(Glyph, {
-	name: "IconListPenOutlineRegular",
-	size: 14
-});
-/**
-* Rewind is the product refresh arc mirrored to run counter-clockwise (↺):
-* the set has no undo glyph, and flipping keeps the shell's stroke and size.
-*/
-const IconRewind = () => h$13(Glyph, {
-	name: "IconRefreshOutlineRegular",
-	size: 14,
-	className: "dsh-an-glyphFlip"
-});
-const IconChevron = () => h$13(Glyph, {
-	name: "IconChevronRightOutlineRegular",
-	size: 12
-});
-const IconEmpty = () => h$13(Glyph, {
-	name: "IconChecklistOutlineRegular",
-	size: 18
-});
-const IconClose = () => h$13(Glyph, {
-	name: "IconCloseOutlineRegular",
-	size: 14
-});
-/** Wrap one icon-only control in the shared tooltip; a bare button when absent. */
-function withTooltip(label, node) {
-	if (!Tooltip) return node;
-	return h$13(Tooltip, {
-		label,
-		side: "top",
-		portal: true,
-		gap: 6
-	}, node);
 }
 
 // src/client/ui/toastSeat.ts
@@ -4878,149 +5280,6 @@ function useOutsideDismiss(panelRef, anchorRef, onClose) {
 	}, [onClose, anchorRef]);
 }
 
-// src/client/ui/AttachmentList.tsx
-/** @jsxRuntime classic */
-const FileTypeIcon = PRIMITIVES.FileTypeIcon;
-const fileExtension = PRIMITIVES.fileExtension;
-const fileSizeText = PRIMITIVES.fileSizeText;
-function AttachmentPreview({ attachment, id, say }) {
-	const { id: attachmentId, name, size, type } = attachment;
-	const [preview, setPreview] = react.default.useState({});
-	react.default.useEffect(() => {
-		const controller = new AbortController();
-		let url;
-		readAttachment({
-			id: attachmentId,
-			name,
-			size,
-			type
-		}, controller.signal).then((blob) => {
-			if (controller.signal.aborted) return;
-			url = URL.createObjectURL(blob);
-			setPreview({ url });
-		}).catch(() => {
-			if (!controller.signal.aborted) setPreview({ failed: true });
-		});
-		return () => {
-			controller.abort();
-			if (url) URL.revokeObjectURL(url);
-		};
-	}, [
-		attachmentId,
-		name,
-		size,
-		type
-	]);
-	const kind = previewKind(type);
-	const fail = () => setPreview({ failed: true });
-	return /* @__PURE__ */ react.default.createElement("div", {
-		id,
-		className: "dsh-an-attachmentPreview"
-	}, preview.failed ? /* @__PURE__ */ react.default.createElement("span", { role: "status" }, say("attachment.previewFailed")) : !preview.url ? /* @__PURE__ */ react.default.createElement("span", { role: "status" }, say("attachment.loading")) : kind === "img" ? /* @__PURE__ */ react.default.createElement("img", {
-		src: preview.url,
-		alt: name,
-		onError: fail
-	}) : kind && react.default.createElement(kind, {
-		src: preview.url,
-		controls: true,
-		preload: "metadata",
-		"aria-label": name,
-		onError: fail
-	}));
-}
-function AttachmentList({ attachments, say, onRemove, disabled }) {
-	const rail = react.default.useRef(null);
-	const previousCount = react.default.useRef(attachments.length);
-	const [openKey, setOpenKey] = react.default.useState();
-	const previewId = react.default.useId();
-	const count = attachments.length;
-	react.default.useLayoutEffect(() => {
-		if (onRemove && count > previousCount.current && rail.current) rail.current.scrollLeft = rail.current.scrollWidth - rail.current.clientWidth;
-		previousCount.current = count;
-	}, [count, onRemove]);
-	const occurrences = /* @__PURE__ */ new Map();
-	const entries = attachments.map((attachment) => {
-		const identity = JSON.stringify([
-			attachment.id,
-			attachment.name,
-			attachment.type,
-			attachment.size
-		]);
-		const occurrence = occurrences.get(identity) ?? 0;
-		occurrences.set(identity, occurrence + 1);
-		return {
-			attachment,
-			key: `${identity}:${occurrence}`
-		};
-	});
-	const selected = entries.find((entry) => entry.key === openKey);
-	react.default.useEffect(() => {
-		if (openKey && !selected) setOpenKey(void 0);
-	}, [openKey, selected]);
-	if (!count) return null;
-	const preview = selected && /* @__PURE__ */ react.default.createElement(AttachmentPreview, {
-		key: selected.key,
-		attachment: selected.attachment,
-		id: previewId,
-		say
-	});
-	return /* @__PURE__ */ react.default.createElement("div", {
-		className: "dsh-an-attachments",
-		"data-draft": onRemove ? "" : void 0
-	}, /* @__PURE__ */ react.default.createElement("ul", {
-		ref: rail,
-		className: "dsh-an-attachmentCards",
-		"aria-label": say("attachment.list"),
-		tabIndex: onRemove && count > 1 ? 0 : void 0
-	}, entries.map(({ attachment, key }, index) => {
-		const { name, size, type } = attachment;
-		const open = key === openKey;
-		const meta = [fileExtension?.(name).toUpperCase().slice(0, 8), fileSizeText?.(size)].filter(Boolean).join(" ");
-		const download = say("attachment.download", { name });
-		const remove = say("attachment.remove", { name });
-		const body = /* @__PURE__ */ react.default.createElement("span", { className: "dsh-an-attachmentText" }, /* @__PURE__ */ react.default.createElement("span", { className: "dsh-an-attachmentName" }, name), meta && /* @__PURE__ */ react.default.createElement("span", { className: "dsh-an-attachmentMeta" }, meta));
-		return /* @__PURE__ */ react.default.createElement(react.default.Fragment, { key }, /* @__PURE__ */ react.default.createElement("li", {
-			className: "dsh-an-attachment",
-			title: name
-		}, /* @__PURE__ */ react.default.createElement("span", {
-			className: "dsh-an-attachmentIcon",
-			"aria-hidden": "true"
-		}, FileTypeIcon ? /* @__PURE__ */ react.default.createElement(FileTypeIcon, { path: name }) : /* @__PURE__ */ react.default.createElement(Glyph, {
-			name: "IconPaperclipOutlineRegular",
-			size: 18
-		})), previewKind(type) ? /* @__PURE__ */ react.default.createElement("button", {
-			type: "button",
-			className: "dsh-an-attachmentBody",
-			"aria-expanded": open,
-			"aria-controls": open ? previewId : void 0,
-			onClick: () => setOpenKey(open ? void 0 : key)
-		}, body, /* @__PURE__ */ react.default.createElement("span", {
-			className: "dsh-an-attachmentDisclosure",
-			"aria-hidden": "true"
-		}, /* @__PURE__ */ react.default.createElement(Glyph, {
-			name: "IconChevronRightOutlineRegular",
-			size: 12
-		}))) : /* @__PURE__ */ react.default.createElement("span", { className: "dsh-an-attachmentBody" }, body), withTooltip(download, /* @__PURE__ */ react.default.createElement("a", {
-			className: "dsh-an-iconBtn dsh-an-attachmentAction",
-			href: attachmentUrl(attachment),
-			download: name,
-			"aria-label": download
-		}, icon("IconDownloadOutlineRegular") ? /* @__PURE__ */ react.default.createElement(Glyph, {
-			name: "IconDownloadOutlineRegular",
-			size: 14
-		}) : /* @__PURE__ */ react.default.createElement("span", { "aria-hidden": "true" }, "↓"))), onRemove && withTooltip(remove, /* @__PURE__ */ react.default.createElement("button", {
-			type: "button",
-			className: "dsh-an-iconBtn dsh-an-attachmentAction",
-			disabled,
-			"aria-label": remove,
-			onClick: () => {
-				if (open) setOpenKey(void 0);
-				onRemove(index);
-			}
-		}, /* @__PURE__ */ react.default.createElement(IconClose, null)))), !onRemove && open && /* @__PURE__ */ react.default.createElement("li", { className: "dsh-an-attachmentPreviewRow" }, preview));
-	})), onRemove && preview);
-}
-
 // src/client/ui/TodoRow.ts
 /** A note with a leading insert action and a trailing cell for its age and secondary actions. */
 const h$11 = react.default.createElement;
@@ -6015,7 +6274,7 @@ function apply(ctx) {
 	ctx.effect(() => {
 		const style = document.createElement("style");
 		style.dataset.dshPlugin = "dsh-sideby-note";
-		style.textContent = panel_css_default;
+		style.textContent = `${officialAttachmentCSS}\n${panel_css_default}`;
 		document.head.appendChild(style);
 		return () => {
 			style.remove();

@@ -40,31 +40,15 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-attachBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}
 .dsh-an-attachBtn:disabled{cursor:not-allowed;opacity:.55}
 .dsh-an-destination,.dsh-an-attachmentStatus{grid-column:1/-1;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}
-/* Adapted from @deepseek-ai/dsh-client-ui-attachment 0.2.2-rc.5,
-   src/FileCard.module.css (.card, .icon, .body, .name, .meta).
-   Copyright (c) 2026 DeepSeek, MIT. See LICENSE. */
-.dsh-an-attachments{min-width:0}
+.dsh-an-attachments{min-width:0;container-type:inline-size}
 .dsh-an-add>.dsh-an-attachments{grid-column:1/-1}
 .dsh-an-text+.dsh-an-attachments{margin-top:var(--an-space-1)}
-.dsh-an-attachmentCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:var(--an-space-2);padding:0;margin:0;list-style:none}
-.dsh-an-attachments[data-draft] .dsh-an-attachmentCards{display:flex;padding:2px;overflow-x:auto;overscroll-behavior-inline:contain}
-.dsh-an-attachments[data-draft] .dsh-an-attachment{flex:0 0 min(100%,240px)}
-.dsh-an-attachments[data-draft] .dsh-an-attachment:not(:only-child){flex-basis:min(calc(100% - var(--an-space-5)),240px)}
-.dsh-an-attachmentCards:focus-visible{outline:2px solid var(--dsw-focus-ring-color,var(--dsw-alias-label-primary));outline-offset:2px;border-radius:var(--dsw-radius-sm)}
-.dsh-an-attachment{display:flex;align-items:center;gap:var(--an-space-1);box-sizing:border-box;min-width:0;min-height:52px;padding:var(--an-space-1) var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-lg);background:var(--dsw-specific-input-major,transparent)}
-.dsh-an-attachmentIcon{display:grid;place-items:center;flex:none;width:28px;height:28px;color:var(--dsw-alias-label-secondary)}
-.dsh-an-attachmentIcon svg{max-width:100%;max-height:100%}
-.dsh-an-attachmentBody{display:flex;flex:1;align-items:center;min-width:0;padding:0 var(--an-space-1);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;text-align:start}
-.dsh-an-attachmentText{display:flex;flex:1;flex-direction:column;min-width:0}
-.dsh-an-attachmentDisclosure{display:grid;place-items:center;flex:none;color:var(--dsw-alias-label-secondary)}
-button.dsh-an-attachmentBody{cursor:pointer}
-button.dsh-an-attachmentBody[aria-expanded='true']{background:var(--an-active)}
-button.dsh-an-attachmentBody[aria-expanded='true'] .dsh-an-attachmentDisclosure{transform:rotate(90deg)}
-.dsh-an-attachmentName,.dsh-an-attachmentMeta{width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dsh-an-attachmentName{font-size:var(--an-fs-row);font-weight:500}
-.dsh-an-attachmentMeta{color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:16px}
-.dsh-an-attachment .dsh-an-attachmentAction{flex:none;text-decoration:none}
-.dsh-an-attachmentAction:disabled{opacity:.55;cursor:not-allowed}
+.dsh-an-attachmentCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),240px));gap:var(--an-space-2);padding:0;margin:0;list-style:none}
+.dsh-an-attachment{position:relative;width:fit-content;max-width:100%}
+.dsh-an-attachmentBody{position:absolute;inset-block:2px;inset-inline:2px var(--an-space-6);display:flex;align-items:center;justify-content:flex-end;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}
+.dsh-an-attachmentBody>span{display:flex}
+.dsh-an-attachmentBody[aria-expanded='true']>span{transform:rotate(90deg)}
+.dsh-an-attachment .dsh-an-attachmentAction{position:absolute;inset-inline-end:var(--an-space-1);bottom:var(--an-space-1);text-decoration:none}
 .dsh-an-attachmentPreviewRow{grid-column:1/-1;min-width:0}
 .dsh-an-attachments[data-draft]>.dsh-an-attachmentPreview{margin-top:var(--an-space-1)}
 .dsh-an-attachmentPreview{display:grid;grid-template-columns:minmax(0,1fr);justify-items:start;padding:var(--an-space-2);border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption)}

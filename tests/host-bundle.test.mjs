@@ -12,6 +12,7 @@ import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { JSDOM } from 'jsdom'
+import * as ReactJSXRuntime from 'react/jsx-runtime'
 import { createStore } from '../host/store.js'
 import { fakeCtx, fakeDomain } from './fake-store.mjs'
 
@@ -133,10 +134,14 @@ async function setup(options = {}) {
   const { act } = React
   const moduleTable = {
     react: React,
+    'react/jsx-runtime': ReactJSXRuntime,
     'react-dom': ReactDOM,
     'react-dom/client': ReactDOMClient,
     '@deepseek-ai/dsh-client-ui-primitives': {
       FileTypeIcon: ({ path }) => React.createElement('svg', { 'data-file-type-path': path }),
+      IconCloseFillRegular: () => React.createElement('svg'),
+      IconChevronLeftOutlineRegular: () => React.createElement('svg'),
+      IconChevronRightOutlineRegular: () => React.createElement('svg'),
       fileExtension: name => name.split('.').at(-1),
       fileSizeText: bytes => `${bytes} B`,
     },
@@ -569,11 +574,23 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
   await act(async () => transferFiles(window, panel().querySelector('textarea'), 'paste', [new window.File(['audio'], '语音.wav', { type: 'audio/wav' })]))
   await act(async () => transferFiles(window, panel().querySelector('form'), 'drop', [new window.File(['video'], '录屏.mp4', { type: 'video/mp4' })]))
   await act(async () => select('数据.csv', 'text/csv'))
-  const draftNames = () => [...panel().querySelectorAll('form .dsh-an-attachmentName')].map(node => node.textContent)
+  const draftRail = () => panel().querySelector('form [role="group"][aria-label="附件"]')
+  const draftNames = () => [...(draftRail()?.querySelectorAll('.dsh-an-attachment > [title]') ?? [])].map(node => node.title)
   assert.deepEqual(draftNames(), ['截图.png', '语音.wav', '录屏.mp4', '数据.csv'])
-  const draftCards = panel().querySelector('form .dsh-an-attachments[data-draft]')
-  assert.ok(draftCards.querySelector('[data-file-type-path="截图.png"]'))
-  assert.equal(draftCards.querySelector('.dsh-an-attachmentMeta').textContent, 'PNG 4 B')
+  const imageCard = draftRail().querySelector('[title="截图.png"]')
+  assert.ok(imageCard.querySelector('[data-file-type-path="截图.png"]'))
+  assert.match(imageCard.textContent, /PNG 4 B/)
+  const rail = draftRail()
+  Object.defineProperties(rail, { clientWidth: { value: 240 }, scrollWidth: { value: 990 } })
+  let page
+  rail.scrollBy = options => { page = options }
+  rail.scrollLeft = 0
+  await act(async () => { rail.dispatchEvent(new window.Event('scroll')) })
+  const next = rail.parentElement.querySelector('[aria-label="向右滚动附件"]')
+  assert.ok(next)
+  await act(async () => { next.click() })
+  assert.equal(page.left, 200)
+  assert.equal(page.behavior, 'smooth')
   await toggle()
   await toggle()
   assert.deepEqual(draftNames(), ['截图.png', '语音.wav', '录屏.mp4', '数据.csv'])

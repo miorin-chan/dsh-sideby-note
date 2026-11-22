@@ -13,6 +13,7 @@ import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { JSDOM } from 'jsdom'
+import * as ReactJSXRuntime from 'react/jsx-runtime'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const bundle = fs.readFileSync(path.join(root, 'client', 'client.js'), 'utf8')
@@ -69,6 +70,7 @@ test('an up-to-date manual check never offers the running version', async t => {
 
   const moduleTable = {
     react: React,
+    'react/jsx-runtime': ReactJSXRuntime,
     'react-dom': ReactDOM,
     'react-dom/client': ReactDOMClient,
     '@deepseek-ai/dsh-client-ui-primitives': {},

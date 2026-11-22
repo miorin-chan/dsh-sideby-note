@@ -13,6 +13,7 @@ import type { UiWorkspace } from '@deepseek-ai/dsh-client-ui-workspace/client'
 import type { ShortcutBinding, ShortcutCatalogEntry, ShortcutCommandId, Shortcuts } from '@deepseek-ai/dsh-client-shortcuts/client'
 
 import CSS from './styles/panel.css?inline'
+import { officialAttachmentCSS } from './ui/AttachmentList'
 import { NS, PANEL_ID, STORAGE_MODE_KEY } from './constants'
 import { DICT, fill, makeSay } from './i18n'
 import { bindWorkspace, draftKeyForSession, workspaceById, workspaceForSession, type NoteWorkspace } from './scope'
@@ -105,7 +106,7 @@ function apply(ctx: DshClientCtx) {
   ctx.effect(() => {
     const style = document.createElement('style')
     style.dataset.dshPlugin = 'dsh-sideby-note'
-    style.textContent = CSS
+    style.textContent = `${officialAttachmentCSS}\n${CSS}`
     document.head.appendChild(style)
     return () => { style.remove() }
   }, 'dsh-sideby-note: styles')

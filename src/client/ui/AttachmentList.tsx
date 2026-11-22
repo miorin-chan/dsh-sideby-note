@@ -1,7 +1,19 @@
 /** @jsxRuntime classic */
 import React from 'react'
+// @deepseek-ai/dsh-client-ui-attachment 0.2.2-rc.5, src/AttachmentRail.tsx and
+// src/FileCard.tsx, with their CSS Modules. Copyright (c) 2026 DeepSeek, MIT.
+import { AttachmentRail } from '@deepseek-ai/dsh-client-ui-attachment/src/AttachmentRail.tsx'
+import { FileCard } from '@deepseek-ai/dsh-client-ui-attachment/src/FileCard.tsx'
+import { stylesheet as railCSS } from '@deepseek-ai/dsh-client-ui-attachment/src/AttachmentRail.module.css'
+import cardClasses, { stylesheet as cardCSS } from '@deepseek-ai/dsh-client-ui-attachment/src/FileCard.module.css'
 import { attachmentUrl, previewKind, readAttachment, type NoteAttachment } from '../domain/attachments'
-import { Glyph, IconClose, PRIMITIVES, icon, withTooltip } from './primitives'
+import { Glyph, icon, withTooltip } from './primitives'
+
+export const officialAttachmentCSS = `${railCSS}\n${cardCSS}
+.dsh-an-attachment[data-remove-disabled] .${cardClasses.remove}{display:none}
+.dsh-an-attachment > .${cardClasses.card}{max-width:100%;width:min(240px,100cqi);padding-inline-end:var(--an-space-6);vertical-align:top}
+.dsh-an-attachment[data-previewable] > .${cardClasses.card}{padding-inline-end:calc(var(--an-space-6) + var(--an-space-4))}
+@media (hover:hover){.dsh-an-attachment:hover .${cardClasses.remove}{opacity:1}}`
 
 interface AttachmentListProps {
   attachments: readonly NoteAttachment[]
@@ -9,13 +21,6 @@ interface AttachmentListProps {
   onRemove?: (index: number) => void
   disabled?: boolean
 }
-
-// Adapted from @deepseek-ai/dsh-client-ui-attachment 0.2.2-rc.5,
-// src/FileCard.tsx (FileCard) and src/AttachmentRail.tsx (AttachmentRail).
-// Copyright (c) 2026 DeepSeek, MIT. See LICENSE.
-const FileTypeIcon = PRIMITIVES.FileTypeIcon as React.ComponentType<{ path: string }> | undefined
-const fileExtension = PRIMITIVES.fileExtension as ((name: string) => string) | undefined
-const fileSizeText = PRIMITIVES.fileSizeText as ((bytes: number) => string) | undefined
 
 function AttachmentPreview({ attachment, id, say }: Pick<AttachmentListProps, 'say'> & {
   attachment: NoteAttachment
@@ -55,74 +60,64 @@ function AttachmentPreview({ attachment, id, say }: Pick<AttachmentListProps, 's
 }
 
 export function AttachmentList({ attachments, say, onRemove, disabled }: AttachmentListProps) {
-  const rail = React.useRef<HTMLUListElement>(null)
-  const previousCount = React.useRef(attachments.length)
   const [openKey, setOpenKey] = React.useState<string>()
   const previewId = React.useId()
-  const count = attachments.length
-  React.useLayoutEffect(() => {
-    if (onRemove && count > previousCount.current && rail.current) {
-      rail.current.scrollLeft = rail.current.scrollWidth - rail.current.clientWidth
-    }
-    previousCount.current = count
-  }, [count, onRemove])
 
   // The same file can be added more than once. An unrelated removal should
   // preserve the remaining cards' keys and any open preview.
   const occurrences = new Map<string, number>()
-  const entries = attachments.map(attachment => {
+  const entries = attachments.map((attachment, index) => {
     const identity = JSON.stringify([attachment.id, attachment.name, attachment.type, attachment.size])
     const occurrence = occurrences.get(identity) ?? 0
     occurrences.set(identity, occurrence + 1)
-    return { attachment, key: `${identity}:${occurrence}` }
+    return { attachment, id: `${identity}:${occurrence}`, index }
   })
-  const selected = entries.find(entry => entry.key === openKey)
+  const selected = entries.find(entry => entry.id === openKey)
   React.useEffect(() => {
     if (openKey && !selected) setOpenKey(undefined)
   }, [openKey, selected])
 
-  if (!count) return null
-  const preview = selected && <AttachmentPreview key={selected.key} attachment={selected.attachment} id={previewId} say={say} />
+  if (!entries.length) return null
+  const preview = selected && <AttachmentPreview key={selected.id} attachment={selected.attachment} id={previewId} say={say} />
+  const renderCard = ({ attachment, id, index }: typeof entries[number]) => {
+    const { name, size, type } = attachment
+    const open = id === openKey
+    const download = say('attachment.download', { name })
+    const previewLabel = say('attachment.preview', { name })
+    const canPreview = previewKind(type) !== null
+    return (
+      <div className="dsh-an-attachment" data-previewable={canPreview ? '' : undefined}
+        data-remove-disabled={!onRemove || disabled ? '' : undefined}>
+        <FileCard name={name} bytes={size} state="ready" labels={{
+          label: name, remove: say('attachment.remove', { name }), uploading: '', failed: '', retry: '',
+        }} onRemove={() => {
+          if (!onRemove || disabled) return
+          if (open) setOpenKey(undefined)
+          onRemove(index)
+        }} onRetry={() => {}} />
+        {canPreview && withTooltip(previewLabel, <button type="button" className="dsh-an-attachmentBody"
+          aria-label={previewLabel} aria-expanded={open} aria-controls={open ? previewId : undefined}
+          onClick={() => setOpenKey(open ? undefined : id)}>
+          <span aria-hidden="true"><Glyph name="IconChevronRightOutlineRegular" size={12} /></span>
+        </button>)}
+        {withTooltip(download, <a className="dsh-an-iconBtn dsh-an-attachmentAction" href={attachmentUrl(attachment)}
+          download={name} aria-label={download}>{icon('IconDownloadOutlineRegular')
+            ? <Glyph name="IconDownloadOutlineRegular" size={14} /> : <span aria-hidden="true">↓</span>}</a>)}
+      </div>
+    )
+  }
   return (
     <div className="dsh-an-attachments" data-draft={onRemove ? '' : undefined}>
-      <ul ref={rail} className="dsh-an-attachmentCards" aria-label={say('attachment.list')}
-        tabIndex={onRemove && count > 1 ? 0 : undefined}>
-        {entries.map(({ attachment, key }, index) => {
-          const { name, size, type } = attachment
-          const open = key === openKey
-          const meta = [fileExtension?.(name).toUpperCase().slice(0, 8), fileSizeText?.(size)].filter(Boolean).join(' ')
-          const download = say('attachment.download', { name })
-          const remove = say('attachment.remove', { name })
-          const body = <span className="dsh-an-attachmentText">
-            <span className="dsh-an-attachmentName">{name}</span>
-            {meta && <span className="dsh-an-attachmentMeta">{meta}</span>}
-          </span>
-          return (
-            <React.Fragment key={key}>
-              <li className="dsh-an-attachment" title={name}>
-                <span className="dsh-an-attachmentIcon" aria-hidden="true">
-                  {FileTypeIcon ? <FileTypeIcon path={name} /> : <Glyph name="IconPaperclipOutlineRegular" size={18} />}
-                </span>
-                {previewKind(type)
-                  ? <button type="button" className="dsh-an-attachmentBody" aria-expanded={open}
-                      aria-controls={open ? previewId : undefined} onClick={() => setOpenKey(open ? undefined : key)}>
-                      {body}<span className="dsh-an-attachmentDisclosure" aria-hidden="true"><Glyph name="IconChevronRightOutlineRegular" size={12} /></span>
-                    </button>
-                  : <span className="dsh-an-attachmentBody">{body}</span>}
-                {withTooltip(download, <a className="dsh-an-iconBtn dsh-an-attachmentAction" href={attachmentUrl(attachment)}
-                  download={name} aria-label={download}>{icon('IconDownloadOutlineRegular')
-                    ? <Glyph name="IconDownloadOutlineRegular" size={14} /> : <span aria-hidden="true">↓</span>}</a>)}
-                {onRemove && withTooltip(remove, <button type="button" className="dsh-an-iconBtn dsh-an-attachmentAction"
-                  disabled={disabled} aria-label={remove} onClick={() => {
-                    if (open) setOpenKey(undefined)
-                    onRemove(index)
-                  }}><IconClose /></button>)}
-              </li>
-              {!onRemove && open && <li className="dsh-an-attachmentPreviewRow">{preview}</li>}
-            </React.Fragment>
-          )
-        })}
-      </ul>
+      {onRemove ? <AttachmentRail items={entries} renderItem={renderCard} labels={{
+        group: say('attachment.list'), scrollLeft: say('attachment.scrollLeft'), scrollRight: say('attachment.scrollRight'),
+      }} /> : (
+        <ul className="dsh-an-attachmentCards" aria-label={say('attachment.list')}>
+          {entries.map(entry => <React.Fragment key={entry.id}>
+            <li>{renderCard(entry)}</li>
+            {selected === entry && <li className="dsh-an-attachmentPreviewRow">{preview}</li>}
+          </React.Fragment>)}
+        </ul>
+      )}
       {onRemove && preview}
     </div>
   )

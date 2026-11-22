@@ -22,7 +22,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   Linux browsers start with no binding.
 - Pick, paste, or drop attachments into a note.
   Preview supported images, audio, and video, or download the original files.
-  Draft attachments appear in a horizontal row of DSH-style file cards, with file type and size.
+  Draft attachments use DSH’s official file cards and horizontal attachment rail.
   Attachments survive draft recovery and recall.
   To bring a file into chat, add the downloaded file through DSH’s composer.
 
@@ -69,8 +69,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - 桌面版可用 `Mod+E` 打开或收起面板，可在 DSH 快捷键设置里改键或停用。
   macOS 和 Windows 浏览器版默认用 `Mod+Alt+E`，Linux 浏览器版默认未绑定。
 - 便笺可通过选择、粘贴或拖放添加附件，支持预览常见图片、音频和视频，也可下载原文件。
-  草稿附件用横向排列的 DSH 样式文件卡展示，显示文件类型和大小。
-  重开面板或退回便笺时会恢复附件。
+  草稿附件使用 DSH 官方文件卡和横向附件栏。重开面板或退回便笺时会恢复附件。
   要把原文件带进对话，可下载后通过 DSH 输入框添加。
 
 ### 变更

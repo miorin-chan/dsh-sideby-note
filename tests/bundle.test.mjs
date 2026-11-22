@@ -12,6 +12,7 @@ import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { JSDOM } from 'jsdom'
+import * as ReactJSXRuntime from 'react/jsx-runtime'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const bundlePath = path.join(root, 'client', 'client.js')
@@ -150,6 +151,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   assert.equal(loaded.id, 'dsh-sideby-note')
   const moduleTable = {
     react: React,
+    'react/jsx-runtime': ReactJSXRuntime,
     'react-dom': ReactDOM,
     'react-dom/client': ReactDOMClient,
     '@deepseek-ai/dsh-client-ui-primitives': {},
@@ -704,6 +706,7 @@ test('workspace notes share a list and global actions preserve ownership', async
 
   const moduleTable = {
     react: React,
+    'react/jsx-runtime': ReactJSXRuntime,
     'react-dom': await import('react-dom'),
     'react-dom/client': ReactDOMClient,
     '@deepseek-ai/dsh-client-ui-primitives': {},
@@ -1235,6 +1238,7 @@ test('a blank new session opens a usable notes panel from the header corner', as
   const Tooltip = ({ label, children }) => React.cloneElement(children, { 'data-tooltip': label })
   const moduleTable = {
     react: React,
+    'react/jsx-runtime': ReactJSXRuntime,
     'react-dom': await import('react-dom'),
     'react-dom/client': ReactDOMClient,
     '@deepseek-ai/dsh-client-ui-primitives': { Tooltip },
@@ -1414,6 +1418,7 @@ test('handing notes to chat joins them on new lines, without a prefix or list ma
 
   const moduleTable = {
     react: React,
+    'react/jsx-runtime': ReactJSXRuntime,
     'react-dom': await import('react-dom'),
     'react-dom/client': ReactDOMClient,
     '@deepseek-ai/dsh-client-ui-primitives': {},
@@ -1561,6 +1566,7 @@ test('a damaged note store is set aside before anything overwrites it', async t 
   window.eval(bundle)
   const moduleTable = {
     react: React,
+    'react/jsx-runtime': ReactJSXRuntime,
     'react-dom': await import('react-dom'),
     'react-dom/client': ReactDOMClient,
     '@deepseek-ai/dsh-client-ui-primitives': {},
@@ -1656,6 +1662,7 @@ test('two tabs writing at once keep both sets of notes', async t => {
   window.eval(bundle)
   const moduleTable = {
     react: React,
+    'react/jsx-runtime': ReactJSXRuntime,
     'react-dom': await import('react-dom'),
     'react-dom/client': ReactDOMClient,
     '@deepseek-ai/dsh-client-ui-primitives': {},
@@ -1774,6 +1781,7 @@ test('note text rules', async t => {
   window.eval(bundle)
   const moduleTable = {
     react: React,
+    'react/jsx-runtime': ReactJSXRuntime,
     'react-dom': await import('react-dom'),
     'react-dom/client': ReactDOMClient,
     '@deepseek-ai/dsh-client-ui-primitives': {},
