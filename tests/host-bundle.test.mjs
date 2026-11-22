@@ -135,7 +135,11 @@ async function setup(options = {}) {
     react: React,
     'react-dom': ReactDOM,
     'react-dom/client': ReactDOMClient,
-    '@deepseek-ai/dsh-client-ui-primitives': {},
+    '@deepseek-ai/dsh-client-ui-primitives': {
+      FileTypeIcon: ({ path }) => React.createElement('svg', { 'data-file-type-path': path }),
+      fileExtension: name => name.split('.').at(-1),
+      fileSizeText: bytes => `${bytes} B`,
+    },
   }
   const requireShim = id => {
     if (!(id in moduleTable)) throw new Error(`module table cannot answer ${id}`)
@@ -567,6 +571,9 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
   await act(async () => select('数据.csv', 'text/csv'))
   const draftNames = () => [...panel().querySelectorAll('form .dsh-an-attachmentName')].map(node => node.textContent)
   assert.deepEqual(draftNames(), ['截图.png', '语音.wav', '录屏.mp4', '数据.csv'])
+  const draftCards = panel().querySelector('form .dsh-an-attachments[data-draft]')
+  assert.ok(draftCards.querySelector('[data-file-type-path="截图.png"]'))
+  assert.equal(draftCards.querySelector('.dsh-an-attachmentMeta').textContent, 'PNG 4 B')
   await toggle()
   await toggle()
   assert.deepEqual(draftNames(), ['截图.png', '语音.wav', '录屏.mp4', '数据.csv'])
@@ -577,11 +584,19 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
   assert.equal(note.text, '')
   assert.deepEqual(note.attachments.map(attachment => attachment.name), ['截图.png', '语音.wav', '录屏.mp4'])
   const row = panel().querySelector('.dsh-an-row')
-  await act(async () => { for (const preview of row.querySelectorAll('.dsh-an-attachmentName')) preview.click() })
+  const previews = [...row.querySelectorAll('button.dsh-an-attachmentBody')]
+  for (const [index, media] of ['img[alt="截图.png"]', 'audio[controls]', 'video[controls]'].entries()) {
+    const trigger = previews[index]
+    await act(async () => { trigger.click() })
+    assert.deepEqual(previews.filter(button => button.getAttribute('aria-expanded') === 'true'), [trigger])
+    assert.equal(row.querySelectorAll('.dsh-an-attachmentPreview').length, 1)
+    const preview = window.document.getElementById(trigger.getAttribute('aria-controls'))
+    assert.equal(preview.closest('li'), trigger.closest('li').nextElementSibling)
+    assert.ok(preview.querySelector(media))
+  }
+  await act(async () => { previews[2].click() })
+  assert.equal(row.querySelector('.dsh-an-attachmentPreview'), null)
   assert.deepEqual(ctx.previewUrls, ['image/png', 'audio/wav', 'video/mp4'])
-  assert.ok(row.querySelector('img[alt="截图.png"]'))
-  assert.ok(row.querySelector('audio[controls]'))
-  assert.ok(row.querySelector('video[controls]'))
   const download = row.querySelector('[download="截图.png"]')
   assert.equal(new window.URL(download.href).searchParams.get('id'), note.attachments[0].id)
   await act(async () => { row.querySelector('[aria-label="退回"]').click() })

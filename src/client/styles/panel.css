@@ -40,16 +40,36 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-attachBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}
 .dsh-an-attachBtn:disabled{cursor:not-allowed;opacity:.55}
 .dsh-an-destination,.dsh-an-attachmentStatus{grid-column:1/-1;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}
-.dsh-an-attachments{display:grid;gap:var(--an-space-1);padding:0;margin:0;list-style:none;min-width:0}
-.dsh-an-add>.dsh-an-attachments{grid-column:1/-1;max-height:128px;overflow:auto}
+/* Adapted from @deepseek-ai/dsh-client-ui-attachment 0.2.2-rc.5,
+   src/FileCard.module.css (.card, .icon, .body, .name, .meta).
+   Copyright (c) 2026 DeepSeek, MIT. See LICENSE. */
+.dsh-an-attachments{min-width:0}
+.dsh-an-add>.dsh-an-attachments{grid-column:1/-1}
 .dsh-an-text+.dsh-an-attachments{margin-top:var(--an-space-1)}
-.dsh-an-attachment{min-width:0;border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-settings-card-fill)}
-.dsh-an-attachmentBar{display:flex;align-items:center;gap:var(--an-space-1);min-height:28px;padding:0 var(--an-space-1)}
-.dsh-an-attachmentBar .dsh-an-iconBtn{flex:none;text-decoration:none}
-.dsh-an-attachmentName{flex:1;min-width:0;overflow:hidden;text-align:left;text-overflow:ellipsis;white-space:nowrap;padding:0 var(--an-space-1);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-row)}
-button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-underline-offset:2px}
-.dsh-an-attachmentPreview{display:grid;justify-items:start;gap:var(--an-space-1);padding:var(--an-space-1);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption)}
+.dsh-an-attachmentCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:var(--an-space-2);padding:0;margin:0;list-style:none}
+.dsh-an-attachments[data-draft] .dsh-an-attachmentCards{display:flex;padding:2px;overflow-x:auto;overscroll-behavior-inline:contain}
+.dsh-an-attachments[data-draft] .dsh-an-attachment{flex:0 0 min(100%,240px)}
+.dsh-an-attachments[data-draft] .dsh-an-attachment:not(:only-child){flex-basis:min(calc(100% - var(--an-space-5)),240px)}
+.dsh-an-attachmentCards:focus-visible{outline:2px solid var(--dsw-focus-ring-color,var(--dsw-alias-label-primary));outline-offset:2px;border-radius:var(--dsw-radius-sm)}
+.dsh-an-attachment{display:flex;align-items:center;gap:var(--an-space-1);box-sizing:border-box;min-width:0;min-height:52px;padding:var(--an-space-1) var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-lg);background:var(--dsw-specific-input-major,transparent)}
+.dsh-an-attachmentIcon{display:grid;place-items:center;flex:none;width:28px;height:28px;color:var(--dsw-alias-label-secondary)}
+.dsh-an-attachmentIcon svg{max-width:100%;max-height:100%}
+.dsh-an-attachmentBody{display:flex;flex:1;align-items:center;min-width:0;padding:0 var(--an-space-1);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;text-align:start}
+.dsh-an-attachmentText{display:flex;flex:1;flex-direction:column;min-width:0}
+.dsh-an-attachmentDisclosure{display:grid;place-items:center;flex:none;color:var(--dsw-alias-label-secondary)}
+button.dsh-an-attachmentBody{cursor:pointer}
+button.dsh-an-attachmentBody[aria-expanded='true']{background:var(--an-active)}
+button.dsh-an-attachmentBody[aria-expanded='true'] .dsh-an-attachmentDisclosure{transform:rotate(90deg)}
+.dsh-an-attachmentName,.dsh-an-attachmentMeta{width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dsh-an-attachmentName{font-size:var(--an-fs-row);font-weight:500}
+.dsh-an-attachmentMeta{color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:16px}
+.dsh-an-attachment .dsh-an-attachmentAction{flex:none;text-decoration:none}
+.dsh-an-attachmentAction:disabled{opacity:.55;cursor:not-allowed}
+.dsh-an-attachmentPreviewRow{grid-column:1/-1;min-width:0}
+.dsh-an-attachments[data-draft]>.dsh-an-attachmentPreview{margin-top:var(--an-space-1)}
+.dsh-an-attachmentPreview{display:grid;grid-template-columns:minmax(0,1fr);justify-items:start;padding:var(--an-space-2);border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption)}
 .dsh-an-attachmentPreview img,.dsh-an-attachmentPreview video{display:block;max-width:100%;max-height:160px;object-fit:contain}
+.dsh-an-attachments[data-draft] .dsh-an-attachmentPreview img,.dsh-an-attachments[data-draft] .dsh-an-attachmentPreview video{max-height:96px}
 .dsh-an-attachmentPreview audio{width:100%;min-width:0}
 .dsh-an-rowBody{min-width:0}
 .dsh-an-rowWorkspace{grid-area:2/2;margin-top:2px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-row)}
@@ -62,7 +82,7 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 .dsh-an-input{display:block;align-self:center;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}
 .dsh-an-input::placeholder{color:var(--dsw-alias-label-secondary)}
 .dsh-an-addBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);cursor:pointer;transition:var(--an-transition)}
-.dsh-an-addBtn:focus-visible,.dsh-an-attachBtn:focus-visible,.dsh-an-attachmentName:focus-visible,.dsh-an-attachmentBar .dsh-an-iconBtn:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}
+.dsh-an-addBtn:focus-visible,.dsh-an-attachBtn:focus-visible,.dsh-an-attachmentBody:focus-visible,.dsh-an-attachmentAction:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}
 .dsh-an-addBtn:active:not(:disabled){background:var(--an-active)}
 .dsh-an-addBtn:disabled{color:var(--dsw-alias-label-secondary);cursor:not-allowed}
 
@@ -230,6 +250,7 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 
 /* ── 15 悬停 · 只在支持 hover 的设备上启用（触摸端常显操作） ────────── */
 @media (hover:hover){
+  button.dsh-an-attachmentBody:hover{background:var(--an-hover)}
 .dsh-an-row:hover{background:var(--an-hover)}
 .dsh-an-meta{opacity:1}
 .dsh-an-actions{opacity:0;pointer-events:none}
