@@ -582,7 +582,7 @@ test('spacing snaps to the 4px scale', () => {
 
 test('radii use the shared scale and pills declare their curve', () => {
   const rules = cssRules()
-  const allowed = new Set(['0', 'var(--dsw-radius-sm)', 'var(--dsw-radius-md)', 'var(--dsw-radius-lg)', 'var(--dsw-radius-panel)', 'var(--an-radius-pill)'])
+  const allowed = new Set(['var(--dsw-radius-sm)', 'var(--dsw-radius-md)', 'var(--dsw-radius-lg)', 'var(--dsw-radius-panel)', 'var(--an-radius-pill)'])
   for (const rule of rules) {
     for (const match of rule.body.matchAll(/border-radius:([^;}]+)/g)) {
       assert.ok(allowed.has(match[1].trim()), `off-scale radius ${match[1].trim()} in ${rule.selector}`)
@@ -873,12 +873,12 @@ test('the section counts carry the status hierarchy', () => {
 
 test('scope hover tints the shared track beneath the inset selection pill', () => {
   const css = readCss()
-  assert.match(css, /\.dsh-an-scope\{[^}]*border-radius:var\(--an-radius-pill\)[^}]*overflow:hidden/)
-  assert.match(css, /\.dsh-an-scopeBtn\{[^}]*align-self:stretch[^}]*border-radius:0/)
-  assert.match(css, /\.dsh-an-scope:has\(>\.dsh-an-scopeBtn:hover\)\{background-color:color-mix\(in srgb,var\(--dsw-alias-bg-layer-1\) 70%,var\(--dsw-alias-interactive-bg-hover-solid\)\)/)
-  assert.doesNotMatch(css, /\.dsh-an-scopeBtn:hover\{[^}]*background/)
-  assert.match(css, /\.dsh-an-scopeBtn\[aria-pressed="true"\]::before\{background:var\(--dsw-alias-interactive-bg-hover-solid\)/)
-  assert.match(css, /\.dsh-an-scopeBtn:focus-visible::before\{[^}]*outline-offset:-2px/)
+  assert.match(css, /\.dsh-an-scope\{[^}]*padding:1px[^}]*border-radius:var\(--an-radius-pill\)/)
+  assert.match(css, /\.dsh-an-scopeBtn\{height:20px[^}]*border-radius:var\(--an-radius-pill\)/)
+  assert.match(css, /\.dsh-an-scope\[role="group"\]:hover\{background-color:color-mix\(in srgb,var\(--dsw-alias-bg-layer-1\) 70%,var\(--dsw-alias-interactive-bg-hover-solid\)\)/)
+  assert.match(css, /\.dsh-an-scopeBtn:hover\{color:var\(--dsw-alias-label-primary\)\}/)
+  assert.match(css, /\.dsh-an-scopeBtn\[aria-pressed="true"\]\{background:var\(--dsw-alias-interactive-bg-hover-solid\)/)
+  assert.match(css, /\.dsh-an-scopeBtn:focus-visible\{[^}]*outline-offset:1px/)
 })
 
 test('the panel never raises the soft keyboard on touch devices', () => {

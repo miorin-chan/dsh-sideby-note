@@ -20,17 +20,10 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-popClose{display:grid;place-items:center;flex:none;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}
 .dsh-an-popClose:active{background:var(--an-active)}
 /* The list-scope switch sits at the far right of the title line. */
-.dsh-an-scope{display:inline-flex;align-items:center;min-width:0;box-sizing:border-box;height:24px;margin-inline-start:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;overflow:hidden;background:var(--dsw-alias-bg-layer-1)}
+.dsh-an-scope{display:inline-flex;align-items:center;min-width:0;box-sizing:border-box;height:24px;padding:1px;margin-inline-start:auto;border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-bg-layer-1)}
 .dsh-an-scopeBtn,.dsh-an-scopeSummaryContent,.dsh-an-scopePending{display:inline-flex;align-items:center;gap:var(--an-space-1);flex:none;white-space:nowrap;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-caption);line-height:16px}
-.dsh-an-scopeBtn{position:relative;isolation:isolate;align-self:stretch;padding:0 var(--an-space-2);border:0;border-radius:0;background:transparent;font-weight:500;cursor:pointer;transition:var(--an-transition)}
-.dsh-an-scopeBtn:first-child{padding-inline-start:calc(var(--an-space-2) + 1px)}
-.dsh-an-scopeBtn:last-child{padding-inline-end:calc(var(--an-space-2) + 1px)}
-.dsh-an-scopeBtn[aria-pressed="true"]{color:var(--dsw-alias-label-primary)}
-/* Selection sits above the shared track's hover fill. */
-.dsh-an-scopeBtn::before{content:"";position:absolute;inset:1px 0;border-radius:var(--an-radius-pill);corner-shape:round;z-index:-1;pointer-events:none}
-.dsh-an-scopeBtn:first-child::before{inset-inline-start:1px}
-.dsh-an-scopeBtn:last-child::before{inset-inline-end:1px}
-.dsh-an-scopeBtn[aria-pressed="true"]::before{background:var(--dsw-alias-interactive-bg-hover-solid)}
+.dsh-an-scopeBtn{height:20px;padding:0 var(--an-space-2);border:0;border-radius:var(--an-radius-pill);corner-shape:round;background:transparent;font-weight:500;cursor:pointer;transition:var(--an-transition)}
+.dsh-an-scopeBtn[aria-pressed="true"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary)}
 .dsh-an-scopeWorkspace{flex:0 1 auto;min-width:0}
 .dsh-an-scopeIcon{display:grid;place-items:center;flex:none;width:14px;height:14px}
 .dsh-an-scopeName{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -38,8 +31,7 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-scopeSummary{margin-inline-start:auto}
 .dsh-an-scope>.dsh-an-scopeSummaryContent,.dsh-an-scopePending{padding:0 var(--an-space-2)}
 .dsh-an-srOnly{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.dsh-an-scopeBtn:focus-visible{outline:none}
-.dsh-an-scopeBtn:focus-visible::before{outline:2px solid var(--dsw-focus-ring-color,var(--dsw-alias-label-primary));outline-offset:-2px}
+.dsh-an-scopeBtn:focus-visible{outline:2px solid var(--dsw-focus-ring-color,var(--dsw-alias-label-primary));outline-offset:1px}
 
 /* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */
 .dsh-an-add{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}
@@ -246,7 +238,8 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 .dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-workspaceJump:not([aria-current]):hover .dsh-an-workspaceName{text-decoration:underline;text-underline-offset:2px}
 .dsh-an-popClose:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
-.dsh-an-scope:has(>.dsh-an-scopeBtn:hover){background-color:color-mix(in srgb,var(--dsw-alias-bg-layer-1) 70%,var(--dsw-alias-interactive-bg-hover-solid))}
+.dsh-an-scope[role="group"]:hover{background-color:color-mix(in srgb,var(--dsw-alias-bg-layer-1) 70%,var(--dsw-alias-interactive-bg-hover-solid))}
+.dsh-an-scopeBtn:hover{color:var(--dsw-alias-label-primary)}
 .dsh-an-addBtn:hover:not(:disabled,:active),.dsh-an-attachBtn:hover:not(:disabled){background:var(--an-hover)}
 .dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}
 .dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}
