@@ -73,9 +73,9 @@ function AttachmentPreview({ attachment, id, say }: Pick<AttachmentListProps, 's
   )
 }
 
-function DraftImage({ attachment, say, disabled, onRemove, fallback }: Pick<AttachmentListProps, 'say' | 'disabled'> & {
+function AttachmentImage({ attachment, say, disabled, onRemove, fallback }: Pick<AttachmentListProps, 'say' | 'disabled'> & {
   attachment: NoteAttachment
-  onRemove: () => void
+  onRemove?: () => void
   fallback: React.ReactNode
 }) {
   const { name } = attachment
@@ -115,10 +115,12 @@ function DraftImage({ attachment, say, disabled, onRemove, fallback }: Pick<Atta
           : <Glyph name="IconImageOutlineRegular" size={16} />}
       </button>
       {!decoded && <span className="dsh-an-srOnly" role="status">{say('attachment.loading')}</span>}
-      <button type="button" className={imageClasses.remove} aria-label={say('attachment.remove', { name })}
-        disabled={disabled} onClick={onRemove}>
-        <IconCloseFillRegular size={12} />
-      </button>
+      {onRemove && (
+        <button type="button" className={imageClasses.remove} aria-label={say('attachment.remove', { name })}
+          disabled={disabled} onClick={onRemove}>
+          <IconCloseFillRegular size={12} />
+        </button>
+      )}
       {withTooltip(download, <a className={`${imageClasses.remove} dsh-an-imageDownload`} aria-label={download}
         href={attachmentUrl(attachment)} download={name}>
         {icon('IconDownloadOutlineRegular') ? <Glyph name="IconDownloadOutlineRegular" size={12} /> : <span aria-hidden="true">↓</span>}
@@ -179,19 +181,20 @@ export function AttachmentList({ attachments, say, onRemove, disabled }: Attachm
       </div>
     )
   }
+  const renderAttachment = (entry: typeof entries[number]) => (
+    previewKind(entry.attachment.type) === 'img' && ImageLightbox
+      ? <AttachmentImage attachment={entry.attachment} say={say} disabled={disabled}
+          onRemove={onRemove && (() => onRemove(entry.index))} fallback={renderCard(entry, true)} />
+      : renderCard(entry)
+  )
   return (
     <div className="dsh-an-attachments" data-draft={onRemove ? '' : undefined}>
-      {onRemove ? <AttachmentRail items={entries} renderItem={entry => (
-         previewKind(entry.attachment.type) === 'img' && ImageLightbox
-           ? <DraftImage attachment={entry.attachment} say={say} disabled={disabled}
-               onRemove={() => onRemove(entry.index)} fallback={renderCard(entry, true)} />
-           : renderCard(entry)
-       )} labels={{
+      {onRemove ? <AttachmentRail items={entries} renderItem={renderAttachment} labels={{
         group: say('attachment.list'), scrollLeft: say('attachment.scrollLeft'), scrollRight: say('attachment.scrollRight'),
       }} /> : (
         <ul className="dsh-an-attachmentCards" aria-label={say('attachment.list')}>
           {entries.map(entry => <React.Fragment key={entry.id}>
-            <li>{renderCard(entry)}</li>
+            <li>{renderAttachment(entry)}</li>
             {selected === entry && <li className="dsh-an-attachmentPreviewRow">{preview}</li>}
           </React.Fragment>)}
         </ul>

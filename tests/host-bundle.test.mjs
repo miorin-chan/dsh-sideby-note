@@ -626,9 +626,28 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
   const note = (await store.snapshot()).data.workspaces[UNASSIGNED].items[0]
   assert.equal(note.text, '')
   assert.deepEqual(note.attachments.map(attachment => attachment.name), ['截图.png', '语音.wav', '录屏.mp4'])
+  const checkSavedImage = async row => {
+    assert.deepEqual([...row.querySelectorAll('a[download]')].map(link => link.download), ['截图.png', '语音.wav', '录屏.mp4'])
+    assert.equal(row.querySelector('[aria-label="移除 截图.png"]'), null)
+    const thumb = row.querySelector('button[aria-label="预览 截图.png"]')
+    assert.match(thumb.className, /ComposerAttachments-module-thumbnail/)
+    const original = thumb.querySelector('img')
+    await act(async () => { original.dispatchEvent(new window.Event('load')) })
+    await act(async () => { thumb.click() })
+    const lightbox = window.document.querySelector('[role="dialog"][aria-label="预览 截图.png"]')
+    assert.equal(lightbox.querySelector('img').src, original.src)
+    await act(async () => {
+      lightbox.dispatchEvent(new window.Event('pointerdown', { bubbles: true }))
+      lightbox.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    })
+    assert.equal(lightbox.isConnected, false)
+    assert.equal(window.document.activeElement, thumb)
+    return original.src
+  }
   const row = panel().querySelector('.dsh-an-row')
+  const openImageUrl = await checkSavedImage(row)
   const previews = [...row.querySelectorAll('button.dsh-an-attachmentBody')]
-  for (const [index, media] of ['img[alt="截图.png"]', 'audio[controls]', 'video[controls]'].entries()) {
+  for (const [index, media] of ['audio[controls]', 'video[controls]'].entries()) {
     const trigger = previews[index]
     await act(async () => { trigger.click() })
     assert.deepEqual(previews.filter(button => button.getAttribute('aria-expanded') === 'true'), [trigger])
@@ -637,12 +656,19 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
     assert.equal(preview.closest('li'), trigger.closest('li').nextElementSibling)
     assert.ok(preview.querySelector(media))
   }
-  await act(async () => { previews[2].click() })
+  await act(async () => { previews[1].click() })
   assert.equal(row.querySelector('.dsh-an-attachmentPreview'), null)
-  assert.deepEqual(ctx.previewUrls, ['image/png', 'image/png', 'image/png', 'audio/wav', 'video/mp4'])
+  assert.deepEqual(ctx.previewUrls.slice(-3), ['image/png', 'audio/wav', 'video/mp4'])
   const download = row.querySelector('[download="截图.png"]')
   assert.equal(new window.URL(download.href).searchParams.get('id'), note.attachments[0].id)
-  await act(async () => { row.querySelector('[aria-label="退回"]').click() })
+  await act(async () => { row.querySelector('[aria-label="归档便笺"]').click() })
+  assert.ok(ctx.revokedPreviews.includes(openImageUrl))
+  const archiveToggle = [...panel().querySelectorAll('.dsh-an-doneToggle')].find(button => button.textContent.includes('归档'))
+  if (archiveToggle.getAttribute('aria-expanded') === 'false') await act(async () => { archiveToggle.click() })
+  const archive = panel().querySelector('.dsh-an-rowArchived')
+  const archivedImageUrl = await checkSavedImage(archive)
+  await act(async () => { archive.querySelector('[aria-label="退回"]').click() })
+  assert.ok(ctx.revokedPreviews.includes(archivedImageUrl))
   assert.deepEqual(draftNames(), ['截图.png', '语音.wav', '录屏.mp4'])
   assert.deepEqual((await store.snapshot()).data.workspaces[UNASSIGNED].items, [])
 })
