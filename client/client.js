@@ -5607,7 +5607,7 @@ function subscribeStorageStatus(callback) {
 		TODO_LISTENERS.delete(callback);
 	};
 }
-function MemoComposer({ composerRef, nameOfWorkspace, showDestination, say, ...options }) {
+function MemoComposer({ composerRef, nameOfWorkspace, say, ...options }) {
 	const { workspaceId, canUpload, storageInUse, report } = options;
 	const { draft, draftLocked, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown } = useComposerDraft(options);
 	react.default.useImperativeHandle(composerRef, () => ({
@@ -5615,10 +5615,13 @@ function MemoComposer({ composerRef, nameOfWorkspace, showDestination, say, ...o
 		focus: () => addRef.current?.focus({ preventScroll: true })
 	}));
 	const destination = draft.workspaceId ?? workspaceId;
+	let destinationHint;
+	if (!destination) destinationHint = say("scope.loading");
+	else if (destination !== workspaceId || destination === "sideby-note:unassigned") destinationHint = say("add.destination", { workspace: nameOfWorkspace(destination) });
 	return h$1(ComposerForm, {
 		say,
 		draft: draft.add,
-		destination: destination ? showDestination || draft.workspaceId ? say("add.destination", { workspace: nameOfWorkspace(destination) }) : void 0 : say("scope.loading"),
+		destination: destinationHint,
 		destinationPending: !destination,
 		attachments: draft.attachments,
 		draftLocked,
@@ -5886,7 +5889,6 @@ function MemoPopover(props) {
 		key: draftKey,
 		composerRef,
 		nameOfWorkspace,
-		showDestination: effectiveMode === "global",
 		say,
 		draftKey,
 		workspaceId,

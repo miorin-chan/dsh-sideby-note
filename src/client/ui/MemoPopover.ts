@@ -51,11 +51,10 @@ interface MemoComposerHandle {
 type MemoComposerProps = Parameters<typeof useComposerDraft>[0] & {
   composerRef: React.Ref<MemoComposerHandle>
   nameOfWorkspace: (id: string) => string
-  showDestination: boolean
   say: (key: string, vars?: Record<string, string>) => string
 }
 
-function MemoComposer({ composerRef, nameOfWorkspace, showDestination, say, ...options }: MemoComposerProps) {
+function MemoComposer({ composerRef, nameOfWorkspace, say, ...options }: MemoComposerProps) {
   const { workspaceId, canUpload, storageInUse, report } = options
   const { draft, draftLocked, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown } = useComposerDraft(options)
   React.useImperativeHandle(composerRef, (): MemoComposerHandle => ({
@@ -63,14 +62,15 @@ function MemoComposer({ composerRef, nameOfWorkspace, showDestination, say, ...o
     focus: () => addRef.current?.focus({ preventScroll: true }),
   }))
   const destination = draft.workspaceId ?? workspaceId
+  let destinationHint: string | undefined
+  if (!destination) destinationHint = say('scope.loading')
+  else if (destination !== workspaceId || destination === UNASSIGNED_WORKSPACE) {
+    destinationHint = say('add.destination', { workspace: nameOfWorkspace(destination) })
+  }
   return h(ComposerForm, {
     say,
     draft: draft.add,
-    destination: destination
-      ? showDestination || draft.workspaceId
-        ? say('add.destination', { workspace: nameOfWorkspace(destination) })
-        : undefined
-      : say('scope.loading'),
+    destination: destinationHint,
     destinationPending: !destination,
     attachments: draft.attachments,
     draftLocked,
@@ -371,7 +371,6 @@ export function MemoPopover(props) {
       key: draftKey,
       composerRef,
       nameOfWorkspace,
-      showDestination: effectiveMode === 'global',
       say,
       draftKey,
       workspaceId,

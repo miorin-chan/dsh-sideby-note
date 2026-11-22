@@ -254,7 +254,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.ok(addField, 'the panel must render the add field')
     assert.equal(addField.getAttribute('placeholder'), '随手记一条')
     assert.equal(document.getElementById(addField.getAttribute('aria-describedby'))?.textContent, '记到 未归属',
-      'the global composer names the destination while typing')
+      'the standalone composer names the destination omitted by the global count')
     const addButton = popover.querySelector('.dsh-an-addBtn')
     assert.equal(addButton.disabled, true)
     assert.equal(addButton.getAttribute('aria-label'), '添加')
@@ -1157,7 +1157,8 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.equal(secondPopover.querySelector('.dsh-an-listArea'), list)
     assert.equal(list.scrollTop, 32)
     assert.equal(inputOf(secondPopover).value, '目标工作区的草稿')
-    assert.equal(secondPopover.querySelector('.dsh-an-destination').textContent, '记到 另一工作区')
+    assert.equal(secondPopover.querySelector('.dsh-an-destination'), null,
+      'the global composer does not repeat the current workspace shown in the scope switch')
     assert.equal(jump.getAttribute('aria-current'), 'location')
 
     const corner = document.createElement('div')
