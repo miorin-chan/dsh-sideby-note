@@ -3,7 +3,7 @@ import React from 'react'
 import { copyText } from '../domain/clipboard'
 import { metaLabel, rowAge } from '../domain/items'
 import { AttachmentList } from './AttachmentList'
-import { Glyph, IconCopy, IconInsert, IconRewind, icon, withTooltip } from './primitives'
+import { Glyph, IconCopy, IconInsert, IconRewind, Tooltip, icon, withTooltip } from './primitives'
 
 const h = React.createElement
 
@@ -57,6 +57,7 @@ export function TodoRow(props) {
         className: 'dsh-an-workspaceJump',
         'aria-label': workspaceLabel,
         'aria-current': isCurrentWorkspace ? 'location' : undefined,
+        title: Tooltip ? undefined : workspaceLabel,
         onClick: onOpenWorkspace,
       },
       h('span', { className: 'dsh-an-workspaceGlyph', 'aria-hidden': true }, isCurrentWorkspace ? '•' : '↗'),
