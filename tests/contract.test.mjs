@@ -871,11 +871,12 @@ test('the section counts carry the status hierarchy', () => {
   assert.doesNotMatch(css, /\.dsh-an-rows\{[^}]*(?:border|background):/)
 })
 
-test('scope hover covers the whole segment around the inset selection pill', () => {
+test('scope hover tints the shared track beneath the inset selection pill', () => {
   const css = readCss()
   assert.match(css, /\.dsh-an-scope\{[^}]*border-radius:var\(--an-radius-pill\)[^}]*overflow:hidden/)
   assert.match(css, /\.dsh-an-scopeBtn\{[^}]*align-self:stretch[^}]*border-radius:0/)
-  assert.match(css, /\.dsh-an-scopeBtn:hover\{background:var\(--an-hover\)/)
+  assert.match(css, /\.dsh-an-scope:has\(>\.dsh-an-scopeBtn:hover\)\{background-image:linear-gradient\(var\(--an-hover\),var\(--an-hover\)\)/)
+  assert.doesNotMatch(css, /\.dsh-an-scopeBtn:hover\{[^}]*background/)
   assert.match(css, /\.dsh-an-scopeBtn\[aria-pressed="true"\]::before\{background:var\(--dsw-alias-interactive-bg-hover-solid\)/)
   assert.match(css, /\.dsh-an-scopeBtn:focus-visible::before\{[^}]*outline-offset:-2px/)
 })
