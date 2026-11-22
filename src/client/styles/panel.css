@@ -246,8 +246,7 @@ button.dsh-an-attachmentName{cursor:pointer;text-decoration:underline;text-under
 .dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-workspaceJump:not([aria-current]):hover .dsh-an-workspaceName{text-decoration:underline;text-underline-offset:2px}
 .dsh-an-popClose:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
-.dsh-an-scope:has(>.dsh-an-scopeBtn:hover){background-image:linear-gradient(var(--an-hover),var(--an-hover))}
-.dsh-an-scopeBtn:hover{color:var(--dsw-alias-label-primary)}
+.dsh-an-scope:has(>.dsh-an-scopeBtn:hover){background-color:color-mix(in srgb,var(--dsw-alias-bg-layer-1) 70%,var(--dsw-alias-interactive-bg-hover-solid))}
 .dsh-an-addBtn:hover:not(:disabled,:active),.dsh-an-attachBtn:hover:not(:disabled){background:var(--an-hover)}
 .dsh-an-mini:hover:not([disabled]){background:var(--an-hover)}
 .dsh-an-miniDanger:hover:not([disabled]){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}
