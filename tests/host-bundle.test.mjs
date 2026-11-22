@@ -237,20 +237,13 @@ test('SCOPE-017 连续切换范围时旧保存响应不覆盖最新选择', asyn
   const globalWrite = Promise.withResolvers()
   const workspaceWrite = Promise.withResolvers()
   const rejectedWrite = Promise.withResolvers()
-  let globalRequests = 0
-  const ctx = await setup({
-    beforeSetPrefs: mode => {
-      if (mode === 'workspace') return workspaceWrite.promise
-      globalRequests += 1
-      return globalRequests === 1 ? globalWrite.promise : rejectedWrite.promise
-    },
-  })
+  const staleRejectedWrite = Promise.withResolvers()
+  const latestWrite = Promise.withResolvers()
+  const writes = [globalWrite, workspaceWrite, rejectedWrite, staleRejectedWrite, latestWrite]
+  const queue = [...writes]
+  const ctx = await setup({ beforeSetPrefs: () => queue.shift()?.promise })
   t.after(async () => {
-    await ctx.act(async () => {
-      globalWrite.resolve()
-      workspaceWrite.resolve()
-      rejectedWrite.resolve(json(400, { code: 'STORE_BAD_REQUEST' }))
-    })
+    await ctx.act(async () => { for (const write of writes) write.resolve() })
     ctx.window.close()
   })
 
@@ -279,6 +272,15 @@ test('SCOPE-017 连续切换范围时旧保存响应不覆盖最新选择', asyn
   assert.equal(selectedScope(), 'global')
   await ctx.act(async () => { rejectedWrite.resolve(json(400, { code: 'STORE_BAD_REQUEST' })) })
   assert.equal(selectedScope(), 'workspace', 'a rejected latest selection restores the saved scope')
+  assert.equal((await ctx.store.snapshot()).data.prefs.sidebyNoteScopeMode, 'workspace')
+
+  await ctx.act(async () => { scopeButton('global').click() })
+  await ctx.act(async () => { scopeButton('workspace').click() })
+  await ctx.act(async () => { staleRejectedWrite.resolve(json(403, {})) })
+  assert.equal(selectedScope(), 'workspace')
+  assert.ok(!ctx.window.document.querySelector('.dsh-an-reconnect'), 'a superseded failure does not interrupt switching')
+  await ctx.act(async () => { latestWrite.resolve() })
+  assert.equal(selectedScope(), 'workspace')
   assert.equal((await ctx.store.snapshot()).data.prefs.sidebyNoteScopeMode, 'workspace')
 })
 

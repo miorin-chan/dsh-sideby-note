@@ -296,7 +296,7 @@ cases:
     expected:
       - 宿主仍在保存上一次选择时，第二次点击立即切换筛选
       - 较早的保存响应返回后，界面保持最新选择，最终以最新选择持久化
-      - 最新选择未能保存时，恢复已保存的筛选
+      - 最新选择未能保存时，恢复已保存的筛选，较早请求失败时保持最新选择且不显示重连提示
     automation:
       - type: integration
         file: tests/host-bundle.test.mjs

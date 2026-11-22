@@ -1759,12 +1759,14 @@ function setHostScopeMode(scopeMode) {
 	const patch = { scopeMode };
 	pendingScopeWrite = patch;
 	serialize("prefs", async () => {
+		const previousFailure = storageFailure();
 		try {
 			const result = await postOp({
 				op: "prefs.set",
 				patch
 			});
 			if (pendingScopeWrite === patch) pendingScopeWrite = void 0;
+			if (storageFailure() === previousFailure && isHostConnectionFailure(previousFailure)) setStorageFailure(null);
 			applyHostPrefs(result.prefs);
 			broadcastHostChange({
 				kind: "prefs",
@@ -1772,10 +1774,9 @@ function setHostScopeMode(scopeMode) {
 				rev: result.rev
 			});
 		} catch (error) {
-			if (pendingScopeWrite === patch) {
-				pendingScopeWrite = void 0;
-				notifyTodoChange();
-			}
+			if (pendingScopeWrite !== patch) return;
+			pendingScopeWrite = void 0;
+			notifyTodoChange();
 			report(error);
 		}
 	});
