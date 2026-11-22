@@ -30,6 +30,7 @@ export const ja: Record<MessageKey, string> = {
   "attachment.scrollLeft": "添付ファイルを左にスクロール",
   "attachment.scrollRight": "添付ファイルを右にスクロール",
   "attachment.preview": "{name} をプレビュー",
+  "attachment.closePreview": "プレビューを閉じる",
   "attachment.download": "{name} をダウンロード",
   "attachment.remove": "{name} を削除",
   "attachment.uploading": "アップロード中…",

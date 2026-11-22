@@ -55,16 +55,16 @@ function clsx() {
 
 // \0dsh-css:node_modules/@deepseek-ai/dsh-client-ui-attachment/src/AttachmentRail.module.css.mjs
 var AttachmentRail_module_css_default = {
-	"item": "dsh-an-official-AttachmentRail-module-item",
-	"rail": "dsh-an-official-AttachmentRail-module-rail",
 	"arrow": "dsh-an-official-AttachmentRail-module-arrow",
 	"arrowLeft": "dsh-an-official-AttachmentRail-module-arrowLeft",
-	"root": "dsh-an-official-AttachmentRail-module-root",
 	"arrowRight": "dsh-an-official-AttachmentRail-module-arrowRight",
+	"item": "dsh-an-official-AttachmentRail-module-item",
+	"rail": "dsh-an-official-AttachmentRail-module-rail",
 	"remove": "dsh-an-official-AttachmentRail-module-remove",
+	"root": "dsh-an-official-AttachmentRail-module-root",
 	"thumbnail": "dsh-an-official-AttachmentRail-module-thumbnail"
 };
-const stylesheet$1 = ".dsh-an-official-AttachmentRail-module-root {\n  min-width: 0;\n  position: relative;\n}\n\n.dsh-an-official-AttachmentRail-module-rail {\n  scrollbar-width: none;\n  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);\n  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);\n  align-items: stretch;\n  gap: 10px;\n  display: flex;\n  overflow: auto hidden;\n}\n\n.dsh-an-official-AttachmentRail-module-rail::-webkit-scrollbar {\n  display: none;\n}\n\n.dsh-an-official-AttachmentRail-module-item {\n  flex: none;\n  height: 64px;\n}\n\n.dsh-an-official-AttachmentRail-module-thumbnail {\n  border: .5px solid var(--dsw-alias-border-l2-darkmode-thin);\n  border-radius: var(--dsw-radius-xl);\n  background: var(--dsw-alias-interactive-bg-hover);\n  cursor: zoom-in;\n  width: 64px;\n  height: 64px;\n  padding: 0;\n  overflow: hidden;\n}\n\n.dsh-an-official-AttachmentRail-module-thumbnail img {\n  object-fit: cover;\n  width: 100%;\n  height: 100%;\n  display: block;\n}\n\n.dsh-an-official-AttachmentRail-module-remove {\n  z-index: 1;\n  corner-shape: round;\n  background: var(--dsw-alias-button-contrast-fill);\n  width: 18px;\n  height: 18px;\n  color: var(--dsw-alias-label-primary-inverted);\n  cursor: pointer;\n  opacity: 0;\n  border: none;\n  border-radius: 50%;\n  place-items: center;\n  padding: 0;\n  transition: opacity .2s ease-in-out;\n  display: grid;\n  position: absolute;\n  top: 4px;\n  right: 4px;\n}\n\n.dsh-an-official-AttachmentRail-module-remove:focus-visible {\n  opacity: 1;\n}\n\n@media (hover: hover) {\n  .dsh-an-official-AttachmentRail-module-item:hover .dsh-an-official-AttachmentRail-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (hover: none), (pointer: coarse) {\n  .dsh-an-official-AttachmentRail-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .dsh-an-official-AttachmentRail-module-remove {\n    transition: none;\n  }\n}\n\n.dsh-an-official-AttachmentRail-module-arrow {\n  z-index: 2;\n  --dsw-elevation-stroke-color: var(--dsw-alias-border-l2-darkmode-thin);\n  corner-shape: round;\n  background: var(--dsw-specific-input-major);\n  width: 24px;\n  height: 24px;\n  color: var(--dsw-alias-label-secondary);\n  box-shadow: var(--dsw-elevation-panel);\n  cursor: pointer;\n  border: 0;\n  border-radius: 999px;\n  place-items: center;\n  padding: 0;\n  display: grid;\n  position: absolute;\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n@media (hover: hover) {\n  .dsh-an-official-AttachmentRail-module-arrow:hover {\n    background: var(--dsw-alias-interactive-bg-hover-solid);\n  }\n}\n\n.dsh-an-official-AttachmentRail-module-arrowLeft {\n  left: 4px;\n}\n\n.dsh-an-official-AttachmentRail-module-arrowRight {\n  right: 4px;\n}\n";
+const stylesheet$2 = ".dsh-an-official-AttachmentRail-module-root {\n  min-width: 0;\n  position: relative;\n}\n\n.dsh-an-official-AttachmentRail-module-rail {\n  scrollbar-width: none;\n  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);\n  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);\n  align-items: stretch;\n  gap: 10px;\n  display: flex;\n  overflow: auto hidden;\n}\n\n.dsh-an-official-AttachmentRail-module-rail::-webkit-scrollbar {\n  display: none;\n}\n\n.dsh-an-official-AttachmentRail-module-item {\n  flex: none;\n  height: 64px;\n}\n\n.dsh-an-official-AttachmentRail-module-thumbnail {\n  border: .5px solid var(--dsw-alias-border-l2-darkmode-thin);\n  border-radius: var(--dsw-radius-xl);\n  background: var(--dsw-alias-interactive-bg-hover);\n  cursor: zoom-in;\n  width: 64px;\n  height: 64px;\n  padding: 0;\n  overflow: hidden;\n}\n\n.dsh-an-official-AttachmentRail-module-thumbnail img {\n  object-fit: cover;\n  width: 100%;\n  height: 100%;\n  display: block;\n}\n\n.dsh-an-official-AttachmentRail-module-remove {\n  z-index: 1;\n  corner-shape: round;\n  background: var(--dsw-alias-button-contrast-fill);\n  width: 18px;\n  height: 18px;\n  color: var(--dsw-alias-label-primary-inverted);\n  cursor: pointer;\n  opacity: 0;\n  border: none;\n  border-radius: 50%;\n  place-items: center;\n  padding: 0;\n  transition: opacity .2s ease-in-out;\n  display: grid;\n  position: absolute;\n  top: 4px;\n  right: 4px;\n}\n\n.dsh-an-official-AttachmentRail-module-remove:focus-visible {\n  opacity: 1;\n}\n\n@media (hover: hover) {\n  .dsh-an-official-AttachmentRail-module-item:hover .dsh-an-official-AttachmentRail-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (hover: none), (pointer: coarse) {\n  .dsh-an-official-AttachmentRail-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .dsh-an-official-AttachmentRail-module-remove {\n    transition: none;\n  }\n}\n\n.dsh-an-official-AttachmentRail-module-arrow {\n  z-index: 2;\n  --dsw-elevation-stroke-color: var(--dsw-alias-border-l2-darkmode-thin);\n  corner-shape: round;\n  background: var(--dsw-specific-input-major);\n  width: 24px;\n  height: 24px;\n  color: var(--dsw-alias-label-secondary);\n  box-shadow: var(--dsw-elevation-panel);\n  cursor: pointer;\n  border: 0;\n  border-radius: 999px;\n  place-items: center;\n  padding: 0;\n  display: grid;\n  position: absolute;\n  top: 50%;\n  transform: translateY(-50%);\n}\n\n@media (hover: hover) {\n  .dsh-an-official-AttachmentRail-module-arrow:hover {\n    background: var(--dsw-alias-interactive-bg-hover-solid);\n  }\n}\n\n.dsh-an-official-AttachmentRail-module-arrowLeft {\n  left: 4px;\n}\n\n.dsh-an-official-AttachmentRail-module-arrowRight {\n  right: 4px;\n}\n";
 
 // node_modules/@deepseek-ai/dsh-client-ui-attachment/src/AttachmentRail.tsx
 /** Draft-attachment rail: scrollbar-less horizontal overflow paged by edge arrows. */
@@ -194,23 +194,23 @@ function AttachmentRail({ items, labels, renderItem }) {
 
 // \0dsh-css:node_modules/@deepseek-ai/dsh-client-ui-attachment/src/FileCard.module.css.mjs
 var FileCard_module_css_default = {
-	"removeFailed": "dsh-an-official-FileCard-module-removeFailed",
 	"body": "dsh-an-official-FileCard-module-body",
-	"progressTrack": "dsh-an-official-FileCard-module-progressTrack",
-	"spinner": "dsh-an-official-FileCard-module-spinner",
+	"card": "dsh-an-official-FileCard-module-card",
+	"failed": "dsh-an-official-FileCard-module-failed",
+	"file-card-progress": "dsh-an-official-FileCard-module-file-card-progress",
+	"file-card-spin": "dsh-an-official-FileCard-module-file-card-spin",
 	"icon": "dsh-an-official-FileCard-module-icon",
+	"meta": "dsh-an-official-FileCard-module-meta",
 	"metaFailed": "dsh-an-official-FileCard-module-metaFailed",
 	"name": "dsh-an-official-FileCard-module-name",
 	"progressBar": "dsh-an-official-FileCard-module-progressBar",
-	"retry": "dsh-an-official-FileCard-module-retry",
-	"file-card-progress": "dsh-an-official-FileCard-module-file-card-progress",
-	"failed": "dsh-an-official-FileCard-module-failed",
-	"file-card-spin": "dsh-an-official-FileCard-module-file-card-spin",
+	"progressTrack": "dsh-an-official-FileCard-module-progressTrack",
 	"remove": "dsh-an-official-FileCard-module-remove",
-	"meta": "dsh-an-official-FileCard-module-meta",
-	"card": "dsh-an-official-FileCard-module-card"
+	"removeFailed": "dsh-an-official-FileCard-module-removeFailed",
+	"retry": "dsh-an-official-FileCard-module-retry",
+	"spinner": "dsh-an-official-FileCard-module-spinner"
 };
-const stylesheet = ".dsh-an-official-FileCard-module-card {\n  border: .5px solid var(--dsw-alias-border-l2);\n  border-radius: var(--dsw-radius-lg);\n  background: var(--dsw-specific-input-major, transparent);\n  box-sizing: border-box;\n  text-align: left;\n  align-items: center;\n  gap: 10px;\n  width: 240px;\n  height: 64px;\n  padding: 0 12px;\n  display: inline-flex;\n  position: relative;\n}\n\n.dsh-an-official-FileCard-module-failed {\n  border-color: var(--dsw-alias-state-error-primary);\n}\n\n.dsh-an-official-FileCard-module-icon {\n  flex: none;\n  justify-content: center;\n  align-items: center;\n  width: 28px;\n  height: 28px;\n  display: inline-flex;\n}\n\n.dsh-an-official-FileCard-module-spinner {\n  corner-shape: round;\n  border: 2px solid;\n  border-top-color: #0000;\n  border-radius: 50%;\n  width: 20px;\n  height: 20px;\n  animation: .8s linear infinite dsh-an-official-FileCard-module-file-card-spin;\n}\n\n@keyframes dsh-an-official-FileCard-module-file-card-spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.dsh-an-official-FileCard-module-body {\n  flex-direction: column;\n  flex: 1;\n  min-width: 0;\n  padding: 8px 0;\n  display: flex;\n}\n\n.dsh-an-official-FileCard-module-retry {\n  color: inherit;\n  font: inherit;\n  text-align: left;\n  cursor: pointer;\n  background: none;\n  border: 0;\n  padding: 0;\n}\n\n.dsh-an-official-FileCard-module-name {\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--dsw-alias-label-primary);\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 22px;\n  overflow: hidden;\n}\n\n.dsh-an-official-FileCard-module-meta {\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 12px;\n  line-height: 15px;\n  overflow: hidden;\n}\n\n.dsh-an-official-FileCard-module-metaFailed {\n  color: var(--dsw-alias-state-error-primary);\n}\n\n.dsh-an-official-FileCard-module-remove {\n  corner-shape: round;\n  background: var(--dsw-alias-button-contrast-fill);\n  width: 18px;\n  height: 18px;\n  color: var(--dsw-alias-label-primary-inverted);\n  opacity: 0;\n  cursor: pointer;\n  border: none;\n  border-radius: 50%;\n  justify-content: center;\n  align-items: center;\n  padding: 0;\n  transition: opacity .2s ease-in-out;\n  display: inline-flex;\n  position: absolute;\n  top: 6px;\n  right: 6px;\n}\n\n.dsh-an-official-FileCard-module-remove:focus-visible {\n  opacity: 1;\n}\n\n@media (hover: hover) {\n  .dsh-an-official-FileCard-module-card:hover .dsh-an-official-FileCard-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (hover: none), (pointer: coarse) {\n  .dsh-an-official-FileCard-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .dsh-an-official-FileCard-module-remove {\n    transition: none;\n  }\n}\n\n.dsh-an-official-FileCard-module-card:focus-within .dsh-an-official-FileCard-module-name {\n  padding-right: 18px;\n}\n\n@media (hover: hover) {\n  .dsh-an-official-FileCard-module-card:hover .dsh-an-official-FileCard-module-name {\n    padding-right: 18px;\n  }\n}\n\n.dsh-an-official-FileCard-module-removeFailed {\n  background: var(--dsw-alias-state-error-primary);\n  color: var(--dsw-alias-label-on-color);\n  opacity: 1;\n}\n\n.dsh-an-official-FileCard-module-progressTrack {\n  background: var(--dsw-specific-file-upload-track);\n  border-radius: 1px;\n  height: 2px;\n  position: absolute;\n  bottom: 5px;\n  left: 12px;\n  right: 12px;\n  overflow: hidden;\n}\n\n.dsh-an-official-FileCard-module-progressBar {\n  border-radius: inherit;\n  background: var(--dsw-alias-brand-primary);\n  width: 35%;\n  height: 100%;\n  animation: 1.2s ease-in-out infinite alternate dsh-an-official-FileCard-module-file-card-progress;\n  display: block;\n}\n\n.dsh-an-official-FileCard-module-progressBar[style] {\n  animation: none;\n}\n\n@keyframes dsh-an-official-FileCard-module-file-card-progress {\n  from {\n    transform: translateX(-70%);\n  }\n\n  to {\n    transform: translateX(220%);\n  }\n}\n\n@media (hover: none), (pointer: coarse) {\n  .dsh-an-official-FileCard-module-remove {\n    opacity: 1;\n  }\n}\n";
+const stylesheet$1 = ".dsh-an-official-FileCard-module-card {\n  border: .5px solid var(--dsw-alias-border-l2);\n  border-radius: var(--dsw-radius-lg);\n  background: var(--dsw-specific-input-major, transparent);\n  box-sizing: border-box;\n  text-align: left;\n  align-items: center;\n  gap: 10px;\n  width: 240px;\n  height: 64px;\n  padding: 0 12px;\n  display: inline-flex;\n  position: relative;\n}\n\n.dsh-an-official-FileCard-module-failed {\n  border-color: var(--dsw-alias-state-error-primary);\n}\n\n.dsh-an-official-FileCard-module-icon {\n  flex: none;\n  justify-content: center;\n  align-items: center;\n  width: 28px;\n  height: 28px;\n  display: inline-flex;\n}\n\n.dsh-an-official-FileCard-module-spinner {\n  corner-shape: round;\n  border: 2px solid;\n  border-top-color: #0000;\n  border-radius: 50%;\n  width: 20px;\n  height: 20px;\n  animation: .8s linear infinite dsh-an-official-FileCard-module-file-card-spin;\n}\n\n@keyframes dsh-an-official-FileCard-module-file-card-spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.dsh-an-official-FileCard-module-body {\n  flex-direction: column;\n  flex: 1;\n  min-width: 0;\n  padding: 8px 0;\n  display: flex;\n}\n\n.dsh-an-official-FileCard-module-retry {\n  color: inherit;\n  font: inherit;\n  text-align: left;\n  cursor: pointer;\n  background: none;\n  border: 0;\n  padding: 0;\n}\n\n.dsh-an-official-FileCard-module-name {\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--dsw-alias-label-primary);\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 22px;\n  overflow: hidden;\n}\n\n.dsh-an-official-FileCard-module-meta {\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--dsw-alias-label-tertiary);\n  font-size: 12px;\n  line-height: 15px;\n  overflow: hidden;\n}\n\n.dsh-an-official-FileCard-module-metaFailed {\n  color: var(--dsw-alias-state-error-primary);\n}\n\n.dsh-an-official-FileCard-module-remove {\n  corner-shape: round;\n  background: var(--dsw-alias-button-contrast-fill);\n  width: 18px;\n  height: 18px;\n  color: var(--dsw-alias-label-primary-inverted);\n  opacity: 0;\n  cursor: pointer;\n  border: none;\n  border-radius: 50%;\n  justify-content: center;\n  align-items: center;\n  padding: 0;\n  transition: opacity .2s ease-in-out;\n  display: inline-flex;\n  position: absolute;\n  top: 6px;\n  right: 6px;\n}\n\n.dsh-an-official-FileCard-module-remove:focus-visible {\n  opacity: 1;\n}\n\n@media (hover: hover) {\n  .dsh-an-official-FileCard-module-card:hover .dsh-an-official-FileCard-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (hover: none), (pointer: coarse) {\n  .dsh-an-official-FileCard-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .dsh-an-official-FileCard-module-remove {\n    transition: none;\n  }\n}\n\n.dsh-an-official-FileCard-module-card:focus-within .dsh-an-official-FileCard-module-name {\n  padding-right: 18px;\n}\n\n@media (hover: hover) {\n  .dsh-an-official-FileCard-module-card:hover .dsh-an-official-FileCard-module-name {\n    padding-right: 18px;\n  }\n}\n\n.dsh-an-official-FileCard-module-removeFailed {\n  background: var(--dsw-alias-state-error-primary);\n  color: var(--dsw-alias-label-on-color);\n  opacity: 1;\n}\n\n.dsh-an-official-FileCard-module-progressTrack {\n  background: var(--dsw-specific-file-upload-track);\n  border-radius: 1px;\n  height: 2px;\n  position: absolute;\n  bottom: 5px;\n  left: 12px;\n  right: 12px;\n  overflow: hidden;\n}\n\n.dsh-an-official-FileCard-module-progressBar {\n  border-radius: inherit;\n  background: var(--dsw-alias-brand-primary);\n  width: 35%;\n  height: 100%;\n  animation: 1.2s ease-in-out infinite alternate dsh-an-official-FileCard-module-file-card-progress;\n  display: block;\n}\n\n.dsh-an-official-FileCard-module-progressBar[style] {\n  animation: none;\n}\n\n@keyframes dsh-an-official-FileCard-module-file-card-progress {\n  from {\n    transform: translateX(-70%);\n  }\n\n  to {\n    transform: translateX(220%);\n  }\n}\n\n@media (hover: none), (pointer: coarse) {\n  .dsh-an-official-FileCard-module-remove {\n    opacity: 1;\n  }\n}\n";
 
 // node_modules/@deepseek-ai/dsh-client-ui-attachment/src/FileCard.tsx
 /** One pending file card: type glyph, name, size or upload status, remove, retry. */
@@ -268,6 +268,21 @@ function FileCard({ name, bytes, state, progress, labels, onRemove, onRetry }) {
 		]
 	});
 }
+
+// \0dsh-css:node_modules/@deepseek-ai/dsh-client-ui-attachment/src/client/ComposerAttachments.module.css.mjs
+var ComposerAttachments_module_css_default = {
+	"failureGlyph": "dsh-an-official-ComposerAttachments-module-failureGlyph",
+	"image-upload-progress": "dsh-an-official-ComposerAttachments-module-image-upload-progress",
+	"imageItem": "dsh-an-official-ComposerAttachments-module-imageItem",
+	"progressBar": "dsh-an-official-ComposerAttachments-module-progressBar",
+	"progressTrack": "dsh-an-official-ComposerAttachments-module-progressTrack",
+	"rail": "dsh-an-official-ComposerAttachments-module-rail",
+	"remove": "dsh-an-official-ComposerAttachments-module-remove",
+	"thumbnail": "dsh-an-official-ComposerAttachments-module-thumbnail",
+	"thumbnailFailed": "dsh-an-official-ComposerAttachments-module-thumbnailFailed",
+	"thumbnailRefused": "dsh-an-official-ComposerAttachments-module-thumbnailRefused"
+};
+const stylesheet = ".dsh-an-official-ComposerAttachments-module-rail {\n  min-width: 0;\n  margin-bottom: -6px;\n  padding: 2px 10px 0;\n}\n\n.dsh-an-official-ComposerAttachments-module-imageItem {\n  width: 64px;\n  height: 64px;\n  position: relative;\n}\n\n.dsh-an-official-ComposerAttachments-module-thumbnail {\n  border: .5px solid var(--dsw-alias-border-l2-darkmode-thin);\n  border-radius: var(--dsw-radius-xl);\n  background: var(--dsw-alias-interactive-bg-hover);\n  cursor: zoom-in;\n  width: 64px;\n  height: 64px;\n  padding: 0;\n  overflow: hidden;\n}\n\n.dsh-an-official-ComposerAttachments-module-thumbnail img {\n  object-fit: cover;\n  width: 100%;\n  height: 100%;\n  display: block;\n}\n\n.dsh-an-official-ComposerAttachments-module-thumbnailFailed {\n  border-color: var(--dsw-alias-state-error-primary);\n  cursor: pointer;\n}\n\n.dsh-an-official-ComposerAttachments-module-thumbnailFailed img {\n  opacity: .4;\n}\n\n.dsh-an-official-ComposerAttachments-module-thumbnailRefused {\n  cursor: default;\n}\n\n.dsh-an-official-ComposerAttachments-module-failureGlyph {\n  color: var(--dsw-alias-state-error-primary);\n  place-items: center;\n  display: grid;\n  position: absolute;\n  inset: 0;\n}\n\n.dsh-an-official-ComposerAttachments-module-progressTrack {\n  background: var(--dsw-specific-file-upload-track);\n  pointer-events: none;\n  border-radius: 1px;\n  height: 2px;\n  position: absolute;\n  bottom: 6px;\n  left: 8px;\n  right: 8px;\n  overflow: hidden;\n}\n\n.dsh-an-official-ComposerAttachments-module-progressBar {\n  border-radius: inherit;\n  background: var(--dsw-alias-brand-primary);\n  width: 35%;\n  height: 100%;\n  animation: 1.2s ease-in-out infinite alternate dsh-an-official-ComposerAttachments-module-image-upload-progress;\n  display: block;\n}\n\n.dsh-an-official-ComposerAttachments-module-progressBar[style] {\n  animation: none;\n}\n\n@keyframes dsh-an-official-ComposerAttachments-module-image-upload-progress {\n  from {\n    transform: translateX(-70%);\n  }\n\n  to {\n    transform: translateX(220%);\n  }\n}\n\n.dsh-an-official-ComposerAttachments-module-remove {\n  z-index: 1;\n  corner-shape: round;\n  background: var(--dsw-alias-button-contrast-fill);\n  width: 18px;\n  height: 18px;\n  color: var(--dsw-alias-label-primary-inverted);\n  cursor: pointer;\n  opacity: 0;\n  border: none;\n  border-radius: 50%;\n  place-items: center;\n  padding: 0;\n  transition: opacity .2s ease-in-out;\n  display: grid;\n  position: absolute;\n  top: 4px;\n  right: 4px;\n}\n\n.dsh-an-official-ComposerAttachments-module-remove:focus-visible {\n  opacity: 1;\n}\n\n@media (hover: hover) {\n  .dsh-an-official-ComposerAttachments-module-imageItem:hover .dsh-an-official-ComposerAttachments-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (hover: none), (pointer: coarse) {\n  .dsh-an-official-ComposerAttachments-module-remove {\n    opacity: 1;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .dsh-an-official-ComposerAttachments-module-remove {\n    transition: none;\n  }\n\n  .dsh-an-official-ComposerAttachments-module-progressBar {\n    animation: none;\n  }\n}\n";
 
 // host/attachment-metadata.ts
 const MAX_ATTACHMENT_BYTES = 26214400;
@@ -437,15 +452,20 @@ function withTooltip(label, node) {
 
 // src/client/ui/AttachmentList.tsx
 /** @jsxRuntime classic */
-const officialAttachmentCSS = `${stylesheet$1}\n${stylesheet}
+const officialAttachmentCSS = `${stylesheet$2}\n${stylesheet$1}\n${stylesheet}
+.dsh-an-imageDownload.${ComposerAttachments_module_css_default.remove}{inset:auto 4px 4px auto;opacity:1;text-decoration:none}
+.dsh-an-imageLoading{display:grid;place-items:center;cursor:default}
+.${AttachmentRail_module_css_default.item}:has(>.dsh-an-imageFallback){height:auto}
+.dsh-an-imageFallback{width:min(240px,100cqi)}
 .dsh-an-attachment[data-remove-disabled] .${FileCard_module_css_default.remove}{display:none}
 .dsh-an-attachment > .${FileCard_module_css_default.card}{max-width:100%;width:min(240px,100cqi);padding-inline-end:var(--an-space-6);vertical-align:top}
 .dsh-an-attachment[data-previewable] > .${FileCard_module_css_default.card}{padding-inline-end:calc(var(--an-space-6) + var(--an-space-4))}
 @media (hover:hover){.dsh-an-attachment:hover .${FileCard_module_css_default.remove}{opacity:1}}`;
-function AttachmentPreview({ attachment, id, say }) {
+function useAttachmentPreview(attachment, enabled = true) {
 	const { id: attachmentId, name, size, type } = attachment;
 	const [preview, setPreview] = react.default.useState({});
 	react.default.useEffect(() => {
+		if (!enabled) return;
 		const controller = new AbortController();
 		let url;
 		readAttachment({
@@ -468,10 +488,19 @@ function AttachmentPreview({ attachment, id, say }) {
 		attachmentId,
 		name,
 		size,
-		type
+		type,
+		enabled
 	]);
-	const kind = previewKind(type);
-	const fail = () => setPreview({ failed: true });
+	return {
+		...preview,
+		fail: () => setPreview({ failed: true })
+	};
+}
+function AttachmentPreview({ attachment, id, say }) {
+	const preview = useAttachmentPreview(attachment);
+	const kind = previewKind(attachment.type);
+	const { name } = attachment;
+	const { fail } = preview;
 	return /* @__PURE__ */ react.default.createElement("div", {
 		id,
 		className: "dsh-an-attachmentPreview"
@@ -485,6 +514,81 @@ function AttachmentPreview({ attachment, id, say }) {
 		preload: "metadata",
 		"aria-label": name,
 		onError: fail
+	}));
+}
+function DraftImage({ attachment, say, disabled, onRemove, fallback }) {
+	const { name } = attachment;
+	const itemRef = react.default.useRef(null);
+	const triggerRef = react.default.useRef(null);
+	const [visible, setVisible] = react.default.useState(typeof IntersectionObserver === "undefined");
+	const [decoded, setDecoded] = react.default.useState(false);
+	const [open, setOpen] = react.default.useState(false);
+	const { url, failed, fail } = useAttachmentPreview(attachment, visible);
+	react.default.useEffect(() => {
+		if (visible || !itemRef.current) return;
+		const observer = new IntersectionObserver((entries) => {
+			if (!entries.some((entry) => entry.isIntersecting)) return;
+			observer.disconnect();
+			setVisible(true);
+		});
+		observer.observe(itemRef.current);
+		return () => observer.disconnect();
+	}, [visible]);
+	const previewLabel = say("attachment.preview", { name });
+	const download = say("attachment.download", { name });
+	if (failed) return /* @__PURE__ */ react.default.createElement("div", { className: "dsh-an-imageFallback" }, fallback, /* @__PURE__ */ react.default.createElement("div", {
+		className: "dsh-an-attachmentStatus",
+		role: "status"
+	}, say("attachment.previewFailed")));
+	return /* @__PURE__ */ react.default.createElement("div", {
+		ref: itemRef,
+		className: `dsh-an-attachment ${ComposerAttachments_module_css_default.imageItem}`,
+		"data-image-preview-open": open ? "" : void 0
+	}, /* @__PURE__ */ react.default.createElement("button", {
+		ref: triggerRef,
+		type: "button",
+		className: decoded ? ComposerAttachments_module_css_default.thumbnail : `${ComposerAttachments_module_css_default.thumbnail} dsh-an-imageLoading`,
+		title: decoded ? previewLabel : name,
+		"aria-label": previewLabel,
+		"aria-haspopup": "dialog",
+		disabled: !decoded,
+		onClick: () => setOpen(true)
+	}, url ? /* @__PURE__ */ react.default.createElement("img", {
+		src: url,
+		alt: "",
+		onLoad: () => setDecoded(true),
+		onError: fail
+	}) : /* @__PURE__ */ react.default.createElement(Glyph, {
+		name: "IconImageOutlineRegular",
+		size: 16
+	})), !decoded && /* @__PURE__ */ react.default.createElement("span", {
+		className: "dsh-an-srOnly",
+		role: "status"
+	}, say("attachment.loading")), /* @__PURE__ */ react.default.createElement("button", {
+		type: "button",
+		className: ComposerAttachments_module_css_default.remove,
+		"aria-label": say("attachment.remove", { name }),
+		disabled,
+		onClick: onRemove
+	}, /* @__PURE__ */ react.default.createElement(_deepseek_ai_dsh_client_ui_primitives.IconCloseFillRegular, { size: 12 })), withTooltip(download, /* @__PURE__ */ react.default.createElement("a", {
+		className: `${ComposerAttachments_module_css_default.remove} dsh-an-imageDownload`,
+		"aria-label": download,
+		href: attachmentUrl(attachment),
+		download: name
+	}, icon("IconDownloadOutlineRegular") ? /* @__PURE__ */ react.default.createElement(Glyph, {
+		name: "IconDownloadOutlineRegular",
+		size: 12
+	}) : /* @__PURE__ */ react.default.createElement("span", { "aria-hidden": "true" }, "↓"))), open && url && /* @__PURE__ */ react.default.createElement(_deepseek_ai_dsh_client_ui_primitives.ImageLightbox, {
+		src: url,
+		alt: name,
+		labels: {
+			dialog: previewLabel,
+			close: say("attachment.closePreview")
+		},
+		onClose: () => {
+			setOpen(false);
+			triggerRef.current?.focus();
+		}
 	}));
 }
 function AttachmentList({ attachments, say, onRemove, disabled }) {
@@ -517,12 +621,12 @@ function AttachmentList({ attachments, say, onRemove, disabled }) {
 		id: previewId,
 		say
 	});
-	const renderCard = ({ attachment, id, index }) => {
+	const renderCard = ({ attachment, id, index }, previewUnavailable = false) => {
 		const { name, size, type } = attachment;
 		const open = id === openKey;
 		const download = say("attachment.download", { name });
 		const previewLabel = say("attachment.preview", { name });
-		const canPreview = previewKind(type) !== null;
+		const canPreview = !previewUnavailable && previewKind(type) !== null;
 		return /* @__PURE__ */ react.default.createElement("div", {
 			className: "dsh-an-attachment",
 			"data-previewable": canPreview ? "" : void 0,
@@ -569,7 +673,13 @@ function AttachmentList({ attachments, say, onRemove, disabled }) {
 		"data-draft": onRemove ? "" : void 0
 	}, onRemove ? /* @__PURE__ */ react.default.createElement(AttachmentRail, {
 		items: entries,
-		renderItem: renderCard,
+		renderItem: (entry) => previewKind(entry.attachment.type) === "img" && _deepseek_ai_dsh_client_ui_primitives.ImageLightbox ? /* @__PURE__ */ react.default.createElement(DraftImage, {
+			attachment: entry.attachment,
+			say,
+			disabled,
+			onRemove: () => onRemove(entry.index),
+			fallback: renderCard(entry, true)
+		}) : renderCard(entry),
 		labels: {
 			group: say("attachment.list"),
 			scrollLeft: say("attachment.scrollLeft"),
@@ -664,6 +774,7 @@ const de = {
 	"attachment.scrollLeft": "Anhänge nach links scrollen",
 	"attachment.scrollRight": "Anhänge nach rechts scrollen",
 	"attachment.preview": "Vorschau für {name}",
+	"attachment.closePreview": "Vorschau schließen",
 	"attachment.download": "{name} herunterladen",
 	"attachment.remove": "{name} entfernen",
 	"attachment.uploading": "Wird hochgeladen…",
@@ -799,6 +910,7 @@ const en = {
 	"attachment.scrollLeft": "Scroll attachments left",
 	"attachment.scrollRight": "Scroll attachments right",
 	"attachment.preview": "Preview {name}",
+	"attachment.closePreview": "Close preview",
 	"attachment.download": "Download {name}",
 	"attachment.remove": "Remove {name}",
 	"attachment.uploading": "Uploading…",
@@ -934,6 +1046,7 @@ const es = {
 	"attachment.scrollLeft": "Desplazar adjuntos a la izquierda",
 	"attachment.scrollRight": "Desplazar adjuntos a la derecha",
 	"attachment.preview": "Vista previa de {name}",
+	"attachment.closePreview": "Cerrar vista previa",
 	"attachment.download": "Descargar {name}",
 	"attachment.remove": "Quitar {name}",
 	"attachment.uploading": "Subiendo…",
@@ -1069,6 +1182,7 @@ const fr = {
 	"attachment.scrollLeft": "Faire défiler les pièces jointes vers la gauche",
 	"attachment.scrollRight": "Faire défiler les pièces jointes vers la droite",
 	"attachment.preview": "Aperçu de {name}",
+	"attachment.closePreview": "Fermer l’aperçu",
 	"attachment.download": "Télécharger {name}",
 	"attachment.remove": "Retirer {name}",
 	"attachment.uploading": "Envoi en cours…",
@@ -1204,6 +1318,7 @@ const ja = {
 	"attachment.scrollLeft": "添付ファイルを左にスクロール",
 	"attachment.scrollRight": "添付ファイルを右にスクロール",
 	"attachment.preview": "{name} をプレビュー",
+	"attachment.closePreview": "プレビューを閉じる",
 	"attachment.download": "{name} をダウンロード",
 	"attachment.remove": "{name} を削除",
 	"attachment.uploading": "アップロード中…",
@@ -1339,6 +1454,7 @@ const pt = {
 	"attachment.scrollLeft": "Rolar anexos para a esquerda",
 	"attachment.scrollRight": "Rolar anexos para a direita",
 	"attachment.preview": "Prévia de {name}",
+	"attachment.closePreview": "Fechar prévia",
 	"attachment.download": "Baixar {name}",
 	"attachment.remove": "Remover {name}",
 	"attachment.uploading": "Enviando…",
@@ -1474,6 +1590,7 @@ const ru = {
 	"attachment.scrollLeft": "Прокрутить вложения влево",
 	"attachment.scrollRight": "Прокрутить вложения вправо",
 	"attachment.preview": "Предпросмотр: {name}",
+	"attachment.closePreview": "Закрыть предпросмотр",
 	"attachment.download": "Скачать {name}",
 	"attachment.remove": "Удалить {name}",
 	"attachment.uploading": "Отправка…",
@@ -1609,6 +1726,7 @@ const zh = {
 	"attachment.scrollLeft": "向左滚动附件",
 	"attachment.scrollRight": "向右滚动附件",
 	"attachment.preview": "预览 {name}",
+	"attachment.closePreview": "关闭预览",
 	"attachment.download": "下载 {name}",
 	"attachment.remove": "移除 {name}",
 	"attachment.uploading": "上传中…",
@@ -5263,13 +5381,15 @@ function useListEdge({ items, showOpen, showDone }) {
 /** Close the panel on an outside pointerdown or Escape. */
 function useOutsideDismiss(panelRef, anchorRef, onClose) {
 	react.default.useEffect(() => {
+		const imagePreviewOpen = () => panelRef.current?.querySelector("[data-image-preview-open]");
 		const onPointerDown = (event) => {
+			if (imagePreviewOpen()) return;
 			if (panelRef.current && panelRef.current.contains(event.target)) return;
 			if (anchorRef.current && anchorRef.current.contains(event.target)) return;
 			onClose(false);
 		};
 		const onKeyDown = (event) => {
-			if (event.key === "Escape") onClose();
+			if (event.key === "Escape" && !imagePreviewOpen()) onClose();
 		};
 		document.addEventListener("pointerdown", onPointerDown, true);
 		document.addEventListener("keydown", onKeyDown);

@@ -30,6 +30,7 @@ export const es: Record<MessageKey, string> = {
   "attachment.scrollLeft": "Desplazar adjuntos a la izquierda",
   "attachment.scrollRight": "Desplazar adjuntos a la derecha",
   "attachment.preview": "Vista previa de {name}",
+  "attachment.closePreview": "Cerrar vista previa",
   "attachment.download": "Descargar {name}",
   "attachment.remove": "Quitar {name}",
   "attachment.uploading": "Subiendo…",

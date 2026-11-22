@@ -56,6 +56,12 @@ interface DshClientCtx {
 declare module '@deepseek-ai/dsh-client-ui-primitives' {
   export const Tooltip: any
   export const Toast: any
+  export const ImageLightbox: import('react').ComponentType<{
+    src: string
+    alt: string
+    labels: { dialog: string; close: string }
+    onClose: () => void
+  }>
   export const FileTypeIcon: import('react').ComponentType<{ path: string }>
   export const IconCloseFillRegular: import('react').ComponentType<{ size?: number }>
   export const IconChevronLeftOutlineRegular: import('react').ComponentType

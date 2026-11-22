@@ -66,7 +66,8 @@ async function setup(options = {}) {
   const attachments = new Map()
   const previewUrls = []
   window.URL.createObjectURL = blob => `blob:https://example.test/preview-${previewUrls.push(blob.type)}`
-  window.URL.revokeObjectURL = () => {}
+  const revokedPreviews = []
+  window.URL.revokeObjectURL = url => revokedPreviews.push(url)
   if (options.hostSeed) {
     for (const [sessionId, items] of Object.entries(options.hostSeed.sessions || {})) {
       await domain.table('sessions').put(sessionId, { sessionId, updatedAt: 1, items })
@@ -138,6 +139,13 @@ async function setup(options = {}) {
     'react-dom': ReactDOM,
     'react-dom/client': ReactDOMClient,
     '@deepseek-ai/dsh-client-ui-primitives': {
+      ImageLightbox: ({ src, alt, labels, onClose }) => ReactDOM.createPortal(
+        React.createElement('div', {
+          role: 'dialog', 'aria-label': labels.dialog,
+          onKeyDown: event => { if (event.key === 'Escape') onClose() },
+        }, React.createElement('img', { src, alt }), React.createElement('button', { onClick: onClose }, labels.close)),
+        window.document.body,
+      ),
       FileTypeIcon: ({ path }) => React.createElement('svg', { 'data-file-type-path': path }),
       IconCloseFillRegular: () => React.createElement('svg'),
       IconChevronLeftOutlineRegular: () => React.createElement('svg'),
@@ -207,7 +215,7 @@ async function setup(options = {}) {
     return popover
   }
 
-  return { window, dom, domain, store, calls, previewUrls, openPanel, addNote, settle, act }
+  return { window, dom, domain, store, calls, previewUrls, revokedPreviews, openPanel, addNote, settle, act }
 }
 
 test('STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记', async t => {
@@ -575,11 +583,24 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
   await act(async () => transferFiles(window, panel().querySelector('form'), 'drop', [new window.File(['video'], '录屏.mp4', { type: 'video/mp4' })]))
   await act(async () => select('数据.csv', 'text/csv'))
   const draftRail = () => panel().querySelector('form [role="group"][aria-label="附件"]')
-  const draftNames = () => [...(draftRail()?.querySelectorAll('.dsh-an-attachment > [title]') ?? [])].map(node => node.title)
+  const draftNames = () => [...(draftRail()?.querySelectorAll('a[download]') ?? [])].map(node => node.download)
   assert.deepEqual(draftNames(), ['截图.png', '语音.wav', '录屏.mp4', '数据.csv'])
-  const imageCard = draftRail().querySelector('[title="截图.png"]')
-  assert.ok(imageCard.querySelector('[data-file-type-path="截图.png"]'))
-  assert.match(imageCard.textContent, /PNG 4 B/)
+  const thumbnail = draftRail().querySelector('[aria-label="预览 截图.png"]')
+  const image = thumbnail.querySelector('img')
+  assert.equal(thumbnail.disabled, true, 'preview waits for the thumbnail to decode')
+  assert.match(thumbnail.className, /ComposerAttachments-module-thumbnail/)
+  await act(async () => { image.dispatchEvent(new window.Event('load')) })
+  assert.equal(thumbnail.disabled, false)
+  await act(async () => { thumbnail.click() })
+  const dialog = window.document.querySelector('[role="dialog"][aria-label="预览 截图.png"]')
+  assert.equal(dialog.querySelector('img').src, image.src)
+  await act(async () => {
+    dialog.dispatchEvent(new window.Event('pointerdown', { bubbles: true }))
+    dialog.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+  })
+  assert.equal(dialog.isConnected, false)
+  assert.ok(panel())
+  assert.equal(window.document.activeElement, thumbnail)
   const rail = draftRail()
   Object.defineProperties(rail, { clientWidth: { value: 240 }, scrollWidth: { value: 990 } })
   let page
@@ -592,8 +613,13 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
   assert.equal(page.left, 200)
   assert.equal(page.behavior, 'smooth')
   await toggle()
+  assert.deepEqual(ctx.revokedPreviews, [image.src])
   await toggle()
   assert.deepEqual(draftNames(), ['截图.png', '语音.wav', '录屏.mp4', '数据.csv'])
+  await act(async () => { draftRail().querySelector('img').dispatchEvent(new window.Event('error')) })
+  assert.equal(draftRail().querySelector('button[aria-label="预览 截图.png"]'), null)
+  assert.ok(draftRail().querySelector('[data-file-type-path="截图.png"]'))
+  assert.match(draftRail().textContent, /无法预览，可下载原文件/)
   await act(async () => { panel().querySelector('[aria-label="移除 数据.csv"]').click() })
   await act(async () => { panel().querySelector('.dsh-an-addBtn').click() })
   assert.deepEqual(draftNames(), [])
@@ -613,7 +639,7 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
   }
   await act(async () => { previews[2].click() })
   assert.equal(row.querySelector('.dsh-an-attachmentPreview'), null)
-  assert.deepEqual(ctx.previewUrls, ['image/png', 'audio/wav', 'video/mp4'])
+  assert.deepEqual(ctx.previewUrls, ['image/png', 'image/png', 'image/png', 'audio/wav', 'video/mp4'])
   const download = row.querySelector('[download="截图.png"]')
   assert.equal(new window.URL(download.href).searchParams.get('id'), note.attachments[0].id)
   await act(async () => { row.querySelector('[aria-label="退回"]').click() })

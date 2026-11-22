@@ -30,6 +30,7 @@ export const fr: Record<MessageKey, string> = {
   "attachment.scrollLeft": "Faire défiler les pièces jointes vers la gauche",
   "attachment.scrollRight": "Faire défiler les pièces jointes vers la droite",
   "attachment.preview": "Aperçu de {name}",
+  "attachment.closePreview": "Fermer l’aperçu",
   "attachment.download": "Télécharger {name}",
   "attachment.remove": "Retirer {name}",
   "attachment.uploading": "Envoi en cours…",

@@ -30,6 +30,7 @@ export const ru: Record<MessageKey, string> = {
   "attachment.scrollLeft": "Прокрутить вложения влево",
   "attachment.scrollRight": "Прокрутить вложения вправо",
   "attachment.preview": "Предпросмотр: {name}",
+  "attachment.closePreview": "Закрыть предпросмотр",
   "attachment.download": "Скачать {name}",
   "attachment.remove": "Удалить {name}",
   "attachment.uploading": "Отправка…",

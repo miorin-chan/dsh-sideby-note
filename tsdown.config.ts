@@ -22,7 +22,7 @@ const CSS_INLINE = '?inline'
 const CSS_VIRTUAL_PREFIX = '\0dsh-css:'
 const require = createRequire(import.meta.url)
 const ATTACHMENT_PACKAGE = '@deepseek-ai/dsh-client-ui-attachment'
-const OFFICIAL_ATTACHMENT_CSS = new Set(['FileCard.module.css', 'AttachmentRail.module.css']
+const OFFICIAL_ATTACHMENT_CSS = new Set(['FileCard.module.css', 'AttachmentRail.module.css', 'client/ComposerAttachments.module.css']
   .map(file => require.resolve(`${ATTACHMENT_PACKAGE}/src/${file}`)))
 
 /**
@@ -61,7 +61,8 @@ function inlineCss(): TsdownPlugin {
         cssModules: { pattern: 'dsh-an-official-[name]-[local]' },
       })
       if (!classes) throw new Error(`Missing CSS Module exports for ${file}`)
-      const names = Object.fromEntries(Object.entries(classes).map(([local, value]) => [local, value.name]))
+      // Lightning CSS does not guarantee the iteration order of CSS Module exports.
+      const names = Object.fromEntries(Object.keys(classes).sort().map(local => [local, classes[local].name]))
       return `export default ${JSON.stringify(names)}; export const stylesheet = ${JSON.stringify(code.toString())}`
     },
   }

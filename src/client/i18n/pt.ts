@@ -30,6 +30,7 @@ export const pt: Record<MessageKey, string> = {
   "attachment.scrollLeft": "Rolar anexos para a esquerda",
   "attachment.scrollRight": "Rolar anexos para a direita",
   "attachment.preview": "Prévia de {name}",
+  "attachment.closePreview": "Fechar prévia",
   "attachment.download": "Baixar {name}",
   "attachment.remove": "Remover {name}",
   "attachment.uploading": "Enviando…",

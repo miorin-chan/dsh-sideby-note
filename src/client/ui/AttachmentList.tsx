@@ -1,15 +1,22 @@
 /** @jsxRuntime classic */
 import React from 'react'
 // @deepseek-ai/dsh-client-ui-attachment 0.2.2-rc.5, src/AttachmentRail.tsx and
-// src/FileCard.tsx, with their CSS Modules. Copyright (c) 2026 DeepSeek, MIT.
+// src/FileCard.tsx, and thumbnail styles from src/client/ComposerAttachments.module.css.
+// Copyright (c) 2026 DeepSeek, MIT.
+import { IconCloseFillRegular, ImageLightbox } from '@deepseek-ai/dsh-client-ui-primitives'
 import { AttachmentRail } from '@deepseek-ai/dsh-client-ui-attachment/src/AttachmentRail.tsx'
 import { FileCard } from '@deepseek-ai/dsh-client-ui-attachment/src/FileCard.tsx'
-import { stylesheet as railCSS } from '@deepseek-ai/dsh-client-ui-attachment/src/AttachmentRail.module.css'
+import railClasses, { stylesheet as railCSS } from '@deepseek-ai/dsh-client-ui-attachment/src/AttachmentRail.module.css'
 import cardClasses, { stylesheet as cardCSS } from '@deepseek-ai/dsh-client-ui-attachment/src/FileCard.module.css'
+import imageClasses, { stylesheet as imageCSS } from '@deepseek-ai/dsh-client-ui-attachment/src/client/ComposerAttachments.module.css'
 import { attachmentUrl, previewKind, readAttachment, type NoteAttachment } from '../domain/attachments'
 import { Glyph, icon, withTooltip } from './primitives'
 
-export const officialAttachmentCSS = `${railCSS}\n${cardCSS}
+export const officialAttachmentCSS = `${railCSS}\n${cardCSS}\n${imageCSS}
+.dsh-an-imageDownload.${imageClasses.remove}{inset:auto 4px 4px auto;opacity:1;text-decoration:none}
+.dsh-an-imageLoading{display:grid;place-items:center;cursor:default}
+.${railClasses.item}:has(>.dsh-an-imageFallback){height:auto}
+.dsh-an-imageFallback{width:min(240px,100cqi)}
 .dsh-an-attachment[data-remove-disabled] .${cardClasses.remove}{display:none}
 .dsh-an-attachment > .${cardClasses.card}{max-width:100%;width:min(240px,100cqi);padding-inline-end:var(--an-space-6);vertical-align:top}
 .dsh-an-attachment[data-previewable] > .${cardClasses.card}{padding-inline-end:calc(var(--an-space-6) + var(--an-space-4))}
@@ -22,14 +29,12 @@ interface AttachmentListProps {
   disabled?: boolean
 }
 
-function AttachmentPreview({ attachment, id, say }: Pick<AttachmentListProps, 'say'> & {
-  attachment: NoteAttachment
-  id: string
-}) {
+function useAttachmentPreview(attachment: NoteAttachment, enabled = true) {
   const { id: attachmentId, name, size, type } = attachment
   const [preview, setPreview] = React.useState<{ url?: string; failed?: boolean }>({})
 
   React.useEffect(() => {
+    if (!enabled) return
     const controller = new AbortController()
     let url: string | undefined
     void readAttachment({ id: attachmentId, name, size, type }, controller.signal).then(blob => {
@@ -43,10 +48,19 @@ function AttachmentPreview({ attachment, id, say }: Pick<AttachmentListProps, 's
       controller.abort()
       if (url) URL.revokeObjectURL(url)
     }
-  }, [attachmentId, name, size, type])
+  }, [attachmentId, name, size, type, enabled])
 
-  const kind = previewKind(type)
-  const fail = () => setPreview({ failed: true })
+  return { ...preview, fail: () => setPreview({ failed: true }) }
+}
+
+function AttachmentPreview({ attachment, id, say }: Pick<AttachmentListProps, 'say'> & {
+  attachment: NoteAttachment
+  id: string
+}) {
+  const preview = useAttachmentPreview(attachment)
+  const kind = previewKind(attachment.type)
+  const { name } = attachment
+  const { fail } = preview
   return (
     <div id={id} className="dsh-an-attachmentPreview">
       {preview.failed ? <span role="status">{say('attachment.previewFailed')}</span>
@@ -55,6 +69,65 @@ function AttachmentPreview({ attachment, id, say }: Pick<AttachmentListProps, 's
             : kind && React.createElement(kind, {
               src: preview.url, controls: true, preload: 'metadata', 'aria-label': name, onError: fail,
             })}
+    </div>
+  )
+}
+
+function DraftImage({ attachment, say, disabled, onRemove, fallback }: Pick<AttachmentListProps, 'say' | 'disabled'> & {
+  attachment: NoteAttachment
+  onRemove: () => void
+  fallback: React.ReactNode
+}) {
+  const { name } = attachment
+  const itemRef = React.useRef<HTMLDivElement>(null)
+  const triggerRef = React.useRef<HTMLButtonElement>(null)
+  const [visible, setVisible] = React.useState(typeof IntersectionObserver === 'undefined')
+  const [decoded, setDecoded] = React.useState(false)
+  const [open, setOpen] = React.useState(false)
+  const { url, failed, fail } = useAttachmentPreview(attachment, visible)
+  React.useEffect(() => {
+    if (visible || !itemRef.current) return
+    const observer = new IntersectionObserver(entries => {
+      if (!entries.some(entry => entry.isIntersecting)) return
+      observer.disconnect()
+      setVisible(true)
+    })
+    observer.observe(itemRef.current)
+    return () => observer.disconnect()
+  }, [visible])
+  const previewLabel = say('attachment.preview', { name })
+  const download = say('attachment.download', { name })
+
+  if (failed) return (
+    <div className="dsh-an-imageFallback">
+      {fallback}
+      <div className="dsh-an-attachmentStatus" role="status">{say('attachment.previewFailed')}</div>
+    </div>
+  )
+
+  return (
+    <div ref={itemRef} className={`dsh-an-attachment ${imageClasses.imageItem}`} data-image-preview-open={open ? '' : undefined}>
+      <button ref={triggerRef} type="button"
+        className={decoded ? imageClasses.thumbnail : `${imageClasses.thumbnail} dsh-an-imageLoading`}
+        title={decoded ? previewLabel : name} aria-label={previewLabel} aria-haspopup="dialog"
+        disabled={!decoded} onClick={() => setOpen(true)}>
+        {url ? <img src={url} alt="" onLoad={() => setDecoded(true)} onError={fail} />
+          : <Glyph name="IconImageOutlineRegular" size={16} />}
+      </button>
+      {!decoded && <span className="dsh-an-srOnly" role="status">{say('attachment.loading')}</span>}
+      <button type="button" className={imageClasses.remove} aria-label={say('attachment.remove', { name })}
+        disabled={disabled} onClick={onRemove}>
+        <IconCloseFillRegular size={12} />
+      </button>
+      {withTooltip(download, <a className={`${imageClasses.remove} dsh-an-imageDownload`} aria-label={download}
+        href={attachmentUrl(attachment)} download={name}>
+        {icon('IconDownloadOutlineRegular') ? <Glyph name="IconDownloadOutlineRegular" size={12} /> : <span aria-hidden="true">↓</span>}
+      </a>)}
+      {open && url && <ImageLightbox src={url} alt={name} labels={{ dialog: previewLabel, close: say('attachment.closePreview') }}
+        onClose={() => {
+          setOpen(false)
+          triggerRef.current?.focus()
+        }} />}
     </div>
   )
 }
@@ -79,12 +152,12 @@ export function AttachmentList({ attachments, say, onRemove, disabled }: Attachm
 
   if (!entries.length) return null
   const preview = selected && <AttachmentPreview key={selected.id} attachment={selected.attachment} id={previewId} say={say} />
-  const renderCard = ({ attachment, id, index }: typeof entries[number]) => {
+  const renderCard = ({ attachment, id, index }: typeof entries[number], previewUnavailable = false) => {
     const { name, size, type } = attachment
     const open = id === openKey
     const download = say('attachment.download', { name })
     const previewLabel = say('attachment.preview', { name })
-    const canPreview = previewKind(type) !== null
+    const canPreview = !previewUnavailable && previewKind(type) !== null
     return (
       <div className="dsh-an-attachment" data-previewable={canPreview ? '' : undefined}
         data-remove-disabled={!onRemove || disabled ? '' : undefined}>
@@ -108,7 +181,12 @@ export function AttachmentList({ attachments, say, onRemove, disabled }: Attachm
   }
   return (
     <div className="dsh-an-attachments" data-draft={onRemove ? '' : undefined}>
-      {onRemove ? <AttachmentRail items={entries} renderItem={renderCard} labels={{
+      {onRemove ? <AttachmentRail items={entries} renderItem={entry => (
+         previewKind(entry.attachment.type) === 'img' && ImageLightbox
+           ? <DraftImage attachment={entry.attachment} say={say} disabled={disabled}
+               onRemove={() => onRemove(entry.index)} fallback={renderCard(entry, true)} />
+           : renderCard(entry)
+       )} labels={{
         group: say('attachment.list'), scrollLeft: say('attachment.scrollLeft'), scrollRight: say('attachment.scrollRight'),
       }} /> : (
         <ul className="dsh-an-attachmentCards" aria-label={say('attachment.list')}>

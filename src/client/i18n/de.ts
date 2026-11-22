@@ -30,6 +30,7 @@ export const de: Record<MessageKey, string> = {
   "attachment.scrollLeft": "Anhänge nach links scrollen",
   "attachment.scrollRight": "Anhänge nach rechts scrollen",
   "attachment.preview": "Vorschau für {name}",
+  "attachment.closePreview": "Vorschau schließen",
   "attachment.download": "{name} herunterladen",
   "attachment.remove": "{name} entfernen",
   "attachment.uploading": "Wird hochgeladen…",

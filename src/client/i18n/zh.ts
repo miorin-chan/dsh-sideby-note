@@ -28,6 +28,7 @@ export const zh = {
   "attachment.scrollLeft": "向左滚动附件",
   "attachment.scrollRight": "向右滚动附件",
   "attachment.preview": "预览 {name}",
+  "attachment.closePreview": "关闭预览",
   "attachment.download": "下载 {name}",
   "attachment.remove": "移除 {name}",
   "attachment.uploading": "上传中…",
