@@ -889,15 +889,17 @@ test('workspace notes share a list and global actions preserve ownership', async
   })
 
   await t.test('SCOPE-003 全局范围汇总各工作区便笺', async () => {
-    const workspaceRow = [...popover.querySelectorAll('.dsh-an-row')]
-      .find(row => row.querySelector('.dsh-an-text').textContent === '会话二的事项')
+    const workspaceRows = [...popover.querySelectorAll('.dsh-an-row')]
+    const currentOrder = workspaceRows.map(row => row.querySelector('.dsh-an-text').textContent)
+    const otherOrder = browserWorkspaceItems(window, 'ws-2').map(item => item.text)
+    const workspaceRow = workspaceRows.find(row => row.querySelector('.dsh-an-text').textContent === '会话二的事项')
     assert.equal(workspaceRow.dataset.rowId, 'seed-2')
     assert.equal(workspaceRow.querySelector('.dsh-an-workspaceJump'), null)
     await act(async () => { popover.querySelector('[data-scope-mode="global"]').click() })
     assertLocalStorageDetails(popover)
     const rows = [...popover.querySelectorAll('.dsh-an-row')]
-    assert.deepEqual(rows.map(row => row.querySelector('.dsh-an-text').textContent).sort(),
-      ['会话一的事项', '会话二的事项', '另一工作区的旧事项', '先前未并入的事项'].sort())
+    assert.deepEqual(rows.map(row => row.querySelector('.dsh-an-text').textContent), [...currentOrder, ...otherOrder],
+      'Global shows the current workspace first and keeps the saved order in each workspace')
     const duplicateRows = rows.filter(row => ['会话二的事项', '另一工作区的旧事项'].includes(row.querySelector('.dsh-an-text').textContent))
     const ids = duplicateRows.map(row => row.dataset.rowId)
     assert.equal(new Set(ids).size, 2, 'equal raw IDs in different workspaces get distinct row IDs')
@@ -1046,12 +1048,13 @@ test('workspace notes share a list and global actions preserve ownership', async
       'the shared note is archived for every conversation of the workspace')
   })
 
+  const Pointer = window.PointerEvent || window.MouseEvent
+  const pointer = (node, type, clientY, pointerType = 'mouse') => node.dispatchEvent(new Pointer(type, {
+    bubbles: true, cancelable: true, button: 0, pointerId: 1, clientY, pointerType,
+  }))
+  const openList = () => secondPopover.querySelector('.dsh-an-listSection:first-child .dsh-an-rows')
+
   await t.test('NOTE-010 拖动调整排序且 Escape 取消拖动', async () => {
-    const Pointer = window.PointerEvent || window.MouseEvent
-    const pointer = (node, type, clientY, pointerType = 'mouse') => node.dispatchEvent(new Pointer(type, {
-      bubbles: true, cancelable: true, button: 0, pointerId: 1, clientY, pointerType,
-    }))
-    const openList = () => secondPopover.querySelector('.dsh-an-listSection:first-child .dsh-an-rows')
     const openOrder = () => [...openList().querySelectorAll('.dsh-an-text')].map(node => node.textContent)
     const storedOpen = () => workspaceItems().filter(item => !item.done).map(item => item.text)
     const before = openOrder()
@@ -1136,6 +1139,8 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.deepEqual(scopeCounts(), [globalBefore - 1, workspaceBefore])
 
     await act(async () => { secondPopover.querySelector('.dsh-an-doneHead .dsh-an-doneToggle').click() })
+    assert.deepEqual([...secondPopover.querySelectorAll('.dsh-an-rowArchived .dsh-an-text')].map(node => node.textContent),
+      ['新增的共享事项', otherText], 'the current workspace archive appears before a newer archive from another workspace')
     const archivedRow = rowByText(otherText)
     assert.ok(archivedRow.querySelector('button[aria-label="在 另一工作区 打开新会话"]'))
     assert.equal(archivedRow.querySelector('.dsh-an-insert'), null)
@@ -1168,11 +1173,21 @@ test('workspace notes share a list and global actions preserve ownership', async
     window.localStorage.setItem(draftsKey, JSON.stringify(drafts))
     const fieldBeforeJump = inputOf(secondPopover)
     const list = secondPopover.querySelector('.dsh-an-listArea')
+    const listRect = list.getBoundingClientRect()
+    list.getBoundingClientRect = () => ({ ...listRect, height: 320, bottom: listRect.top + 320 })
     list.scrollTop = 32
     const jump = secondPopover.querySelector('button[aria-label="在 另一工作区 打开新会话"]')
     await act(async () => { jump.click() })
     assert.equal(document.querySelector('.dsh-an-popover'), secondPopover)
     assert.equal(fieldBeforeJump.value, '原工作区的草稿')
+
+    const itemsBeforeJump = workspaceItems()
+    const draggedText = openList().querySelector('.dsh-an-text')
+    await act(async () => {
+      pointer(draggedText, 'pointerdown', 0)
+      pointer(draggedText, 'pointermove', 60)
+    })
+    assert.equal(openList().dataset.dragging, 'true', 'a drag can start while the workspace opens')
 
     const utilities = document.querySelector('._headerUtilities')
     const useBlankSessions = selector => selector({ byId: { 'session-4': { blank: true } } })
@@ -1188,6 +1203,11 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.equal(secondPopover.querySelector('.dsh-an-destination'), null,
       'the global composer does not repeat the current workspace shown in the scope switch')
     assert.equal(jump.getAttribute('aria-current'), 'location')
+    assert.equal(secondPopover.querySelector('.dsh-an-row .dsh-an-workspaceJump'), jump,
+      'the target workspace moves to the front as soon as the panel follows the jump')
+    await act(async () => { pointer(draggedText, 'pointerup', 60) })
+    assert.deepEqual(workspaceItems(), itemsBeforeJump, 'the old drop position must not reorder the workspace after the jump')
+    assert.equal(openList().dataset.dragging, undefined, 'the drag ends when the list is reordered by the jump')
 
     const corner = document.createElement('div')
     corner.className = '_headerCorner'

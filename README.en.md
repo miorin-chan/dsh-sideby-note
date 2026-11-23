@@ -100,7 +100,8 @@ Click the **Sideby Note** button at the top right of the conversation to open th
 
 ### Keep it in the workspace and pick it up later
 
-**Global** shows notes from all workspaces. Select the workspace name beside the folder icon to see notes from the current workspace.
+**Global** shows notes from all workspaces, with the current workspace first in both **Open** and **Archived**.
+Select the workspace name beside the folder icon to see only notes from that workspace.
 Both filters show their open counts. The entry badge shows the current workspace count, or the global count in a standalone session.
 Whichever filter you use, new notes are saved to the current workspace for its sessions to share.
 In a standalone session, new notes go into a reserved unassigned workspace and appear under **Global**.
@@ -133,12 +134,14 @@ Click a note’s **Insert** button to add its text and all attachments to the cu
 - **Insert** adds the note’s text and original files to the **currently open conversation’s** draft, after any existing content. Attachment-only notes work the same way. Once the composer accepts the complete note, it moves to **Archived**. You decide when to send. DSH applies its usual attachment limits, and the note stays open if a file cannot be read or the composer rejects the batch.
 - **Drag to reorder**. Move an open note by dragging it or by focusing Insert and pressing ↑ / ↓.
   Reordering applies within the note’s own workspace. Esc cancels an active drag.
-  Archived notes stay in archive order.
 - **Remembered state**. New note drafts are saved per workspace, or per session for standalone sessions.
   Switching filters preserves the draft. Reopening the panel restores the draft, the chosen filter,
   and which sections were expanded.
 - **Panel size**: drag the left edge for width and the bottom handle for height, double-click either to reset; both persist in the browser.
-- **List regions**: **Open** and **Archived** each keep a sticky header and its own scroll, and expanding the archive never compresses open; Insert sits to the left of open note text. On hover, the age gives way to Copy / Rewind; archived notes list newest archive first.
+- **List regions**. **Open** and **Archived** each have a sticky header and their own scroll area.
+  Expanding the archive preserves the space for open notes.
+  Open notes have **Insert** on the left and show **Copy** and **Rewind** on hover.
+  Archived notes appear newest first within the current workspace and within the rest of the list.
 - **Storage & updates** in the footer starts collapsed. Expand it to see the storage status, host file path, and installed version.
   You can also copy the path, reveal the file in your file manager, or check for updates. If the connection fails
   after switching to host storage, the panel shows the reason and a **Reconnect** action.

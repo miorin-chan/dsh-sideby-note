@@ -239,7 +239,15 @@ export function MemoPopover(props: MemoPopoverProps) {
     onPanelHeightKeyDown,
   } = usePanelGeometry(props.anchorRef, props.placement, panelRef)
 
-  const openItems = items.filter(item => !item.done)
+  const currentWorkspaceFirst = (notes: WorkspaceNote[]) => {
+    if (!workspace || workspaceFilter) return notes
+    const id = workspace.workspaceId
+    return [
+      ...notes.filter(item => item.workspaceId === id),
+      ...notes.filter(item => item.workspaceId !== id),
+    ]
+  }
+  const openItems = currentWorkspaceFirst(items.filter(item => !item.done))
   const doneItems = items.filter(item => item.done).sort(compareDoneItems)
   const openCount = openItems.length
   const total = items.length
@@ -484,7 +492,7 @@ export function MemoPopover(props: MemoPopoverProps) {
       row,
       showDone,
       toggleDone,
-      doneItems,
+      doneItems: currentWorkspaceFirst(doneItems),
       clearConfirmText: say(workspaceFilter ? 'popover.clearConfirm' : 'popover.clearGlobalConfirm', { n: doneItems.length }),
       confirmClear,
       askClearConfirm,

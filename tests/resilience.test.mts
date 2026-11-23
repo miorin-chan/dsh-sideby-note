@@ -132,6 +132,8 @@ test('SCOPE-010 无工作区时只显示全局并写入未归属清单', async t
   await app.settle(20)
 
   assert.deepEqual(standaloneItems(app.window).map(item => item.text), ['不绑定工作区的便笺'])
+  assert.deepEqual(rowsOf(app.popover).map(textOf), ['其他工作区的便笺', '不绑定工作区的便笺'],
+    'Global keeps the original order when there is no current workspace')
   assert.deepEqual(JSON.parse(app.window.localStorage.getItem(WORKSPACE_KEY)).workspaces['ws-other'], existingList)
   assert.equal(app.window.localStorage.getItem('dsh.aside-note'), null, 'no legacy session list is created')
   await app.dispose()

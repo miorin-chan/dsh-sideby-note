@@ -231,6 +231,8 @@ export function useRowReorder({ ids, groupFor, scrollRef, onMove }) {
 
   const idsKey = ids.join('\n')
   React.useLayoutEffect(() => {
+    // A drag's positions belong to the list order captured at pointerdown.
+    api.finish(false)
     const list = listRef.current
     const settle = settleRef.current
     if (settle && list) {
