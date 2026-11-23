@@ -126,8 +126,10 @@ test('SCOPE-010 无工作区时只显示全局并写入未归属清单', async t
   assert.equal(app.button.dataset.scope, 'global')
   assert.match(app.button.title, /全局 · 1 条待续/)
   assert.deepEqual(rowsOf(app.popover).map(textOf), ['其他工作区的便笺'])
+  const input = app.popover.querySelector('.dsh-an-input')
+  assert.equal(input.placeholder, '随手记一条')
 
-  await typeInto(app, app.popover.querySelector('.dsh-an-input'), '不绑定工作区的便笺')
+  await typeInto(app, input, '不绑定工作区的便笺')
   await app.act(async () => { app.popover.querySelector('.dsh-an-addBtn').click() })
   await app.settle(20)
 

@@ -984,6 +984,8 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.deepEqual(sessionAfterAdd.sessions, {}, 'the removed session rows stay removed')
     assert.equal(JSON.parse(window.localStorage.getItem('dsh.aside-note.drafts')).sessions['ws:ws-1'], undefined,
       'submitting the shared draft consumes it')
+    assert.equal(inputOf(popover).value, '')
+    assert.equal(inputOf(popover).placeholder, '关于共享工作区...')
   })
 
   await t.test('STORE-005 未提交草稿留在工作区缓冲', async () => {
@@ -1122,6 +1124,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.deepEqual(JSON.parse(window.localStorage.getItem('dsh.aside-note')).sessions, {})
     assert.equal(JSON.parse(window.localStorage.getItem('dsh.aside-note.drafts')).sessions['ws:ws-1'], undefined,
       'the shared draft is consumed by the save')
+    assert.equal(document.getElementById(secondInput.getAttribute('aria-describedby'))?.textContent, '记到 共享工作区')
   })
 
   await t.test('SCOPE-014 全局范围操作更新便笺所属工作区', async () => {
@@ -1268,7 +1271,11 @@ test('workspace notes share a list and global actions preserve ownership', async
     const newEntry = corner.querySelector('.dsh-an-headerBtn')
     assert.equal(newEntry.getAttribute('aria-expanded'), 'true')
     assert.equal(document.querySelector('.dsh-an-popover'), secondPopover)
-    await typeInto(inputOf(secondPopover), '目标工作区的新草稿')
+    const targetInput = inputOf(secondPopover)
+    await typeInto(targetInput, '')
+    assert.equal(targetInput.value, '')
+    assert.equal(targetInput.placeholder, '关于另一工作区...')
+    await typeInto(targetInput, '目标工作区的新草稿')
     const saved = JSON.parse(window.localStorage.getItem(draftsKey)).sessions
     assert.equal(saved['ws:ws-1'].add, '原工作区的草稿')
     assert.equal(saved['ws:ws-2'].add, '目标工作区的新草稿')
@@ -1617,12 +1624,12 @@ test('handing notes to chat joins them on new lines, without a prefix or list ma
 
   await t.test('I18N-001 面板文案跟随当前语言且递入保留原文', async () => {
     assert.equal(popover.querySelector('.dsh-an-popTitle').textContent, '边记部')
-    assert.equal(popover.querySelector('.dsh-an-input').placeholder, '随手记一条')
+    assert.equal(popover.querySelector('.dsh-an-input').placeholder, '关于工作区...')
     const storageToggle = popover.querySelector('summary.dsh-an-storageToggle')
     assert.equal(storageToggle.textContent.trim(), '存储与更新')
     await act(async () => { locale.setLocale('en') })
     assert.equal(popover.querySelector('.dsh-an-popTitle').textContent, 'Sideby Note')
-    assert.equal(popover.querySelector('.dsh-an-input').placeholder, 'Jot one down')
+    assert.equal(popover.querySelector('.dsh-an-input').placeholder, 'About 工作区...')
     assert.equal(storageToggle.textContent.trim(), 'Storage & updates')
     assert.equal(await insert('Alpha'), 'Alpha')
   })

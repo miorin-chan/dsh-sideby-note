@@ -24,6 +24,7 @@ export const fr: Record<MessageKey, string> = {
   "popover.empty.body": "Rédigez vos idées de façon asynchrone pendant que l'agent travaille",
   "shortcut.toggle": "Afficher ou masquer Sideby Note",
   "add.placeholder": "Notez-en une",
+  "add.workspacePlaceholder": "À propos de {workspace}...",
   "add.action": "Ajouter",
   "composer.sendToNotes": "Envoyer à Sideby Note",
   "composer.saved": "Envoyé à Sideby Note",

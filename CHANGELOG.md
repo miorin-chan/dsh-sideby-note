@@ -71,8 +71,8 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   Insert now sits to the left of the note text.
   Drag an open note directly to reorder it.
 - The note composer uses a borderless return icon button and removes the visible keyboard hint.
-- The composer omits the current workspace name already shown beside its count.
-  It still shows the save location in standalone sessions and for notes recalled from another workspace.
+- An empty note composer shows a faint “About {workspace}...” hint when the draft has a workspace.
+  The save location appears in standalone sessions and for notes recalled from another workspace.
 - Rapidly switching between Global and Workspace keeps the latest selection while it saves.
 <!-- app-update-notes:en:end -->
 
@@ -118,7 +118,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - 便笺的「递入对话」改为「填入」，换用列表加笔图标。
   「填入」移到正文左侧，直接拖动待续便笺即可排序。
 - 便笺录入区移除键盘说明，添加按钮改用无边框的回车图标。
-- 录入框省略计数栏已显示的当前工作区。
+- 有工作区的便笺录入框为空时，淡色显示「关于{工作区}...」。
   独立会话和跨工作区退回便笺时仍会显示保存位置。
 - 快速切换全局和工作区时，界面在保存期间会保持最新选择。
 <!-- app-update-notes:zh:end -->

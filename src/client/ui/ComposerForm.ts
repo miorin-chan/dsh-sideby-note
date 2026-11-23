@@ -10,7 +10,8 @@ const h = React.createElement
 interface ComposerFormProps {
   say: (key: string, vars?: Record<string, string>) => string
   draft: string
-  destination?: string
+  placeholder: string
+  destination?: { text: string; visible: boolean }
   destinationPending: boolean
   attachments: React.ComponentProps<typeof AttachmentList>['attachments']
   attachmentItems: React.ComponentProps<typeof AttachmentList>['attachmentItems']
@@ -42,8 +43,8 @@ const FILE_DRAG_TOKEN_TYPE = 'application/x-dsh-file'
 
 export function ComposerForm(props: ComposerFormProps) {
   const {
-    say, draft, destination, destinationPending, attachments, attachmentItems, renderFactorySlot, readFileDrag,
-    draftLocked, isSubmitting, isRecalling, hasUnresolvedAttachments, canUpload, storageInUse,
+    say, draft, placeholder, destination, destinationPending, attachments, attachmentItems, renderFactorySlot,
+    readFileDrag, draftLocked, isSubmitting, isRecalling, hasUnresolvedAttachments, canUpload, storageInUse,
     inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit,
     onFiles, onRemove, onRemoveUpload, onRetryUpload, onReadFailed, onUnavailable, onBusy,
   } = props
@@ -106,7 +107,11 @@ export function ComposerForm(props: ComposerFormProps) {
         else takeFiles(files)
       },
     },
-    destination && h('div', { id: destinationId, className: 'dsh-an-destination' }, destination),
+    destination && h('div', {
+      id: destinationId,
+      className: destination.visible ? 'dsh-an-destination' : undefined,
+      hidden: !destination.visible,
+    }, destination.text),
     h(AttachmentList, {
       attachments, attachmentItems, say, renderFactorySlot, disabled: busy,
       onRemove: index => { focusPickerFromCard(); onRemove(index) },
@@ -123,7 +128,7 @@ export function ComposerForm(props: ComposerFormProps) {
       rows: 1,
       maxLength: MAX_TEXT,
       readOnly: draftLocked,
-      placeholder: say('add.placeholder'),
+      placeholder,
       'aria-describedby': destination ? destinationId : undefined,
       'aria-label': say('add.placeholder'),
       onChange: onDraftChange,

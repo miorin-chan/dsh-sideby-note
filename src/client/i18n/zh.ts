@@ -22,6 +22,7 @@ export const zh = {
   "popover.empty.body": "趁 agent 工作时，异步记下你的想法",
   "shortcut.toggle": "打开或收起边记部",
   "add.placeholder": "随手记一条",
+  "add.workspacePlaceholder": "关于{workspace}...",
   "add.action": "添加",
   "composer.sendToNotes": "发至边记部",
   "composer.saved": "已发至边记部",

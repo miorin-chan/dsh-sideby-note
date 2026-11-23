@@ -73,15 +73,20 @@ function MemoComposer({ composerRef, nameOfWorkspace, say, renderFactorySlot, re
     focus: () => addRef.current?.focus({ preventScroll: true }),
   }))
   const destination = draft.workspaceId ?? workspaceId
+  const workspaceTitle = destination ? workspaceById(destination)?.title : undefined
+  const showDestination = !destination || destination !== workspaceId || destination === UNASSIGNED_WORKSPACE
   let destinationHint: string | undefined
   if (!destination) destinationHint = say('scope.loading')
-  else if (destination !== workspaceId || destination === UNASSIGNED_WORKSPACE) {
-    destinationHint = say('add.destination', { workspace: nameOfWorkspace(destination) })
+  else if (showDestination || workspaceTitle) {
+    destinationHint = say('add.destination', { workspace: workspaceTitle || nameOfWorkspace(destination) })
   }
   return h(ComposerForm, {
     say,
     draft: draft.add,
-    destination: destinationHint,
+    placeholder: workspaceTitle
+      ? say('add.workspacePlaceholder', { workspace: workspaceTitle })
+      : say('add.placeholder'),
+    destination: destinationHint ? { text: destinationHint, visible: showDestination } : undefined,
     destinationPending: !destination,
     attachments: draft.attachments,
     attachmentItems,

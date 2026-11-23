@@ -24,6 +24,7 @@ export const en: Record<MessageKey, string> = {
   "popover.empty.body": "Asynchronously draft your ideas while the agent is working",
   "shortcut.toggle": "Toggle Sideby Note",
   "add.placeholder": "Jot one down",
+  "add.workspacePlaceholder": "About {workspace}...",
   "add.action": "Add",
   "composer.sendToNotes": "Send to Sideby Note",
   "composer.saved": "Sent to Sideby Note",

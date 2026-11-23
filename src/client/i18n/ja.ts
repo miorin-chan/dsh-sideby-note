@@ -24,6 +24,7 @@ export const ja: Record<MessageKey, string> = {
   "popover.empty.body": "エージェントが作業している間に、アイデアを非同期で書き留める",
   "shortcut.toggle": "Sideby Note の表示を切り替え",
   "add.placeholder": "ひとつメモする",
+  "add.workspacePlaceholder": "{workspace}について...",
   "add.action": "追加",
   "composer.sendToNotes": "Sideby Note に送る",
   "composer.saved": "Sideby Note に送りました",
