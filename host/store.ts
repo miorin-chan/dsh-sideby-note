@@ -6,7 +6,10 @@
  * notes cannot overwrite each other's records. DSH grants one owner for this
  * domain, which uses the same durable schema as AsideNote.
  */
+import type { Context } from '@deepseek-ai/cordis'
+import type { Domain, KvTable } from '@deepseek-ai/dsh-storage-domain'
 import { DOMAIN_NAME, TABLES } from './constants.js'
+import type { createSpec, ForwardedRecord, Note, Prefs, SessionRecord, WorkspaceRecord } from './store-spec.js'
 import {
   normalizeForwardedRecord,
   normalizeItems,
@@ -17,16 +20,11 @@ import { moveLegacySessions, UNASSIGNED_WORKSPACE_ID, workspaceForSession, works
 
 /** Stable failure vocabulary shared with the browser route. */
 export class StoreError extends Error {
-  /**
-   * @param {string} code stable machine code
-   * @param {string} message diagnostic prose
-   * @param {number} [status] HTTP status the route maps to
-   */
-  constructor(code, message, status = 502) {
+  readonly retryable: boolean
+
+  constructor(readonly code: string, message: string, readonly status = 502) {
     super(message)
     this.name = 'StoreError'
-    this.code = code
-    this.status = status
     this.retryable = status === 503 || status === 502
   }
 }
@@ -34,46 +32,64 @@ export class StoreError extends Error {
 const OPEN_ATTEMPTS = 3
 const OPEN_RETRY_MS = 80
 
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
-const text = value => (value ? String(value) : '')
+type NoteDomain = Domain<ReturnType<typeof createSpec>>
 
-function bad(message) {
+interface SnapshotData {
+  sessions: Record<string, SessionRecord>
+  workspaces: Record<string, WorkspaceRecord>
+  forwarded: Record<string, ForwardedRecord>
+  prefs: Partial<Prefs>
+}
+
+const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
+const text = (value: unknown) => (value ? String(value) : '')
+
+function bad(message: string): StoreError {
   return new StoreError('STORE_BAD_REQUEST', message, 400)
 }
 
-function tableObject(table) {
+function tableObject<T>(table: Pick<KvTable<string, T>, 'entries'>): Record<string, T> {
   return Object.fromEntries(table.entries())
 }
 
-function isEmptySnapshot(data) {
+function errorProperty(error: unknown, key: 'code' | 'message'): unknown {
+  if (!error || (typeof error !== 'object' && typeof error !== 'function') || !(key in error)) return undefined
+  return (error as Record<typeof key, unknown>)[key]
+}
+
+function migrationEntries(value: unknown): [string, unknown][] {
+  return Object.entries(value || {})
+}
+
+function isEmptySnapshot(data: SnapshotData): boolean {
   return Object.keys(data.sessions).length === 0
     && Object.keys(data.workspaces).length === 0
     && Object.keys(data.forwarded).length === 0
     && data.prefs?.migration === undefined
 }
 
-/**
- * Create the store bound to one plugin context.
- * @param {{ get?: (name: string) => unknown }} ctx host context
- */
-export function createStore(ctx) {
+/** Create the store bound to one plugin context. */
+export function createStore(ctx: Context): Store {
   return new Store(ctx)
 }
 
+export type { Store }
+
 class Store {
-  /** @param {{ get?: (name: string) => unknown }} ctx */
-  constructor(ctx) {
+  private readonly ctx: Context
+  private domain: NoteDomain | undefined
+  private opening: Promise<NoteDomain> | undefined
+  private rev = 0
+  private closed = false
+  /** Serializes read-modify-write mutations before they reach the domain chain. */
+  private chain = Promise.resolve()
+
+  constructor(ctx: Context) {
     this.ctx = ctx
-    this.domain = undefined
-    this.opening = undefined
-    this.rev = 0
-    this.closed = false
-    /** Serializes read-modify-write mutations before they reach the domain chain. */
-    this.chain = Promise.resolve()
   }
 
   /** Open (or reuse) the domain; rejects with a StoreError. */
-  async ready() {
+  async ready(): Promise<NoteDomain> {
     return this.#domain()
   }
 
@@ -82,7 +98,7 @@ class Store {
     return this.#serialize(async () => {
       const domain = await this.#domain()
       await this.#migrateRegisteredSessions(domain)
-      const data = {
+      const data: SnapshotData = {
         sessions: tableObject(domain.table(TABLES.sessions)),
         workspaces: tableObject(domain.table(TABLES.workspaces)),
         forwarded: tableObject(domain.table(TABLES.forwarded)),
@@ -96,12 +112,12 @@ class Store {
     })
   }
 
-  /** Apply one browser mutation. @param {any} op */
-  async apply(op) {
+  /** Apply one browser mutation. */
+  async apply(op: unknown) {
     return this.#serialize(() => this.#apply(op))
   }
 
-  #serialize(task) {
+  #serialize<T>(task: () => Promise<T>): Promise<T> {
     if (this.closed) throw new StoreError('STORE_UNAVAILABLE', 'the note store is closed', 503)
     const run = this.chain.then(task)
     this.chain = run.then(() => undefined, () => undefined)
@@ -109,7 +125,7 @@ class Store {
   }
 
   /** Release the domain; safe to call repeatedly. */
-  async close() {
+  async close(): Promise<void> {
     this.closed = true
     const domain = this.domain
     this.domain = undefined
@@ -126,7 +142,7 @@ class Store {
     }
   }
 
-  async #domain() {
+  async #domain(): Promise<NoteDomain> {
     if (this.closed) throw new StoreError('STORE_UNAVAILABLE', 'the note store is closed', 503)
     if (this.domain) return this.domain
     if (!this.opening) {
@@ -147,39 +163,41 @@ class Store {
     return this.opening
   }
 
-  async #open() {
+  async #open(): Promise<NoteDomain> {
     const facility = typeof this.ctx?.get === 'function' ? this.ctx.get('storageDomain') : undefined
     if (!facility || typeof facility.open !== 'function') {
       throw new StoreError('STORE_UNAVAILABLE', 'storage is not mounted in this profile', 503)
     }
     // Loaded lazily so a missing schema library degrades to STORE_UNAVAILABLE
     // without taking the update routes down with it.
-    let createSpec
+    let createSpec: typeof import('./store-spec.js').createSpec
     try {
       ({ createSpec } = await import('./store-spec.js'))
     } catch (error) {
-      throw new StoreError('STORE_UNAVAILABLE', `note schema is unavailable (${error?.message ?? error})`, 503)
+      throw new StoreError('STORE_UNAVAILABLE', `note schema is unavailable (${errorProperty(error, 'message') ?? error})`, 503)
     }
-    let lastError
+    let lastError: unknown
     for (let attempt = 0; attempt < OPEN_ATTEMPTS; attempt += 1) {
       try {
         return await facility.open(createSpec())
       } catch (error) {
         lastError = error
         // A hot re-apply can race the previous store's asynchronous close.
-        if (error?.code !== 'already-open') break
+        if (errorProperty(error, 'code') !== 'already-open') break
         if (attempt + 1 < OPEN_ATTEMPTS) await delay(OPEN_RETRY_MS)
       }
     }
-    if (lastError?.code === 'already-open') {
+    const code = errorProperty(lastError, 'code')
+    if (code === 'already-open') {
       throw new StoreError('STORE_IN_USE', `${DOMAIN_NAME}.json is already open in another plugin`, 503)
     }
-    const reason = lastError?.code ?? (lastError instanceof Error ? lastError.message : 'open failed')
+    const reason = code ?? (lastError instanceof Error ? lastError.message : 'open failed')
     throw new StoreError('STORE_OPEN_FAILED', `${DOMAIN_NAME}.json cannot be opened (${reason})`, 503)
   }
 
-  async #apply(op) {
-    if (!op || typeof op !== 'object' || Array.isArray(op)) throw bad('operation body must be an object')
+  async #apply(input: unknown) {
+    if (!input || typeof input !== 'object' || Array.isArray(input)) throw bad('operation body must be an object')
+    const op = input as Record<string, unknown>
     const domain = await this.#domain()
     switch (op.op) {
       case 'list.patch':
@@ -195,7 +213,7 @@ class Store {
     }
   }
 
-  async #patchList(domain, op) {
+  async #patchList(domain: NoteDomain, op: Record<string, unknown>) {
     const key = text(op.listKey)
     if (!key) throw bad('listKey is required')
     if (op.kind !== 'workspace') throw bad("kind must be 'workspace'")
@@ -212,8 +230,8 @@ class Store {
     for (const id of deletes) byId.delete(id)
     for (const item of upserts) byId.set(item.id, item)
 
-    const ordered = []
-    const seen = new Set()
+    const ordered: Note[] = []
+    const seen = new Set<string>()
     for (const id of order) {
       const item = byId.get(id)
       if (!item || seen.has(id)) continue
@@ -234,7 +252,7 @@ class Store {
     return { rev: this.rev, record: next }
   }
 
-  async #ensureWorkspace(domain, op) {
+  async #ensureWorkspace(domain: NoteDomain, op: Record<string, unknown>) {
     const workspaceId = text(op.workspaceId)
     if (!workspaceId) throw bad('workspaceId is required')
     const sessions = domain.table(TABLES.sessions)
@@ -252,20 +270,25 @@ class Store {
     return this.#moveSessions(sessions, workspaces, workspaceId, sessionIds)
   }
 
-  async #moveSessions(sessions, workspaces, workspaceId, sessionIds) {
+  async #moveSessions(
+    sessions: KvTable<string, SessionRecord>,
+    workspaces: KvTable<string, WorkspaceRecord>,
+    workspaceId: string,
+    sessionIds: Iterable<string>,
+  ) {
     const { record, migratedSessionIds, changed } = await moveLegacySessions(sessions, workspaces, workspaceId, sessionIds)
     if (changed) this.rev += 1
     return { rev: this.rev, record, migratedSessionIds }
   }
 
-  async #migrateRegisteredSessions(domain, targetWorkspaceId) {
+  async #migrateRegisteredSessions(domain: NoteDomain, targetWorkspaceId?: string): Promise<void> {
     const sessions = domain.table(TABLES.sessions)
     // Resume a pending browser import with its original source rows in place.
     if (sessions.size === 0 || domain.global.get()?.migration?.complete === false) return
     const membership = workspaceMembership(this.ctx?.get?.('workspaceRegistry'))
     if (!membership) return
 
-    const byWorkspace = new Map()
+    const byWorkspace = new Map<string, string[]>()
     for (const id of sessions.keys()) {
       const workspaceId = workspaceForSession(membership, id)
       if (targetWorkspaceId && workspaceId !== targetWorkspaceId) continue
@@ -279,24 +302,26 @@ class Store {
     }
   }
 
-  async #setPrefs(domain, op) {
+  async #setPrefs(domain: NoteDomain, op: Record<string, unknown>) {
     const patch = op.patch
     if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw bad('patch must be an object')
-    const current = domain.global.get() || {}
-    const next = { ...current, version: 1 }
-    if (patch.scopeMode !== 'workspace' && patch.scopeMode !== 'global') {
+    const current: Partial<Prefs> = domain.global.get() || {}
+    const next: Prefs = { ...current, version: 1 }
+    const mode = 'scopeMode' in patch ? patch.scopeMode : undefined
+    if (mode !== 'workspace' && mode !== 'global') {
       throw bad("scopeMode must be 'workspace' or 'global'")
     }
-    next.sidebyNoteScopeMode = patch.scopeMode
+    next.sidebyNoteScopeMode = mode
     await domain.global.set(next)
     this.rev += 1
     return { rev: this.rev, prefs: next }
   }
 
-  async #migrate(domain, op) {
-    const snapshot = op.snapshot
-    if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) throw bad('snapshot must be an object')
-    const current = domain.global.get() || {}
+  async #migrate(domain: NoteDomain, op: Record<string, unknown>) {
+    const rawSnapshot = op.snapshot
+    if (!rawSnapshot || typeof rawSnapshot !== 'object' || Array.isArray(rawSnapshot)) throw bad('snapshot must be an object')
+    const snapshot = rawSnapshot as Record<string, unknown>
+    const current: Partial<Prefs> = domain.global.get() || {}
     if (current.migration?.complete === true) {
       await this.#migrateRegisteredSessions(domain)
       return { rev: this.rev, migrated: 0, notesMigrated: 0, alreadyComplete: true }
@@ -318,7 +343,7 @@ class Store {
     let migrated = 0
     let notesMigrated = 0
 
-    for (const [sessionId, raw] of Object.entries(snapshot.sessions || {})) {
+    for (const [sessionId, raw] of migrationEntries(snapshot.sessions)) {
       const key = text(sessionId)
       if (!key) continue
       const next = normalizeSessionRecord(raw, key)
@@ -327,7 +352,7 @@ class Store {
         notesMigrated += next.items.length
       }
     }
-    for (const [workspaceId, raw] of Object.entries(snapshot.workspaces || {})) {
+    for (const [workspaceId, raw] of migrationEntries(snapshot.workspaces)) {
       const key = text(workspaceId)
       if (!key) continue
       const next = normalizeWorkspaceRecord(raw, key)
@@ -336,7 +361,7 @@ class Store {
         notesMigrated += next.items.length
       }
     }
-    for (const [listKey, raw] of Object.entries(snapshot.forwarded || {})) {
+    for (const [listKey, raw] of migrationEntries(snapshot.forwarded)) {
       if (!listKey) continue
       const next = normalizeForwardedRecord(raw)
       if (Object.keys(next).length > 0 && await putIfMissing(forwarded, listKey, next)) {
@@ -344,8 +369,8 @@ class Store {
       }
     }
 
-    const merged = { ...current, version: 1 }
-    const prefs = snapshot.prefs && typeof snapshot.prefs === 'object' ? snapshot.prefs : {}
+    const merged: Prefs = { ...current, version: 1 }
+    const prefs = snapshot.prefs && typeof snapshot.prefs === 'object' ? snapshot.prefs as Record<string, unknown> : {}
     if (current.scopeMode === undefined && (prefs.scopeMode === 'workspace' || prefs.scopeMode === 'session')) {
       merged.scopeMode = prefs.scopeMode
     }
@@ -368,18 +393,19 @@ class Store {
   }
 }
 
-function explicitMembers(sessionIds) {
-  return Array.isArray(sessionIds) ? new Set(sessionIds.filter(id => typeof id === 'string' && id)) : []
+function explicitMembers(sessionIds: unknown): Iterable<string> {
+  if (!Array.isArray(sessionIds)) return []
+  return new Set((sessionIds as unknown[]).filter((id): id is string => typeof id === 'string' && id !== ''))
 }
 
 /** Leave records already persisted by an interrupted migration in place. */
-async function putIfMissing(table, key, value) {
+async function putIfMissing<T>(table: KvTable<string, T>, key: string, value: T): Promise<boolean> {
   if (table.get(key) !== undefined) return false
   await table.put(key, value)
   return true
 }
 
-async function writeRecord(table, key, current, next) {
+async function writeRecord<T>(table: KvTable<string, T>, key: string, current: T | undefined, next: T): Promise<void> {
   if (current === undefined) await table.put(key, next)
   else await table.update(key, () => next)
 }

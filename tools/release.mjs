@@ -16,7 +16,7 @@
  *   npm run release -- <version> [--dry-run] [--skip-check]
  */
 import { spawnSync } from 'node:child_process'
-import { existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync, unlinkSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
@@ -25,14 +25,14 @@ export const CHANGELOG_FILE = 'CHANGELOG.md'
 /** Operations log: screenshots, listing material, docs and release plumbing. */
 export const CHANGELOG_OPS_FILE = 'CHANGELOG-OPS.md'
 
-/** Files a release commit is allowed to touch. `client/client.js` is rebuilt. */
+/** Tracked files every release updates. */
 export const RELEASE_FILES = [
   'package.json',
   'src/client/constants.ts',
   CHANGELOG_FILE,
-  'client/client.js',
 ]
 
+const CLIENT_OUTPUT = 'client/client.js'
 const VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/
 const PLUGIN_VERSION_PATTERN = /(export const PLUGIN_VERSION = ')[^']*(')/
 
@@ -247,6 +247,11 @@ export function prepare(version, { dryRun = false, skipCheck = false } = {}) {
     fail('could not find `export const PLUGIN_VERSION = ...` in src/client/constants.ts')
   }
 
+  // Checks rebuild the client with the candidate version. Restore the prior
+  // artifact (or its absence) if the release fails before the commit.
+  const clientPath = join(root, CLIENT_OUTPUT)
+  const priorClient = !skipCheck && existsSync(clientPath) ? readFileSync(clientPath) : undefined
+  let ranCheck = false
   let committed = false
   try {
     writeFileSync(paths['package.json'], `${JSON.stringify(manifest, null, 2)}\n`)
@@ -255,6 +260,7 @@ export function prepare(version, { dryRun = false, skipCheck = false } = {}) {
     if (nextOps) writeFileSync(paths[CHANGELOG_OPS_FILE], nextOps)
 
     if (!skipCheck) {
+      ranCheck = true
       const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm'
       // Node refuses to start a `.cmd` shim without a shell (EINVAL on
       // Windows), which read as a failed check before it ever ran.
@@ -296,6 +302,10 @@ export function prepare(version, { dryRun = false, skipCheck = false } = {}) {
     if (!committed) {
       restore(root, originals)
       git(['reset', '--quiet', 'HEAD', '--', ...files], root)
+      if (ranCheck) {
+        if (priorClient !== undefined) writeFileSync(clientPath, priorClient)
+        else if (existsSync(clientPath)) unlinkSync(clientPath)
+      }
     }
     throw error
   }
@@ -360,7 +370,8 @@ function main(argv) {
     const result = prepare(version, { dryRun, skipCheck })
     if (result.dryRun) {
       console.log(`Dry run for ${result.version}: updated ${result.changed.join(', ')}`)
-      console.log('No commit or tag was created. Inspect with `git diff`, discard with `git restore .`.')
+      console.log('No commit or tag was created. Inspect with `git diff`.')
+      console.log(skipCheck ? 'Discard with `git restore .`.' : 'Discard with `git restore . && npm run build`.')
       return
     }
     console.log(`Prepared release ${result.version}`)

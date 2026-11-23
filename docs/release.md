@@ -26,10 +26,10 @@
 
 ```bash
 git switch -c feat/xxx main
-# 改 src/client/**，并把说明写到 CHANGELOG.md 的 ## next-released 下
+# 改宿主或客户端源码，并把说明写到 CHANGELOG.md 的 ## next-released 下
 npm ci                # 安装开发依赖并生成 Host 和 Client 产物
 npm run check          # lint、类型检查、构建与测试
-git add src client CHANGELOG.md
+git add index.ts host/ src/ CHANGELOG.md
 git commit -m "feat: ..."
 git push -u origin feat/xxx
 ```
@@ -42,9 +42,8 @@ git push -u origin feat/xxx
   它不进 Release 正文，也不随 npm 包发布。
 - Release 正文完全由 `CHANGELOG.md` 生成：本版有外部贡献者或合并 PR 时，对应小节里要写 `### Contributors / ### 贡献者`，
   列出 GitHub ID 与 PR 编号；漏写就不会出现在 Release 页和面板更新卡片里。
-- `client/client.js` 是**提交进仓库的构建产物**，必须与 `src/client/**` 出现在同一个提交里；
-  CI 会重新 build 并检查 `git diff client/`，不一致直接失败。
-- 不要手改 `client/client.js`，构建会覆盖它。
+- Host 和 Client 的 JavaScript 由构建生成，随 npm 包发布。
+  CI 连续打包两次，核对运行文件、内容和完整性。
 - `package.json` 的 `version` 与 `src/client/constants.ts` 的 `PLUGIN_VERSION` 必须一致，契约测试会检查。
 - UI 改动先在隔离的 DSH profile 里用 `npm pack` 的 tgz 做一次真机冒烟；
   **发版之前**按 [截图与预览图 SOP](./screenshot-sop.md) 重拍 README 截图并单独提交（`docs: reshoot …`），
@@ -89,14 +88,16 @@ git push origin v0.2.0
 2. 同步 `package.json` 的 `version` 与 `src/client/constants.ts` 的 `PLUGIN_VERSION`；
 3. 把 `## next-released` 改名为 `## <version>`，并在顶部插入一个新的空 `## next-released`；
    `CHANGELOG-OPS.md` 存在且其 `## next-released` 下有内容时，对它做同样的改名；
-4. 运行 `npm run check`，确认 lint、类型、测试和构建产物都一致；
+4. 运行 `npm run check`，验证 lint、类型、构建和测试。
    发布前再跑 `npm run test:strict` 并复核用例记录（见 [测试工程](./testing.md)）；
 5. 提交 `release: <version>` 并打 `v<version>` tag，**不自动 push**。
 
 预发布同样适用：`npm run release -- 0.2.0-beta.1` 会得到 `v0.2.0-beta.1` tag，workflow 自动发到 npm 的 `next` dist-tag。
 
-只想先看改动、不提交时用 `npm run release -- 0.2.0 --dry-run`：会改文件并跑检查，但不 commit、不打 tag，
-之后用 `git restore .` 丢弃。
+用 `npm run release -- 0.2.0 --dry-run` 可以预览版本改动，运行检查后用 `git diff` 查看。
+用 `git restore . && npm run build` 撤销预览并重新生成当前版本的运行文件。
+加 `--skip-check` 时只预览源码改动，用 `git restore .` 撤销即可。
+检查失败时，发布命令自动恢复修改过的源码和先前的客户端产物。
 
 ## 自动发布链路
 
@@ -259,7 +260,7 @@ npx -y --registry=https://registry.npmjs.org/ @miorin/dsh-sideby-note@1.1.2-beta
 | workflow 在 tag 校验步骤失败 | tag 与 `package.json` 版本不一致；删掉错误 tag 后按正确版本重打 |
 | workflow 在 changelog 校验步骤失败 | `CHANGELOG.md` 缺少非空的 `## <version>` 小节；删掉 tag，把 `next-released` 改名后重新提交并重打 tag |
 | `EPUBLISHCONFLICT` / 版本已存在 | 该版本已发布，不能覆盖；改为新版本号 |
-| CI 报 `client/` 与源码不一致 | 本地 `npm run build` 后把 `client/client.js` 一起提交 |
+| CI 打包校验失败 | 本地运行 `npm ci`、`npm pack --dry-run`，核对构建输出和 `package.json` 的 `files` |
 | `ENEEDAUTH` / OIDC 认证失败 | trusted publisher 的 workflow 文件名或仓库名不匹配；核对 `publish.yml` 与 `miorin-chan/dsh-sideby-note` |
 | 配置过期 | 重跑上面的 `npm trust` 命令并完成 Touch ID 授权 |
 | 刚发布后 `npm view` 仍是旧版本 | registry 传播或 npmmirror 同步有延迟；等几分钟，更新检查的镜像回退会自动处理 |

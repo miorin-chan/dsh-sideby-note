@@ -9,7 +9,11 @@
  *
  * Both endpoints require DSH request authentication.
  */
-import { UpdateError, applyUpdate, manualCommand } from './apply-update.js'
+import type { IncomingMessage } from 'node:http'
+import type { Context } from '@deepseek-ai/cordis'
+import type { ProfileContext } from '@deepseek-ai/dsh-app-boot'
+import type { WebServer } from '@deepseek-ai/dsh-host-webserver'
+import { UpdateError, applyUpdate, manualCommand, type UpdateResult } from './apply-update.js'
 import { runProcess } from './exec.js'
 import { PACKAGE, dependencySpec, installMode, installedVersion, isProfileDir, profileDirOf } from './profile.js'
 import { compareVersions, isExactVersion, isPrerelease } from './versions.js'
@@ -31,12 +35,8 @@ const MANUAL_HINT_CODES = new Set([
 const CHECK_TIMEOUT_MS = 8_000
 const BODY_LIMIT = 4 * 1024
 
-/**
- * Read one JSON response with a deadline; undefined when it is unreachable.
- * @param {string} url
- * @returns {Promise<any>}
- */
-async function readJson(url) {
+/** Read one JSON response with a deadline; undefined when it is unreachable. */
+async function readJson(url: string): Promise<unknown> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), CHECK_TIMEOUT_MS)
   try {
@@ -61,21 +61,20 @@ async function readJson(url) {
  * A prerelease build also reads `next` — that is where every prerelease is
  * published, and `latest` never carries one — and a stable build reads
  * `latest` alone, so a prerelease cannot reach a regular user.
- *
- * @param {string | undefined} current the installed version
- * @returns {Promise<string | undefined>}
  */
-export async function fetchLatestVersion(current) {
+export async function fetchLatestVersion(current: string | undefined): Promise<string | undefined> {
   const channels = isPrerelease(current) ? ['latest', 'next'] : ['latest']
   for (const registry of REGISTRIES) {
     const versions = await Promise.all(channels.map(channel =>
       readJson(`${registry}/${encodeURIComponent(PACKAGE)}/${encodeURIComponent(channel)}`).then(body =>
-        typeof body?.version === 'string' ? { channel, version: body.version } : undefined,
+        body && typeof body === 'object' && 'version' in body && typeof body.version === 'string'
+          ? { channel, version: body.version }
+          : undefined,
       ),
     ))
-    const found = versions.filter(Boolean)
+    const found = versions.filter(entry => entry !== undefined)
     if (found.length === 0) continue
-    let best
+    let best: string | undefined
     for (const entry of found) {
       // `next` is prerelease-only by contract; a release tagged there would
       // otherwise be promoted silently.
@@ -87,12 +86,8 @@ export async function fetchLatestVersion(current) {
   return undefined
 }
 
-/**
- * @param {import('node:http').IncomingMessage} request
- * @returns {Promise<any>}
- */
-async function readBody(request) {
-  const chunks = []
+async function readBody(request: IncomingMessage): Promise<unknown> {
+  const chunks: Buffer[] = []
   let size = 0
   for await (const chunk of request) {
     const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
@@ -111,15 +106,13 @@ async function readBody(request) {
 /**
  * DSH's own `dsh plugin add`, bound to the profile this host runs in — the same
  * command the plugin market uses to replace a package in place.
- * @param {any} profileContext
- * @returns {Promise<((args: readonly string[]) => Promise<any>) | undefined>}
  */
-async function pluginCommandOf(profileContext) {
+async function pluginCommandOf(profileContext: ProfileContext | undefined) {
   const profile = profileContextOf(profileContext)
   if (profile === undefined) return undefined
-  // A variable specifier keeps the import out of the bundler's graph.
+  // Custom Hosts can omit the package. Resolve it only for an update.
   const specifier = '@deepseek-ai/dsh-plugin-manager/operations'
-  let operations
+  let operations: typeof import('@deepseek-ai/dsh-plugin-manager/operations')
   try {
     operations = await import(specifier)
   } catch {
@@ -127,7 +120,7 @@ async function pluginCommandOf(profileContext) {
   }
   const run = operations?.runPluginCommand
   if (typeof run !== 'function') return undefined
-  return args =>
+  return (args: readonly string[]) =>
     run(
       { profile: profile.name, dir: profile.dir, installAnchor: profile.installAnchor, cwd: profile.cwd, home: profile.home },
       args,
@@ -144,11 +137,10 @@ async function pluginCommandOf(profileContext) {
 /**
  * The launcher's record of the profile it runs, or undefined when this host
  * does not have one.
- * @param {any} value
  */
-function profileContextOf(value) {
-  if (value === null || typeof value !== 'object') return undefined
-  const required = ['name', 'dir', 'installAnchor', 'cwd', 'home']
+function profileContextOf(value: ProfileContext | undefined) {
+  if (!value || typeof value !== 'object') return undefined
+  const required = ['name', 'dir', 'installAnchor', 'cwd', 'home'] as const
   if (!required.every(key => typeof value[key] === 'string')) return undefined
   return {
     name: value.name,
@@ -160,18 +152,11 @@ function profileContextOf(value) {
   }
 }
 
-/**
- * Register the update endpoints on the host's web server.
- *
- * @param {{ register?: (route: { kind: 'exact', path: string, handler: (request: any, response: any) => unknown }) => unknown }} server
- * @param {{ ctx: any, config?: any }} options
- * @returns {(() => void) | undefined}
- */
-export function registerUpdateRoutes(server, options) {
+/** Register the update endpoints on the host's web server. */
+export function registerUpdateRoutes(server: Pick<WebServer, 'register'>, options: { ctx: Context }) {
   if (typeof server?.register !== 'function') return undefined
   const ctx = options.ctx
-  /** @type {{ promise?: Promise<unknown> }} */
-  const state = {}
+  const state: { promise?: Promise<UpdateResult> } = {}
 
   const resolveProfile = () => {
     const dir = profileDirOf(ctx.get('profileContext'))
@@ -255,14 +240,14 @@ export function registerUpdateRoutes(server, options) {
         sendJson(response, 409, { ok: false, code: 'PLUGIN_NOT_INSTALLED', message: 'no DSH profile here to update', retryable: false })
         return
       }
-      let body
+      let body: unknown
       try {
         body = await readBody(request)
       } catch (error) {
         sendJson(response, 400, { ok: false, code: 'UPDATE_REJECTED', message: error instanceof Error ? error.message : String(error) })
         return
       }
-      const target = body?.target
+      const target = body && typeof body === 'object' && 'target' in body ? body.target : undefined
       if (!isExactVersion(target)) {
         sendJson(response, 400, { ok: false, code: 'UPDATE_REJECTED', message: 'target must be an exact version', retryable: false })
         return

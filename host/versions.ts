@@ -7,12 +7,8 @@
  * comparison lives here and is tested on its own.
  */
 
-/**
- * Split a version into its numeric parts and prerelease identifiers.
- * @param {string} value
- * @returns {{ major: number, minor: number, patch: number, prerelease: string[] } | undefined}
- */
-export function parseSemver(value) {
+/** Split a version into its numeric parts and prerelease identifiers. */
+export function parseSemver(value: unknown) {
   if (typeof value !== 'string') return undefined
   const match = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/.exec(value.trim())
   if (match === null) return undefined
@@ -27,17 +23,14 @@ export function parseSemver(value) {
 /**
  * Order two versions. An unparsable version sorts below a parsable one, which
  * keeps a malformed registry answer from ever reading as "newer".
- * @param {string} a
- * @param {string} b
- * @returns {number} negative when a < b, 0 when equal, positive when a > b
  */
-export function compareVersions(a, b) {
+export function compareVersions(a: unknown, b: unknown): number {
   const left = parseSemver(a)
   const right = parseSemver(b)
   if (left === undefined && right === undefined) return 0
   if (left === undefined) return -1
   if (right === undefined) return 1
-  for (const field of /** @type {const} */ (['major', 'minor', 'patch'])) {
+  for (const field of ['major', 'minor', 'patch'] as const) {
     if (left[field] !== right[field]) return left[field] < right[field] ? -1 : 1
   }
   // A release outranks any prerelease on the same core (`1.2.0` > `1.2.0-rc.1`).
@@ -61,22 +54,13 @@ export function compareVersions(a, b) {
   return 0
 }
 
-/**
- * Whether `latest` is a strictly newer release than `current`.
- * @param {string} latest
- * @param {string} current
- * @returns {boolean}
- */
-export function isNewer(latest, current) {
+/** Whether `latest` is a strictly newer release than `current`. */
+export function isNewer(latest: unknown, current: unknown): boolean {
   return compareVersions(latest, current) > 0
 }
 
-/**
- * Whether a version carries a prerelease part, e.g. `1.2.0-beta.1`.
- * @param {unknown} value
- * @returns {boolean}
- */
-export function isPrerelease(value) {
+/** Whether a version carries a prerelease part, e.g. `1.2.0-beta.1`. */
+export function isPrerelease(value: unknown): boolean {
   return /^\D*\d+\.\d+\.\d+-/.test(String(value ?? '').trim())
 }
 
@@ -84,9 +68,7 @@ export function isPrerelease(value) {
  * Whether a string can be used as an install target without shell access.
  * The update path passes it to a package manager, so it must be a plain
  * version and never a spec, a range or a path.
- * @param {unknown} value
- * @returns {value is string}
  */
-export function isExactVersion(value) {
+export function isExactVersion(value: unknown): value is string {
   return typeof value === 'string' && /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.test(value)
 }

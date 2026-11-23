@@ -1,11 +1,8 @@
+import type { KvTable } from '@deepseek-ai/dsh-storage-domain'
 import { MAX_SEEDED_SESSIONS } from './normalize.js'
-import type { infer as Infer } from 'zod'
-import type { sessionSchema, workspaceSchema } from './store-spec.js'
+import type { SessionRecord, WorkspaceRecord } from './store-spec.js'
 
 export const UNASSIGNED_WORKSPACE_ID = 'sideby-note:unassigned'
-
-type SessionRecord = Infer<typeof sessionSchema>
-type WorkspaceRecord = Infer<typeof workspaceSchema>
 
 /** Return no membership when the host registry cannot provide a complete projection. */
 export function workspaceMembership(registry: unknown): Map<string, string> | undefined {
@@ -37,16 +34,8 @@ export function workspaceForSession(membership: ReadonlyMap<string, string>, ses
   return membership.get(sessionId) ?? UNASSIGNED_WORKSPACE_ID
 }
 
-interface SessionTable {
-  get(key: string): SessionRecord | undefined
-  deleteMany(keys: readonly string[]): Promise<number>
-}
-
-interface WorkspaceTable {
-  get(key: string): WorkspaceRecord | undefined
-  put(key: string, record: WorkspaceRecord): Promise<void>
-  update(key: string, patch: (record: WorkspaceRecord) => WorkspaceRecord): Promise<WorkspaceRecord>
-}
+type SessionTable = Pick<KvTable<string, SessionRecord>, 'get' | 'deleteMany'>
+type WorkspaceTable = Pick<KvTable<string, WorkspaceRecord>, 'get' | 'put' | 'update'>
 
 /** The caller serializes these operations with snapshots and note edits. */
 export async function moveLegacySessions(

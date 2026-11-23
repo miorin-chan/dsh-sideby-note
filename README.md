@@ -221,12 +221,12 @@ npx @miorin/dsh-sideby-note install --version 0.1.0   # 固定版本，而不是
 
 ## 开发
 
-浏览器半侧在 `src/client/`，由 tsdown 打包成单个 `client/client.js`：
+宿主源码在 `index.ts` 和 `host/`，客户端源码在 `src/client/`。在源码仓库运行以下命令。
 
 ```bash
-npm install
+npm ci                # 安装依赖并生成 Host 和 Client 产物
 npm run check         # lint + typecheck + 测试 + 构建 + 案例目录校验
-npm run build         # 只重新生成 client/client.js
+npm run build         # 重新生成 index.js、host/*.js 和 client/client.js
 npm run catalog:check # 只校验测试案例目录与测试是否对得上
 npm run test:run      # 逐用例执行记录 + report.html/md（.test/runs/）
 npm run test:mutate   # 变异测试：确认用例能抓到真实缺陷
@@ -255,9 +255,9 @@ npm run test:mutate   # 变异测试：确认用例能抓到真实缺陷
 window.__ModuleLoader__.load({ id: '@miorin/dsh-sideby-note', factory: (require) => { … } })
 ```
 
-产物单独提交：CI 会重建并对比 `client/`，不一致就失败，因此不要手改 `client/client.js`。
+JavaScript 产物随 npm 包分发，Git 记录 TypeScript 源码和构建配置。CI 用 `npm pack` 核对打包结果。
 
-`index.js` 注册宿主更新与便笺存储端点；`cordis.patch.yml` 负责把包插入 profile 的组合。界面依赖 `slots` 与 `locale` 两个服务：
+`index.ts` 注册宿主更新与便笺存储端点；`cordis.patch.yml` 负责把包插入 profile 的组合。界面依赖 `slots` 与 `locale` 两个服务：
 
 - `conversation.composer.dock`：只用来捕获当前会话 ID，不渲染可见入口。
 - 顶部右侧入口由 MutationObserver 注入宿主 header，因为宿主重渲染会回收 React portal。

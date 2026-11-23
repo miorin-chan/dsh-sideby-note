@@ -10,19 +10,24 @@ import { spawn } from 'node:child_process'
 /** Output kept per stream; enough for the error line, not for a full log. */
 const MAX_OUTPUT_BYTES = 16 * 1024
 
-/**
- * @param {string} command
- * @param {readonly string[]} args
- * @param {{ cwd: string, env?: Record<string, string>, timeoutMs?: number }} options
- * @returns {Promise<{ exitCode: number | null, stdout: string, stderr: string, timedOut: boolean }>}
- */
-export function runProcess(command, args, options) {
+export interface ProcessOptions {
+  cwd: string
+  env?: Readonly<Record<string, string>>
+  timeoutMs?: number
+}
+
+interface ProcessResult {
+  exitCode: number | null
+  stdout: string
+  stderr: string
+  timedOut: boolean
+}
+
+export function runProcess(command: string, args: readonly string[], options: ProcessOptions): Promise<ProcessResult> {
   const timeoutMs = options.timeoutMs ?? 10 * 60_000
   return new Promise(resolve => {
-    /** @type {string[]} */
-    const stdout = []
-    /** @type {string[]} */
-    const stderr = []
+    const stdout: string[] = []
+    const stderr: string[] = []
     let stdoutBytes = 0
     let stderrBytes = 0
     let timedOut = false
@@ -30,7 +35,7 @@ export function runProcess(command, args, options) {
     try {
       child = spawn(command, args, {
         cwd: options.cwd,
-        env: { ...process.env, ...(options.env ?? {}) },
+        env: { ...process.env, ...options.env },
         // A Windows `.cmd` shim is not an executable Node can start directly.
         shell: process.platform === 'win32' && /\.(?:cmd|bat)$/iu.test(command),
         windowsHide: true,

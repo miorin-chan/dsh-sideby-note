@@ -4,8 +4,8 @@
 #   tools/screenshots/run.sh            # light + dark, writes docs/assets/features + preview*.png
 #   KEEP=1 tools/screenshots/run.sh     # keep .screenshots/ for debugging
 #
-# Requirements: macOS with DeepSeek Harness installed, Google Chrome, Node 20+,
-# Python 3 with Pillow. Never commit .screenshots/ or ~/.dsh credentials.
+# Requirements: macOS with DeepSeek Harness, Google Chrome, a supported Node
+# and npm, installed development dependencies, and Python 3 with Pillow.
 set -euo pipefail
 
 REPO=$(cd "$(dirname "$0")/../.." && pwd)
@@ -33,10 +33,12 @@ cleanup() {
   pkill -f "user-data-dir=$WORK/chrome" 2>/dev/null || true
   if [ "${KEEP:-0}" != "1" ]; then rm -rf "$WORK"; fi
 }
-trap cleanup EXIT
-
 log() { printf '\n==> %s\n' "$*"; }
 
+log "building the linked plugin"
+npm --prefix "$REPO" run build
+
+trap cleanup EXIT
 log "workdir: $WORK"
 rm -rf "$WORK"
 mkdir -p "$WORK/raw" "$WORK/cwd"

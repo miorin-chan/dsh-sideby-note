@@ -15,9 +15,13 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { spawn } from 'node:child_process'
+import type { IncomingMessage, ServerResponse } from 'node:http'
+import type { Context } from '@deepseek-ai/cordis'
+import type { WebServer } from '@deepseek-ai/dsh-host-webserver'
+import type { Config as DomainConfig } from '@deepseek-ai/dsh-storage-domain'
 import { DOMAIN_NAME } from './constants.js'
 import { BodyError, readJsonBody, requestRejection, sendJson } from './http.js'
-import { StoreError } from './store.js'
+import { StoreError, type Store } from './store.js'
 
 /** Main store endpoint; keep in sync with the browser half. */
 export const STORE_PATH = '/dsh-sideby-note/store'
@@ -35,24 +39,25 @@ const BODY_LIMIT = 2 * 1024 * 1024
  * the backend route for this domain. Both are read best-effort: a custom
  * backend (SQLite, a future medium) simply has no file path, and Settings says
  * so instead of guessing a default.
- *
- * @param {any} ctx
- * @returns {{ path: string | null, backend: string | null, reason?: string }}
  */
-export function resolveStoreFile(ctx) {
+export function resolveStoreFile(ctx: Context): { path: string | null; backend: string | null; reason?: string } {
   const storage = typeof ctx?.get === 'function' ? ctx.get('storage') : undefined
   const registry = storage && storage.backend
   if (!registry || typeof registry.get !== 'function') {
     return { path: null, backend: null, reason: 'storage-unavailable' }
   }
-  const config = ctx.get('storageDomain')?.config
-  const routed = config?.routes?.[DOMAIN_NAME] ?? config?.backend
-  if (routed === undefined) {
+  // These fields are best-effort compatibility reads of the existing JSON backend.
+  const facility: unknown = ctx.get('storageDomain')
+  const config = facility && typeof facility === 'object' && 'config' in facility ? facility.config : undefined
+  const { routes, backend } = config && typeof config === 'object' ? config as Partial<DomainConfig> : {}
+  const routed = routes?.[DOMAIN_NAME] ?? backend
+  if (typeof routed !== 'string') {
     return { path: null, backend: null, reason: 'storage-unavailable' }
   }
   if (routed === 'json') {
     try {
-      const root = registry.get(routed)?.root
+      const backend = registry.get(routed)
+      const root = backend && 'root' in backend ? backend.root : undefined
       if (typeof root === 'string' && root) {
         return { path: path.resolve(root, `${DOMAIN_NAME}.json`), backend: routed }
       }
@@ -66,11 +71,8 @@ export function resolveStoreFile(ctx) {
 /**
  * The platform command that reveals `file` (or its folder when it is absent).
  * Pure so tests can assert all three platforms without launching anything.
- * @param {string} file absolute store file path
- * @param {NodeJS.Platform} [platform]
- * @param {boolean} [exists]
  */
-export function revealCommand(file, platform = process.platform, exists = true) {
+export function revealCommand(file: string, platform = process.platform, exists = true) {
   const directory = path.dirname(file)
   if (platform === 'darwin') {
     return { command: 'open', args: exists ? ['-R', file] : [directory] }
@@ -81,11 +83,7 @@ export function revealCommand(file, platform = process.platform, exists = true) 
   return { command: 'xdg-open', args: [directory] }
 }
 
-/**
- * @param {import('node:http').ServerResponse} response
- * @param {unknown} error
- */
-function sendError(response, error) {
+function sendError(response: ServerResponse, error: unknown): void {
   const failure = error instanceof StoreError
     ? error
     : new StoreError('STORE_FAILED', error instanceof Error ? error.message : String(error), 502)
@@ -97,7 +95,7 @@ function sendError(response, error) {
   })
 }
 
-async function sendLocation(ctx, request, response) {
+async function sendLocation(ctx: Context, request: IncomingMessage, response: ServerResponse): Promise<void> {
   if (request.method !== 'GET') {
     sendJson(response, 405, { ok: false, code: 'METHOD_NOT_ALLOWED', message: 'use GET' })
     return
@@ -120,7 +118,7 @@ async function sendLocation(ctx, request, response) {
   })
 }
 
-async function sendReveal(ctx, request, response) {
+async function sendReveal(ctx: Context, request: IncomingMessage, response: ServerResponse): Promise<void> {
   if (request.method !== 'POST') {
     sendJson(response, 405, { ok: false, code: 'METHOD_NOT_ALLOWED', message: 'use POST' })
     return
@@ -152,7 +150,7 @@ async function sendReveal(ctx, request, response) {
     })
     return
   }
-  const launched = await new Promise(resolve => {
+  const launched = await new Promise<boolean>(resolve => {
     let settled = false
     child.once('spawn', () => {
       if (settled) return
@@ -177,13 +175,8 @@ async function sendReveal(ctx, request, response) {
   sendJson(response, 200, { ok: true })
 }
 
-/**
- * Register the store endpoints on the host's web server.
- * @param {{ register?: (route: { kind: 'exact', path: string, handler: (request: any, response: any) => unknown }) => unknown }} server
- * @param {{ ctx: any, store: import('./store.js').Store }} options
- * @returns {(() => void) | undefined}
- */
-export function registerStoreRoutes(server, options) {
+/** Register the store endpoints on the host's web server. */
+export function registerStoreRoutes(server: Pick<WebServer, 'register'>, options: { ctx: Context; store: Store }) {
   if (typeof server?.register !== 'function') return undefined
   const { ctx, store } = options
 
@@ -214,7 +207,7 @@ export function registerStoreRoutes(server, options) {
         sendJson(response, 400, { ok: false, code: 'STORE_BAD_REQUEST', message: 'content-type must be application/json' })
         return
       }
-      let body
+      let body: unknown
       try {
         body = await readJsonBody(request, BODY_LIMIT)
       } catch (error) {

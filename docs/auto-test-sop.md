@@ -73,7 +73,7 @@ cd "$REPO"
 git rev-parse --abbrev-ref HEAD           # 报告里要写分支与 HEAD
 git rev-parse HEAD
 node -v                                   # 必须是 v24.13.0
-npm ci                                    # .npmrc 已带 legacy-peer-deps=true
+npm ci                                    # 安装依赖，生成 link: 挂载所需的 Host 和 Client 文件
 ```
 
 ### 步骤 1：自动化测试

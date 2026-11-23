@@ -43,10 +43,8 @@ function inlineCss(): TsdownPlugin {
         ? require.resolve(file)
         : resolvePath(importer ? dirname(importer) : process.cwd(), file)
       if (!inline && !OFFICIAL_ATTACHMENT_CSS.has(absolute)) return null
-      // Keep the virtual id relative and slash-separated: rolldown echoes it in
-      // a comment, so an absolute path would leak the author's machine, and a
-      // Windows "\" would make the bundle differ from the Linux CI artifact by
-      // one byte and fail the committed-bundle gate.
+      // Rolldown echoes the virtual id in a comment. A relative path with forward
+      // slashes keeps the bundle independent of the checkout path and platform.
       const id = relative(process.cwd(), absolute).replaceAll('\\', '/')
       return CSS_VIRTUAL_PREFIX + id + '.mjs'
     },
@@ -87,8 +85,6 @@ export default defineConfig({
   target: 'es2022',
   dts: false,
   sourcemap: false,
-  // The bundle is committed and reviewed like source; minification would turn
-  // every change into a whole-file diff.
   minify: false,
   clean: false,
   // CJS would default to Node, but this is a browser classic script; name the

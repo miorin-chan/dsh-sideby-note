@@ -5,8 +5,8 @@
 #   $env:KEEP = 1; tools/screenshots/run.ps1   # keep .screenshots/ for debugging
 #
 # Requirements: Windows with PowerShell 7+, DeepSeek Harness installed,
-# Google Chrome, Node 22+, Python 3 with Pillow. Never commit .screenshots/ or
-# ~/.dsh credentials.
+# Google Chrome, a supported Node and npm, installed development dependencies,
+# and Python 3 with Pillow.
 #
 # Mirrors run.sh; the only layout difference is SHOT_VIEWPORT: Windows headless
 # Chrome subtracts window frame pixels, so the content box is pinned through CDP
@@ -177,6 +177,10 @@ function Invoke-Crop([string]$theme, [string]$out, [switch]$Preview) {
   & $Python @arguments
   if ($LASTEXITCODE -ne 0) { throw "crop.py failed with exit code $LASTEXITCODE" }
 }
+
+Log 'building the linked plugin'
+& npm.cmd --prefix $Repo run build
+if ($LASTEXITCODE -ne 0) { throw "plugin build failed with exit code $LASTEXITCODE" }
 
 try {
   Log "workdir: $Work"

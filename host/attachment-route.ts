@@ -4,6 +4,7 @@ import { link, lstat, mkdir, open, unlink } from 'node:fs/promises'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { dirname, join } from 'node:path'
 import { pipeline } from 'node:stream/promises'
+import type { Context } from '@deepseek-ai/cordis'
 import type { WebServer } from '@deepseek-ai/dsh-host-webserver'
 import { ATTACHMENT_ID, MAX_ATTACHMENT_NAME, MAX_ATTACHMENT_BYTES } from './attachment-metadata.js'
 import { requestRejection, sendJson } from './http.js'
@@ -130,7 +131,7 @@ async function download(request: IncomingMessage, response: ServerResponse, dire
   }
 }
 
-export function registerAttachmentRoute(server: Pick<WebServer, 'register'>, ctx: { get?: (name: string) => unknown }) {
+export function registerAttachmentRoute(server: Pick<WebServer, 'register'>, ctx: Context) {
   if (typeof server?.register !== 'function') return undefined
   return server.register({
     kind: 'exact',

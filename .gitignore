@@ -1,4 +1,10 @@
 node_modules/
+
+# Generated Host and Client JavaScript
+/index.js
+/host/*.js
+/client/client.js
+
 coverage/
 .tmp/
 *.log

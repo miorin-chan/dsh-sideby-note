@@ -39,7 +39,7 @@
 ## 2. 前置条件
 
 - macOS 或 Windows（Windows 需 PowerShell 7+，即 `pwsh`），已安装 DeepSeek Harness（默认路径见下）与 Google Chrome；
-- Node 22+（与 `package.json#engines` 一致）；
+- `package.json` 的 `engines` 所支持的 Node 版本及 npm；
 - Python 3 + Pillow（Windows 上可指向 DSH 自带的 Python，见 `PYTHON`）；
 - 可选：`~/.dsh/.credentials.yaml`。
   **默认不复制**；只有设置 `COPY_CREDENTIALS=1` 时才会复制到临时 profile，用于让演示会话产生一段真实回复。
@@ -65,12 +65,14 @@ PYTHON=/path/to/python      # 仅 run.ps1：默认依次试 PATH 上的 python�
 ```bash
 git worktree add ../dsh-sideby-note-shots -b chore/shots
 cd ../dsh-sideby-note-shots
+npm ci
 tools/screenshots/run.sh        # macOS
 # Windows: $env:COPY_CREDENTIALS = 1; tools/screenshots/run.ps1
 npm test
 ```
 
-`run.sh` / `run.ps1` 内部顺序：
+`run.sh` 与 `run.ps1` 先执行 `npm run build`，让 `link:` 挂载读取当前源码生成的运行文件。
+构建成功后按以下顺序执行。
 
 1. 在 `$WORK` 下新建一个一次性 `DSH_HOME`，用发行版自带模板生成 `demo` profile；
 2. 把当前仓库以 `link:` 装进该 profile，`--offline` 安装，

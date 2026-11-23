@@ -18,20 +18,21 @@
  * update needs is injected so the ordering and the verification can be tested
  * without a host.
  */
+import type { Context } from '@deepseek-ai/cordis'
+import type { ProfilePnpmInvocation } from '@deepseek-ai/dsh-app-boot'
+import type { ChangeResult, PackageResult } from '@deepseek-ai/dsh-plugin-manager'
+import type { ProcessOptions } from './exec.js'
 import { PACKAGE, installedVersion } from './profile.js'
 import { isExactVersion, isPrerelease } from './versions.js'
 
 /** An update failure with a stable code the panel can translate. */
 export class UpdateError extends Error {
-  /**
-   * @param {string} code
-   * @param {string} message
-   * @param {{ retryable?: boolean, diagnostic?: string }} [extra]
-   */
-  constructor(code, message, extra = {}) {
+  readonly retryable: boolean
+  readonly diagnostic: string | undefined
+
+  constructor(readonly code: string, message: string, extra: { retryable?: boolean; diagnostic?: string } = {}) {
     super(message)
     this.name = 'UpdateError'
-    this.code = code
     this.retryable = extra.retryable === true
     this.diagnostic = extra.diagnostic
   }
@@ -46,11 +47,8 @@ export const UPDATE_TIMEOUT_MS = 10 * 60_000
  * Prereleases are not covered by the installer's default `^1.0.0` range, and
  * they reach npmjs before the configured mirror; pin the package and registry
  * for the npx fetch so the command cannot quietly install the stable line.
- * @param {string} profileDir
- * @param {string} target
- * @returns {string}
  */
-export function manualCommand(profileDir, target) {
+export function manualCommand(profileDir: string, target: string): string {
   const prerelease = isPrerelease(target)
   const registry = prerelease ? ' --registry=https://registry.npmjs.org/' : ''
   const packageSpec = prerelease ? `${PACKAGE}@${target}` : PACKAGE
@@ -60,10 +58,8 @@ export function manualCommand(profileDir, target) {
 /**
  * First line of a failed step worth showing: DSH's own diagnostic, else the
  * error line the package manager printed, else its last line.
- * @param {string} output
- * @returns {string}
  */
-function failureLine(output) {
+function failureLine(output: string): string {
   const lines = String(output ?? '')
     .split(/\r?\n/u)
     .map(line => line.trim())
@@ -76,22 +72,35 @@ function failureLine(output) {
   )
 }
 
-/**
- * Install `target` over the installed copy and prove it landed.
- *
- * @param {{
- *   target: string,
- *   profileDir: string,
- *   installer?: { installBundle: (spec: string, options?: { enabled?: boolean }) => Promise<any> },
- *   pluginCommand?: (args: readonly string[]) => Promise<{ exitCode: number | null, output?: string, timedOut?: boolean, logPath?: string, kind?: string, incompatible?: readonly unknown[] }>,
- *   packageManager?: { command: string, args?: readonly string[], env?: Record<string, string> },
- *   runner?: (command: string, args: readonly string[], options: { cwd: string, env?: Record<string, string>, timeoutMs?: number }) => Promise<{ exitCode: number | null, stdout?: string, stderr?: string }>,
- *   readVersion?: (dir: string) => string | undefined,
- *   timeoutMs?: number,
- * }} input
- * @returns {Promise<{ route: 'dsh' | 'dsh-plugin' | 'package-manager' | 'none', previousVersion?: string, installedVersion: string, updated: boolean, restartRequired: boolean, output?: string }>}
- */
-export async function applyUpdate(input) {
+type PackageManager = Pick<ProfilePnpmInvocation, 'command'> & Partial<ProfilePnpmInvocation>
+type PluginCommandResult = Pick<PackageResult, 'exitCode' | 'output' | 'timedOut' | 'incompatible'>
+
+interface UpdateInput {
+  target: string
+  profileDir: string
+  installer?: Pick<Context['pluginManager'], 'installBundle'>
+  pluginCommand?: (args: readonly string[]) => Promise<PluginCommandResult>
+  packageManager?: PackageManager
+  runner?: (command: string, args: readonly string[], options: ProcessOptions) => Promise<{
+    exitCode: number | null
+    stdout?: string
+    stderr?: string
+  }>
+  readVersion?: (dir: string) => string | undefined
+  timeoutMs?: number
+}
+
+export interface UpdateResult {
+  route: 'dsh' | 'dsh-plugin' | 'package-manager' | 'none'
+  previousVersion?: string
+  installedVersion: string
+  updated: boolean
+  restartRequired: boolean
+  output?: string
+}
+
+/** Install `target` over the installed copy and prove it landed. */
+export async function applyUpdate(input: UpdateInput): Promise<UpdateResult> {
   const { target, profileDir } = input
   if (!isExactVersion(target)) throw new UpdateError('UPDATE_REJECTED', `not a version: ${String(target)}`)
   const readVersion = input.readVersion ?? installedVersion
@@ -104,7 +113,7 @@ export async function applyUpdate(input) {
     return { route: 'none', previousVersion, installedVersion: target, updated: false, restartRequired: false }
   }
 
-  const verify = (route, output) => {
+  const verify = (route: Exclude<UpdateResult['route'], 'none'>, output?: string): UpdateResult => {
     const installed = readVersion(profileDir)
     if (installed !== target) {
       throw new UpdateError(
@@ -126,7 +135,7 @@ export async function applyUpdate(input) {
 
   // 1. DSH's own installer: checks compatibility and restores the profile on failure.
   if (input.installer?.installBundle !== undefined) {
-    let change
+    let change: ChangeResult
     try {
       // `enabled: false` leaves the profile's bundle selection alone: this
       // upgrades the package, it does not add or drop a row.
@@ -134,7 +143,8 @@ export async function applyUpdate(input) {
     } catch (error) {
       throw new UpdateError('UPDATE_FAILED', `DSH could not install ${spec}: ${messageOf(error)}`)
     }
-    const refusal = change?.error?.code
+    // Older Host versions can return refusal codes outside the current union.
+    const refusal = change?.error?.code as string | undefined
     if (change?.application === 'failed' && refusal !== 'already-installed') {
       throw new UpdateError(
         typeof refusal === 'string' && refusal !== '' ? refusal : 'UPDATE_FAILED',
@@ -195,10 +205,6 @@ export async function applyUpdate(input) {
   )
 }
 
-/**
- * @param {unknown} error
- * @returns {string}
- */
-function messageOf(error) {
+function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }

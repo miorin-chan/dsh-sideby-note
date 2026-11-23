@@ -7,7 +7,8 @@
 边记部的**界面在浏览器半侧，数据在宿主半侧的本地文件**：浏览器拿不到 `$DSH_HOME`，
 所以宿主用 DSH 官方存储（`ctx.storageDomain` + JSON 后端）维护 `~/.dsh/storages/aside_note.json`，
 浏览器经同源 `fetch` 访问；宿主另外承担浏览器做不到的「把新版本装进 profile」（见 §8）。
-`index.js` 负责注册这两组端点，浏览器的同步读由启动时 hydrate 的内存快照兜住。
+`index.ts` 负责注册这两组端点，构建后由 `index.js` 加载。
+浏览器的同步读由启动时 hydrate 的内存快照兜住。
 
 - `package.json` 的 `dsh.bundle.patch` 指向 `cordis.patch.yml`，`dsh.client` 声明 `./client` 与需要预注入的宿主模块。
 - 壳把 `./client`（即 `client/client.js`）当 classic script 加载：`window.__ModuleLoader__.load({ id, factory })`。
@@ -44,12 +45,13 @@ src/client/
 │                        # releaseHistory（多版本区间）、
 │                        # host（宿主更新端点客户端）
 └─ styles/panel.css      # 全局 .dsh-an-* 规则与 --an-* 尺度
-host/                    # 宿主半边：
+index.ts                 # 宿主入口，注册更新、便笺存储和附件端点
+host/                    # TypeScript 宿主模块（构建产物与源码同目录）：
                          # route（两个更新端点）、apply-update（三级安装）、profile、versions、exec
                          # store-spec（aside_note 领域与 zod schema）、store（懒打开/快照/原子变更/迁移）、
                          # store-route（GET/POST /dsh-sideby-note/store、GET /store/location、POST /store/reveal）、normalize、http
-client/client.js         # tsdown 产物，入库，CI 校验与源码一致
-index.js                 # 宿主半侧：注册更新端点与便笺存储端点
+client/client.js         # tsdown 生成的浏览器产物
+index.js                 # tsc 生成的宿主入口
 cordis.patch.yml         # profile 组合里的一行
 tests/                   # catalog/（业务规则与用例）、*.test.mjs（契约 / 集成 / 韧性）、testkit/（jsdom 启动器）
 tools/screenshots/       # 截图流水线（见 screenshot-sop.md）
@@ -176,15 +178,16 @@ docs/assets/             # README 截图（preview-* 与 features/）
 
 ## 5. 构建与产物
 
-- 源码是 TypeScript，`tsdown.config.ts` 用 rolldown 打包成**单个** CJS closure factory，`target: es2022`，
-  不压缩、无 sourcemap，产物入库便于 review 与逐行合并。
-- CSS 通过一个 `?inline` 虚拟模块进来（虚拟 id 用相对路径，避免把本机绝对路径写进产物注释）。
-- 版本号在 `constants.ts`，契约测试保证与 `package.json` 一致。
-- CI（Node 22 / 24）：`npm ci` 安装并构建 → `git diff --exit-code client/ host/` 核对入库产物 → lint →
-  typecheck → `test:run`（逐用例记录）→ `catalog:check` → `design:review --strict`。
-  `typecheck` 同时覆盖 `tsdown.config.ts`。
-- `npm run check` 串起 lint、typecheck、构建、测试与用例校验。
+- `tsc` 按 `tsconfig.host.json` 校验宿主源码并就地生成 ESM 的 `index.js` 和 `host/*.js`。
+  `.js` 相对导入在类型检查时解析到 TypeScript 文件，在 npm 包内解析到同名 JavaScript 模块。
+- `tsdown.config.ts` 用 rolldown 打包客户端源码，产物为单个 `client/client.js`，
+  沿用 CJS closure factory、`target: es2022`、无压缩和无 sourcemap 的设置。
+  CSS 由 `?inline` 虚拟模块载入，虚拟 id 使用相对路径。
+- Git 记录源码与构建配置。npm 包发布全部运行文件，并保留原包内的三份宿主 TypeScript 文件。
+- 版本号在 `src/client/constants.ts`，契约测试保证与 `package.json` 一致。
+- `npm run check` 串起 lint、typecheck、构建、测试与用例校验，`typecheck` 同时覆盖 `tsdown.config.ts`。
   `npm ci`、`npm pack` 和 `npm publish` 通过 `prepare` 构建。
+  CI 门禁见 [测试工程](./testing.md#3-门禁)。
 
 ## 6. 测试
 
@@ -205,13 +208,13 @@ docs/assets/             # README 截图（preview-* 与 features/）
 
 - 新增文案：改 `src/client/i18n/*.ts` 的 8 种语言，键与占位符必须一致；插件列表文案同步改 `locale/*.json`；
   中文提示不加句号。
-- 新增便笺字段（宿主数据）：`host/store-spec.js` 扩 zod schema（必要时升 `version` 并声明 `compatibleVersions`）→
-  `host/store.js`/`host/normalize.js` 处理 → 浏览器 `storage/` 模块 → 补宿主与集成测试。
+- 新增便笺字段（宿主数据）：`host/store-spec.ts` 扩 zod schema（必要时升 `version` 并声明 `compatibleVersions`）→
+  `host/store.ts`/`host/normalize.ts` 处理 → 浏览器 `storage/` 模块 → 补宿主与集成测试。
 - 新增设备状态：`constants.ts` 加键 → `storage/prefs.ts`/`drafts.ts` 读写 → 补契约测试；不要放进宿主领域。
 - 新增面板状态：优先放 `ui/use*.ts`；纯逻辑放 `domain/`，不要 import React。
 - 改样式：只动 `src/client/styles/panel.css`，遵守 [面板 UI 规则](./panel-ui-rules.md)（语义别名、三档字号、
   0.5px 发丝线、hover 门控）。
-- 不要手改 `client/client.js`：改源码后 `npm run build`，把它和源码一起提交。
+- 改完源码后用 `npm run build` 更新运行文件，并提交改动的源码。
 
 ## 8. 更新路径
 

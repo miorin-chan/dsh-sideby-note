@@ -1,7 +1,7 @@
 # 包与构建产物（PKG）
 #
 # 业务语义：这份产物能不能被 DSH 加载、能不能干净地卸载。
-# 产物一致性的闸门在 CI（client/client.js 必须与 src/client 一致），本目录只收录行为。
+# CI 核对 npm 包的运行文件和重复打包的完整性，本目录收录插件行为。
 domain: package
 owner: package
 

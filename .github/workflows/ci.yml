@@ -26,10 +26,31 @@ jobs:
       - name: Install and build
         run: npm ci
 
-      # The market can install with build scripts blocked, so the client and
-      # host artifacts in the package must match the TypeScript source.
-      - name: Committed JavaScript must match TypeScript sources
-        run: git diff --exit-code client/ host/
+      - name: Verify the reproducible npm tarball
+        run: |
+          tracked_js="$(git ls-files -- '*.js')"
+          if [[ -n "$tracked_js" ]]; then
+            printf 'JavaScript build output is tracked:\n%s\n' "$tracked_js" >&2
+            exit 1
+          fi
+          pack_dir="$(mktemp -d)"
+          npm pack --json --pack-destination "$pack_dir" > "$pack_dir/first.json"
+          npm pack --json --pack-destination "$pack_dir" > "$pack_dir/second.json"
+          cmp "$pack_dir/first.json" "$pack_dir/second.json"
+          node --input-type=module - "$pack_dir/first.json" <<'NODE'
+          import assert from 'node:assert/strict'
+          import { readFileSync, readdirSync } from 'node:fs'
+
+          const [{ files }] = JSON.parse(readFileSync(process.argv[2], 'utf8'))
+          const hostModules = readdirSync('host')
+            .filter(file => file.endsWith('.ts') && !file.endsWith('.d.ts'))
+            .map(file => `host/${file.slice(0, -3)}.js`)
+          const paths = files.map(file => file.path)
+          assert.deepEqual(paths.filter(path => path.endsWith('.js')).sort(), ['index.js', 'client/client.js', ...hostModules].sort())
+          assert.deepEqual(paths.filter(path => path.endsWith('.ts')).sort(), [
+            'host/attachment-metadata.ts', 'host/attachment-route.ts', 'host/workspace-migration.ts',
+          ])
+          NODE
 
       - name: Lint
         run: npm run lint

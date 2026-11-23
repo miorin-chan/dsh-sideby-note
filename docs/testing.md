@@ -34,7 +34,7 @@
 
 CI（`.github/workflows/ci.yml`）按顺序执行：
 
-1. 构建产物必须与 `src/client` 一致（`client/client.js` 是提交进仓库的产物）；
+1. `npm ci` 构建 Host 和 Client，连续两次 `npm pack` 核对包内容与完整性，并检查 JavaScript 产物已从 Git 索引移除；
 2. lint、typecheck；
 3. `test:run`，并把 `run.json` / 报告 / junit 作为 artifact 保留 30 天（失败也上传）；
 4. `catalog:check`：automation 指针必须命中真实测试，带 ID 的测试必须都在目录里；

@@ -1,22 +1,15 @@
 /** Shared HTTP helpers for the plugin's host routes. */
+import type { IncomingMessage, ServerResponse } from 'node:http'
+import type { Context } from '@deepseek-ai/cordis'
+import type { ConnectionRequestRejection } from '@deepseek-ai/dsh-client-connection'
 
-/**
- * @param {import('node:http').ServerResponse} response
- * @param {number} status
- * @param {unknown} body
- */
-export function sendJson(response, status, body) {
+export function sendJson(response: ServerResponse, status: number, body: unknown): void {
   response.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' })
   response.end(JSON.stringify(body))
 }
 
-/**
- * Use the Host's authority, origin, and browser-session checks.
- * @param {{ get?: (name: string) => any }} ctx
- * @param {import('node:http').IncomingMessage} request
- * @returns {401 | 403 | undefined}
- */
-export function requestRejection(ctx, request) {
+/** Use the Host's authority, origin, and browser-session checks. */
+export function requestRejection(ctx: Context, request: IncomingMessage): ConnectionRequestRejection {
   try {
     const connection = ctx.get?.('connection')
     if (typeof connection?.requestRejection === 'function') {
@@ -31,25 +24,15 @@ export function requestRejection(ctx, request) {
 
 /** A request body that cannot be accepted; `code` is the route's discriminant. */
 export class BodyError extends Error {
-  /**
-   * @param {'BODY_TOO_LARGE' | 'BAD_JSON'} code
-   * @param {string} message
-   */
-  constructor(code, message) {
+  constructor(readonly code: 'BODY_TOO_LARGE' | 'BAD_JSON', message: string) {
     super(message)
     this.name = 'BodyError'
-    this.code = code
   }
 }
 
-/**
- * Read and parse one JSON body with a byte ceiling.
- * @param {import('node:http').IncomingMessage} request
- * @param {number} limit
- * @returns {Promise<any>}
- */
-export async function readJsonBody(request, limit) {
-  const chunks = []
+/** Read and parse one JSON body with a byte ceiling. */
+export async function readJsonBody(request: IncomingMessage, limit: number): Promise<unknown> {
+  const chunks: Buffer[] = []
   let size = 0
   for await (const chunk of request) {
     const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)

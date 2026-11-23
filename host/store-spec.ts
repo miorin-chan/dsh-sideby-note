@@ -10,6 +10,7 @@
  * `defineDomain`: `open()` consumes the plain object, and the same guards are
  * applied here so a misconfigured deployment still fails loud at startup.
  */
+import type { DomainGlobalSpec, DomainSpec, DomainTableSpec } from '@deepseek-ai/dsh-storage-domain'
 import { z } from 'zod'
 import {
   MAX_SEEDED_SESSIONS,
@@ -78,28 +79,38 @@ export const prefsSchema = z.object({
   }).optional(),
 })
 
-/**
- * Build the domain spec handed to `ctx.storageDomain.open()`.
- * @returns the plain DomainSpec object.
- */
+export type Note = z.infer<typeof noteSchema>
+export type SessionRecord = z.infer<typeof sessionSchema>
+export type WorkspaceRecord = z.infer<typeof workspaceSchema>
+export type ForwardedRecord = z.infer<typeof forwardedSchema>
+export type Prefs = z.infer<typeof prefsSchema>
+
+// The Host domain types pin Zod 4.6.6 and this package uses 4.6.7 or newer.
+// The domain reads schemas through parse and safeParse, which share the same contract.
+function domainSchema<T>(schema: Pick<z.ZodType<T>, 'parse' | 'safeParse'>): DomainTableSpec<string, T>['valueSchema'] {
+  return schema as unknown as DomainTableSpec<string, T>['valueSchema']
+}
+
+/** Build the domain spec handed to `ctx.storageDomain.open()`. */
 export function createSpec() {
+  const global: DomainGlobalSpec<Prefs> = { schema: domainSchema(prefsSchema), initial: { version: 1 } }
   const spec = {
     name: DOMAIN_NAME,
     version: DOMAIN_VERSION,
     layout: 'single',
     tables: {
-      [TABLES.sessions]: { valueSchema: sessionSchema },
-      [TABLES.workspaces]: { valueSchema: workspaceSchema },
-      [TABLES.forwarded]: { valueSchema: forwardedSchema },
+      [TABLES.sessions]: { valueSchema: domainSchema(sessionSchema) },
+      [TABLES.workspaces]: { valueSchema: domainSchema(workspaceSchema) },
+      [TABLES.forwarded]: { valueSchema: domainSchema(forwardedSchema) },
     },
-    global: { schema: prefsSchema, initial: { version: 1 } },
-  }
+    global,
+  } satisfies DomainSpec
   validateSpec(spec)
   return spec
 }
 
 /** Same loud failures `defineDomain` applies, minus the zod type machinery. */
-function validateSpec(spec) {
+function validateSpec(spec: DomainSpec): void {
   if (!UNIT_NAME_RE.test(spec.name)) {
     throw new Error(`domain name '${spec.name}' must match ${UNIT_NAME_RE}`)
   }

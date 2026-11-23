@@ -248,12 +248,12 @@ Release notes are composed by `tools/release/notes.mjs` from `CHANGELOG.md` — 
 
 ## Development
 
-The browser half lives in `src/client/` and tsdown bundles it into a single `client/client.js`:
+The Host sources live in `index.ts` and `host/`, and the Client sources live in `src/client/`.
 
 ```bash
-npm install
+npm ci                # install dependencies and build Host and Client
 npm run check         # lint + typecheck + tests + build + catalog check
-npm run build         # regenerate client/client.js only
+npm run build         # regenerate index.js, host/*.js and client/client.js
 npm run catalog:check # validate the test catalog against the tests
 npm run test:run      # per-case run record + report.html/md (.test/runs/)
 npm run test:mutate   # mutation check: do the cases catch real defects?
@@ -282,9 +282,9 @@ The entry is `src/client/index.ts`, which exports `apply(ctx)`; tsdown wraps it 
 window.__ModuleLoader__.load({ id: '@miorin/dsh-sideby-note', factory: (require) => { … } })
 ```
 
-The artifact is committed: CI rebuilds it and fails when `client/` does not match, so do not edit `client/client.js` by hand.
+The npm package ships the generated JavaScript. Git tracks the TypeScript sources and build configuration, and CI verifies the tarball with `npm pack`.
 
-`index.js` registers the update and note storage routes; `cordis.patch.yml` inserts the package into the profile composition. The UI depends on two services, `slots` and `locale`:
+`index.ts` registers the update and note storage routes. `cordis.patch.yml` inserts the package into the profile composition. The UI depends on two services, `slots` and `locale`.
 
 - `conversation.composer.dock`: used only to capture the active session ID; it renders no visible entry.
 - The top-right entry is injected into the host header with a MutationObserver, because the host's re-render reclaims a React portal there.
