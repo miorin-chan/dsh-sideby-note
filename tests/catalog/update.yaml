@@ -17,7 +17,7 @@ cases:
       - 展开更新入口后挂载卡片和发布说明，折叠后卸载卡片
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: UPD-001 npm 失败回退镜像并显示更新卡片与说明
         status: automated
     suites: [pr, nightly, release]
@@ -35,7 +35,7 @@ cases:
       - 只有按钮显示进行中文案
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: UPD-002 手动检查绕过缓存且卡片不卸载
         status: automated
     suites: [nightly, release]
@@ -53,7 +53,7 @@ cases:
       - 完整说明链接指向对应 Release 并新开标签页
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: UPD-003 更新说明列出区间版本并支持展开
         status: automated
     suites: [pr, nightly, release]
@@ -71,7 +71,7 @@ cases:
       - 成功后提供「刷新页面」而不是命令行兜底
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: UPD-004 立即更新只走宿主端点并落到刷新
         status: automated
     suites: [pr, nightly, release]
@@ -88,7 +88,7 @@ cases:
       - 更新折叠入口仍出现，卡片默认收起
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: UPD-005 重开面板复用探测缓存
         status: automated
     suites: [nightly, release]
@@ -106,7 +106,7 @@ cases:
       - 不显示「更新中」或「已更新」
     automation:
       - type: integration
-        file: tests/update-fallback.test.mjs
+        file: tests/update-fallback.test.mts
         test: UPD-007 宿主没有更新路由时给命令兜底
         status: automated
     suites: [pr, nightly, release]
@@ -123,7 +123,7 @@ cases:
       - 超过 1 小时后再次请求并刷新结果
     automation:
       - type: unit
-        file: tests/update-channel.test.mjs
+        file: tests/update-channel.test.mts
         test: UPD-006 缓存 1 小时后重新探测
         status: automated
     suites: [nightly, release]
@@ -140,7 +140,7 @@ cases:
       - 返回去掉 v 前缀的版本号
     automation:
       - type: unit
-        file: tests/update-channel.test.mjs
+        file: tests/update-channel.test.mts
         test: UPD-008 两个注册表都失败时回退 GitHub Release
         status: automated
     suites: [nightly, release]

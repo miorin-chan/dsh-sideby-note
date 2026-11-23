@@ -9,16 +9,16 @@
  * publish instead of silently falling back to generated release notes.
  *
  * Usage:
- *   node tools/release.mjs check <version>    # gate a tag's changelog section
- *   node tools/release.mjs extract <version>  # print the release notes body
- *   node tools/release.mjs check-next         # CI: top section is next-released
- *   node tools/release.mjs prepare <version>  # bump, rename, check, commit, tag
+ *   node tools/release.mts check <version>    # gate a tag's changelog section
+ *   node tools/release.mts extract <version>  # print the release notes body
+ *   node tools/release.mts check-next         # CI: top section is next-released
+ *   node tools/release.mts prepare <version>  # bump, rename, check, commit, tag
  *   npm run release -- <version> [--dry-run] [--skip-check]
  */
 import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync, realpathSync, unlinkSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
+import { fileURLToPath } from 'node:url'
 
 export const NEXT_HEADING = 'next-released'
 export const CHANGELOG_FILE = 'CHANGELOG.md'
@@ -36,11 +36,11 @@ const CLIENT_OUTPUT = 'client/client.js'
 const VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/
 const PLUGIN_VERSION_PATTERN = /(export const PLUGIN_VERSION = ')[^']*(')/
 
-function fail(message) {
+function fail(message: string): never {
   throw new Error(message)
 }
 
-function parseVersion(version) {
+function parseVersion(version: string) {
   const match = /^(\d+)\.(\d+)\.(\d+)(?:-(.+))?$/.exec(version)
   if (!match) fail(`invalid version "${version}" (expected X.Y.Z or X.Y.Z-prerelease)`)
   return {
@@ -51,10 +51,10 @@ function parseVersion(version) {
   }
 }
 
-export function compareVersions(left, right) {
+export function compareVersions(left: string, right: string) {
   const a = parseVersion(left)
   const b = parseVersion(right)
-  for (const part of ['major', 'minor', 'patch']) {
+  for (const part of ['major', 'minor', 'patch'] as const) {
     if (a[part] !== b[part]) return a[part] > b[part] ? 1 : -1
   }
   if (a.prerelease.length === 0 && b.prerelease.length === 0) return 0
@@ -82,9 +82,9 @@ export function compareVersions(left, right) {
 }
 
 /** Split a changelog into `## ` sections, keeping each body's internal lines. */
-export function splitSections(text) {
-  const sections = []
-  let current = null
+export function splitSections(text: string) {
+  const sections: Array<{ title: string; body: string[] }> = []
+  let current: (typeof sections)[number] | null = null
   for (const line of text.split('\n')) {
     const heading = /^##[ \t]+(.+?)[ \t]*$/.exec(line)
     if (heading) {
@@ -100,11 +100,11 @@ export function splitSections(text) {
   }))
 }
 
-export function findSection(text, title) {
+export function findSection(text: string, title: string) {
   return splitSections(text).find((section) => section.title === title)
 }
 
-export function requireSection(text, title) {
+export function requireSection(text: string, title: string) {
   const section = findSection(text, title)
   if (!section) {
     fail(
@@ -118,12 +118,12 @@ export function requireSection(text, title) {
 }
 
 /** Print-ready release notes body for a published version. */
-export function extractSection(text, title) {
+export function extractSection(text: string, title: string) {
   return requireSection(text, title).body.trim()
 }
 
 /** CI guard: every commit must leave the next release heading at the top. */
-export function checkNextReleased(text) {
+export function checkNextReleased(text: string) {
   const first = splitSections(text)[0]
   if (!first) fail(`CHANGELOG.md has no sections; add "## ${NEXT_HEADING}" at the top`)
   if (first.title !== NEXT_HEADING) {
@@ -139,7 +139,7 @@ export function checkNextReleased(text) {
  * Turn `## next-released` into `## <version>` and insert a fresh empty
  * `## next-released` above it. Everything else is preserved byte for byte.
  */
-export function prepareChangelog(text, version) {
+export function prepareChangelog(text: string, version: string) {
   if (!VERSION_PATTERN.test(version)) {
     fail(`invalid release version "${version}" (expected X.Y.Z or X.Y.Z-prerelease)`)
   }
@@ -156,20 +156,20 @@ export function prepareChangelog(text, version) {
 }
 
 /** Paths from `git status --porcelain`; never trim the whole output first. */
-export function parseStatusPaths(output) {
+export function parseStatusPaths(output: string) {
   return output
     .split('\n')
     .filter(Boolean)
     .map((line) => line.slice(3).trim())
 }
 
-function git(args, cwd) {
+function git(args: string[], cwd: string) {
   const result = spawnSync('git', args, { cwd, encoding: 'utf8' })
   if (result.error) throw result.error
   return result
 }
 
-function gitOut(args, cwd) {
+function gitOut(args: string[], cwd: string) {
   const result = git(args, cwd)
   if (result.status !== 0) {
     fail(`git ${args.join(' ')} failed: ${(result.stderr || '').trim()}`)
@@ -184,7 +184,7 @@ function repositoryRoot() {
   return realpathSync(root.stdout.trim())
 }
 
-function restore(root, originals) {
+function restore(root: string, originals: Record<string, string>) {
   for (const [file, text] of Object.entries(originals)) {
     writeFileSync(join(root, file), text)
   }
@@ -194,7 +194,7 @@ function restore(root, originals) {
  * Bump the version, rewrite the changelog, run the full check, then commit and
  * tag. Nothing is pushed: the caller decides when the tag goes public.
  */
-export function prepare(version, { dryRun = false, skipCheck = false } = {}) {
+export function prepare(version: string, { dryRun = false, skipCheck = false } = {}) {
   if (!VERSION_PATTERN.test(version)) {
     fail(`invalid release version "${version}" (expected X.Y.Z or X.Y.Z-prerelease)`)
   }
@@ -216,7 +216,7 @@ export function prepare(version, { dryRun = false, skipCheck = false } = {}) {
     files.map((file) => [file, readFileSync(paths[file], 'utf8')]),
   )
 
-  const manifest = JSON.parse(originals['package.json'])
+  const manifest: { version: string } = JSON.parse(originals['package.json'])
   if (compareVersions(version, manifest.version) <= 0) {
     fail(`version ${version} must be greater than the current ${manifest.version}`)
   }
@@ -281,7 +281,7 @@ export function prepare(version, { dryRun = false, skipCheck = false } = {}) {
     }
 
     if (dryRun) {
-      return { version, tag, changed, dryRun: true }
+      return { version, tag, changed, dryRun: true as const }
     }
 
     const add = git(['add', '--', ...expected], root)
@@ -297,7 +297,7 @@ export function prepare(version, { dryRun = false, skipCheck = false } = {}) {
       )
     }
     const hash = gitOut(['rev-parse', '--short', 'HEAD'], root)
-    return { version, tag, hash, changed, dryRun: false }
+    return { version, tag, hash, changed, dryRun: false as const }
   } catch (error) {
     if (!committed) {
       restore(root, originals)
@@ -317,13 +317,14 @@ export function prepare(version, { dryRun = false, skipCheck = false } = {}) {
  * an empty `## next-released` under it, keeps the file untouched (null) instead
  * of failing the release for a changelog nobody relies on.
  */
-export function prepareOpsChangelog(text, version) {
-  const first = splitSections(text ?? '')[0]
+export function prepareOpsChangelog(text: string | null | undefined, version: string) {
+  if (text == null) return null
+  const first = splitSections(text)[0]
   if (!first || first.title !== NEXT_HEADING || !first.body.trim()) return null
   return prepareChangelog(text, version)
 }
 
-function readChangelog(root) {
+function readChangelog(root: string) {
   return readFileSync(join(root, CHANGELOG_FILE), 'utf8')
 }
 
@@ -331,14 +332,14 @@ function usage() {
   return [
     'Usage:',
     '  npm run release -- <version> [--dry-run] [--skip-check]',
-    '  node tools/release.mjs check <version>',
-    '  node tools/release.mjs extract <version>',
-    '  node tools/release.mjs check-next',
-    '  node tools/release.mjs prepare <version> [--dry-run] [--skip-check]',
+    '  node tools/release.mts check <version>',
+    '  node tools/release.mts extract <version>',
+    '  node tools/release.mts check-next',
+    '  node tools/release.mts prepare <version> [--dry-run] [--skip-check]',
   ].join('\n')
 }
 
-function main(argv) {
+function main(argv: string[]) {
   if (argv.includes('--help') || argv.includes('-h')) {
     console.log(usage())
     return
@@ -399,7 +400,7 @@ if (isEntrypoint()) {
   try {
     main(process.argv.slice(2))
   } catch (error) {
-    console.error(`release: ${error.message}`)
+    console.error(`release: ${error instanceof Error ? error.message : String(error)}`)
     process.exitCode = 1
   }
 }

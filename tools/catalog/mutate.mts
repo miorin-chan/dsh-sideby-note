@@ -6,7 +6,7 @@
  * the catalog runner, record which cases failed or went missing, then restore.
  * A mutation the suite does not catch is a hole in the tests, not a pass.
  *
- *   node tools/catalog/mutate.mjs
+ *   node tools/catalog/mutate.mts
  *
  * Output: docs/test-validity.md (evidence) and a per-mutation console table.
  * This script edits source files temporarily; it always restores them.
@@ -15,6 +15,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+import type { RunRecord } from './run.mts'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const runsDir = path.join(root, '.test/runs')
@@ -126,7 +127,7 @@ const MUTATIONS = [
   },
 ]
 
-const run = (args, options = {}) => spawnSync(args[0], args.slice(1), {
+const run = (args: string[], options: { shell?: boolean } = {}) => spawnSync(args[0], args.slice(1), {
   cwd: root,
   encoding: 'utf8',
   shell: false,
@@ -143,26 +144,28 @@ const build = () => {
 
 const latestRunId = () => fs.readdirSync(runsDir).sort().at(-1)
 
-const results = []
+type MutationResult = (typeof MUTATIONS)[number] & { failed: string[]; missing: string[]; killed: boolean }
+const results: MutationResult[] = []
 for (const mutation of MUTATIONS) {
   const file = path.join(root, mutation.file)
   const original = fs.readFileSync(file, 'utf8')
   if (!original.includes(mutation.find)) {
     console.log(`NOT-APPLIED ${mutation.id} (pattern not found)`)
-    results.push({ ...mutation, applied: false, failed: [], missing: [], killed: false })
+    results.push({ ...mutation, failed: [], missing: [], killed: false })
     continue
   }
   fs.writeFileSync(file, original.replace(mutation.find, mutation.replace))
   try {
     build()
-    run([process.execPath, 'tools/catalog/run.mjs'])
+    run([process.execPath, 'tools/catalog/run.mts'])
     const runId = latestRunId()
-    const record = JSON.parse(fs.readFileSync(path.join(runsDir, runId, 'run.json'), 'utf8'))
+    if (!runId) throw new Error('catalog runner did not write a run record')
+    const record: RunRecord = JSON.parse(fs.readFileSync(path.join(runsDir, runId, 'run.json'), 'utf8'))
     const failed = record.cases.filter(item => item.result === 'FAIL').map(item => item.case_id)
     const missing = record.cases.filter(item => item.result === 'MISSING').map(item => item.case_id)
     const caught = [...failed, ...missing]
     const killed = mutation.expect.some(id => caught.includes(id))
-    results.push({ ...mutation, runId, failed, missing, killed })
+    results.push({ ...mutation, failed, missing, killed })
     console.log(`${killed ? 'killed  ' : 'SURVIVED'} ${mutation.id.padEnd(28)} expect=${mutation.expect.join(',')} caught=${caught.join(',') || '-'}`)
   } finally {
     fs.writeFileSync(file, original)
@@ -186,7 +189,7 @@ const lines = [
   '## 怎么跑',
   '',
   '```bash',
-  'node tools/catalog/mutate.mjs',
+  'node tools/catalog/mutate.mts',
   '```',
   '',
   '脚本会临时改源码、重建、跑用例，结束时恢复并使用还原后的源码重新构建；最后再跑一次完整用例确认工作树是干净的。',

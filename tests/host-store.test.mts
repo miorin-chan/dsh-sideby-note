@@ -11,7 +11,7 @@ import test from 'node:test'
 import { createStore, StoreError } from '../host/store.js'
 import { LOCATION_PATH, REVEAL_PATH, registerStoreRoutes, revealCommand, resolveStoreFile, STORE_PATH } from '../host/store-route.js'
 import { createSpec, prefsSchema, sessionSchema, workspaceSchema } from '../host/store-spec.js'
-import { fakeCtx, fakeDomain, requestRejection } from './fake-store.mjs'
+import { fakeCtx, fakeDomain, requestRejection } from './fake-store.mts'
 
 function fakeServer() {
   const routes = new Map()

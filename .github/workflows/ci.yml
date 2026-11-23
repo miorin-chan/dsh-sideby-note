@@ -28,7 +28,7 @@ jobs:
 
       - name: Verify the reproducible npm tarball
         run: |
-          tracked_js="$(git ls-files -- '*.js')"
+          tracked_js="$(git ls-files -- '*.js' '*.mjs')"
           if [[ -n "$tracked_js" ]]; then
             printf 'JavaScript build output is tracked:\n%s\n' "$tracked_js" >&2
             exit 1
@@ -50,6 +50,11 @@ jobs:
           assert.deepEqual(paths.filter(path => path.endsWith('.ts')).sort(), [
             'host/attachment-metadata.ts', 'host/attachment-route.ts', 'host/workspace-migration.ts',
           ])
+          assert.deepEqual(files.filter(({ path }) => path.endsWith('.mjs')).map(({ path, mode }) => [path, mode]), [
+            ['scripts/install.mjs', 0o755],
+          ])
+          assert.ok(!paths.some(path => path.endsWith('.mts')))
+          assert.equal(readFileSync('scripts/install.mjs', 'utf8').split('\n', 1)[0], '#!/usr/bin/env node')
           NODE
 
       - name: Lint
@@ -86,9 +91,9 @@ jobs:
       # The approval stores a content hash, so editing a reviewed rule fails here
       # until someone re-approves it.
       - name: P0 rules carry a current review
-        run: node tools/catalog/review.mjs --strict
+        run: node tools/catalog/review.mts --strict
 
       # Every change lands under ## next-released; the release command renames
       # that heading and inserts a fresh one. Catch drift before it reaches main.
       - name: The changelog keeps a next-released section
-        run: node tools/release.mjs check-next
+        run: node tools/release.mts check-next

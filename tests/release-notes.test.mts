@@ -1,6 +1,6 @@
 /**
  * Release-note extraction and parsing, tested against the published-body shape
- * (`tools/release/notes.mjs` wraps each locale block in markers).
+ * (`tools/release/notes.mts` wraps each locale block in markers).
  *
  * The module has no imports, so Node's type stripping can load it directly and
  * the test exercises the same source the bundle is built from.

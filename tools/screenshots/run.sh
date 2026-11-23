@@ -120,18 +120,18 @@ for _ in $(seq 1 30); do
 done
 
 log "building the demo session and notes"
-( cd "$REPO/tools/screenshots" && PORT="$PORT" TOKEN="$TOKEN" node_run bootstrap.mjs )
+( cd "$REPO/tools/screenshots" && PORT="$PORT" TOKEN="$TOKEN" node_run bootstrap.mts )
 
 log "capturing light"
-( cd "$REPO/tools/screenshots" && THEME=light PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node_run capture.mjs )
-( cd "$REPO/tools/screenshots" && PREVIEW=1 THEME=light PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node_run capture.mjs )
+( cd "$REPO/tools/screenshots" && THEME=light PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node_run capture.mts )
+( cd "$REPO/tools/screenshots" && PREVIEW=1 THEME=light PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node_run capture.mts )
 
 log "restarting in dark"
 stop_server
 write_theme dark
 start_server
-( cd "$REPO/tools/screenshots" && THEME=dark PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node_run capture.mjs )
-( cd "$REPO/tools/screenshots" && PREVIEW=1 THEME=dark PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node_run capture.mjs )
+( cd "$REPO/tools/screenshots" && THEME=dark PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node_run capture.mts )
+( cd "$REPO/tools/screenshots" && PREVIEW=1 THEME=dark PORT="$PORT" TOKEN="$TOKEN" OUT="$WORK/raw" node_run capture.mts )
 
 log "cropping"
 python3 "$REPO/tools/screenshots/crop.py" --raw "$WORK/raw" --theme light --out "$REPO/docs/assets/features"

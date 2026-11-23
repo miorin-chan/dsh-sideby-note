@@ -1,7 +1,7 @@
 # 测试案例目录（Catalog）
 
 这里只有一件事：**用稳定的 ID 描述「需要验证什么」**。
-怎么验在 `tests/*.test.mjs`，这次验没验、结果如何属于执行记录（`run.json`，
+怎么验在 `tests/*.test.mts`，这次验没验、结果如何属于执行记录（`run.json`，
 见 [`docs/testing.md`](../../docs/testing.md#7-执行记录与复核)）。
 
 目录不是第二份测试实现：不要在这里写代码、断言或 fixture。
@@ -44,7 +44,7 @@
     - 列表出现该条
   automation:                  # 有自动化时必填，可多条（单测 + 集成 + E2E）
     - type: integration        # unit | contract | integration | e2e | policy
-      file: tests/bundle.test.mjs
+      file: tests/bundle.test.mts
       test: NOTE-004 新便笺写入后立即出现在列表
       status: automated        # automated | manual | planned | waived
   suites: [pr, nightly, release]   # smoke | pr | nightly | release | deep
@@ -64,7 +64,7 @@
 await t.test('NOTE-004 新便笺写入后立即出现在列表', async () => { … })
 ```
 
-`tests/bundle.test.mjs` 的 jsdom 流程是一条串行会话，子用例按顺序共享同一个 jsdom 与状态；
+`tests/bundle.test.mts` 的 jsdom 流程是一条串行会话，子用例按顺序共享同一个 jsdom 与状态；
 单个子用例失败不会中断后面的子用例，因此一次运行就能看到每个案例的结果。
 
 **注意：** 正因为是串行会话，单独执行其中某一个（`--test-name-pattern='NOTE-004'`）会因为缺少前置状态而失败。
@@ -114,7 +114,7 @@ npm run design:review -- --strict          # P0 相关规则未评审或评审�
 npm run catalog:check
 ```
 
-`tools/catalog/check.mjs` 会检查：**每条规则都有用例、每条用例都指向真实规则**、ID 格式与唯一性、
+`tools/catalog/check.mts` 会检查：**每条规则都有用例、每条用例都指向真实规则**、ID 格式与唯一性、
 必填字段与枚举（含 A–F 分类与 planned 状态）、`automation` 指向的用例真的存在（文件与名字都要对上）、
 P0 必须有自动实现或 waiver，以及**反向**检查——测试里以 ID 开头的用例必须都在目录里，避免孤儿 ID。
 
@@ -126,6 +126,6 @@ CI 在 `npm run test:run` 之后跑同一条命令。
 1. **先看规则**：在 [`design.yaml`](./design.yaml) 里找到要验证的规则；没有就先加规则并写清有效/无效分支；
 2. **再写用例**：在对应域的 YAML 里追加未被占用的 ID，`rules` 指向该规则，`expected` 用业务语言写验收标准。
    暂时不写测试也可以，标 `state: planned` + `reason`；
-3. **最后写测试**：在 `tests/*.test.mjs` 里写 `t.test('<ID> <标题>', …)`，把完整用例名填进 `automation.test`，
+3. **最后写测试**：在 `tests/*.test.mts` 里写 `t.test('<ID> <标题>', …)`，把完整用例名填进 `automation.test`，
    去掉 `state: planned`；
 4. `npm run catalog:check` 通过后提交。

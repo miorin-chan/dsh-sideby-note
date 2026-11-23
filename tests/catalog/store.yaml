@@ -16,7 +16,7 @@ cases:
       - 宿主不可用时留在浏览器，不写模式标记
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: STORE-001 宿主不可用时启动保留既有便笺且不切换
         status: automated
     suites: [smoke, pr, nightly, release]
@@ -34,7 +34,7 @@ cases:
       - 打开后输入框直接带出旧草稿文本
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: STORE-002 会话草稿并入工作区键并退役旧副本
         status: automated
     suites: [pr, nightly, release]
@@ -51,7 +51,7 @@ cases:
       - 切到另一种范围再切回来，草稿仍在
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: STORE-003 草稿在范围切换后保留
         status: automated
     suites: [pr, nightly, release]
@@ -68,7 +68,7 @@ cases:
       - 切换范围后草稿依然可见，提交后回到原工作区
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: STORE-004 退回形成的草稿在范围切换后保留
         status: automated
     suites: [nightly, release]
@@ -84,7 +84,7 @@ cases:
       - 未提交文本写入工作区草稿键
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: STORE-005 未提交草稿留在工作区缓冲
         status: automated
     suites: [nightly, release]
@@ -101,7 +101,7 @@ cases:
       - 两种范围下都能看到同一份草稿
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: STORE-006 草稿跨会话与跨范围可见
         status: automated
     suites: [pr, nightly, release]
@@ -119,7 +119,7 @@ cases:
       - 后续写入不会覆盖这份备份
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: STORE-007 损坏的存储先备份再继续
         status: automated
     suites: [smoke, pr, nightly, release]
@@ -136,7 +136,7 @@ cases:
       - 另一标签页新增的条目与本页新增的条目都保留
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: STORE-013 另一个标签页新增的便笺不会被覆盖
         status: automated
     suites: [pr, nightly, release]
@@ -153,7 +153,7 @@ cases:
       - 面板显示实际落盘的内容，而不是本页以为的内容
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: STORE-014 同一条目两端并发修改取较新版本
         status: automated
     suites: [pr, nightly, release]
@@ -170,7 +170,7 @@ cases:
       - 本页删除的条目保持删除，另一侧的并发新增仍然保留
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: STORE-015 本页删除不会被并发写入复活
         status: automated
     suites: [pr, nightly, release]
@@ -189,7 +189,7 @@ cases:
       - 界面不显示一条实际没存进去的便笺
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: STORE-011 存储读不到时按空继续且不丢输入
         status: automated
     suites: [pr, nightly, release]
@@ -208,7 +208,7 @@ cases:
       - 恢复存储后重载，不会出现半条记录
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: STORE-012 写入失败时读取不降级且保留输入
         status: automated
     suites: [pr, nightly, release]
@@ -225,7 +225,7 @@ cases:
       - 不需要用户重开面板或刷新页面
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: STORE-016 另一个标签页写入后本页视图同步
         status: automated
     suites: [pr, nightly, release]
@@ -243,7 +243,7 @@ cases:
       - 清洗后的记录写回存储，同一条不会变成两条
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: STORE-017 畸形记录被清洗而不是渲染成乱码
         status: automated
     suites: [pr, nightly, release]
@@ -260,7 +260,7 @@ cases:
       - 新增不受条数限制，写入后为 401 条
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: STORE-018 大清单仍可展示与新增
         status: automated
     suites: [nightly, release]
@@ -281,7 +281,7 @@ cases:
       - 原浏览器副本保留供恢复
     automation:
       - type: integration
-        file: tests/host-bundle.test.mjs
+        file: tests/host-bundle.test.mts
         test: STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记
         status: automated
     suites: [smoke, pr, nightly, release]
@@ -298,7 +298,7 @@ cases:
       - 在无工作区的会话可继续新增，旧便笺和新便笺均保存在浏览器的未归属清单
     automation:
       - type: integration
-        file: tests/host-bundle.test.mjs
+        file: tests/host-bundle.test.mts
         test: STORE-020 宿主不可用时不切换并保留浏览器写入
         status: automated
     suites: [smoke, pr, nightly, release]
@@ -316,11 +316,11 @@ cases:
       - 探测与迁移请求之间如有宿主写入，保留该写入并拒绝导入
     automation:
       - type: integration
-        file: tests/host-bundle.test.mjs
+        file: tests/host-bundle.test.mts
         test: STORE-021 宿主已有数据时不迁移并保留本地旧副本
         status: automated
       - type: unit
-        file: tests/host-store.test.mjs
+        file: tests/host-store.test.mts
         test: STORE-021 探测后已有宿主数据时拒绝迁移
         status: automated
     suites: [pr, nightly, release]
@@ -339,11 +339,11 @@ cases:
       - 已连接的宿主写入失败后也可重新连接，键盘焦点回到保留的草稿
     automation:
       - type: integration
-        file: tests/host-bundle.test.mjs
+        file: tests/host-bundle.test.mts
         test: STORE-022 已切换后宿主不可用进入错误态且不改写浏览器
         status: automated
       - type: integration
-        file: tests/host-bundle.test.mjs
+        file: tests/host-bundle.test.mts
         test: STORE-022 已连接宿主写入失败后可重新连接
         status: automated
     suites: [pr, nightly, release]
@@ -360,7 +360,7 @@ cases:
       - 本页提交的新增也保留，不整条覆盖
     automation:
       - type: integration
-        file: tests/host-store.test.mjs
+        file: tests/host-store.test.mts
         test: STORE-023 宿主合并另一标签页新增的条目
         status: automated
     suites: [pr, nightly, release]
@@ -377,7 +377,7 @@ cases:
       - 已写入的记录不重复，也不被重试快照覆盖
     automation:
       - type: integration
-        file: tests/host-store.test.mjs
+        file: tests/host-store.test.mts
         test: STORE-024 迁移中断后重启补完且不重复
         status: automated
     suites: [pr, nightly, release]
@@ -394,11 +394,11 @@ cases:
       - 浏览器便笺继续可用，并给出存储不可用提示
     automation:
       - type: integration
-        file: tests/host-bundle.test.mjs
+        file: tests/host-bundle.test.mts
         test: STORE-025 宿主文件打不开时不切换并提示
         status: automated
       - type: unit
-        file: tests/host-store.test.mjs
+        file: tests/host-store.test.mts
         test: STORE-025 宿主文件打不开时报告存储错误
         status: automated
     suites: [pr, nightly, release]
@@ -415,11 +415,11 @@ cases:
       - 归档状态与时间写入所属清单；保留已有兼容标记，宿主不接受设置标记的操作
     automation:
       - type: unit
-        file: tests/host-store.test.mjs
+        file: tests/host-store.test.mts
         test: STORE-026 宿主模式偏好持久化
         status: automated
       - type: unit
-        file: tests/host-store.test.mjs
+        file: tests/host-store.test.mts
         test: STORE-026 宿主模式清单保存归档状态
         status: automated
     suites: [nightly, release]
@@ -436,7 +436,7 @@ cases:
       - 再新增一条后为 401 条
     automation:
       - type: unit
-        file: tests/host-store.test.mjs
+        file: tests/host-store.test.mts
         test: STORE-027 宿主模式 400 条仍可新增
         status: automated
     suites: [nightly, release]
@@ -456,11 +456,11 @@ cases:
       - 后端无文件路径时说明不可定位，不猜路径
     automation:
       - type: unit
-        file: tests/host-store.test.mjs
+        file: tests/host-store.test.mts
         test: STORE-028 存储文件路径可查看
         status: automated
       - type: integration
-        file: tests/host-bundle.test.mjs
+        file: tests/host-bundle.test.mts
         test: STORE-028 存储详情按需加载路径并支持拷贝与定位
         status: automated
     suites: [pr, nightly, release]
@@ -477,11 +477,11 @@ cases:
       - 重新连接仍失败时继续显示错误，不迁移或写入浏览器便笺
     automation:
       - type: unit
-        file: tests/host-store.test.mjs
+        file: tests/host-store.test.mts
         test: STORE-029 宿主区分文件已被占用与普通打开错误
         status: automated
       - type: integration
-        file: tests/host-bundle.test.mjs
+        file: tests/host-bundle.test.mts
         test: STORE-029 共用宿主文件已被占用时停止写入
         status: automated
     suites: [pr, nightly, release]
@@ -498,7 +498,7 @@ cases:
       - 未完成上传无法下载；完成后以下载形式返回原始字节
     automation:
       - type: integration
-        file: tests/host-attachments.test.mjs
+        file: tests/host-attachments.test.mts
         test: STORE-030 宿主附件并发上传和重试按内容去重
         status: automated
     suites: [pr, nightly, release]
@@ -516,7 +516,7 @@ cases:
       - 无 JSON 存储路径时报告不可用
     automation:
       - type: integration
-        file: tests/host-attachments.test.mjs
+        file: tests/host-attachments.test.mts
         test: STORE-031 宿主拒绝未授权请求和无效附件
         status: automated
     suites: [pr, nightly, release]
@@ -533,7 +533,7 @@ cases:
       - 附件元数据经过校验，一条便笺至多保留 10 个附件；无内容的便笺不保存
     automation:
       - type: contract
-        file: tests/host-attachments.test.mjs
+        file: tests/host-attachments.test.mts
         test: STORE-032 宿主清单兼容纯文本与仅附件便笺
         status: automated
     suites: [pr, nightly, release]

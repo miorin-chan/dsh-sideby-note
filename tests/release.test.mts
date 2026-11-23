@@ -15,7 +15,7 @@ import {
   prepareChangelog,
   prepareOpsChangelog,
   splitSections,
-} from '../tools/release.mjs'
+} from '../tools/release.mts'
 
 const CHANGELOG = `# Changelog
 
@@ -137,11 +137,11 @@ function releaseFixture(t, { failCheck = false } = {}) {
   const write = (file, text) => writeFileSync(join(root, file), text)
   mkdirSync(join(root, 'src/client'), { recursive: true })
   write('.gitignore', '/client/client.js\n')
-  write('package.json', JSON.stringify({ version: '2.0.1', scripts: { check: 'node check.mjs' } }))
+  write('package.json', JSON.stringify({ version: '2.0.1', scripts: { check: 'node check.mts' } }))
   write('src/client/constants.ts', "export const PLUGIN_VERSION = '2.0.1'\n")
   write('CHANGELOG.md', CHANGELOG)
   write('CHANGELOG-OPS.md', '# Operations\n\n## next-released\n\n- Build changes.\n')
-  write('check.mjs', `
+  write('check.mts', `
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 mkdirSync('client', { recursive: true })
 writeFileSync('client/client.js', JSON.parse(readFileSync('package.json', 'utf8')).version)
@@ -151,7 +151,7 @@ process.exitCode = ${Number(failCheck)}
   git('add', '.')
   git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgSign=false',
     'commit', '--no-verify', '--quiet', '--message=fixture')
-  const release = fileURLToPath(new URL('../tools/release.mjs', import.meta.url))
+  const release = fileURLToPath(new URL('../tools/release.mts', import.meta.url))
   return {
     git,
     client: join(root, 'client/client.js'),

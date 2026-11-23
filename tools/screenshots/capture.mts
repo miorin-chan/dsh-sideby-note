@@ -9,8 +9,13 @@
 // The preview shots are taken with the real UI in place.
 import fs from 'node:fs'
 import path from 'node:path'
-import { connect, evaluate, shot, sleep } from './lib/cdp.mjs'
-import { anchorExpression, clearStoresExpression, restoreStoresExpression } from './lib/notes.mjs'
+import { connect, evaluate, shot, sleep } from './lib/cdp.mts'
+import { anchorExpression, clearStoresExpression, restoreStoresExpression } from './lib/notes.mts'
+import type { DemoList } from './lib/notes.mts'
+
+type Feature = 'panel' | 'settings' | 'actions' | 'clear' | 'empty'
+interface Point { x: number; y: number }
+interface PanelRect extends Point { w: number; h: number }
 
 const theme = process.env.THEME === 'dark' ? 'dark' : 'light'
 const port = process.env.PORT || 61399
@@ -23,9 +28,9 @@ if (!token) throw new Error('TOKEN is required')
 fs.mkdirSync(outDir, { recursive: true })
 
 const session = await connect()
-const rects = {}
+const rects: Partial<Record<Feature, PanelRect>> = {}
 
-const clickText = text => evaluate(session, `(() => {
+const clickText = (text: string) => evaluate(session, `(() => {
   const el = [...document.querySelectorAll('button,[role=button],a')].find(e => e.textContent.trim() === ${JSON.stringify(text)})
   if (el) el.click()
   return !!el
@@ -66,7 +71,7 @@ const closePanel = () => evaluate(session, `(() => { document.querySelector('.ds
 async function waitApp() {
   for (let i = 0; i < 5; i++) {
     await sleep(4000)
-    const state = await evaluate(session, `({
+    const state = await evaluate<{ failed: boolean; ready: boolean }>(session, `({
       failed: document.body.innerText.includes('Failed to load plugins'),
       ready: !!document.querySelector('.dsh-an-headerBtn') || document.body.innerText.includes('描述你想要构建的内容'),
     })`)
@@ -76,8 +81,8 @@ async function waitApp() {
   throw new Error('app did not become ready')
 }
 
-async function capture(name) {
-  const rect = await evaluate(session, `(() => {
+async function capture(name: Feature) {
+  const rect = await evaluate<PanelRect | null>(session, `(() => {
     const p = document.querySelector('.dsh-an-popover')
     if (!p) return null
     const r = p.getBoundingClientRect()
@@ -130,7 +135,7 @@ async function captureFeatures() {
   if (!openStorage) throw new Error('could not open Storage & updates in the panel footer')
   let pathVisible = false
   for (let attempt = 0; attempt < 20; attempt++) {
-    pathVisible = await evaluate(session, `!!document.querySelector('.dsh-an-storagePath')?.textContent`)
+    pathVisible = await evaluate<boolean>(session, `!!document.querySelector('.dsh-an-storagePath')?.textContent`)
     if (pathVisible) break
     await sleep(100)
   }
@@ -142,7 +147,7 @@ async function captureFeatures() {
   await sleep(500)
 
   // Row actions on hover.
-  const row = await evaluate(session, `(() => {
+  const row = await evaluate<Point>(session, `(() => {
     const r = document.querySelector('.dsh-an-row').getBoundingClientRect()
     return { x: r.x + r.width / 2, y: r.y + r.height / 2 }
   })()`)
@@ -163,7 +168,7 @@ async function captureFeatures() {
   await sleep(400)
 
   // Empty state: drop the notes for a moment, then put them back.
-  const saved = await evaluate(session, clearStoresExpression())
+  const saved = await evaluate<DemoList[]>(session, clearStoresExpression())
   try {
     await session.send('Page.reload')
     await waitApp()

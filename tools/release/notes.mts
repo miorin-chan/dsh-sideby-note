@@ -11,7 +11,7 @@
  * The markers are emitted by this script, so a release written in CHANGELOG.md
  * cannot forget them. Usage:
  *
- *   node tools/release/notes.mjs --version 0.10.0 --tag v0.10.0 \
+ *   node tools/release/notes.mts --version 0.10.0 --tag v0.10.0 \
  *     --prev v0.9.9 --repo miorin-chan/dsh-sideby-note --out notes.md
  *
  * Exported for tests; `main()` only runs when this file is executed.
@@ -25,12 +25,21 @@ const DEFAULT_REPO_ROOT = path.resolve(HERE, '..', '..')
 
 const PACKAGE = '@miorin/dsh-sideby-note'
 
-function escapeRegExp(value) {
+interface ReleaseBodyOptions {
+  changelog: string
+  version: string
+  tag?: string
+  prevTag?: string
+  repo?: string
+  packageName?: string
+}
+
+function escapeRegExp(value: string) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 /** The CHANGELOG section for one version, without the heading itself. */
-export function extractVersionSection(changelog, version) {
+export function extractVersionSection(changelog: string | null | undefined, version: string) {
   const lines = String(changelog ?? '').split(/\r?\n/)
   const heading = new RegExp(`^##\\s+${escapeRegExp(version)}\\s*$`)
   const start = lines.findIndex(line => heading.test(line.trim()))
@@ -44,7 +53,7 @@ export function extractVersionSection(changelog, version) {
 }
 
 /** One locale block from the marker convention, or an empty string. */
-export function extractLocaleBlock(section, locale) {
+export function extractLocaleBlock(section: string, locale: string) {
   const marker = new RegExp(
     `<!--\\s*app-update-notes:${escapeRegExp(locale)}:start\\s*-->[\\s\\S]*?<!--\\s*app-update-notes:${escapeRegExp(locale)}:end\\s*-->`,
     'i',
@@ -52,7 +61,7 @@ export function extractLocaleBlock(section, locale) {
   return marker.exec(section)?.[0] ?? ''
 }
 
-function releasePageUrl(repo, tag) {
+function releasePageUrl(repo: string, tag: string) {
   return `https://github.com/${repo}/releases/tag/${tag}`
 }
 
@@ -61,7 +70,7 @@ function releasePageUrl(repo, tag) {
  * back to the other block so the page is never empty, and the in-app reader has
  * the same fallback.
  */
-export function buildReleaseBody(options) {
+export function buildReleaseBody(options: ReleaseBodyOptions) {
   const {
     changelog,
     version,
@@ -126,8 +135,8 @@ export function buildReleaseBody(options) {
   return `${body.join('\n')}\n`
 }
 
-function parseArgs(argv) {
-  const args = {}
+function parseArgs(argv: string[]) {
+  const args: Record<string, string | undefined> = {}
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index]
     if (!flag.startsWith('--')) continue
@@ -141,7 +150,7 @@ function main() {
   const args = parseArgs(process.argv.slice(2))
   const version = String(args.version ?? '').replace(/^v/, '')
   if (!version) {
-    console.error('usage: node tools/release/notes.mjs --version <x.y.z> [--tag v<x.y.z>] [--prev v<a.b.c>] [--repo owner/repo] [--changelog path] [--out path]')
+    console.error('usage: node tools/release/notes.mts --version <x.y.z> [--tag v<x.y.z>] [--prev v<a.b.c>] [--repo owner/repo] [--changelog path] [--out path]')
     process.exit(2)
   }
   const root = args.root ? path.resolve(args.root) : DEFAULT_REPO_ROOT

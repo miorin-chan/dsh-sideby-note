@@ -24,7 +24,7 @@
 ## 怎么跑
 
 ```bash
-node tools/catalog/mutate.mjs
+node tools/catalog/mutate.mts
 ```
 
 脚本会临时改源码、重建、跑用例，结束时恢复并使用还原后的源码重新构建；最后再跑一次完整用例确认工作树是干净的。

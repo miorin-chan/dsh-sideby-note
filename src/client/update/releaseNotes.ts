@@ -1,7 +1,7 @@
 /**
  * In-app release notes, extracted from a published GitHub Release body.
  *
- * The release body is written by `tools/release/notes.mjs`. Each locale's notes
+ * The release body is written by `tools/release/notes.mts`. Each locale's notes
  * sit between `app-update-notes` markers, so the panel can show a short summary
  * without rendering the whole release page (download links, first-launch notes,
  * the generated "Full Changelog" list).

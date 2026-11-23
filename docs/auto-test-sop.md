@@ -264,7 +264,7 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const { connect, evaluate, shot, sleep } = await import(
-  pathToFileURL(`${process.env.REPO}/tools/screenshots/lib/cdp.mjs`).href
+  pathToFileURL(`${process.env.REPO}/tools/screenshots/lib/cdp.mts`).href
 )
 
 const out = process.env.OUT
@@ -347,5 +347,5 @@ process.exit(failed.length ? 1 : 0)
 
 ## 参考
 
-- 截图流程：[`screenshot-sop.md`](./screenshot-sop.md)（本 SOP 复用了其中的 `lib/cdp.mjs` 与隔离 profile 思路）
+- 截图流程：[`screenshot-sop.md`](./screenshot-sop.md)（本 SOP 复用了其中的 `lib/cdp.mts` 与隔离 profile 思路）
 - 首次执行记录：`.test/20261112-181000/result.md`（工作树内，未提交）

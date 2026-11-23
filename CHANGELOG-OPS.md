@@ -11,13 +11,15 @@
 约定：
 
 - 本文件**不使用** `app-update-notes` 标记。
-  那颗标记是给 `tools/release/notes.mjs` 与面板解析用的，写在这里会被误当成用户可见说明。
+  那颗标记是给 `tools/release/notes.mts` 与面板解析用的，写在这里会被误当成用户可见说明。
 - 本文件**不随 npm 包发布**（不在 `package.json` 的 `files` 里），只存在于仓库。
 - 发布时 `npm run release` 会像处理 `CHANGELOG.md` 那样，把本文件的 `## next-released` 改名为 `## <version>`，
   并在顶部插入新的空标题（前提是本文件已经 commit 进仓库）；两边版本号因此始终对得上。
 
 ## next-released
 
+- **构建：** 安装器、维护脚本和测试迁移至 `.mts`。
+  构建继续以可执行的 `scripts/install.mjs` 随 npm 包分发安装器。
 - **构建：** Host 改用 TypeScript 源码，依赖安装、测试与打包自动生成 Host 和 Client 产物。
   CI 检查 npm 包的运行文件和重复打包的完整性，发版提交只记录版本与日志变更。
 - **npm 发布：** 使用 `@miorin` scope，Release 说明与附件链接同步采用 `npm pack` 的 scoped 包文件名。

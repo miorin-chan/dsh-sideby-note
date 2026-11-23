@@ -3,7 +3,7 @@
  * Validates the case catalog against its design source and the tests.
  *
  * The chain is one-way: business rules (design.yaml) → cases (cases/*.yaml) →
- * tests (*.test.mjs). This script checks every link of it:
+ * tests (*.test.mts). This script checks every link of it:
  *
  *   - every case cites at least one rule, and the rule exists;
  *   - every rule is covered by at least one case;
@@ -18,7 +18,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parse } from 'yaml'
-import { BRANCH_KINDS, TECHNIQUES, loadDesign, ruleHash } from './design.mjs'
+import { TECHNIQUES, loadDesign, ruleHash } from './design.mts'
+import type { CatalogCase, CatalogDocument, DesignRule } from './design.mts'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const catalogDir = path.join(root, 'tests/catalog')
@@ -36,17 +37,20 @@ const TYPES = ['unit', 'contract', 'integration', 'e2e', 'policy']
 const SUITES = ['smoke', 'pr', 'nightly', 'release', 'deep']
 const ID_PATTERN = /^[A-Z][A-Z0-9]{1,5}-\d{3}$/
 
-const errors = []
-const warnings = []
-const fail = message => errors.push(message)
-const warn = message => warnings.push(message)
+type CaseWithFile = CatalogCase & { file: string }
+type Design = ReturnType<typeof loadDesign>
+
+const errors: string[] = []
+const warnings: string[] = []
+const fail = (message: string) => errors.push(message)
+const warn = (message: string) => warnings.push(message)
 
 /** test name -> file, for every test declared under tests/. */
-const declared = new Map()
+const declared = new Map<string, string>()
 
 function collectTests() {
   const files = fs.readdirSync(testsDir, { withFileTypes: true })
-    .filter(entry => entry.isFile() && entry.name.endsWith('.test.mjs'))
+    .filter(entry => entry.isFile() && entry.name.endsWith('.test.mts'))
     .map(entry => entry.name)
   for (const file of files) {
     const text = fs.readFileSync(path.join(testsDir, file), 'utf8')
@@ -63,15 +67,15 @@ function loadCases() {
   const files = fs.readdirSync(catalogDir)
     .filter(name => (name.endsWith('.yaml') || name.endsWith('.yml')) && name !== 'design.yaml')
     .sort()
-  const cases = []
-  const byId = new Map()
+  const cases: CaseWithFile[] = []
+  const byId = new Map<string, string>()
   for (const file of files) {
     const relative = `tests/catalog/${file}`
-    let doc
+    let doc: CatalogDocument | null
     try {
       doc = parse(fs.readFileSync(path.join(catalogDir, file), 'utf8'))
     } catch (error) {
-      fail(`${relative}: cannot parse YAML (${error.message})`)
+      fail(`${relative}: cannot parse YAML (${error instanceof Error ? error.message : String(error)})`)
       continue
     }
     if (!doc || !Array.isArray(doc.cases)) {
@@ -94,7 +98,7 @@ function loadCases() {
   return cases
 }
 
-function checkShape(entry) {
+function checkShape(entry: CaseWithFile) {
   const where = `${entry.file}: ${entry.id ?? '<missing id>'}`
   if (!ID_PATTERN.test(String(entry.id))) fail(`${where}: id must look like NOTE-004`)
   if (!entry.title || typeof entry.title !== 'string') fail(`${where}: missing title`)
@@ -123,7 +127,7 @@ function checkShape(entry) {
   }
 }
 
-function checkAutomation(entry) {
+function checkAutomation(entry: CaseWithFile) {
   const where = `${entry.file}: ${entry.id}`
   for (const link of entry.automation ?? []) {
     const absolute = path.join(root, link.file ?? '')
@@ -149,7 +153,7 @@ function checkAutomation(entry) {
   }
 }
 
-function checkRule(rule) {
+function checkRule(rule: DesignRule) {
   const where = `design.yaml: ${rule.id}`
   if (!rule.statement) fail(`${where}: missing statement`)
   if (!rule.failure) fail(`${where}: missing failure (what goes wrong when the rule is broken)`)
@@ -176,7 +180,7 @@ function checkRule(rule) {
   }
   const statement = String(rule.statement || '')
   if (statement.length > 160) warn(`${where}: statement is ${statement.length} chars; reviewers read one line at a time`)
-  if (/`|\b\w+\.(?:ts|js|mjs)\b|should/i.test(statement)) {
+  if (/`|\b\w+\.(?:ts|js|mts|mjs)\b|should/i.test(statement)) {
     fail(`${where}: statement reads like implementation (code identifier or "should")`)
   }
   if (rule.reviewed) {
@@ -187,8 +191,8 @@ function checkRule(rule) {
   }
 }
 
-function checkRuleLinks(cases, rules) {
-  const covered = new Map()
+function checkRuleLinks(cases: CaseWithFile[], rules: Design['rules']) {
+  const covered = new Map<string, number>()
   for (const entry of cases) {
     for (const ruleId of entry.rules ?? []) {
       if (!rules.has(ruleId)) {
@@ -204,8 +208,8 @@ function checkRuleLinks(cases, rules) {
   return covered
 }
 
-function checkOrphans(cases) {
-  const catalogued = new Set()
+function checkOrphans(cases: CaseWithFile[]) {
+  const catalogued = new Set<string>()
   for (const entry of cases) {
     for (const link of entry.automation ?? []) catalogued.add(link.test)
   }
@@ -215,8 +219,8 @@ function checkOrphans(cases) {
   }
 }
 
-function checkDuplicates(cases) {
-  const seen = new Map()
+function checkDuplicates(cases: CaseWithFile[]) {
+  const seen = new Map<string, string>()
   for (const entry of cases) {
     for (const link of entry.automation ?? []) {
       const key = `${link.file}::${link.test}`
@@ -226,8 +230,8 @@ function checkDuplicates(cases) {
   }
 }
 
-function report(cases, rules, invariants, covered) {
-  const count = (predicate) => cases.filter(predicate).length
+function report(cases: CaseWithFile[], rules: Design['rules'], invariants: Design['invariants'], covered: Map<string, number>) {
+  const count = (predicate: (entry: CaseWithFile) => boolean) => cases.filter(predicate).length
   const automated = count(entry => (entry.automation ?? []).some(link => link.status === 'automated'))
   const planned = count(entry => (entry.state || 'automated') === 'planned')
   const p0 = cases.filter(entry => entry.priority === 'P0')

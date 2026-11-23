@@ -17,7 +17,7 @@ cases:
       - 点击递入时只添加便笺原文
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: I18N-001 面板文案跟随当前语言且递入保留原文
         status: automated
     suites: [pr, nightly, release]
@@ -35,7 +35,7 @@ cases:
       - 不显示字典 key，也不回落到中文
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: I18N-002 未知语言回落英文
         status: automated
     suites: [nightly, release]

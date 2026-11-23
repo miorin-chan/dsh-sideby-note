@@ -52,8 +52,9 @@ host/                    # TypeScript 宿主模块（构建产物与源码同目
                          # store-route（GET/POST /dsh-sideby-note/store、GET /store/location、POST /store/reveal）、normalize、http
 client/client.js         # tsdown 生成的浏览器产物
 index.js                 # tsc 生成的宿主入口
+scripts/install.mts      # npm 安装器源码，编译为 scripts/install.mjs
 cordis.patch.yml         # profile 组合里的一行
-tests/                   # catalog/（业务规则与用例）、*.test.mjs（契约 / 集成 / 韧性）、testkit/（jsdom 启动器）
+tests/                   # catalog/（业务规则与用例）、*.test.mts（契约 / 集成 / 韧性）、testkit/（jsdom 启动器）
 tools/screenshots/       # 截图流水线（见 screenshot-sop.md）
 docs/assets/             # README 截图（preview-* 与 features/）
 ```
@@ -183,7 +184,11 @@ docs/assets/             # README 截图（preview-* 与 features/）
 - `tsdown.config.ts` 用 rolldown 打包客户端源码，产物为单个 `client/client.js`，
   沿用 CJS closure factory、`target: es2022`、无压缩和无 sourcemap 的设置。
   CSS 由 `?inline` 虚拟模块载入，虚拟 id 使用相对路径。
+- `tsc` 按 `tsconfig.install.json` 把 `scripts/install.mts` 编译为 `scripts/install.mjs`。
+  构建保留 `#!/usr/bin/env node`，并把产物设为可执行的 npm bin。
 - Git 记录源码与构建配置。npm 包发布全部运行文件，并保留原包内的三份宿主 TypeScript 文件。
+- Node 按 `engines.node` 的版本范围直接执行维护脚本和 `.test.mts` 测试。
+  `tsconfig.tools.json` 单独检查发布、用例目录与截图工具的类型。
 - 版本号在 `src/client/constants.ts`，契约测试保证与 `package.json` 一致。
 - `npm run check` 串起 lint、typecheck、构建、测试与用例校验，`typecheck` 同时覆盖 `tsdown.config.ts`。
   `npm ci`、`npm pack` 和 `npm publish` 通过 `prepare` 构建。
@@ -195,12 +200,12 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | --- | --- |
 | `tests/catalog/design.yaml` | 业务规则与不变量（用例的唯一设计来源），字段见 [测试工程](./testing.md) |
 | `tests/catalog/*.yaml` | 测试用例目录：稳定 ID、优先级、规则引用、自动化指针 |
-| `tests/contract.test.mjs` | 清单与 patch 形状、工具链约定、样式令牌、无障碍与交互规则、字典完整性 |
-| `tests/resilience.test.mjs` | 排序与取消操作、独立和空白会话的筛选、存储读写失败、跨标签页刷新、宽度钳制、确认失效、未知语言回落、大清单 |
-| `tests/testkit/bundle.mjs` | 在 jsdom 里启动构建产物的测试装置：可注入存储故障、压缩定时器、locale 与 slot props |
-| `tests/bundle.test.mjs` | 在 jsdom 里执行**构建产物**：模块表、slot 注册、样式注入、入口注入，并驱动完整面板流程（添加、页脚入口、方向键排序、填入并归档与找不到输入框时不变、清除确认、退回输入框、缩放、清空到空态、分区记忆）；工作区与空白会话测试涵盖共享清单、全局与工作区筛选、便笺归属和入口位置 |
-| `tests/host-store.test.mjs` | 宿主 store 契约：快照、diff/顺序/删除、并发新增保留、工作区归属迁移、偏好、宿主导入与中断恢复、不可用/损坏错误码、路由鉴权与体积上限 |
-| `tests/host-bundle.test.mjs` | 构建产物 + 假宿主端点：首次迁移后只写宿主、不可用时留在浏览器、已切换后不可用进入错误态且不写 `localStorage` |
+| `tests/contract.test.mts` | 清单与 patch 形状、工具链约定、样式令牌、无障碍与交互规则、字典完整性 |
+| `tests/resilience.test.mts` | 排序与取消操作、独立和空白会话的筛选、存储读写失败、跨标签页刷新、宽度钳制、确认失效、未知语言回落、大清单 |
+| `tests/testkit/bundle.mts` | 在 jsdom 里启动构建产物的测试装置：可注入存储故障、压缩定时器、locale 与 slot props |
+| `tests/bundle.test.mts` | 在 jsdom 里执行**构建产物**：模块表、slot 注册、样式注入、入口注入，并驱动完整面板流程（添加、页脚入口、方向键排序、填入并归档与找不到输入框时不变、清除确认、退回输入框、缩放、清空到空态、分区记忆）；工作区与空白会话测试涵盖共享清单、全局与工作区筛选、便笺归属和入口位置 |
+| `tests/host-store.test.mts` | 宿主 store 契约：快照、diff/顺序/删除、并发新增保留、工作区归属迁移、偏好、宿主导入与中断恢复、不可用/损坏错误码、路由鉴权与体积上限 |
+| `tests/host-bundle.test.mts` | 构建产物 + 假宿主端点：首次迁移后只写宿主、不可用时留在浏览器、已切换后不可用进入错误态且不写 `localStorage` |
 
 契约测试按模块读取源码（需要时读 bundle 或 CSS），断言的是约束而不是实现细节；集成测试提供行为兜底。
 

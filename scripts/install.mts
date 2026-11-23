@@ -44,7 +44,19 @@ Options:
   -h, --help           Show this help
 `
 
-const args = new Map()
+interface ProfileManifest {
+  dependencies?: Record<string, string>
+  devDependencies?: Record<string, string>
+  dsh?: { profile?: { bundles?: string[] } }
+}
+
+interface DshRuntime {
+  node: string
+  pnpm: string
+  root: string
+}
+
+const args = new Map<string, string | true>()
 for (let i = 2; i < process.argv.length; i++) {
   const arg = process.argv[i]
   if (!arg.startsWith('--')) continue
@@ -58,11 +70,12 @@ if (args.has('help') || args.has('h')) {
   process.exit(0)
 }
 
-const range = typeof args.get('version') === 'string' ? args.get('version') : DEFAULT_RANGE
+const requestedVersion = args.get('version')
+const range = typeof requestedVersion === 'string' ? requestedVersion : DEFAULT_RANGE
 const dryRun = args.has('dry-run')
 const skipInstall = args.has('no-install')
 
-function fail(message) {
+function fail(message: string): never {
   console.error(`\n✗ ${message}`)
   process.exit(1)
 }
@@ -76,7 +89,8 @@ function profilesRoot() {
 }
 
 function profileName() {
-  return typeof args.get('profile') === 'string' ? args.get('profile') : process.env.DSH_PROFILE || 'desktop'
+  const profile = args.get('profile')
+  return typeof profile === 'string' ? profile : process.env.DSH_PROFILE || 'desktop'
 }
 
 function profileDir() {
@@ -99,7 +113,7 @@ function profileDir() {
  * `DSH_RUNTIME_DIR` pins the runtime explicitly (and suppresses the search, so
  * a wrong path cannot silently install through a different toolchain).
  */
-function dshRuntime() {
+function dshRuntime(): DshRuntime | null {
   const exe = process.platform === 'win32' ? 'node.exe' : 'node'
   const explicit = process.env.DSH_RUNTIME_DIR
   const roots = []
@@ -141,7 +155,7 @@ function dshRuntime() {
  * answers that mean "the profile's store belongs to another pnpm major": a
  * refused removal without a TTY, and the unexpected-store error itself.
  */
-function runInstall(command, commandArgs, cwd, extraEnv) {
+function runInstall(command: string, commandArgs: string[], cwd: string, extraEnv?: NodeJS.ProcessEnv) {
   const result = spawnSync(command, commandArgs, {
     cwd,
     stdio: ['inherit', 'pipe', 'pipe'],
@@ -164,15 +178,13 @@ function runInstall(command, commandArgs, cwd, extraEnv) {
  * Prereleases are excluded from the default `^0.1.0` range and reach npmjs
  * before the configured mirror, so the package manager gets one retry against
  * npmjs when the mirror has not caught up yet.
- * @param {string} range
- * @returns {boolean}
  */
-function isPrereleaseRange(range) {
+function isPrereleaseRange(range: string) {
   return /\d+\.\d+\.\d+-/.test(range)
 }
 
 /** Install with the host's runtime first, then with whatever pnpm is on PATH. */
-function install(cwd, range) {
+function install(cwd: string, range: string) {
   const runtime = dshRuntime()
   const plan = runtime
     ? [{ label: `DSH runtime (${runtime.root})`, command: runtime.node, args: [runtime.pnpm, 'install'] }]
@@ -214,7 +226,7 @@ if (!existsSync(manifestPath)) {
   fail(`${detail}\n  Looked for ${manifestPath}`)
 }
 
-const manifest = JSON.parse(readFileSync(manifestPath, 'utf8').replace(/^\uFEFF/, ''))
+const manifest: ProfileManifest = JSON.parse(readFileSync(manifestPath, 'utf8').replace(/^\uFEFF/, ''))
 if (!manifest.dsh?.profile) {
   fail(`${manifestPath} does not look like a DSH profile (missing dsh.profile). Refusing to edit it.`)
 }
@@ -275,7 +287,7 @@ const installedManifest = join(dir, 'node_modules', PACKAGE, 'package.json')
 if (!existsSync(installedManifest)) {
   fail(`Install finished but ${PACKAGE} is not in node_modules. Check the output above and run \`pnpm install\` again.`)
 }
-const { version } = JSON.parse(readFileSync(installedManifest, 'utf8'))
+const { version }: { version: string } = JSON.parse(readFileSync(installedManifest, 'utf8'))
 const bundleFile = join(dir, 'node_modules', PACKAGE, 'client', 'client.js')
 if (!existsSync(bundleFile)) fail(`Installed ${PACKAGE}@${version} has no client/client.js — the package is incomplete.`)
 

@@ -17,7 +17,7 @@ cases:
       - 有未完成记录时角标显示数量
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: PANEL-002 header 入口挂进宿主工具行并显示未完成数
         status: automated
     suites: [smoke, pr, nightly, release]
@@ -34,7 +34,7 @@ cases:
       - 标题与输入框占位来自当前语言词典
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: PANEL-003 点击入口打开面板并渲染标题
         status: automated
     suites: [smoke, pr, nightly, release]
@@ -53,11 +53,11 @@ cases:
       - 齿轮、设置卡、旧快捷键和转发前缀选项均已移除
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: PANEL-004 页脚存储详情展示版本与检查入口
         status: automated
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: Escape returns focus from the footer to the panel entry
         status: automated
     suites: [pr, nightly, release]
@@ -74,7 +74,7 @@ cases:
       - 打开面板与存储详情仅访问明确的更新与存储端点，不发送统计事件
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: PANEL-005 使用面板和存储详情不会上报统计
         status: automated
     suites: [pr, nightly, release]
@@ -91,7 +91,7 @@ cases:
       - 方向键调整后写入宽度偏好
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: PANEL-006 键盘调整面板宽度并持久化
         status: automated
     suites: [nightly, release]
@@ -108,7 +108,7 @@ cases:
       - 重开面板保持该状态
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: PANEL-007 分区折叠状态持久化
         status: automated
     suites: [nightly, release]
@@ -126,7 +126,7 @@ cases:
       - 角标显示工作区未完成数
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: PANEL-008 空白新会话把入口挂在右上角并显示工作区计数
         status: automated
     suites: [pr, nightly, release]
@@ -145,7 +145,7 @@ cases:
       - 视口缩到 390 时重新计算右侧偏移，保留两侧至少 12 的边距
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: PANEL-009 面板宽度夹在 280 到 720 之间
         status: automated
     suites: [nightly, release]
@@ -162,7 +162,7 @@ cases:
       - 消失后再点一次清除，需要重新确认而不是直接删除
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: PANEL-010 清除确认 5 秒后失效
         status: automated
     suites: [nightly, release]
@@ -180,7 +180,7 @@ cases:
       - 改键和解绑后提示及辅助技术属性随之更新，卸载后注销命令
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: PANEL-011 DSH 快捷键切换面板并跟随当前绑定
         status: automated
     suites: [pr, nightly, release]

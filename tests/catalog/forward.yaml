@@ -15,7 +15,7 @@ cases:
       - 已有前缀偏好时仍只递入原文，且不改写该偏好
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: FWD-001 旧前缀偏好不会影响递入
         status: automated
     suites: [pr, nightly, release]
@@ -33,7 +33,7 @@ cases:
       - 递入成功后条目在其工作区清单归档
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: FWD-002 递入只写当前可见会话且归档到原工作区
         status: automated
     suites: [pr, nightly, release]
@@ -49,7 +49,7 @@ cases:
       - 第二条便笺追加在第一条后，两条原文之间恰好一个换行
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: FWD-003 第二条便笺另起一行追加
         status: automated
     suites: [nightly, release]
@@ -65,7 +65,7 @@ cases:
       - 现有会话草稿保持原样，随后换行追加便笺原文
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: FWD-004 递入保留会话现有草稿
         status: automated
     suites: [nightly, release]
@@ -81,7 +81,7 @@ cases:
       - 在已有换行之后追加便笺，不产生额外空行
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: FWD-005 草稿末尾已有换行时直接追加
         status: automated
     suites: [nightly, release]
@@ -98,7 +98,7 @@ cases:
       - 归档条目不再提供递入操作，也不写转发标记
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: FWD-006 归档条目没有再次递入操作
         status: automated
     suites: [nightly, release]

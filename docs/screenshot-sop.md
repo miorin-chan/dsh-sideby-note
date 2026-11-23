@@ -16,11 +16,11 @@
 | --- | --- |
 | `run.sh` | 端到端编排（macOS）：建 profile → 起服务 → 起 Chrome → 拍明暗（功能图 + 预览图）→ 裁切 |
 | `run.ps1` | 同一编排的 Windows 版本；用 CDP 固定内容区，不依赖窗口尺寸 |
-| `bootstrap.mjs` | 造演示会话：一条提问 + 固定四条便笺（含归档状态与时间） |
-| `capture.mjs` | 逐个状态截图，输出原始 4x PNG 与每个面板的 `rect`；`PREVIEW=1` 时改拍整窗与头部条 |
+| `bootstrap.mts` | 造演示会话：一条提问 + 固定四条便笺（含归档状态与时间） |
+| `capture.mts` | 逐个状态截图，输出原始 4x PNG 与每个面板的 `rect`；`PREVIEW=1` 时改拍整窗与头部条 |
 | `crop.py` | 按 `rect` 外扩裁切、缩放，写 `docs/assets/features/`；`--preview` 缩放整窗、裁入口特写，写 `docs/assets/` |
-| `lib/cdp.mjs` | 极简 CDP 驱动（无第三方依赖） |
-| `lib/notes.mjs` | 演示便笺的文案、归档状态与时间年龄，唯一数据源 |
+| `lib/cdp.mts` | 极简 CDP 驱动（无第三方依赖） |
+| `lib/notes.mts` | 演示便笺的文案、归档状态与时间年龄，唯一数据源 |
 
 ## 1. 产物
 
@@ -32,7 +32,7 @@
 | `docs/assets/features/{…}-dark.png` | 功能图（暗色） | 1080 宽 |
 | `docs/assets/storefront-icon.svg` → `icon.png` | 市场卡片图标（卡片里按 16px 圆形裁切） | 180×180 |
 
-> 一次 `run.sh` 重写全部 14 张图：10 张功能图 + 4 张预览图（`preview-right*`、`preview-badge*`）。预览图由 `capture.mjs` 的 `PREVIEW=1` 分支拍整窗与头部条，再由 `crop.py --preview` 缩放、裁切，构图见第 6 节。旧的 `preview.png` / `preview-dark.png`（面板特写商店素材）已下线，不再产出。
+> 一次 `run.sh` 重写全部 14 张图：10 张功能图 + 4 张预览图（`preview-right*`、`preview-badge*`）。预览图由 `capture.mts` 的 `PREVIEW=1` 分支拍整窗与头部条，再由 `crop.py --preview` 缩放、裁切，构图见第 6 节。旧的 `preview.png` / `preview-dark.png`（面板特写商店素材）已下线，不再产出。
 
 > 市场图标不在 `run.sh` 里：它是仓库根目录的 `icon.png`，由 `docs/assets/storefront-icon.svg` 按 540px 渲染后缩到 180×180（插件市场只收 GitHub 上的位图）。`icon.svg` 仍是插件自身的界面图标，两者不要混用。
 
@@ -84,9 +84,9 @@ npm test
    给 1080 宽功能图与 1920 宽整窗图留足细节）。
    macOS 用 `--window-size=1440,1043` + `--force-device-scale-factor=4`；
    Windows 上 headless 的内容区会被窗口边框吃掉 8 像素，所以 `run.ps1` 另设 `SHOT_VIEWPORT=1440x900@4`，
-   由 `lib/cdp.mjs` 调 `Emulation.setDeviceMetricsOverride` 精确对齐，`crop.py` 的 4x 常量无需改动；
-6. `bootstrap.mjs` 造会话与便笺（便笺写进工作区清单，见第 4 节），并把便笺时间回拨到固定年龄；
-7. `capture.mjs` 拍明色 5 个状态，再以 `PREVIEW=1` 拍整窗与头部条；
+   由 `lib/cdp.mts` 调 `Emulation.setDeviceMetricsOverride` 精确对齐，`crop.py` 的 4x 常量无需改动；
+6. `bootstrap.mts` 造会话与便笺（便笺写进工作区清单，见第 4 节），并把便笺时间回拨到固定年龄；
+7. `capture.mts` 拍明色 5 个状态，再以 `PREVIEW=1` 拍整窗与头部条；
 8. 改 `preference: dark` 重启服务、重新取 token，同样拍暗色功能图与预览图；
 9. `crop.py` 裁切功能图、`crop.py --preview` 缩放整窗并裁入口特写，写入 `docs/assets/features/` 与 `docs/assets/`；
 10. 退出时杀掉服务与 Chrome，删除 `$WORK`（`KEEP=1` 时保留）。
@@ -106,12 +106,12 @@ npm test
 `settings` 沿用原有文件名，方便原地更新 README 和市场已引用的图片。
 新图拍的是页脚「存储与更新」。重拍后同步更新两份 README 的预览说明、功能图说明与这一行的标题和替代文本。
 
-演示便笺由 `bootstrap.mjs` 写入宿主的工作区清单。
+演示便笺由 `bootstrap.mts` 写入宿主的工作区清单。
 面板默认停在**工作区**，范围由标题下方的「工作区 / 会话」切换显示。
-`lib/notes.mjs` 通过宿主路由重锚时间，拍空状态时暂时清空演示便笺，拍完原样恢复。
+`lib/notes.mts` 通过宿主路由重锚时间，拍空状态时暂时清空演示便笺，拍完原样恢复。
 
 明暗两轮必须**用同一批便笺、同一组时间**，否则两张图并排会露馅。
-`lib/notes.mjs` 的 `NOTES` 是唯一数据源，改内容只改这一处；`capture.mjs` 在拍每个主题前用同一份计划**重新锚定时间**，
+`lib/notes.mts` 的 `NOTES` 是唯一数据源，改内容只改这一处；`capture.mts` 在拍每个主题前用同一份计划**重新锚定时间**，
 所以暗色不会因为晚跑一分钟就变成「47 分钟前」。
 
 ## 5. 构图规则（别跳过）
@@ -127,7 +127,7 @@ npm test
 
 ## 6. 整窗图与入口特写
 
-`run.sh` 在每个主题里跑两次 `capture.mjs`：先拍五张功能图，再以 `PREVIEW=1` 拍整窗与头部条。
+`run.sh` 在每个主题里跑两次 `capture.mts`：先拍五张功能图，再以 `PREVIEW=1` 拍整窗与头部条。
 裁切由 `crop.py --preview` 完成：
 
 1. **整窗**：打开面板、展开两个分区、滚动到顶，`Page.captureScreenshot` 整页（5760×3600），
@@ -142,7 +142,7 @@ npm test
 只补预览图时（需 `KEEP=1` 保留 `$WORK`，或自己起一套环境）：
 
 ```bash
-THEME=light PORT=61399 TOKEN=$TOKEN OUT=$WORK/raw PREVIEW=1 node tools/screenshots/capture.mjs
+THEME=light PORT=61399 TOKEN=$TOKEN OUT=$WORK/raw PREVIEW=1 node tools/screenshots/capture.mts
 python3 tools/screenshots/crop.py --raw "$WORK/raw" --theme light --out docs/assets --preview
 ```
 
@@ -152,8 +152,8 @@ Windows 上把 `python3` 换成 `PYTHON` 指向的解释器，并带上 `SHOT_VI
 ## 7. 内容规则
 
 - 便笺文案只写与本插件相关的小事（发布说明、暗色对比度、390px 视口、空状态文案）。
-  演示便笺固定为下面四条，顺序与 `tools/screenshots/lib/notes.mjs` 的 `NOTES` 相同；
-  这张表由 `tests/screenshot-notes.test.mjs` 与 `NOTES` 逐字校验，改文案、状态或年龄时两处必须一起改：
+  演示便笺固定为下面四条，顺序与 `tools/screenshots/lib/notes.mts` 的 `NOTES` 相同；
+  这张表由 `tests/screenshot-notes.test.mts` 与 `NOTES` 逐字校验，改文案、状态或年龄时两处必须一起改：
 
   | 便笺 | 状态 | 时间（相对拍图时刻） |
   | --- | --- | --- |
@@ -203,10 +203,10 @@ Windows 上把 `python3` 换成 `PYTHON` 指向的解释器，并带上 `SHOT_VI
 | 现象 | 原因 / 处理 |
 | --- | --- |
 | `dsh web authentication required` | 没带 `token`。`run.sh` 会从 `server.log` 里取，手工调试时从启动日志复制 `?token=…` |
-| 页面出现 `Failed to load plugins` | 偶发的 client bundle 加载失败；`capture.mjs` 的 `waitApp()` 会检测并重载，最多 5 次 |
+| 页面出现 `Failed to load plugins` | 偶发的 client bundle 加载失败；`capture.mts` 的 `waitApp()` 会检测并重载，最多 5 次 |
 | 面板没出现 | 当前会话不是演示会话。`run.sh` 用新 profile，刷新后会自动恢复到最近会话；手工调试时确认 `dsh.sessions.current` |
 | 悬停不出现行操作 | 必须用 CDP `Input.dispatchMouseEvent` 真实移动鼠标；`element.hover()` 不触发 `:hover` |
-| 便笺时间显示「刚刚」 | `bootstrap.mjs` 写入演示便笺的宿主时间戳后，`capture.mjs` 会重新读取并刷新页面；手工操作时请刷新 |
+| 便笺时间显示「刚刚」 | `bootstrap.mts` 写入演示便笺的宿主时间戳后，`capture.mts` 会重新读取并刷新页面；手工操作时请刷新 |
 | 端口占用 | `PORT` / `CDP_PORT` 换一个；`run.sh` / `run.ps1` 退出时会按端口清理残留进程 |
 | 功能图四周留白不对 / 面板比预期窄 | 内容区不是 1440×900。Windows 上 headless 的 `--window-size` 会被边框吃掉像素，`run.ps1` 已用 `SHOT_VIEWPORT=1440x900@4` 固定；手工跑时记得也带上这个变量 |
 | 入口特写裁歪了 | 头部图标不再右对齐，或窗口不是 1440 宽；调整 `crop.py` 的 `BADGE_BOX`，必要时重拍头部条 |

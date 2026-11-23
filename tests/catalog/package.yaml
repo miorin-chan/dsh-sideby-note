@@ -18,7 +18,7 @@ cases:
       - 只注册一个语言命名空间，且包含 DSH 的八种官方语言
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: PKG-001 构建产物注册三个座位与八种语言
         status: automated
     suites: [smoke, pr, nightly, release]
@@ -35,7 +35,7 @@ cases:
       - 卸载不影响页面其余节点
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: PKG-002 卸载时移除注入的样式
         status: automated
     suites: [nightly, release]

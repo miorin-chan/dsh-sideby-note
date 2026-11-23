@@ -9,7 +9,7 @@ import test from 'node:test'
 import { apply } from '../index.js'
 import { createStore } from '../host/store.js'
 import { noteSchema } from '../host/store-spec.js'
-import { fakeCtx, fakeDomain } from './fake-store.mjs'
+import { fakeCtx, fakeDomain } from './fake-store.mts'
 
 const endpoint = '/dsh-sideby-note/attachments'
 const mime = 'application/octet-stream'

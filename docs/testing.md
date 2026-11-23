@@ -10,7 +10,7 @@
 | --- | --- | --- | --- |
 | 规则 | `tests/catalog/design.yaml` | 定义业务规则与不变量，列出有效和无效分支 | 业务语义变化，需重新评审 |
 | 用例 | `tests/catalog/*.yaml` | 定义验收场景，使用稳定 ID 并引用业务规则 | 规则变化时推导 |
-| 测试 | `tests/*.test.mjs` | 验证实现，目录用例对应的测试名以 ID 开头 | 实现或重构变化 |
+| 测试 | `tests/*.test.mts` | 验证实现，目录用例对应的测试名以 ID 开头 | 实现或重构变化 |
 | 执行记录 | `.test/runs/<run_id>/` | 定义「这次验没验」：逐用例结果、失败摘要、复核签名 | 每次执行 |
 
 链路是单向的：规则 → 用例 → 测试。
@@ -34,7 +34,7 @@
 
 CI（`.github/workflows/ci.yml`）按顺序执行：
 
-1. `npm ci` 构建 Host 和 Client，连续两次 `npm pack` 核对包内容与完整性，并检查 JavaScript 产物已从 Git 索引移除；
+1. `npm ci` 构建 Host、Client 和安装器，连续两次 `npm pack` 核对包内容与完整性，并检查安装器路径、执行权限和 shebang。
 2. lint、typecheck；
 3. `test:run`，并把 `run.json` / 报告 / junit 作为 artifact 保留 30 天（失败也上传）；
 4. `catalog:check`：automation 指针必须命中真实测试，带 ID 的测试必须都在目录里；

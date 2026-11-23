@@ -7,7 +7,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
-import { buildReleaseBody, extractLocaleBlock, extractVersionSection } from '../tools/release/notes.mjs'
+import { buildReleaseBody, extractLocaleBlock, extractVersionSection } from '../tools/release/notes.mts'
 import { updateNotesForLocale } from '../src/client/update/releaseNotes.ts'
 
 const CHANGELOG = `# Changelog

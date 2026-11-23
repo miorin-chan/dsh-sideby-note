@@ -217,7 +217,7 @@ npx @miorin/dsh-sideby-note install --version 0.1.0   # 固定版本，而不是
 
 点击「立即更新」后，面板会请宿主安装更新。版本检查与说明读取只访问公开的版本号与 Release 正文。
 
-发布说明由 `tools/release/notes.mjs` 从 `CHANGELOG.md` 生成：中英文两段，各自带 `app-update-notes` 标记，外加安装链接与 Full Changelog 链接；打 tag 时发布流程会用它创建 Release 并附上 tgz。详见 [发布与版本迭代](./docs/release.md)。
+发布说明由 `tools/release/notes.mts` 从 `CHANGELOG.md` 生成：中英文两段，各自带 `app-update-notes` 标记，外加安装链接与 Full Changelog 链接；打 tag 时发布流程会用它创建 Release 并附上 tgz。详见 [发布与版本迭代](./docs/release.md)。
 
 ## 开发
 

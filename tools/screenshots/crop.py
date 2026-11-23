@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Crop and scale the raw captures produced by capture.mjs.
+"""Crop and scale the raw captures produced by capture.mts.
 
 Two modes:
 

@@ -4,11 +4,11 @@
  *
  * The catalog says what must be verified; this turns a test run into evidence:
  *
- *   node tools/catalog/run.mjs                  # run, write .test/runs/<id>/
- *   node tools/catalog/run.mjs --suite release  # same run, only release cases counted
- *   node tools/catalog/run.mjs --compare        # diff against the previous run
- *   node tools/catalog/run.mjs --approve --by <name>
- *   node tools/catalog/run.mjs --strict         # release gate: all pass + reviewed
+ *   node tools/catalog/run.mts                  # run, write .test/runs/<id>/
+ *   node tools/catalog/run.mts --suite release  # same run, only release cases counted
+ *   node tools/catalog/run.mts --compare        # diff against the previous run
+ *   node tools/catalog/run.mts --approve --by <name>
+ *   node tools/catalog/run.mts --strict         # release gate: all pass + reviewed
  *
  * A case's result is PASS / FAIL / SKIPPED / MISSING. MISSING (the case exists
  * in the catalog but no test produced a result) is never reported as a pass.
@@ -19,6 +19,36 @@ import crypto from 'node:crypto'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { parse } from 'yaml'
+import type { CatalogDocument } from './design.mts'
+
+interface TestResult {
+  result: 'PASS' | 'FAIL' | 'SKIPPED'
+  duration_ms: number
+  failure: string | null
+}
+
+interface RunCase extends Omit<TestResult, 'result'> {
+  case_id: string
+  title: string
+  priority: string
+  domain: string
+  suites: string[]
+  result: TestResult['result'] | 'MISSING'
+}
+
+export interface RunRecord {
+  run_id: string
+  started_at: string
+  suite: string
+  commit: string
+  branch: string
+  node: string
+  summary: { total: number; pass: number; fail: number; skipped: number; missing: number }
+  byDomain: Record<string, { total: number; pass: number }>
+  compare: { run_id: string; newlyFailed: string[]; fixed: string[]; newlyMissing: string[] } | null
+  cases: RunCase[]
+  reviewed?: { by: string; at: string; digest: string }
+}
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const catalogDir = path.join(root, 'tests/catalog')
@@ -26,19 +56,19 @@ const testsDir = path.join(root, 'tests')
 const runsDir = path.join(root, '.test/runs')
 
 const argv = process.argv.slice(2)
-const flag = name => argv.includes(name)
-const valueOf = name => {
+const flag = (name: string) => argv.includes(name)
+const valueOf = (name: string) => {
   const index = argv.indexOf(name)
   return index >= 0 ? argv[index + 1] : ''
 }
 
-const decode = text => text
+const decode = (text: string) => text
   .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
   .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&')
 
 /** test name -> { result, duration, failure } */
-function parseJunit(xml) {
-  const results = new Map()
+function parseJunit(xml: string) {
+  const results = new Map<string, TestResult>()
   const pattern = /<testcase\b([^>]*?)(?:\/>|>([\s\S]*?)<\/testcase>)/g
   for (const match of xml.matchAll(pattern)) {
     const attrs = match[1]
@@ -60,14 +90,14 @@ function parseJunit(xml) {
 function loadCases() {
   const cases = []
   for (const file of fs.readdirSync(catalogDir).filter(name => name.endsWith('.yaml') && name !== 'design.yaml')) {
-    const doc = parse(fs.readFileSync(path.join(catalogDir, file), 'utf8'))
-    for (const entry of doc?.cases ?? []) {
+    const doc: CatalogDocument | null = parse(fs.readFileSync(path.join(catalogDir, file), 'utf8'))
+    if (!doc) continue
+    for (const entry of doc.cases ?? []) {
       cases.push({
         id: entry.id,
         title: entry.title,
         domain: entry.domain || doc.domain,
         priority: entry.priority,
-        class: entry.class,
         suites: entry.suites ?? [],
         automation: entry.automation ?? [],
       })
@@ -76,12 +106,12 @@ function loadCases() {
   return cases
 }
 
-function gitValue(args) {
+function gitValue(args: string[]) {
   const result = spawnSync('git', args, { cwd: root, encoding: 'utf8' })
   return result.status === 0 ? result.stdout.trim() : ''
 }
 
-function digestOf(cases) {
+function digestOf(cases: RunCase[]) {
   const payload = cases.map(item => `${item.case_id}:${item.result}`).sort().join('\n')
   return crypto.createHash('sha256').update(payload).digest('hex').slice(0, 16)
 }
@@ -91,15 +121,18 @@ function latestRun(excludeId = '') {
   const dirs = fs.readdirSync(runsDir).filter(name => name !== excludeId).sort()
   for (let index = dirs.length - 1; index >= 0; index -= 1) {
     const file = path.join(runsDir, dirs[index], 'run.json')
-    if (fs.existsSync(file)) return { id: dirs[index], data: JSON.parse(fs.readFileSync(file, 'utf8')) }
+    if (fs.existsSync(file)) {
+      const data: RunRecord = JSON.parse(fs.readFileSync(file, 'utf8'))
+      return { id: dirs[index], data }
+    }
   }
   return null
 }
 
-const escapeHtml = value => String(value)
+const escapeHtml = (value: string) => String(value)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
-function renderMarkdown(run) {
+function renderMarkdown(run: RunRecord) {
   const s = run.summary
   const lines = [
     `# 测试执行记录 · ${run.run_id}`,
@@ -133,7 +166,7 @@ function renderMarkdown(run) {
   return `${lines.join('\n')}\n`
 }
 
-function renderHtml(run) {
+function renderHtml(run: RunRecord) {
   const s = run.summary
   const rows = run.cases.map(item => `<tr class="${item.result}"><td>${escapeHtml(item.case_id)}</td><td>${escapeHtml(item.title)}</td><td>${item.priority}</td><td>${item.result}</td><td>${item.duration_ms}ms</td></tr>`).join('\n')
   return `<!doctype html>
@@ -165,12 +198,12 @@ tr.SKIPPED td{color:#6b7280}
 
 /* ---------------------------------------------------------------- strict/approve */
 
-function loadRunForReview() {
+function loadRunForReview(): RunRecord {
   const explicit = valueOf('--run')
   if (explicit) return JSON.parse(fs.readFileSync(path.resolve(root, explicit), 'utf8'))
   const latest = latestRun()
   if (!latest) {
-    console.error('还没有任何执行记录，先跑一次 node tools/catalog/run.mjs')
+    console.error('还没有任何执行记录，先跑一次 node tools/catalog/run.mts')
     process.exit(1)
   }
   return latest.data
@@ -186,7 +219,7 @@ if (flag('--strict')) {
     process.exit(1)
   }
   if (!run.reviewed) {
-    console.error(`strict: ${run.run_id} 尚未复核（node tools/catalog/run.mjs --approve --by <name>）`)
+    console.error(`strict: ${run.run_id} 尚未复核（node tools/catalog/run.mts --approve --by <name>）`)
     process.exit(1)
   }
   if (run.reviewed.digest !== digest) {
@@ -225,7 +258,7 @@ const outDir = path.join(runsDir, runId)
 fs.mkdirSync(outDir, { recursive: true })
 
 const testFiles = fs.readdirSync(testsDir)
-  .filter(name => name.endsWith('.test.mjs'))
+  .filter(name => name.endsWith('.test.mts'))
   .map(name => path.join('tests', name))
 const junitPath = path.join(outDir, 'junit.xml')
 const run = spawnSync(process.execPath, [
@@ -235,10 +268,8 @@ const run = spawnSync(process.execPath, [
 const xml = fs.existsSync(junitPath) ? fs.readFileSync(junitPath, 'utf8') : ''
 const results = parseJunit(xml)
 const cases = loadCases().filter(entry => (!suite || entry.suites.includes(suite)))
-  .map(entry => {
-    const links = entry.automation.map(link => link.test)
-    const hit = links.map(name => results.get(name)).find(Boolean)
-    const declared = links.map(name => results.get(name)).filter(Boolean)
+  .map((entry): RunCase => {
+    const declared = entry.automation.map(link => results.get(link.test)).filter(result => result !== undefined)
     return {
       case_id: entry.id,
       title: entry.title,
@@ -248,11 +279,10 @@ const cases = loadCases().filter(entry => (!suite || entry.suites.includes(suite
       result: declared.length === 0 ? 'MISSING' : declared.every(item => item.result === 'PASS') ? 'PASS' : (declared.find(item => item.result === 'FAIL') ? 'FAIL' : 'SKIPPED'),
       duration_ms: declared.reduce((sum, item) => sum + item.duration_ms, 0),
       failure: declared.find(item => item.failure)?.failure ?? null,
-      _hit: hit,
     }
   })
 
-const byDomain = {}
+const byDomain: RunRecord['byDomain'] = {}
 for (const item of cases) {
   const stat = byDomain[item.domain] ?? { total: 0, pass: 0 }
   stat.total += 1
@@ -276,7 +306,7 @@ const compare = previous ? {
   newlyMissing: cases.filter(item => item.result === 'MISSING' && previous.data.cases.find(old => old.case_id === item.case_id)?.result !== 'MISSING').map(item => item.case_id),
 } : null
 
-const record = {
+const record: RunRecord = {
   run_id: runId,
   started_at: startedAt.toISOString(),
   suite: suite || 'all',
@@ -286,7 +316,7 @@ const record = {
   summary,
   byDomain,
   compare,
-  cases: cases.map(({ _hit, ...rest }) => rest),
+  cases,
 }
 fs.writeFileSync(path.join(outDir, 'run.json'), `${JSON.stringify(record, null, 2)}\n`)
 fs.writeFileSync(path.join(outDir, 'report.md'), renderMarkdown(record))

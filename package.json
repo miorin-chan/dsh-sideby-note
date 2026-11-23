@@ -57,19 +57,20 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "build": "npm run build:host && tsdown",
+    "build": "npm run build:host && npm run build:install && tsdown",
     "build:host": "tsc -p tsconfig.host.json",
+    "build:install": "tsc -p tsconfig.install.json && node --input-type=module -e \"import { chmodSync } from 'node:fs'; chmodSync('scripts/install.mjs', 0o755)\"",
     "prepare": "npm run build 1>&2",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.host.json --noEmit",
-    "lint": "oxlint src index.ts host/*.ts",
-    "test": "npm run build && node --test tests/*.test.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.host.json --noEmit && tsc -p tsconfig.install.json --noEmit && tsc -p tsconfig.tools.json",
+    "lint": "oxlint src index.ts host/*.ts scripts/install.mts tools",
+    "test": "npm run build && node --test \"tests/*.test.mts\"",
     "check": "npm run lint && npm run typecheck && npm test && npm run catalog:check",
-    "release": "node tools/release.mjs",
-    "catalog:check": "node tools/catalog/check.mjs",
-    "design:review": "node tools/catalog/review.mjs",
-    "test:run": "npm run build && node tools/catalog/run.mjs",
-    "test:strict": "npm run build && node tools/catalog/run.mjs --strict",
-    "test:mutate": "node tools/catalog/mutate.mjs"
+    "release": "node tools/release.mts",
+    "catalog:check": "node tools/catalog/check.mts",
+    "design:review": "node tools/catalog/review.mts",
+    "test:run": "npm run build && node tools/catalog/run.mts",
+    "test:strict": "npm run build && node tools/catalog/run.mts --strict",
+    "test:mutate": "node tools/catalog/mutate.mts"
   },
   "dsh": {
     "bundle": {

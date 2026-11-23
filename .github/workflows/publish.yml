@@ -55,7 +55,7 @@ jobs:
           # Gate before npm publish: a missing or empty section would otherwise
           # publish the package and then silently generate unrelated notes.
           # Re-running after a publish is not possible (the version is taken).
-          node tools/release.mjs check "${GITHUB_REF_NAME#v}"
+          node tools/release.mts check "${GITHUB_REF_NAME#v}"
 
       - name: Publish
         run: |
@@ -95,7 +95,7 @@ jobs:
           # exists and is not empty, so a failure here means the section lacks the
           # markers; that fails the release on purpose instead of falling back to
           # generated notes the update card cannot read.
-          builder=(node tools/release/notes.mjs --version "$version" --tag "$GITHUB_REF_NAME")
+          builder=(node tools/release/notes.mts --version "$version" --tag "$GITHUB_REF_NAME")
           if [ -n "$prev" ]; then builder+=(--prev "$prev"); fi
           "${builder[@]}" --out "$notes_file"
           flags=(--verify-tag --title "Sideby Note $version" --notes-file "$notes_file")

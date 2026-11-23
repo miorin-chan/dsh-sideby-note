@@ -23,8 +23,10 @@
   保留上游的 `dsh.aside-note` 存储键及兼容格式，具体契约见架构文档。
 - 本插件可以独立安装、启用与停用。`index.ts` 与 `host/` 中的 TypeScript 源码承载宿主存储和更新端点。
   便笺优先保存在与上游共用的宿主 `aside_note` 领域，草稿和面板布局留在浏览器。
-- 客户端源码在 `src/client/`。`npm run build` 生成 `index.js`、`host/*.js` 与 `client/client.js`。
-  Git 只记录源码与配置，CI 核对 npm 包包含全部运行文件，且连续打包得到同一份内容。
+- 客户端源码在 `src/client/`。
+  `npm run build` 生成 `index.js`、`host/*.js`、`client/client.js` 和 npm 安装器 `scripts/install.mjs`。
+  维护脚本与测试直接用 `engines.node` 所支持的 Node 运行 `.mts` 源码，安装器用 `tsc` 编译并以原路径发布。
+  Git 记录源码与配置，CI 核对 npm 包包含全部运行文件，且连续打包得到同一份内容。
 - `locale/*.json` 提供插件列表文案，`src/client/i18n/` 提供界面文案。
   更新各自的全部八种 DSH 语言，保持界面字典的键与占位符一致。
 

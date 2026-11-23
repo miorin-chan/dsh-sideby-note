@@ -244,7 +244,7 @@ When the panel opens, the plugin quietly checks the latest published version (np
 Updating starts when you click **Update now**. The panel asks the host to install the update. Version checks read
 public version numbers and release bodies.
 
-Release notes are composed by `tools/release/notes.mjs` from `CHANGELOG.md` — English and Chinese blocks with `app-update-notes` markers, install links and a Full Changelog link — and the tag-triggered workflow creates the Release (with the tarball attached) from it. See [release and versioning](./docs/release.md).
+Release notes are composed by `tools/release/notes.mts` from `CHANGELOG.md` — English and Chinese blocks with `app-update-notes` markers, install links and a Full Changelog link — and the tag-triggered workflow creates the Release (with the tarball attached) from it. See [release and versioning](./docs/release.md).
 
 ## Development
 

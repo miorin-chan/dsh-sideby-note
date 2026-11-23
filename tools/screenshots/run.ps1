@@ -223,18 +223,18 @@ try {
   Start-Chrome
 
   Log 'building the demo session and notes'
-  Invoke-Node @('bootstrap.mjs') @{ PORT = $Port; TOKEN = $token; SHOT_VIEWPORT = $Viewport }
+  Invoke-Node @('bootstrap.mts') @{ PORT = $Port; TOKEN = $token; SHOT_VIEWPORT = $Viewport }
 
   Log 'capturing light'
-  Invoke-Node @('capture.mjs') @{ PORT = $Port; TOKEN = $token; SHOT_VIEWPORT = $Viewport; THEME = 'light'; OUT = (Join-Path $Work 'raw') }
-  Invoke-Node @('capture.mjs') @{ PORT = $Port; TOKEN = $token; SHOT_VIEWPORT = $Viewport; THEME = 'light'; OUT = (Join-Path $Work 'raw'); PREVIEW = '1' }
+  Invoke-Node @('capture.mts') @{ PORT = $Port; TOKEN = $token; SHOT_VIEWPORT = $Viewport; THEME = 'light'; OUT = (Join-Path $Work 'raw') }
+  Invoke-Node @('capture.mts') @{ PORT = $Port; TOKEN = $token; SHOT_VIEWPORT = $Viewport; THEME = 'light'; OUT = (Join-Path $Work 'raw'); PREVIEW = '1' }
 
   Log 'restarting in dark'
   Stop-Server
   Write-Theme 'dark'
   $token = Start-Server
-  Invoke-Node @('capture.mjs') @{ PORT = $Port; TOKEN = $token; SHOT_VIEWPORT = $Viewport; THEME = 'dark'; OUT = (Join-Path $Work 'raw') }
-  Invoke-Node @('capture.mjs') @{ PORT = $Port; TOKEN = $token; SHOT_VIEWPORT = $Viewport; THEME = 'dark'; OUT = (Join-Path $Work 'raw'); PREVIEW = '1' }
+  Invoke-Node @('capture.mts') @{ PORT = $Port; TOKEN = $token; SHOT_VIEWPORT = $Viewport; THEME = 'dark'; OUT = (Join-Path $Work 'raw') }
+  Invoke-Node @('capture.mts') @{ PORT = $Port; TOKEN = $token; SHOT_VIEWPORT = $Viewport; THEME = 'dark'; OUT = (Join-Path $Work 'raw'); PREVIEW = '1' }
 
   Log 'cropping'
   Invoke-Crop 'light' (Join-Path $Repo 'docs\assets\features')

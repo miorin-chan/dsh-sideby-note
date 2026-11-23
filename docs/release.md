@@ -61,7 +61,7 @@ git push -u origin feat/xxx
 
 边记部从 **0.1.0** 起走自己的 0.x 线，npm 包从 `dsh-sideby-note` 迁至 `@miorin/dsh-sideby-note`。
 更早的版本属于上游 `dsh-aside-note`，只作历史保留。caret 范围跨不过 0.x 的 minor，
-所以每次发 `0.x.0` 都要把 `scripts/install.mjs` 的 `DEFAULT_RANGE` 一并改成新的 `^0.x.0`——
+所以每次发 `0.x.0` 都要把 [安装器源码](../scripts/install.mts)的 `DEFAULT_RANGE` 一并改成新的 `^0.x.0`——
 `npx @miorin/dsh-sideby-note install` 取到的总是最新安装器，新用户因此会装上最新一行。
 
 预发布 tag 形如 `v0.2.0-beta.1`：workflow 会发布到 npm 的 `next` dist-tag，并把 GitHub Release 标记为 prerelease，
@@ -106,17 +106,17 @@ git push origin v0.2.0
 1. `npm ci`（强制从 `registry.npmjs.org` 取包，不受开发机镜像影响）；
 2. `npm run check`；
 3. 校验 `v$(package.json version)` 与 tag 完全一致；
-4. 校验 `CHANGELOG.md` 存在非空的 `## <version>` 小节（`node tools/release.mjs check`）；
+4. 校验 `CHANGELOG.md` 存在非空的 `## <version>` 小节（`node tools/release.mts check`）；
    失败直接终止，**不会执行 `npm publish`**；
 5. `npm publish --provenance`：通过 trusted publishing（OIDC）获取短时凭据，不使用长期 token；
-6. 用 `node tools/release/notes.mjs` 由 `CHANGELOG.md` 生成 Release 正文（见下节），附安装链接与 Full Changelog；
+6. 用 `node tools/release/notes.mts` 由 `CHANGELOG.md` 生成 Release 正文（见下节），附安装链接与 Full Changelog；
    小节缺少 `app-update-notes` 标记时任务失败，**没有 `--generate-notes` 兜底**；
 7. 创建同名 GitHub Release，预发布加 `--prerelease`；
 8. 把 `npm pack` 生成的 tgz 作为 Release 资产上传，保持「从 Release 安装」可用。
 
 ## 发布说明格式
 
-Release 正文由 [tools/release/notes.mjs](../tools/release/notes.mjs) 从 `CHANGELOG.md` 对应版本小节生成，中英文各一段。
+Release 正文由 [tools/release/notes.mts](../tools/release/notes.mts) 从 `CHANGELOG.md` 对应版本小节生成，中英文各一段。
 
 开发期写在 `## next-released` 下；发布提交里把标题改成 `## <version>`（与 `package.json`、
 tag 一致），生成器按这个标题取小节。
@@ -146,11 +146,11 @@ tag 一致），生成器按这个标题取小节。
 - 本地预览：
 
   ```bash
-  node tools/release/notes.mjs --version 0.1.0 --tag v0.1.0
+  node tools/release/notes.mts --version 0.1.0 --tag v0.1.0
   ```
 
 再加 `--out notes.md` 可写到文件。
-`tests/release-notes-build.test.mjs` 会同时校验发布页正文与面板解析结果，防止两边漂移。
+`tests/release-notes-build.test.mts` 会同时校验发布页正文与面板解析结果，防止两边漂移。
 
 Trusted Publisher 必须绑定迁移后的组织仓库。
 `@miorin/dsh-sideby-note` 有自己的 Trusted Publisher 配置。
@@ -208,7 +208,7 @@ gh release view v0.1.0 -R miorin-chan/dsh-sideby-note
 手动补建 Release 时，建议直接用生成器，避免漏掉标记：
 
 ```bash
-node tools/release/notes.mjs --version 0.1.0 --tag v0.1.0 --out notes.md
+node tools/release/notes.mts --version 0.1.0 --tag v0.1.0 --out notes.md
 gh release create v0.1.0 --verify-tag --title "边记部 0.1.0" --notes-file notes.md
 npm pack --pack-destination dist
 gh release upload v0.1.0 dist/miorin-dsh-sideby-note-0.1.0.tgz --clobber
@@ -251,8 +251,8 @@ npx -y --registry=https://registry.npmjs.org/ @miorin/dsh-sideby-note@1.1.2-beta
   `RESOLVED_VERSION_MISMATCH` 等，只显示失败原因与重试入口。
 
 更新完成后按宿主返回的 `refreshRequired` / `restartRequired` 显示「刷新页面」或「重启 DSH」。
-`tests/update-fallback.test.mjs` 覆盖宿主成功、无路由、可绕过拒绝三条路径，并断言不再请求 `/dsh-market/`；
-`tests/install.test.mjs` 覆盖预发布走 npmjs 的重试。
+`tests/update-fallback.test.mts` 覆盖宿主成功、无路由、可绕过拒绝三条路径，并断言不再请求 `/dsh-market/`；
+`tests/install.test.mts` 覆盖预发布走 npmjs 的重试。
 ## 故障排查
 
 | 现象 | 原因 / 处理 |

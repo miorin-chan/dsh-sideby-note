@@ -2,8 +2,8 @@
 // then a fixed set of notes with a fixed set of ages.
 //
 // env: TOKEN (required), PORT (default 61399), PROMPT, TITLE (optional)
-import { connect, evaluate, sleep } from './lib/cdp.mjs'
-import { NOTES, anchorExpression } from './lib/notes.mjs'
+import { connect, evaluate, sleep } from './lib/cdp.mts'
+import { NOTES, anchorExpression } from './lib/notes.mts'
 
 const port = process.env.PORT || 61399
 const token = process.env.TOKEN
@@ -13,7 +13,7 @@ if (!token) throw new Error('TOKEN is required')
 
 const session = await connect()
 
-const clickText = text => evaluate(session, `(() => {
+const clickText = (text: string) => evaluate(session, `(() => {
   const el = [...document.querySelectorAll('button,[role=button],a')].find(e => e.textContent.trim() === ${JSON.stringify(text)})
   if (el) el.click()
   return !!el
@@ -65,7 +65,7 @@ await sleep(1500)
 
 // Archive the planned notes and anchor every note to the plan's ages (the panel
 // has no checkbox, so the archive state is written straight into the store);
-// capture.mjs re-anchors before each theme.
+// capture.mts re-anchors before each theme.
 if (!(await evaluate(session, anchorExpression()))) {
   throw new Error('no demo notes in the host store')
 }

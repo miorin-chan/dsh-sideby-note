@@ -5,10 +5,10 @@
  * Review is the slow part of the catalog, so this tool removes everything that
  * is not a judgement call:
  *
- *   node tools/catalog/review.mjs                 # one-screen rule index
- *   node tools/catalog/review.mjs --since origin/main   # only what changed
- *   node tools/catalog/review.mjs --approve --by <name> [--rules R-…]
- *   node tools/catalog/review.mjs --strict        # fail when P0 rules are unreviewed
+ *   node tools/catalog/review.mts                 # one-screen rule index
+ *   node tools/catalog/review.mts --since origin/main   # only what changed
+ *   node tools/catalog/review.mts --approve --by <name> [--rules R-…]
+ *   node tools/catalog/review.mts --strict        # fail when P0 rules are unreviewed
  *
  * An approval stores a content hash; editing statement/failure/branches makes
  * the approval stale automatically, so nobody signs off on text they did not read.
@@ -18,21 +18,22 @@ import path from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { parse } from 'yaml'
-import { loadDesign, ruleHash } from './design.mjs'
+import { loadDesign, ruleHash } from './design.mts'
+import type { CatalogDocument, DesignDocument, DesignRule, DesignRuleInput } from './design.mts'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const designFile = path.join(root, 'tests/catalog/design.yaml')
 const catalogDir = path.join(root, 'tests/catalog')
 
 const argv = process.argv.slice(2)
-const flag = name => argv.includes(name)
-const valueOf = name => {
+const flag = (name: string) => argv.includes(name)
+const valueOf = (name: string) => {
   const index = argv.indexOf(name)
   return index >= 0 ? argv[index + 1] : ''
 }
 
 const relative = path.relative(root, designFile)
-const { rules, features, errors } = loadDesign(designFile)
+const { rules, errors } = loadDesign(designFile)
 if (errors.length) {
   for (const message of errors) console.error(`error: ${message}`)
   process.exit(1)
@@ -40,10 +41,10 @@ if (errors.length) {
 
 /** rule id -> { automated, planned, total, p0 } */
 function loadCaseStats() {
-  const stats = new Map()
+  const stats = new Map<string, { automated: number; planned: number; total: number; p0: number }>()
   const files = fs.readdirSync(catalogDir).filter(name => name.endsWith('.yaml') && name !== 'design.yaml')
   for (const file of files) {
-    const doc = parse(fs.readFileSync(path.join(catalogDir, file), 'utf8'))
+    const doc: CatalogDocument | null = parse(fs.readFileSync(path.join(catalogDir, file), 'utf8'))
     for (const entry of doc?.cases ?? []) {
       for (const ruleId of entry.rules ?? []) {
         const stat = stats.get(ruleId) ?? { automated: 0, planned: 0, total: 0, p0: 0 }
@@ -59,22 +60,22 @@ function loadCaseStats() {
 }
 
 const caseStats = loadCaseStats()
-const reviewState = rule => {
+const reviewState = (rule: DesignRule) => {
   if (!rule.reviewed) return '—'
   return rule.reviewed.hash === ruleHash(rule) ? 'ok' : 'stale'
 }
 
-const pad = (text, width) => {
+const pad = (text: string | number, width: number) => {
   const value = String(text)
   const length = [...value].length
   return length >= width ? value : value + ' '.repeat(width - length)
 }
-const short = (text, width) => {
+const short = (text: string | undefined, width: number) => {
   const chars = [...String(text)]
   return chars.length <= width ? String(text) : `${chars.slice(0, width - 1).join('')}…`
 }
 
-function printIndex(entries) {
+function printIndex(entries: DesignRule[]) {
   console.log(`${pad('FEATURE', 9)}${pad('RULE', 20)}${pad('BR', 4)}${pad('CASES auto/plan', 16)}${pad('REVIEW', 8)}STATEMENT`)
   for (const rule of entries) {
     const stat = caseStats.get(rule.id) ?? { automated: 0, planned: 0 }
@@ -89,7 +90,7 @@ function printIndex(entries) {
   }
 }
 
-function gitShowDesign(ref) {
+function gitShowDesign(ref: string) {
   try {
     return execFileSync('git', ['show', `${ref}:${relative}`], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
   } catch {
@@ -97,14 +98,14 @@ function gitShowDesign(ref) {
   }
 }
 
-function printSince(ref) {
+function printSince(ref: string) {
   const previous = gitShowDesign(ref)
   if (previous === null) {
     console.log(`（${ref} 里没有 ${relative}，全部按新增处理）\n`)
     printIndex([...rules.values()])
     return
   }
-  let oldDoc
+  let oldDoc: DesignDocument | null
   try {
     oldDoc = parse(previous)
   } catch {
@@ -112,18 +113,18 @@ function printSince(ref) {
     printIndex([...rules.values()])
     return
   }
-  const previousRules = new Map()
+  const previousRules = new Map<string, DesignRuleInput>()
   for (const feature of oldDoc?.features ?? []) {
     for (const rule of feature?.rules ?? []) previousRules.set(rule.id, rule)
   }
-  const rows = []
+  const rows: Array<{ status: 'added' | 'changed' | 'removed'; rule: DesignRuleInput }> = []
   for (const rule of rules.values()) {
     const before = previousRules.get(rule.id)
     if (!before) rows.push({ status: 'added', rule })
     else if (ruleHash(before) !== ruleHash(rule)) rows.push({ status: 'changed', rule })
   }
   for (const [id, rule] of previousRules) {
-    if (!rules.has(id)) rows.push({ status: 'removed', rule: { ...rule, feature: '', branches: [] } })
+    if (!rules.has(id)) rows.push({ status: 'removed', rule })
   }
   if (rows.length === 0) {
     console.log(`自 ${ref} 以来业务规则没有变化。`)
@@ -141,7 +142,7 @@ function printSince(ref) {
   }
 }
 
-function setReviewed(text, id, by, at, hash) {
+function setReviewed(text: string, id: string, by: string, at: string, hash: string) {
   const lines = text.split('\n')
   const start = lines.findIndex(line => new RegExp(`^\\s*- id: ${id}$`).test(line))
   if (start < 0) return { text, ok: false }
@@ -160,7 +161,7 @@ function setReviewed(text, id, by, at, hash) {
   return { text: lines.join('\n'), ok: true }
 }
 
-function approve(by, only) {
+function approve(by: string, only: string) {
   if (!by) {
     console.error('需要 --by <评审人>')
     process.exit(1)
@@ -177,7 +178,7 @@ function approve(by, only) {
   let text = fs.readFileSync(designFile, 'utf8')
   let count = 0
   for (const id of targets) {
-    const hash = ruleHash(rules.get(id))
+    const hash = ruleHash(rules.get(id)!)
     const next = setReviewed(text, id, by, at, hash)
     if (!next.ok) {
       console.error(`找不到规则 ${id} 的块，跳过`)

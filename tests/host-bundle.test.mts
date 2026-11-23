@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url'
 import { JSDOM } from 'jsdom'
 import * as ReactJSXRuntime from 'react/jsx-runtime'
 import { createStore } from '../host/store.js'
-import { fakeCtx, fakeDomain } from './fake-store.mjs'
+import { fakeCtx, fakeDomain } from './fake-store.mts'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const bundle = fs.readFileSync(path.join(root, 'client', 'client.js'), 'utf8')

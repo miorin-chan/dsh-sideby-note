@@ -6,7 +6,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { bindingIssue, isWebBindingAllowed, normalizeBinding } from '@deepseek-ai/dsh-client-shortcuts/protocol'
-import { bootBundle } from './testkit/bundle.mjs'
+import { bootBundle } from './testkit/bundle.mts'
 
 const note = (id, text, createdAt, extra = {}) => ({
   id, text, done: false, createdAt, updatedAt: createdAt, ...extra,

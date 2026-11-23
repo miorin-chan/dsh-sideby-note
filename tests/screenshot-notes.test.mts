@@ -1,5 +1,5 @@
 /**
- * The demo notes live in two places: `NOTES` in tools/screenshots/lib/notes.mjs
+ * The demo notes live in two places: `NOTES` in tools/screenshots/lib/notes.mts
  * drives the capture, and the table in docs/screenshot-sop.md documents it for
  * whoever reruns the flow. Keep them in lockstep so a copy edit cannot silently
  * ship screenshots whose text no longer matches the SOP.
@@ -7,8 +7,9 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
+import { runInNewContext } from 'node:vm'
 
-import { NOTES } from '../tools/screenshots/lib/notes.mjs'
+import { NOTES, anchorExpression, clearStoresExpression, restoreStoresExpression } from '../tools/screenshots/lib/notes.mts'
 
 const sop = readFileSync(new URL('../docs/screenshot-sop.md', import.meta.url), 'utf8')
 
@@ -53,4 +54,36 @@ test('the SOP note table lists exactly the notes the capture types in', () => {
 test('the SOP note ages match the anchored ages', () => {
   const rows = sopNotes()
   assert.deepEqual(rows.map(row => row.when), NOTES.map(stamp))
+})
+
+test('the serialized screenshot expressions anchor and restore demo notes in a separate JavaScript realm', async () => {
+  const now = 2_000_000_000_000
+  const item = { id: 'demo', text: NOTES[2].text, done: false, createdAt: now, updatedAt: now }
+  const snapshot = { data: { sessions: {}, workspaces: { demo: { items: [item] } } } }
+  const mutations = []
+  const realm = {
+    Date: { now: () => now },
+    fetch: async (route, options) => {
+      assert.equal(route, '/dsh-sideby-note/store')
+      if (options.method === 'POST') mutations.push(JSON.parse(options.body))
+      return { ok: true, json: async () => snapshot }
+    },
+  }
+  const target = { op: 'list.patch', kind: 'workspace', listKey: 'demo' }
+
+  assert.equal(await runInNewContext(anchorExpression(), realm), true)
+  const saved = await runInNewContext(clearStoresExpression(), realm)
+  assert.equal(await runInNewContext(restoreStoresExpression(saved), realm), true)
+  assert.deepEqual(mutations, [
+    {
+      ...target,
+      upserts: [{
+        ...item, done: true, createdAt: now - NOTES[2].age,
+        updatedAt: now - NOTES[2].doneAge, completedAt: now - NOTES[2].doneAge,
+      }],
+      order: ['demo'],
+    },
+    { ...target, deletes: ['demo'] },
+    { ...target, upserts: [item], order: ['demo'] },
+  ])
 })

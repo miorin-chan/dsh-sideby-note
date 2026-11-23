@@ -93,7 +93,7 @@
 
 ## 4. 测试守护
 
-`npm test` 中的 `tests/contract.test.mjs`（52 条契约测试）与 `tests/bundle.test.mjs`（4
+`npm test` 中的 `tests/contract.test.mts`（52 条契约测试）与 `tests/bundle.test.mts`（4
 个 jsdom 集成测试）守住本文件的规则。
 契约测试守住：
 

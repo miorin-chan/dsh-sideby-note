@@ -18,7 +18,7 @@ cases:
       - 成功迁移后移除浏览器的旧会话记录，工作区数据写入工作区键
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: SCOPE-001 首次见到工作区时一次性并入成员会话便笺
         status: automated
     suites: [pr, nightly, release]
@@ -35,7 +35,7 @@ cases:
       - 展开页脚「存储与更新」后说明便笺仍保存在本浏览器
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: SCOPE-002 面板默认工作区范围并显示本地存储提示
         status: automated
     suites: [pr, nightly, release]
@@ -54,7 +54,7 @@ cases:
       - 选择写入存储，入口角标保持显示当前工作区的待续数
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: SCOPE-003 全局范围汇总各工作区便笺
         status: automated
     suites: [pr, nightly, release]
@@ -71,7 +71,7 @@ cases:
       - 选择持久化，重开面板保持
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: SCOPE-004 切回工作区恢复共享清单并记住选择
         status: automated
     suites: [pr, nightly, release]
@@ -89,7 +89,7 @@ cases:
       - 提交后共享草稿被消费
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: SCOPE-005 工作区范围新增便笺落在共享清单
         status: automated
     suites: [pr, nightly, release]
@@ -106,7 +106,7 @@ cases:
       - 新写入的条目对另一会话可见
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: SCOPE-006 另一个会话打开同一工作区读到同一清单
         status: automated
     suites: [pr, nightly, release]
@@ -124,7 +124,7 @@ cases:
       - 提交后共享草稿被消费
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: SCOPE-007 全局范围新增便笺写入当前工作区
         status: automated
     suites: [pr, nightly, release]
@@ -141,7 +141,7 @@ cases:
       - 此时写入的便笺进入工作区清单
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: SCOPE-008 空白会话可切换筛选并写入工作区
         status: automated
     suites: [pr, nightly, release]
@@ -158,7 +158,7 @@ cases:
       - 保留原筛选，新增便笺仍写入当前工作区
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: SCOPE-009 首轮对话后入口迁移并保留筛选
         status: automated
     suites: [pr, nightly, release]
@@ -175,7 +175,7 @@ cases:
       - 新便笺进入保留的未归属工作区清单，其他工作区保持原样，旧会话键不产生记录
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: SCOPE-010 无工作区时只显示全局并写入未归属清单
         status: automated
     suites: [pr, nightly, release]
@@ -192,7 +192,7 @@ cases:
       - 已保存的范围选择不被改写
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: SCOPE-011 空白会话遵循显式全局选择
         status: automated
     suites: [pr, nightly, release]
@@ -210,7 +210,7 @@ cases:
       - 再次打开工作区时，已迁移的清单保持原样
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: SCOPE-012 迁移失败时保留源记录且重试不重复
         status: automated
     suites: [pr, nightly, release]
@@ -227,7 +227,7 @@ cases:
       - 草稿在往返切换后仍在输入框里
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: SCOPE-013 切换范围本身不写入任何清单
         status: automated
     suites: [pr, nightly, release]
@@ -245,7 +245,7 @@ cases:
       - 当前工作区即使有同 ID 的条目也保持原样
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: SCOPE-014 全局范围操作更新便笺所属工作区
         status: automated
     suites: [pr, nightly, release]
@@ -263,7 +263,7 @@ cases:
       - 通过其他入口切换会话仍会收起面板
     automation:
       - type: integration
-        file: tests/bundle.test.mjs
+        file: tests/bundle.test.mts
         test: SCOPE-015 面板内跳转工作区时保持面板打开
         status: automated
     suites: [pr, nightly, release]
@@ -281,7 +281,7 @@ cases:
       - 长工作区名称完整保留在无障碍标签里
     automation:
       - type: integration
-        file: tests/resilience.test.mjs
+        file: tests/resilience.test.mts
         test: SCOPE-016 待续计数等待宿主快照并保留完整工作区名称
         status: automated
     suites: [pr, nightly, release]
@@ -299,7 +299,7 @@ cases:
       - 最新选择未能保存时，恢复已保存的筛选，较早请求失败时保持最新选择且不显示重连提示
     automation:
       - type: integration
-        file: tests/host-bundle.test.mjs
+        file: tests/host-bundle.test.mts
         test: SCOPE-017 连续切换范围时旧保存响应不覆盖最新选择
         status: automated
     suites: [pr, nightly, release]

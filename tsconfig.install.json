@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.host.json",
+  "compilerOptions": {
+    "newLine": "lf"
+  },
+  "include": ["scripts/install.mts"]
+}

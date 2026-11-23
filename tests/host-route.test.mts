@@ -1,7 +1,7 @@
 /**
  * The update endpoints, called the way the panel calls them.
  *
- * What matters here is not the install (that is `host-update.test.mjs`) but the
+ * What matters here is not the install (that is `host-update.test.mts`) but the
  * fence around it: a page from another origin must not be able to trigger a
  * package install, a downgrade must be refused rather than obeyed, and two
  * clicks must not run two installs over the same profile.
@@ -13,7 +13,7 @@ import { join } from 'node:path'
 import test from 'node:test'
 
 import { APPLY_PATH, PROBE_PATH, registerUpdateRoutes } from '../host/route.js'
-import { requestRejection } from './fake-store.mjs'
+import { requestRejection } from './fake-store.mts'
 
 const ORIGIN = {
   host: '127.0.0.1:61433', origin: 'http://127.0.0.1:61433', 'sec-fetch-site': 'same-origin',

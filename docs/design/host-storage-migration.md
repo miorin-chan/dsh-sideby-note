@@ -639,9 +639,9 @@ boot:
 | `src/client/ui/SettingsPanel.ts` | 关于区显示存储位置/模式；可选「导入旧便笺」 | 低（若做 D5） |
 | `src/client/i18n/*.ts`（8 种） | 新键：`storage.loading`、`storage.migrated`、`storage.keptLocal`、`storage.notSwitched`、`storage.hostError`、`storage.retry`；调整 `storage.failed` 文案 | 8 语言同步 |
 | `client/client.js` | `npm run build` 重新生成 | CI 校验 |
-| `tests/host-store.test.mjs` | 新增：spec/路由/store 单测（假 ctx + 假 domain） | 核心 |
-| `tests/bundle.test.mjs` | 新增 host 模式套件；原 local 套件保留 | 中 |
-| `tests/contract.test.mjs` | 更新存储相关断言；删除「不得存在 migrate.ts」旧断言；新增路由/领域/打包约束 | 中 |
+| `tests/host-store.test.mts` | 新增：spec/路由/store 单测（假 ctx + 假 domain） | 核心 |
+| `tests/bundle.test.mts` | 新增 host 模式套件；原 local 套件保留 | 中 |
+| `tests/contract.test.mts` | 更新存储相关断言；删除「不得存在 migrate.ts」旧断言；新增路由/领域/打包约束 | 中 |
 | `docs/architecture.md` | §1/§4/§6/§8：宿主不再「只做更新」；数据流与目录更新 | 必做 |
 | `README.md` / `README.en.md` | 「数据保存在哪里」重写：文件路径、跨浏览器、备份、切换规则、已知限制 | 必做 |
 | `CHANGELOG.md` | 1.2.0 中英文条目 | 必做 |
@@ -710,12 +710,12 @@ boot:
 
 | 规则 | 用例 | 测试 |
 | --- | --- | --- |
-| `R-STORE-HOST-FILE` | `STORE-019`、`STORE-026` | `tests/host-bundle.test.mjs`、`tests/host-store.test.mjs` |
+| `R-STORE-HOST-FILE` | `STORE-019`、`STORE-026` | `tests/host-bundle.test.mts`、`tests/host-store.test.mts` |
 | `R-STORE-HOST-SWITCH` | `STORE-019/020/021/024` | 同上 |
 | `R-STORE-HOST-UNAVAILABLE` | `STORE-020/022/025` | 同上 |
-| `R-STORE-HOST-MERGE` | `STORE-023` | `tests/host-store.test.mjs` |
-| `R-STORE-CAPACITY` | `STORE-027`（宿主 401 条） | `tests/host-store.test.mjs` |
-| `R-STORE-HOST-PATH` | `STORE-028`（路径、拷贝、定位） | `tests/host-store.test.mjs`、`tests/host-bundle.test.mjs` |
+| `R-STORE-HOST-MERGE` | `STORE-023` | `tests/host-store.test.mts` |
+| `R-STORE-CAPACITY` | `STORE-027`（宿主 401 条） | `tests/host-store.test.mts` |
+| `R-STORE-HOST-PATH` | `STORE-028`（路径、拷贝、定位） | `tests/host-store.test.mts`、`tests/host-bundle.test.mts` |
 
 `STORE-001` 的验收语从「启动不写迁移标记」改为「宿主不可用时启动保留便笺且不切换」；
 宿主可用时的迁移由 `STORE-019` 承担。

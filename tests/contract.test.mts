@@ -39,7 +39,7 @@ test('package declares the DSH bundle and web client halves', () => {
 test('the operations log stays beside the changelog, out of the notes and the tarball', () => {
   assert.ok(exists('CHANGELOG-OPS.md'), 'missing CHANGELOG-OPS.md; operations history has nowhere to go')
   const ops = read('CHANGELOG-OPS.md')
-  // The markers are how tools/release/notes.mjs and the panel find the notes.
+  // The markers are how tools/release/notes.mts and the panel find the notes.
   // Ops entries must never carry them, or build chores leak into the update card.
   assert.doesNotMatch(
     ops,
@@ -66,13 +66,13 @@ test('client version matches the package version', () => {
 })
 
 test('the release body is composed from CHANGELOG markers and used by the publish workflow', () => {
-  assert.ok(exists('tools/release/notes.mjs'))
+  assert.ok(exists('tools/release/notes.mts'))
   const workflow = read('.github/workflows/publish.yml')
-  assert.match(workflow, /tools\/release\/notes\.mjs/)
+  assert.match(workflow, /tools\/release\/notes\.mts/)
   assert.match(workflow, /--notes-file/)
   // The tag gate proves the section exists, so a builder failure must fail the
   // release instead of quietly publishing generated notes without markers.
-  assert.match(workflow, /tools\/release\.mjs check/)
+  assert.match(workflow, /tools\/release\.mts check/)
   assert.doesNotMatch(workflow, /--generate-notes/)
   const changelog = read('CHANGELOG.md')
   const version = JSON.parse(read('package.json')).version
