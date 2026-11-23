@@ -1,31 +1,46 @@
 /** The add box: draft persistence, auto-grow and the composer key gestures. */
 import React from 'react'
 import { MAX_TEXT } from '../constants'
-import { clearAddDraft, notifyDraftAttachments, readScopeDrafts, saveAddDraft, subscribeDraftAttachments } from '../storage/drafts'
+import { notifyDraftAttachments, readScopeDrafts, saveAddDraft, subscribeDraftAttachments } from '../storage/drafts'
 import { uid } from '../domain/id'
-import { MAX_ATTACHMENTS, MAX_ATTACHMENT_BYTES, uploadAttachment, type NoteAttachment } from '../domain/attachments'
+import { PRIMITIVES } from './primitives'
+import {
+  acceptDraftUploadText, addDraftUploads, attachedItems, hasDraftUploads, readDraftUploadView,
+  removeDraftAttachment, removeDraftUpload, retryDraftUpload, sameAttachments,
+} from '../storage/draftUploads'
 
-const uploadsByDraft = new Set<string>()
 // A write can outlive the composer when the panel follows a workspace jump.
 const actionsByDraft = new Map<string, 'submit' | 'recall'>()
-const sameAttachments = (a: NoteAttachment[], b: NoteAttachment[]) => JSON.stringify(a) === JSON.stringify(b)
+type DraftCleanup = { saved: ReturnType<typeof readScopeDrafts>; remainingText: string }
+const pendingCleanup = new Map<string, DraftCleanup>()
+const selectionsByDraft = new Map<string, { text: string; from: number; to: number; direction: 'forward' | 'backward' | 'none' }>()
+
+const focusOnDesktop = (node: HTMLTextAreaElement) => {
+  if (PRIMITIVES.isMobileDevice?.()) return false
+  if (typeof window.matchMedia === 'function' && !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return false
+  node.focus({ preventScroll: true })
+  return true
+}
 
 export function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse, canUpload, focusOnMount }) {
   const key = draftKey ? String(draftKey) : ''
   const [draft, setDraft] = React.useState(() => readScopeDrafts(key))
   const draftRef = React.useRef(draft)
-  const [isUploading, setIsUploading] = React.useState(() => uploadsByDraft.has(key))
+  const [uploadView, setUploadView] = React.useState(() => readDraftUploadView(key, draft))
   const inheritedAction = React.useRef(actionsByDraft.get(key))
   const [action, setAction] = React.useState(inheritedAction.current)
   React.useLayoutEffect(() => {
     const syncDraft = (changedKey: string) => {
       if (changedKey && changedKey !== key) return
-      setIsUploading(uploadsByDraft.has(key))
       const pending = actionsByDraft.get(key)
       setAction(pending)
       if (pending) return
       const saved = readScopeDrafts(key)
-      const next = inheritedAction.current ? saved : { ...saved, add: draftRef.current.add }
+      const uploads = readDraftUploadView(key, saved)
+      setUploadView(uploads)
+      const next = inheritedAction.current ? saved : {
+        ...saved, add: draftRef.current.add, workspaceId: saved.workspaceId ?? uploads?.workspaceId,
+      }
       inheritedAction.current = undefined
       const current = draftRef.current
       if (next.add === current.add && next.workspaceId === current.workspaceId && sameAttachments(next.attachments, current.attachments)) return
@@ -43,8 +58,14 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
     actionsByDraft.delete(key)
     notifyDraftAttachments(key)
   }
-  const addRef = React.useRef(null)
+  const addRef = React.useRef<HTMLTextAreaElement>(null)
   const composingRef = React.useRef(false)
+  // DSH 0.2.2-rc.5, ui-conversation/src/client/input/editor/keymap.ts,
+  // registerComposerKeymap (MIT). Safari can deliver the closing key late.
+  const composingUntil = React.useRef(0)
+  const isComposing = () => composingRef.current || Date.now() < composingUntil.current
+  const onCompositionStart = () => { composingRef.current = true }
+  const onCompositionEnd = () => { composingRef.current = false; composingUntil.current = Date.now() + 10 }
 
   const resizeAdd = node => {
     if (!node) return
@@ -56,76 +77,70 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
     resizeAdd(addRef.current)
   }, [draft.add])
 
-  // Opening the panel focuses the composer on pointer devices only: on touch
-  // the same focus raises the software keyboard before the user asked for it.
-  const hasFinePointer = () => (
-    typeof window.matchMedia !== 'function' || window.matchMedia('(hover: hover) and (pointer: fine)').matches
-  )
-
   React.useLayoutEffect(() => {
     const node = addRef.current
-    if (!node || !focusOnMount || !hasFinePointer()) return
-    node.focus()
-    const end = node.value.length
-    try {
-      node.setSelectionRange(end, end)
-    } catch {
-      /* selection APIs are best effort */
+    if (!node) return
+    if (focusOnMount && focusOnDesktop(node)) {
+      const saved = selectionsByDraft.get(key)
+      if (saved?.text === node.value) node.setSelectionRange(saved.from, saved.to, saved.direction)
+      else node.setSelectionRange(node.value.length, node.value.length)
     }
-  }, [])
+    return () => {
+      if (!node.value) selectionsByDraft.delete(key)
+      else selectionsByDraft.set(key, {
+        text: node.value, from: node.selectionStart, to: node.selectionEnd, direction: node.selectionDirection,
+      })
+    }
+  }, [key, focusOnMount])
 
   const hasContent = (value: typeof draft) => Boolean(value.add.trim() || value.attachments.length)
   const showDraft = (next: typeof draft) => {
     draftRef.current = next
     setDraft(next)
   }
-  const addFiles = async (files: readonly File[]) => {
-    if (!files.length || !canUpload || actionsByDraft.has(key) || uploadsByDraft.has(key)) return
-    if (files.length + readScopeDrafts(key).attachments.length > MAX_ATTACHMENTS
-      || files.some(file => file.size < 1 || file.size > MAX_ATTACHMENT_BYTES)) {
-      report('attachmentLimit')
-      return
-    }
-    uploadsByDraft.add(key)
-    notifyDraftAttachments(key)
-    try {
-      const attachments: NoteAttachment[] = []
-      for (const file of files) attachments.push(await uploadAttachment(file, AbortSignal.timeout(120_000)))
-      const latest = readScopeDrafts(key)
-      const next = [...latest.attachments, ...attachments]
-      if (next.length > MAX_ATTACHMENTS) report('attachmentLimit')
-      else if (!saveAddDraft(key, latest.add, next)) report('saveFailed')
-    } catch {
-      report('attachmentUploadFailed')
-    } finally {
-      uploadsByDraft.delete(key)
-      notifyDraftAttachments(key)
-    }
+  const attachmentItems = uploadView?.items ?? attachedItems(draft.attachments)
+  const hasUnresolvedAttachments = uploadView !== undefined
+  const addFiles = (files: readonly File[]) => {
+    if (!key || !files.length || !canUpload || actionsByDraft.has(key)) return
+    if (!addDraftUploads(key, files)) report('attachmentLimit')
+  }
+  const retryUpload = (id: string) => {
+    if (canUpload && !actionsByDraft.has(key)) retryDraftUpload(key, id)
+  }
+  const removeUpload = (id: string) => {
+    if (!actionsByDraft.has(key)) removeDraftUpload(key, id)
+  }
+  const removeAttachment = (index: number) => {
+    if (actionsByDraft.has(key)) return
+    const error = removeDraftAttachment(key, index, draft)
+    if (error) report(error)
   }
 
-  const removeAttachment = (index: number) => {
-    if (actionsByDraft.has(key) || uploadsByDraft.has(key)) return
-    const latest = readScopeDrafts(key)
-    if (!sameAttachments(latest.attachments, draftRef.current.attachments)) {
-      notifyDraftAttachments(key)
-      report('attachmentDraftChanged')
-      return
-    }
-    const remaining = latest.attachments.filter((_, position) => position !== index)
-    if (!saveAddDraft(key, latest.add, remaining, latest.add.trim() || remaining.length ? latest.workspaceId : null)) report('saveFailed')
+  const clearSavedAttachments = ({ remainingText }: DraftCleanup) => {
+    if (saveAddDraft(key, remainingText, [], null)) {
+      pendingCleanup.delete(key)
+      showDraft({ add: remainingText, attachments: [], workspaceId: undefined })
+    } else report('saveFailed')
   }
 
   const add = async () => {
     const submitted = draftRef.current
     const text = submitted.add.trim().slice(0, MAX_TEXT)
     const { attachments } = submitted
-    if ((!submitted.workspaceId && !workspaceId) || !hasContent(submitted) || actionsByDraft.has(key) || uploadsByDraft.has(key) || storageInUse) return
+    if ((!submitted.workspaceId && !workspaceId) || !hasContent(submitted) || actionsByDraft.has(key) || hasDraftUploads(key) || storageInUse) return
     const latest = readScopeDrafts(key)
     if (!sameAttachments(attachments, latest.attachments) || submitted.workspaceId !== latest.workspaceId) {
       notifyDraftAttachments(key)
       report('attachmentDraftChanged')
       return
     }
+    const cleanup = pendingCleanup.get(key)
+    if (cleanup && latest.add === submitted.add.slice(0, MAX_TEXT) && latest.add === cleanup.saved.add
+      && latest.workspaceId === cleanup.saved.workspaceId && sameAttachments(latest.attachments, cleanup.saved.attachments)) {
+      clearSavedAttachments(cleanup)
+      return
+    }
+    pendingCleanup.delete(key)
     if (attachments.length && !canUpload) {
       report('attachmentUploadFailed')
       return
@@ -141,18 +156,15 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
         return
       }
       const saved = readScopeDrafts(key)
-      const sameFiles = sameAttachments(saved.attachments, attachments)
-      const remaining = sameFiles ? [] : saved.attachments
-      if (draftRef.current === submitted) {
-        showDraft({ add: '', attachments: remaining, workspaceId: remaining.length ? saved.workspaceId : undefined })
-        if (saved.add === submitted.add.slice(0, MAX_TEXT)) {
-          if (sameFiles) clearAddDraft(key)
-          else saveAddDraft(key, '', undefined, remaining.length ? saved.workspaceId : null)
-        }
-      } else if (sameFiles && saved.workspaceId === submitted.workspaceId) {
-        showDraft({ ...draftRef.current, attachments: remaining, workspaceId: undefined })
-        saveAddDraft(key, saved.add, [], null)
+      const current = draftRef.current
+      if (!sameAttachments(saved.attachments, attachments) || saved.workspaceId !== submitted.workspaceId
+        || saved.add !== current.add.slice(0, MAX_TEXT)) {
+        if (current === submitted) showDraft(saved)
+        return
       }
+      const cleanup = { saved, remainingText: current === submitted ? '' : current.add }
+      pendingCleanup.set(key, cleanup)
+      clearSavedAttachments(cleanup)
     } finally {
       finishAction()
     }
@@ -165,7 +177,7 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
    * text lands here, where the user can change it and submit it again.
    */
   const recall = async (item, takeBack) => {
-    if (actionsByDraft.has(key) || uploadsByDraft.has(key) || hasContent(draftRef.current) || hasContent(readScopeDrafts(key))) {
+    if (actionsByDraft.has(key) || hasDraftUploads(key) || hasContent(draftRef.current) || hasContent(readScopeDrafts(key))) {
       report('recallBlocked')
       return
     }
@@ -196,16 +208,7 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
     window.requestAnimationFrame(() => {
       const node = addRef.current
       if (!node) return
-      // Touch keeps its soft keyboard closed until the field itself is tapped.
-      if (hasFinePointer()) {
-        node.focus()
-        const end = node.value.length
-        try {
-          node.setSelectionRange(end, end)
-        } catch {
-          /* selection APIs are best effort */
-        }
-      }
+      if (focusOnDesktop(node)) node.setSelectionRange(node.value.length, node.value.length)
       resizeAdd(node)
     })
   }
@@ -213,10 +216,17 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
   const onDraftChange = event => {
     if (draftLocked) return
     const value = event.target.value
-    const owner = value.trim() || draftRef.current.attachments.length ? draftRef.current.workspaceId : undefined
-    const next = { ...draftRef.current, add: value, workspaceId: owner }
+    const saved = readScopeDrafts(key)
+    const uploads = readDraftUploadView(key, saved)
+    const keepOwner = value.trim() || saved.attachments.length
+    const owner = keepOwner || uploads ? saved.workspaceId ?? uploads?.workspaceId : undefined
+    const storedOwner = keepOwner ? owner : undefined
+    const next = { ...saved, add: value, workspaceId: owner }
     showDraft(next)
-    saveAddDraft(key, next.add, undefined, owner ?? null)
+    if (uploads) setUploadView(uploads)
+    if (saveAddDraft(key, value, undefined, storedOwner ?? null) && uploads) {
+      acceptDraftUploadText(key, value, storedOwner)
+    }
     resizeAdd(event.target)
   }
 
@@ -225,23 +235,24 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
    * textarea's native line break, and Enter that belongs to an IME candidate
    * pick is left to the browser. A held Enter must not add note after note.
    */
-  const onDraftKeyDown = event => {
-    const composing = composingRef.current || event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229
-    if (event.key === 'Escape') {
-      event.currentTarget.blur()
-      return
-    }
-    if (event.key !== 'Enter') return
-    if (composing) return
-    if (event.shiftKey) return
-    if (event.altKey || (typeof event.getModifierState === 'function' && event.getModifierState('AltGraph'))) {
+  const onDraftKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = event => {
+    const composing = isComposing() || event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229
+    if (event.key === 'Escape' && composing) event.stopPropagation()
+    if (event.key !== 'Enter' || event.defaultPrevented) return
+    const accelerated = event.ctrlKey || event.metaKey
+    if (event.altKey || event.getModifierState('AltGraph')
+      || (event.ctrlKey && event.metaKey) || (accelerated && event.shiftKey)) {
       event.preventDefault()
       return
     }
+    if (event.shiftKey || composing) return
     event.preventDefault()
-    if (event.repeat) return
-    add()
+    if (!event.repeat) void add()
   }
 
-  return { draft, draftLocked, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown }
+  return {
+    draft, draftLocked, isSubmitting, isRecalling, hasUnresolvedAttachments, attachmentItems,
+    addRef, isComposing, onCompositionStart, onCompositionEnd,
+    add, recall, addFiles, removeAttachment, retryUpload, removeUpload, onDraftChange, onDraftKeyDown,
+  }
 }

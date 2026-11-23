@@ -15,15 +15,67 @@ export {
 
 const ATTACHMENT_PATH = '/dsh-sideby-note/attachments'
 
-export async function uploadAttachment(file: File, signal: AbortSignal): Promise<NoteAttachment> {
-  const response = await fetch(ATTACHMENT_PATH, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/octet-stream' },
-    body: file,
-    signal,
+export interface AttachmentUploadProgress {
+  loaded: number
+  total: number | null
+}
+
+export function uploadAttachment(
+  file: File,
+  signal: AbortSignal,
+  onProgress: (progress: AttachmentUploadProgress) => void,
+): Promise<NoteAttachment> {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(signal.reason)
+      return
+    }
+    const request = new XMLHttpRequest()
+    const cleanup = () => {
+      signal.removeEventListener('abort', abort)
+      request.upload.onprogress = null
+      request.onload = request.onerror = request.ontimeout = request.onabort = null
+    }
+    const fail = (error: unknown) => {
+      cleanup()
+      reject(error)
+    }
+    const abort = () => {
+      cleanup()
+      request.abort()
+      reject(signal.reason)
+    }
+    request.upload.onprogress = event => {
+      onProgress({ loaded: event.loaded, total: event.lengthComputable ? event.total : null })
+    }
+    request.onload = () => {
+      if (request.status < 200 || request.status >= 300) {
+        fail(new Error('Attachment upload failed'))
+        return
+      }
+      try {
+        const attachment = attachmentFromResponse(file, JSON.parse(request.responseText))
+        cleanup()
+        resolve(attachment)
+      } catch (error) {
+        fail(error)
+      }
+    }
+    request.onerror = request.ontimeout = () => fail(new Error('Attachment upload failed'))
+    request.onabort = () => fail(new DOMException('Attachment upload aborted', 'AbortError'))
+    signal.addEventListener('abort', abort, { once: true })
+    try {
+      request.open('POST', ATTACHMENT_PATH)
+      request.timeout = 120_000
+      request.setRequestHeader('Content-Type', 'application/octet-stream')
+      request.send(file)
+    } catch (error) {
+      fail(error)
+    }
   })
-  if (!response.ok) throw new Error('Attachment upload failed')
-  const result: unknown = await response.json()
+}
+
+function attachmentFromResponse(file: File, result: unknown): NoteAttachment {
   if (!result || typeof result !== 'object' || !('ok' in result) || result.ok !== true || !('id' in result)) {
     throw new Error('Invalid attachment upload response')
   }

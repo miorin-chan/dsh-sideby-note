@@ -1,5 +1,8 @@
 /** @jsxRuntime classic */
 import React from 'react'
+import type { RenderFactorySlot } from '@deepseek-ai/dsh-client-ui-slots'
+import type { MessageImageLoader } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import { attachedItems, type ComposerAttachmentItem } from '../storage/draftUploads'
 // @deepseek-ai/dsh-client-ui-attachment 0.2.2-rc.5, src/AttachmentRail.tsx and
 // src/FileCard.tsx, and thumbnail styles from src/client/ComposerAttachments.module.css.
 // Copyright (c) 2026 DeepSeek, MIT.
@@ -15,19 +18,29 @@ import { Glyph, icon, withTooltip } from './primitives'
 export const officialAttachmentCSS = `${railCSS}\n${cardCSS}\n${imageCSS}
 .dsh-an-imageDownload.${imageClasses.remove}{inset:auto 4px 4px auto;opacity:1;text-decoration:none}
 .dsh-an-imageLoading{display:grid;place-items:center;cursor:default}
-.${railClasses.item}:has(>.dsh-an-imageFallback){height:auto}
+.${railClasses.item}:has(>.dsh-an-imageFallback,>[data-upload-blocked]){height:auto}
 .dsh-an-imageFallback{width:min(240px,100cqi)}
 .dsh-an-attachment[data-remove-disabled] .${cardClasses.remove}{display:none}
 .dsh-an-attachment > .${cardClasses.card}{max-width:100%;width:min(240px,100cqi);padding-inline-end:var(--an-space-6);vertical-align:top}
 .dsh-an-attachment[data-previewable] > .${cardClasses.card}{padding-inline-end:calc(var(--an-space-6) + var(--an-space-4))}
 @media (hover:hover){.dsh-an-attachment:hover .${cardClasses.remove}{opacity:1}}`
 
+type PendingAttachment = Extract<ComposerAttachmentItem, { kind: 'upload' }>
+type ReadyAttachment = Extract<ComposerAttachmentItem, { kind: 'attached' }>
+
 interface AttachmentListProps {
   attachments: readonly NoteAttachment[]
+  attachmentItems?: readonly ComposerAttachmentItem[]
   say: (key: string, vars?: Record<string, string>) => string
+  renderFactorySlot?: RenderFactorySlot
   onRemove?: (index: number) => void
+  onRemoveUpload?: (id: string) => void
+  onRetryUpload?: (id: string) => void
   disabled?: boolean
 }
+
+// These are browser-owned previews. Note hashes never enter the message-image loader.
+const loadMessageImage: MessageImageLoader = async () => { throw new Error('Expected a local preview') }
 
 function useAttachmentPreview(attachment: NoteAttachment, enabled = true) {
   const { id: attachmentId, name, size, type } = attachment
@@ -73,7 +86,7 @@ function AttachmentPreview({ attachment, id, say }: Pick<AttachmentListProps, 's
   )
 }
 
-function AttachmentImage({ attachment, say, disabled, onRemove, fallback }: Pick<AttachmentListProps, 'say' | 'disabled'> & {
+function AttachmentImage({ attachment, say, renderFactorySlot, disabled, onRemove, fallback }: Pick<AttachmentListProps, 'say' | 'renderFactorySlot' | 'disabled'> & {
   attachment: NoteAttachment
   onRemove?: () => void
   fallback: React.ReactNode
@@ -105,16 +118,21 @@ function AttachmentImage({ attachment, say, disabled, onRemove, fallback }: Pick
     </div>
   )
 
+  const thumbnail = <button ref={triggerRef} type="button"
+    className={decoded ? imageClasses.thumbnail : `${imageClasses.thumbnail} dsh-an-imageLoading`}
+    title={decoded ? previewLabel : name} aria-label={previewLabel} aria-haspopup="dialog"
+    disabled={!decoded || !ImageLightbox} onClick={() => setOpen(true)}>
+    {url ? <img src={url} alt="" onLoad={() => setDecoded(true)} />
+      : <Glyph name="IconImageOutlineRegular" size={16} />}
+  </button>
+  const gallery = url && renderFactorySlot?.('conversation.images.content', {
+    images: [{ preview: { url, name } }], loadImage: loadMessageImage, align: 'start', compact: true,
+  }, { fallback: thumbnail })
+
   return (
-    <div ref={itemRef} className={`dsh-an-attachment ${imageClasses.imageItem}`} data-image-preview-open={open ? '' : undefined}>
-      <button ref={triggerRef} type="button"
-        className={decoded ? imageClasses.thumbnail : `${imageClasses.thumbnail} dsh-an-imageLoading`}
-        title={decoded ? previewLabel : name} aria-label={previewLabel} aria-haspopup="dialog"
-        disabled={!decoded} onClick={() => setOpen(true)}>
-        {url ? <img src={url} alt="" onLoad={() => setDecoded(true)} onError={fail} />
-          : <Glyph name="IconImageOutlineRegular" size={16} />}
-      </button>
-      {!decoded && <span className="dsh-an-srOnly" role="status">{say('attachment.loading')}</span>}
+    <div ref={itemRef} className={`dsh-an-attachment ${imageClasses.imageItem}`} onErrorCapture={fail}>
+      {gallery || thumbnail}
+      {!url && <span className="dsh-an-srOnly" role="status">{say('attachment.loading')}</span>}
       {onRemove && (
         <button type="button" className={imageClasses.remove} aria-label={say('attachment.remove', { name })}
           disabled={disabled} onClick={onRemove}>
@@ -134,27 +152,19 @@ function AttachmentImage({ attachment, say, disabled, onRemove, fallback }: Pick
   )
 }
 
-export function AttachmentList({ attachments, say, onRemove, disabled }: AttachmentListProps) {
+export function AttachmentList({ attachments, attachmentItems, say, renderFactorySlot, onRemove, onRemoveUpload, onRetryUpload, disabled }: AttachmentListProps) {
   const [openKey, setOpenKey] = React.useState<string>()
   const previewId = React.useId()
 
-  // The same file can be added more than once. An unrelated removal should
-  // preserve the remaining cards' keys and any open preview.
-  const occurrences = new Map<string, number>()
-  const entries = attachments.map((attachment, index) => {
-    const identity = JSON.stringify([attachment.id, attachment.name, attachment.type, attachment.size])
-    const occurrence = occurrences.get(identity) ?? 0
-    occurrences.set(identity, occurrence + 1)
-    return { attachment, id: `${identity}:${occurrence}`, index }
-  })
-  const selected = entries.find(entry => entry.id === openKey)
+  const entries = attachmentItems ?? attachedItems(attachments)
+  const selected = entries.find((entry): entry is ReadyAttachment => entry.kind === 'attached' && entry.id === openKey)
   React.useEffect(() => {
     if (openKey && !selected) setOpenKey(undefined)
   }, [openKey, selected])
 
   if (!entries.length) return null
   const preview = selected && <AttachmentPreview key={selected.id} attachment={selected.attachment} id={previewId} say={say} />
-  const renderCard = ({ attachment, id, index }: typeof entries[number], previewUnavailable = false) => {
+  const renderCard = ({ attachment, id, index }: ReadyAttachment, previewUnavailable = false) => {
     const { name, size, type } = attachment
     const open = id === openKey
     const download = say('attachment.download', { name })
@@ -181,12 +191,32 @@ export function AttachmentList({ attachments, say, onRemove, disabled }: Attachm
       </div>
     )
   }
-  const renderAttachment = (entry: typeof entries[number]) => (
-    previewKind(entry.attachment.type) === 'img' && ImageLightbox
-      ? <AttachmentImage attachment={entry.attachment} say={say} disabled={disabled}
+  const renderUpload = ({ id, name, size, status, loaded, total, error, retryable }: PendingAttachment) => {
+    const uploading = status === 'uploading'
+    const blocked = !uploading && !retryable
+    const progress = uploading && total > 0 ? Math.min(1, loaded / total) : undefined
+    const failure = error === 'attachmentDraftChanged' ? 'attachment.draftChanged'
+      : error === 'attachmentLimit' ? 'attachment.limit'
+        : error === 'saveFailed' ? 'toast.saveFailed' : 'attachment.uploadFailed'
+    return (
+      <div className="dsh-an-attachment" data-upload-blocked={blocked ? '' : undefined}>
+        <FileCard name={name} bytes={size} state={uploading ? 'uploading' : blocked ? 'ready' : 'error'} progress={progress} labels={{
+          label: name, remove: say('attachment.remove', { name }), uploading: say('attachment.uploading'),
+          failed: say(failure), retry: say('attachment.retry', { name }),
+        }} onRemove={() => onRemoveUpload?.(id)} onRetry={() => onRetryUpload?.(id)} />
+        {blocked && <div className="dsh-an-attachmentStatus" role="status">{say(failure)}</div>}
+        {uploading && <span className="dsh-an-srOnly" role="progressbar" aria-label={name}
+          aria-valuenow={progress === undefined ? undefined : Math.round(progress * 100)} />}
+      </div>
+    )
+  }
+  const renderAttachment = (entry: typeof entries[number]) => {
+    if (entry.kind === 'upload') return renderUpload(entry)
+    return previewKind(entry.attachment.type) === 'img' && (renderFactorySlot || ImageLightbox)
+      ? <AttachmentImage attachment={entry.attachment} say={say} renderFactorySlot={renderFactorySlot} disabled={disabled}
           onRemove={onRemove && (() => onRemove(entry.index))} fallback={renderCard(entry, true)} />
       : renderCard(entry)
-  )
+  }
   return (
     <div className="dsh-an-attachments" data-draft={onRemove ? '' : undefined}>
       {onRemove ? <AttachmentRail items={entries} renderItem={renderAttachment} labels={{

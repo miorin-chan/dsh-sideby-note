@@ -8,11 +8,16 @@ export function useNoteActions({ commit, report }) {
    * The stored shape keeps `done` / `completedAt`, so existing lists read as-is.
    */
   const archive = async item => {
-    return commit(item.workspaceId, currentItems => currentItems.map(candidate => {
-      if (candidate.id !== item.noteId || candidate.done) return candidate
+    let matches = false
+    const ok = await commit(item.workspaceId, currentItems => currentItems.map(candidate => {
+      if (candidate.id !== item.noteId || candidate.text !== item.text
+        || JSON.stringify(candidate.attachments ?? []) !== JSON.stringify(item.attachments ?? [])) return candidate
+      matches = true
+      if (candidate.done) return candidate
       const now = Date.now()
       return { ...candidate, done: true, updatedAt: now, completedAt: now }
     }))
+    return matches && ok
   }
 
   /** Move an open note to `toIndex` among the open notes; archived ones keep their order. */

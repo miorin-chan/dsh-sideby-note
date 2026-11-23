@@ -7,7 +7,9 @@
  * in their own modules; P2 splits the remaining UI out of this file.
  */
 import React from 'react'
-import ReactDOMClient from 'react-dom/client'
+import { createPortal } from 'react-dom'
+import type { PropsRenderFactories } from '@deepseek-ai/dsh-client-ui-slots'
+import type { FileDragService } from '@deepseek-ai/dsh-client-ui-file-drag/client'
 import type { ISessions } from '@deepseek-ai/dsh-api-session-controller/client'
 import type { WorkspaceId, WorkspaceSnapshot } from '@deepseek-ai/dsh-api-workspace-controller/client'
 import type { IConversation } from '@deepseek-ai/dsh-client-ui-conversation/client'
@@ -22,6 +24,7 @@ import { bindWorkspace, draftKeyForSession, workspaceById, workspaceForSession, 
 import type { ComposerInputForSession } from './domain/forward'
 import { bootStorage, retryStorage } from './storage/boot'
 import { ensureDraftScope } from './storage/drafts'
+import { disposeDraftUploads } from './storage/draftUploads'
 import {
   STORE_ERROR_LISTENERS,
   STORE_NOTICE_LISTENERS,
@@ -140,14 +143,25 @@ function apply(ctx: DshClientCtx) {
   const say = makeSay(ctx, localeId)
 
   const tr = (key: string, vars?: Record<string, any>) => fill(say(key), vars)
+  let panelSequence = 0
   let activePopover: {
-    container: HTMLElement
-    root: ReturnType<typeof ReactDOMClient.createRoot>
+    id: number
+    containerRef: React.RefObject<HTMLDivElement>
     anchorRef: { current: HTMLButtonElement }
     sessionId: string
     focusComposerOnMount: boolean
     navigation?: { sessionId: string; workspace: NoteWorkspace }
   } | null = null
+  const panelListeners = new Set<() => void>()
+  const readPanel = () => activePopover
+  const subscribePanel = (listener: () => void) => {
+    panelListeners.add(listener)
+    return () => { panelListeners.delete(listener) }
+  }
+  const updatePanel = (panel: typeof activePopover) => {
+    activePopover = panel
+    for (const listener of panelListeners) listener()
+  }
   let activeSessionId = ''
   const getComposerInput: ComposerInputForSession = sessionId => {
     if (sessionId !== activeSessionId) return undefined
@@ -155,7 +169,12 @@ function apply(ctx: DshClientCtx) {
     const scope = sessions?.scope(sessionId as Parameters<ISessions['scope']>[0])
     const conversation: IConversation | undefined = scope?.get('conversation')
     if (!scope || !conversation?.input) return undefined
-    return conversation.input.for(scope).state
+    const input = conversation.input.for(scope)
+    return { state: input.state, removeAttachment: id => input.removeAttachment(id) }
+  }
+  const readFileDrag: FileDragService['read'] = transfer => {
+    const service: FileDragService | undefined = ctx.get('fileDrag')
+    return service?.read(transfer)
   }
 
   const toastSeat = createToastSeat(tr)
@@ -192,21 +211,11 @@ function apply(ctx: DshClientCtx) {
 
   const closeMemoPopover = (restoreFocus = true) => {
     const current = activePopover
-    activePopover = null
     if (!current) return
-    // Only hand focus back to the entry when the panel itself had it; a click
-    // elsewhere must leave focus where the user put it.
-    const hadFocus = restoreFocus && current.container.contains(document.activeElement)
-    try {
-      current.root.unmount()
-    } catch {
-      /* already unmounted */
-    }
-    current.container.remove()
+    const hadFocus = restoreFocus && current.containerRef.current?.contains(document.activeElement)
+    updatePanel(null)
     const anchor = current.anchorRef.current
-    if (hadFocus && anchor && anchor.isConnected && typeof anchor.focus === 'function') {
-      anchor.focus({ preventScroll: true })
-    }
+    if (hadFocus && anchor.isConnected) anchor.focus({ preventScroll: true })
     refreshHeaderEntry()
   }
 
@@ -224,7 +233,7 @@ function apply(ctx: DshClientCtx) {
     // Record the exact session only when the host is about to open it. Failed
     // or superseded requests leave ordinary conversation switches alone.
     void navigation.openWorkspace(target.workspaceId, sessionId => {
-      if (activePopover === panel) panel.navigation = { sessionId, workspace: target }
+      if (activePopover?.id === panel.id) activePopover.navigation = { sessionId, workspace: target }
     }).catch((error: unknown) => { console.warn('workspace jump failed:', error) })
   }
 
@@ -233,20 +242,29 @@ function apply(ctx: DshClientCtx) {
     if (workspace) ensureDraftScope(draftKeyForSession(sessionId), sessionId, workspace.sessionIds)
   }
 
-  const renderMemoPopover = (panel: NonNullable<typeof activePopover>) => {
-    panel.root.render(h(MemoPopover, {
-      sessionId: panel.sessionId,
-      say: tr,
-      locale,
-      getComposerInput,
-      getLocaleId: localeId,
-      anchorRef: panel.anchorRef,
-      placement: 'right',
-      focusComposerOnMount: panel.focusComposerOnMount,
-      onClose: closeMemoPopover,
-      onOpenWorkspace: getWorkspaceNavigation() ? openNoteWorkspace : undefined,
-      onToast: kind => toastSeat.show(kind),
-    }))
+  function FrameOverlay({ renderFactorySlot, t }: Partial<PropsRenderFactories> & { t?: (key: string) => string }) {
+    const panel = React.useSyncExternalStore(subscribePanel, readPanel)
+    return h(React.Fragment, null,
+      h(toastSeat.ToastHost, { t }),
+      panel && createPortal(h('div', {
+        ref: panel.containerRef,
+        'data-dsh-memo-popover-root': 'true',
+      }, h(MemoPopover, {
+        sessionId: panel.sessionId,
+        say: tr,
+        locale,
+        getComposerInput,
+        renderFactorySlot,
+        readFileDrag,
+        getLocaleId: localeId,
+        anchorRef: panel.anchorRef,
+        placement: 'right',
+        focusComposerOnMount: panel.focusComposerOnMount,
+        onClose: closeMemoPopover,
+        onOpenWorkspace: getWorkspaceNavigation() ? openNoteWorkspace : undefined,
+        onToast: toastSeat.show,
+      })), document.body, String(panel.id)),
+    )
   }
 
   const openMemoPopover = (sessionId: string, anchor: HTMLButtonElement) => {
@@ -258,12 +276,9 @@ function apply(ctx: DshClientCtx) {
     if (storageMode() === 'host') requestHostRefresh()
     if (workspaceCatalog) void migrateWorkspaceNotes(workspaceCatalog)
     prepareMemoSession(sessionId)
-    const container = document.createElement('div')
-    container.dataset.dshMemoPopoverRoot = 'true'
-    document.body.appendChild(container)
-    const root = ReactDOMClient.createRoot(container)
-    activePopover = { container, root, anchorRef: { current: anchor }, sessionId, focusComposerOnMount: true }
-    renderMemoPopover(activePopover)
+    updatePanel({
+      id: ++panelSequence, containerRef: React.createRef(), anchorRef: { current: anchor }, sessionId, focusComposerOnMount: true,
+    })
     refreshHeaderEntry()
   }
 
@@ -282,8 +297,7 @@ function apply(ctx: DshClientCtx) {
     onAnchor: (sessionId, anchor) => {
       const panel = activePopover
       if (!panel || panel.sessionId !== sessionId || panel.anchorRef.current === anchor) return
-      panel.anchorRef = { current: anchor }
-      renderMemoPopover(panel)
+      updatePanel({ ...panel, anchorRef: { current: anchor } })
     },
   })
   refreshHeaderEntry = headerEntry.refresh
@@ -297,7 +311,10 @@ function apply(ctx: DshClientCtx) {
     )
   }
 
-  ctx.effect(() => headerEntry.attach(() => closeMemoPopover()), 'dsh-sideby-note: right-side entry')
+  ctx.effect(() => headerEntry.attach(() => {
+    closeMemoPopover(false)
+    disposeDraftUploads()
+  }), 'dsh-sideby-note: right-side entry')
 
   // Keep the notes entry available on hosts without the shortcuts service.
   ctx.inject?.(['shortcuts'], shortcutCtx => {
@@ -376,9 +393,7 @@ function apply(ctx: DshClientCtx) {
         if (followedJump && listedWorkspace) delete panel.navigation
         if (sessionChanged || workspaceChanged) {
           prepareMemoSession(sessionId)
-          panel.sessionId = sessionId
-          panel.focusComposerOnMount = false
-          renderMemoPopover(panel)
+          updatePanel({ ...panel, sessionId, focusComposerOnMount: false })
         }
       } else if (sessionChanged || workspaceChanged) {
         closeMemoPopover()
@@ -449,7 +464,7 @@ function apply(ctx: DshClientCtx) {
         order: 60,
         locale: NS,
       },
-      toastSeat.ToastHost,
+      FrameOverlay,
     ),
   )
 }

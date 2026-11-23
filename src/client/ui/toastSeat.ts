@@ -7,6 +7,9 @@ const h = React.createElement
 const TOAST_COPY = {
   copied: { key: 'toast.copied', tone: 'success' },
   inserted: { key: 'toast.inserted', tone: 'success' },
+  insertedWithAttachments: { key: 'toast.insertedWithAttachments', tone: 'success' },
+  insertPartial: { key: 'toast.insertPartial' },
+  archiveRetried: { key: 'toast.archiveRetried', tone: 'success' },
   attachmentLimit: { key: 'attachment.limit' },
   attachmentBusy: { key: 'attachment.busy' },
   attachmentDraftChanged: { key: 'attachment.draftChanged' },

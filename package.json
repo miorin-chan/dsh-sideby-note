@@ -102,6 +102,8 @@
     "@deepseek-ai/dsh-client-shortcuts": "0.2.2-rc.5",
     "@deepseek-ai/dsh-client-ui-attachment": "0.2.2-rc.5",
     "@deepseek-ai/dsh-client-ui-conversation": "0.2.2-rc.5",
+    "@deepseek-ai/dsh-client-ui-file-drag": "0.2.2-rc.5",
+    "@deepseek-ai/dsh-client-ui-slots": "0.2.2-rc.5",
     "@deepseek-ai/dsh-client-ui-workspace": "0.2.2-rc.5",
     "@deepseek-ai/dsh-host-webserver": "0.2.2-rc.5",
     "@deepseek-ai/dsh-plugin-manager": "0.2.2-rc.5",

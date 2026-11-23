@@ -188,8 +188,8 @@ cases:
     rules: [R-NOTE-ATTACHMENTS]
     risk: data_loss
     expected:
-      - 选取、粘贴与拖放的文件按顺序进入草稿，面板重开后可恢复
-      - 附件可以单独提交、预览、下载、移除与退回
+      - 选取、粘贴、原图和外部拖放的文件按顺序进入草稿，面板重开后可恢复
+      - 图片可通过原生画廊预览，附件可以单独提交、下载、移除与退回
     automation:
       - type: integration
         file: tests/host-bundle.test.mts
@@ -206,7 +206,8 @@ cases:
     risk: data_loss
     expected:
       - 空文件在请求宿主前被拒绝
-      - 宿主上传失败后不产生附件，原草稿仍可提交
+      - 上传失败保留正文和失败卡片，重试成功或移除后才可提交
+      - 每个文件显示独立进度，移除中的文件不会在请求结束后恢复
     automation:
       - type: integration
         file: tests/host-bundle.test.mts

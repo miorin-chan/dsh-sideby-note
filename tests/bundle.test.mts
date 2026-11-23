@@ -13,6 +13,7 @@ import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { JSDOM } from 'jsdom'
 import * as ReactJSXRuntime from 'react/jsx-runtime'
+import { captureWithFrame } from './testkit/slots.mts'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const bundlePath = path.join(root, 'client', 'client.js')
@@ -226,7 +227,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   await t.test('PANEL-002 header 入口挂进宿主工具行并显示未完成数', async () => {
     // Render the session capture the shell would mount, then let its effect seat
     // the header entry into the host-owned utilities row.
-    const capture = registered.find(entry => entry.meta.name === 'conversation.composer.dock').component
+    const capture = captureWithFrame(React, registered)
     const container = document.createElement('div')
     document.body.appendChild(container)
     reactRoot = ReactDOMClient.createRoot(container)
@@ -417,7 +418,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.ok(done.includes('刷新页面'), `the finished host update offers a refresh, saw ${JSON.stringify(done)}`)
   })
 
-  const addField = popover.querySelector('.dsh-an-input')
+  let addField = popover.querySelector('.dsh-an-input')
   const openRows = () => [...popover.querySelectorAll('.dsh-an-listSection:first-child .dsh-an-row')]
   const openTexts = () => openRows().map(node => node.querySelector('.dsh-an-text').textContent)
   const storedTexts = () => browserWorkspaceItems(window).map(item => item.text)
@@ -577,6 +578,30 @@ test('the built bundle boots, applies, and seats its slots', async t => {
       'Shift+Enter must not add a note',
     )
     assert.equal(addField.value, '换行草稿', 'Shift+Enter leaves the draft in the composer')
+
+    const keyDown = (key, options = {}) => {
+      const event = new window.KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...options })
+      addField.dispatchEvent(event)
+      return event
+    }
+    await act(async () => {
+      addField.focus()
+      addField.setSelectionRange(1, 3)
+      addField.dispatchEvent(new window.CompositionEvent('compositionstart', { bubbles: true }))
+      assert.equal(keyDown('Escape', { isComposing: true }).defaultPrevented, false)
+      addField.dispatchEvent(new window.CompositionEvent('compositionend', { bubbles: true }))
+      assert.equal(keyDown('Enter').defaultPrevented, false, 'the IME closing Enter stays with the browser')
+    })
+    assert.equal(addField.value, '换行草稿')
+    assert.equal(browserWorkspaceItems(window).length, viaChord.length)
+    await new Promise(resolve => window.setTimeout(resolve, 12))
+    await act(async () => { assert.equal(keyDown('Escape').defaultPrevented, true) })
+    assert.equal(document.activeElement, button)
+    await act(async () => { button.click() })
+    popover = document.querySelector('.dsh-an-popover')
+    addField = popover.querySelector('.dsh-an-input')
+    assert.equal(document.activeElement, addField)
+    assert.deepEqual([addField.selectionStart, addField.selectionEnd], [1, 3])
   })
 
   await t.test('NOTE-004 删除最后一条后回到空状态', async () => {
@@ -754,7 +779,7 @@ test('workspace notes share a list and global actions preserve ownership', async
   }
   await act(async () => { exported.apply(ctx) })
 
-  const capture = registered.find(entry => entry.meta.name === 'conversation.composer.dock').component
+  const capture = captureWithFrame(React, registered)
   const workspace = {
     workspaceId: 'ws-1',
     path: '/repo',
@@ -1271,7 +1296,7 @@ test('a blank new session opens a usable notes panel from the header corner', as
   }
   await act(async () => { exported.apply(ctx) })
 
-  const hero = registered.find(entry => entry.meta.name === 'conversation.hero.options').component
+  const hero = captureWithFrame(React, registered, 'conversation.hero.options')
   const workspace = {
     workspaceId: 'ws-new',
     path: '/repo/new',
@@ -1467,7 +1492,7 @@ test('handing notes to chat joins them on new lines, without a prefix or list ma
   }
   await act(async () => { exported.apply(ctx) })
 
-  const capture = registered.find(entry => entry.meta.name === 'conversation.composer.dock').component
+  const capture = captureWithFrame(React, registered)
   const workspace = {
     workspaceId: 'ws-1',
     path: '/repo',
@@ -1595,7 +1620,7 @@ test('a damaged note store is set aside before anything overwrites it', async t 
   }
   await act(async () => { exported.apply(ctx) })
 
-  const capture = registered.find(entry => entry.meta.name === 'conversation.composer.dock').component
+  const capture = captureWithFrame(React, registered)
   const host = document.createElement('div')
   document.body.appendChild(host)
   const root = ReactDOMClient.createRoot(host)
@@ -1691,7 +1716,7 @@ test('two tabs writing at once keep both sets of notes', async t => {
   }
   await act(async () => { exported.apply(ctx) })
 
-  const capture = registered.find(entry => entry.meta.name === 'conversation.composer.dock').component
+  const capture = captureWithFrame(React, registered)
   const host = document.createElement('div')
   document.body.appendChild(host)
   const root = ReactDOMClient.createRoot(host)
@@ -1810,7 +1835,7 @@ test('note text rules', async t => {
   }
   await act(async () => { exported.apply(ctx) })
 
-  const capture = registered.find(entry => entry.meta.name === 'conversation.composer.dock').component
+  const capture = captureWithFrame(React, registered)
   const host = document.createElement('div')
   document.body.appendChild(host)
   const root = ReactDOMClient.createRoot(host)

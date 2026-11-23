@@ -11,6 +11,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { JSDOM } from 'jsdom'
 import * as ReactJSXRuntime from 'react/jsx-runtime'
+import { captureWithFrame } from './slots.mts'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const bundle = fs.readFileSync(path.join(root, 'client', 'client.js'), 'utf8')
@@ -87,7 +88,7 @@ export async function bootBundle(t, options = {}) {
   }
   await act(async () => { exported.apply(ctx) })
 
-  const capture = registered.find(entry => entry.meta.name === 'conversation.composer.dock').component
+  const capture = captureWithFrame(React, registered)
   const host = document.createElement('div')
   document.body.appendChild(host)
   const reactRoot = ReactDOMClient.createRoot(host)

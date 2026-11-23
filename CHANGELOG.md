@@ -22,9 +22,15 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   Linux browsers start with no binding.
 - Pick, paste, or drop attachments into a note.
   Preview supported images, audio, and video, or download the original files.
-  Images in drafts, open notes, and archived notes use DSH-style thumbnails and open in DSH’s original-image viewer.
-  Other draft attachments use DSH’s file cards. Attachments survive draft recovery and recall.
-  **Insert** carries the text and all attachments into the current chat draft in one click.
+  Images in drafts, open notes, and archived notes use DSH’s gallery and original-image viewer.
+  Drag an original image from the chat into the note composer.
+  Draft file cards show individual upload progress, retry, and removal.
+  Saved attachments survive draft recovery and recall.
+  **Insert** carries the text and all attachments into the current chat draft.
+  Follow upload status in the chat.
+  If archiving fails, retry it without inserting again.
+- The note composer handles the IME closing keystroke and restores the selection when reopened on desktop.
+  Escape returns focus to the entry.
 
 ### Changed
 - Sideby Note now installs as `@miorin/dsh-sideby-note`.
@@ -71,9 +77,12 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - 桌面版可用 `Mod+E` 打开或收起面板，可在 DSH 快捷键设置里改键或停用。
   macOS 和 Windows 浏览器版默认用 `Mod+Alt+E`，Linux 浏览器版默认未绑定。
 - 便笺可通过选择、粘贴或拖放添加附件，支持预览常见图片、音频和视频，也可下载原文件。
-  草稿、待续和归档中的图片均使用 DSH 样式的缩略图，点击后用官方图片查看器打开原图。
-  其他草稿附件使用 DSH 文件卡。重开面板或退回便笺时会恢复附件。
-  点「填入」即可把正文和全部附件一起带进当前对话草稿。
+  草稿、待续和归档中的图片使用 DSH 原生画廊和原图查看器，也可直接把会话原图拖入录入区。
+  附件逐个显示进度，支持重试和移除。重开面板或退回便笺时会恢复已保存附件。
+  「填入」把正文和全部附件带进当前会话草稿，随后在会话附件栏查看上传状态。
+  归档失败时可单独重试。
+- 录入区处理输入法收尾键，桌面重开面板时恢复选区。
+  按 Esc 关闭后焦点回到入口。
 
 ### 变更
 - 边记部的 npm 包改为 `@miorin/dsh-sideby-note`。

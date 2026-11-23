@@ -3,15 +3,18 @@ import React from 'react'
 import { copyText } from '../domain/clipboard'
 import { metaLabel, rowAge } from '../domain/items'
 import { AttachmentList } from './AttachmentList'
-import { IconCopy, IconInsert, IconRewind, Tooltip, withTooltip } from './primitives'
+import { Glyph, IconCopy, IconInsert, IconRewind, Tooltip, withTooltip } from './primitives'
 
 const h = React.createElement
 
 export function TodoRow(props) {
-  const { item, archived, insertPending, workspaceName, isCurrentWorkspace, onOpenWorkspace, say, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey } = props
+  const {
+    item, archived, insertPending, retryArchive, workspaceName, isCurrentWorkspace, onOpenWorkspace,
+    say, renderFactorySlot, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey,
+  } = props
   const attachments = item.attachments ?? []
   const hasText = Boolean(item.text)
-  const insertLabel = say('item.insert')
+  const insertLabel = say(retryArchive ? 'item.retryArchive' : 'item.insert')
   const workspaceLabel = onOpenWorkspace
     ? say(isCurrentWorkspace ? 'item.currentWorkspace' : 'item.openWorkspace', { workspace: workspaceName })
     : undefined
@@ -63,13 +66,13 @@ export function TodoRow(props) {
         'aria-disabled': insertPending || undefined,
         'data-loading': insertPending ? 'true' : undefined,
         onKeyDown: onReorderKey,
-        onClick: () => { void onInsert(item) },
+        onClick: (event: React.MouseEvent<HTMLButtonElement>) => { void onInsert(item, event.currentTarget) },
       },
-      h(IconInsert),
+      retryArchive ? h(Glyph, { name: 'IconRefreshOutlineRegular', size: 14 }) : h(IconInsert),
     ))),
     h('div', { className: 'dsh-an-rowBody' },
       hasText ? h('div', { className: 'dsh-an-text' }, item.text) : null,
-      h(AttachmentList, { attachments, say }),
+      h(AttachmentList, { attachments, say, renderFactorySlot }),
     ),
     workspaceName && h('div', { className: 'dsh-an-rowWorkspace' },
       workspaceLabel ? withTooltip(workspaceLabel, h('button', {

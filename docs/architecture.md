@@ -18,7 +18,7 @@
   由入口在 `apply()` 里插入**一张** `<style data-dsh-plugin="dsh-sideby-note">`，dispose 时移除。
   面板与输入框 dock 不在同一棵 React 树里，所以不能做面板级 `<style>`。
 - 浏览器侧用 `slots`（`conversation.composer.dock` 捕获当前会话、`conversation.hero.options` 捕获空白新会话、
-  `shell.overlay` 承载全局 Toast）与 `locale`（注册字典、绑定 `t`，并订阅 `locale/change` 让已打开的面板就地换语言）。
+  `shell.overlay` 渲染面板与全局 Toast）与 `locale`（注册字典、绑定 `t`，并订阅语言变化让已打开的面板就地换语言）。
   提供 `shortcuts` 服务时，浏览器侧同时注册面板切换命令，由 DSH 管理键位和用户偏好。
   宿主侧使用 `webServer`（路由）、`connection`（校验 Web 请求）与 `storageDomain`（存储领域），
   存储服务缺失时路由返回 503，客户端据此不切换。
@@ -29,16 +29,28 @@
 ### 原生输入框接入
 
 录入区的设计目标见[原生输入框能力与组件复用](./panel-ui-rules.md#原生输入框能力与组件复用)。
-当前由 `ComposerForm` 提供文本录入与附件的选择、粘贴和拖放。
-`AttachmentList` 复用官方 `AttachmentRail`、`FileCard`、缩略图样式和宿主 `ImageLightbox`，
-面板使用宿主的图标、`Tooltip` 与 `Toast`。
-「填入」通过当前会话的原生粘贴入口交接内容。
+`ComposerForm` 持有面板内的文件选择、粘贴与拖放。
+`fileDrag.read()` 解析 Web 应用内的原图拖拽，桌面文件拖放直接读浏览器提供的 `File`。
+`shell.overlay` 用 portal 将面板渲染到 `body`，
+面板通过 `renderFactorySlot('conversation.images.content', …)` 把授权读取的原图预览 URL 交给宿主。
+`AttachmentRail`、`FileCard` 和缩略图回退样式固定版本静态复用。
+音视频预览和下载使用便笺的原件接口。
 
-DSH `0.2.2-rc.5` 的 `conversation.composer.bar` 是宿主的会话输入框，
-附件栏 `conversation.input.attachments` 由它传入附件与操作。
-`conversation.composer.dock` 提供会话上下文及 `useInput`、`inputActions`，这些接口绑定到对应会话。
-该版本的 Lexical 编辑器每个会话只支持一个可编辑根。
-复用完整录入区时需要可绑定独立便笺草稿的宿主入口。
+便笺上传用原有字节端点，文件卡独立显示传输进度与失败。
+宿主确认原件后，草稿立即保存对应引用，保持文件选择顺序。
+未完成和失败的 `File` 由当前页面持有，可跨面板关闭和会话切换恢复，刷新后需重新选取。
+保存便笺前处理完所有上传项，包括重试或移除失败项。
+
+「填入」经目标会话的原生粘贴入口交接，核对附件 ID 与正文提交到草稿后的结果再归档。
+会话附件栏继续显示上传进度和失败。归档失败在当前标签页保留重试记录，再点只重试归档。
+混合写入中断时仅尝试移除本次确认加入的草稿 ID。
+DSH `0.2.2-rc.5` 的公开移除方法只更新草稿列表，上传及资源释放由原生附件栏管理。
+完整的原子交接仍需要宿主提供成批接收和回滚接口。
+
+同版本的 `requestDraftInitialization({ whenDraftExists: 'append' })` 可保留已有引用和附件，
+会在已有尾换行后多加一个段落分隔，并把追加合并到编辑历史。
+填入沿用可单独撤销的原生粘贴。`conversation.composer.dock` 提供会话绑定的读写接口。
+每个会话的 Lexical 编辑器支持一个可编辑根，复用完整录入区需要可绑定独立便笺草稿的宿主入口。
 
 ## 2. 目录
 
@@ -81,7 +93,8 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 身份 | `constants.ts` | 包与插件的 id、`dsh-an-*` 相关的键与上限 |
 | 文案 | `i18n/` | `zh.ts` 定义键集合与 `MessageKey`；其余 7 种 DSH 官方语言用 `Record<MessageKey, string>`，缺键编译失败；运行时未知语言或缺键一律回退英文 |
 | 领域 | `domain/items.ts` | `normalizeItems`（防御性清洗、去重）、归档排序、`moveOpenItem`（只重排待续，归档留在原槽位）、相对时间文案 |
-| 领域 | `domain/forward.ts` | 「填入」按会话限定输入框。读取附件原文件，按保存顺序交给 DSH 的原生粘贴入口，通过该会话公开的输入状态确认接收，再追加纯文本 |
+| 领域 | `domain/forward.ts` | 确定目标会话，经原生粘贴交接有序附件与正文，并核对提交到草稿后的结果 |
+| 存储 | `storage/draftUploads.ts` | 按草稿跟踪上传状态和顺序，逐个保存成功的原件引用 |
 | 存储 | `storage/workspace.ts` | 读写各工作区清单，供面板筛选和汇总。宿主写入使用 `list.patch` diff，本地写入先合并并发变更 |
 | 存储 | `storage/merge.ts` | 本地回落模式的按 id 合并：双方新增都保留，同一条目取较新的 `updatedAt`，本页相对上次读取删除的条目不再复活 |
 | 存储 | `storage/boot.ts` | 启动探测、一次性迁移、模式标记与提示；不可用不切换，成功后单向 host |
@@ -94,7 +107,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 更新 | `ui/useUpdateCenter.ts` | 自动/手动检查、懒加载说明、更新状态机（starting/running/done/error）；只走宿主更新端点，没有市场分支 |
 | 更新 | `ui/UpdateNotice.ts` | 页脚「有新版本」展开后的内容：说明、完整说明链接、立即更新与刷新，宿主没有路由或拒绝时提供带版本号的命令与拷贝更新提示词 |
 | 存储 | `storage/prefs.ts` | 筛选选择在宿主模式写入 `global`，面板宽高与分区状态留在设备本地 |
-| UI 组件 | `ui/MemoPopover.ts` | 面板编排：组合 hook 与展示组件，由挂在 `body` 下的插件根节点渲染 |
+| UI 组件 | `ui/MemoPopover.ts` | 组合面板 hook 与组件，由 `shell.overlay` 中的 React portal 渲染 |
 | UI 组件 | `PanelHead` / `ScopeSwitch` / `ComposerForm` / `NoteList` / `ClearConfirm` / `TodoRow` / `EmptyState` | 纯展示，数据与回调由面板传入 |
 | UI 组件 | `PanelFooter` / `StorageDetails` | 页脚「存储与更新」默认折叠，展开后显示存储状态并读取宿主文件路径。有新版时显示独立的「有新版本」入口 |
 | UI hooks | `useSessionMemoStore` / `usePanelGeometry` / `useSections` / `useComposerDraft` / `useNoteActions` / `useRowReorder` / `useClearConfirm` / `useListEdge` / `useOutsideDismiss` | 把状态与副作用从 JSX 里分离；每个 hook 只做一件事 |

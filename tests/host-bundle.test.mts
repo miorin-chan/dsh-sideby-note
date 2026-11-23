@@ -66,6 +66,29 @@ async function setup(options = {}) {
   const attachments = new Map()
   const composerScopes = new Map()
   const previewUrls = []
+  const requests = []
+  window.XMLHttpRequest = class {
+    upload = {}
+    aborted = false
+    open(method, url) { this.method = method; this.url = url }
+    setRequestHeader(name, value) { assert.equal(`${name}: ${value}`, 'Content-Type: application/octet-stream') }
+    send(file) {
+      this.file = file
+      requests.push(this)
+      calls.push({ url: this.url, method: this.method })
+      if (!options.holdUploads) this.finish(options.uploadDown ? 502 : 200)
+    }
+    progress(loaded) { this.upload.onprogress?.({ lengthComputable: true, loaded, total: this.file.size }) }
+    finish(status = 200) {
+      if (this.aborted) return
+      this.status = status
+      const id = String(attachments.size + 1).padStart(64, '0')
+      if (status === 200) attachments.set(id, this.file)
+      this.responseText = JSON.stringify({ ok: status === 200, id })
+      this.onload?.()
+    }
+    abort() { this.aborted = true; this.onabort?.() }
+  }
   window.URL.createObjectURL = blob => `blob:https://example.test/preview-${previewUrls.push(blob.type)}`
   const revokedPreviews = []
   window.URL.revokeObjectURL = url => revokedPreviews.push(url)
@@ -92,18 +115,14 @@ async function setup(options = {}) {
         return json(200, { ok: true, ...snapshot })
       }
       const op = JSON.parse(init.body)
+      const refusal = await options.beforeStoreWrite?.(op)
+      if (refusal) return refusal
       if (op.op === 'prefs.set') {
         const rejection = await options.beforeSetPrefs?.(op.patch.scopeMode)
         if (rejection) return rejection
       }
       const result = await store.apply(op)
       return json(200, { ok: true, ...result })
-    }
-    if (url === '/dsh-sideby-note/attachments' && method === 'POST') {
-      if (options.uploadDown) return json(502, { ok: false })
-      const id = String(attachments.size + 1).padStart(64, '0')
-      attachments.set(id, init.body)
-      return json(200, { ok: true, id })
     }
     if (url.startsWith('/dsh-sideby-note/attachments?')) {
       const id = new window.URL(url, window.location.href).searchParams.get('id')
@@ -143,7 +162,7 @@ async function setup(options = {}) {
     '@deepseek-ai/dsh-client-ui-primitives': {
       ImageLightbox: ({ src, alt, labels, onClose }) => ReactDOM.createPortal(
         React.createElement('div', {
-          role: 'dialog', 'aria-label': labels.dialog,
+          role: 'dialog', 'aria-modal': 'true', 'aria-label': labels.dialog,
           onKeyDown: event => { if (event.key === 'Escape') onClose() },
         }, React.createElement('img', { src, alt }), React.createElement('button', { onClick: onClose }, labels.close)),
         window.document.body,
@@ -157,6 +176,29 @@ async function setup(options = {}) {
       Toast: ({ text }) => React.createElement('span', { 'data-test-toast': '' }, text),
     },
   }
+  function NativeGallery({ images }) {
+    const [{ preview }] = images
+    const [open, setOpen] = React.useState(false)
+    const thumbnail = React.useRef(null)
+    const label = `预览 ${preview.name}`
+    return React.createElement(React.Fragment, null,
+      React.createElement('button', {
+        type: 'button', ref: thumbnail, 'aria-label': label, 'data-test-native-gallery': '',
+        onClick: () => setOpen(true),
+      }, React.createElement('img', { src: preview.url, alt: preview.name })),
+      open && React.createElement(moduleTable['@deepseek-ai/dsh-client-ui-primitives'].ImageLightbox, {
+        src: preview.url, alt: preview.name, labels: { dialog: label, close: '关闭预览' },
+        onClose: () => { setOpen(false); thumbnail.current.focus() },
+      }),
+    )
+  }
+  const renderFactorySlot = options.nativeGallery ? (name, input) => {
+    assert.equal(name, 'conversation.images.content')
+    assert.equal(input.compact, true)
+    assert.equal(input.images.length, 1)
+    assert.match(input.images[0].preview.url, /^blob:/)
+    return React.createElement(NativeGallery, input)
+  } : undefined
   const requireShim = id => {
     if (!(id in moduleTable)) throw new Error(`module table cannot answer ${id}`)
     return moduleTable[id]
@@ -170,7 +212,7 @@ async function setup(options = {}) {
     getLocale: () => ({ id: 'zh' }),
   }
   const ctx = {
-    get: name => ({ locale, sessions: { scope: sessionId => composerScopes.get(sessionId) } })[name],
+    get: name => ({ locale, fileDrag: options.fileDrag, sessions: { scope: sessionId => composerScopes.get(sessionId) } })[name],
     effect: fn => {
       const dispose = fn()
       if (typeof dispose === 'function') dispose()
@@ -198,10 +240,10 @@ async function setup(options = {}) {
     window.document.body.appendChild(container)
     const reactRoot = ReactDOMClient.createRoot(container)
     await act(async () => {
-      const ToastHost = registered.find(entry => entry.meta.name === 'shell.overlay').component
+      const FrameOverlay = registered.find(entry => entry.meta.name === 'shell.overlay').component
       reactRoot.render(React.createElement(React.Fragment, null,
         React.createElement(capture, { sessionId: 'session-1', ...props }),
-        React.createElement(ToastHost),
+        React.createElement(FrameOverlay, { renderFactorySlot }),
       ))
     })
     await settle()
@@ -222,7 +264,7 @@ async function setup(options = {}) {
     return popover
   }
 
-  return { window, dom, domain, store, calls, composerScopes, previewUrls, revokedPreviews, openPanel, addNote, settle, act }
+  return { window, dom, domain, store, calls, requests, composerScopes, previewUrls, revokedPreviews, openPanel, addNote, settle, act }
 }
 
 test('STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记', async t => {
@@ -563,9 +605,9 @@ test('STORE-029 共用宿主文件已被占用时停止写入', async t => {
   assert.equal(ctx.calls.some(call => call.url === STORE_PATH && call.method === 'POST'), false)
 })
 
-function transferFiles(window, target, eventType, files) {
+function transferFiles(window, target, eventType, files, types = ['Files']) {
   const event = new window.Event(eventType, { bubbles: true, cancelable: true })
-  const transfer = { types: ['Files'], files, getData: () => '' }
+  const transfer = { types, files, getData: () => '' }
   Object.defineProperty(event, eventType === 'paste' ? 'clipboardData' : 'dataTransfer', { value: transfer })
   target.dispatchEvent(event)
   assert.equal(event.defaultPrevented, true)
@@ -634,8 +676,10 @@ function mountChatComposer({ window, composerScopes }, sessionId = 'session-1', 
 }
 
 test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
-  const ctx = await setup()
+  let nativeImage: File
+  const ctx = await setup({ nativeGallery: true, fileDrag: { read: () => nativeImage } })
   const { window, act, store } = ctx
+  nativeImage = new window.File(['original image'], '截图.png', { type: 'image/png' })
   t.after(() => window.close())
   const composer = mountChatComposer(ctx)
   const { button } = await ctx.openPanel()
@@ -648,7 +692,8 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
     Object.defineProperty(picker, 'files', { configurable: true, value: [new window.File(['file'], name, { type })] })
     picker.dispatchEvent(new window.Event('change', { bubbles: true }))
   }
-  await act(async () => select('截图.png', 'image/png'))
+  await act(async () => transferFiles(window, panel().querySelector('form'), 'drop', [], ['application/x-dsh-file']))
+  assert.equal(ctx.requests[0].file, nativeImage, 'intake uses the stored original from the native drag service')
   await act(async () => transferFiles(window, panel().querySelector('textarea'), 'paste', [new window.File(['audio'], '语音.wav', { type: 'audio/wav' })]))
   await act(async () => transferFiles(window, panel().querySelector('form'), 'drop', [new window.File(['video'], '录屏.mp4', { type: 'video/mp4' })]))
   await act(async () => select('数据.csv', 'text/csv'))
@@ -657,10 +702,7 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
   assert.deepEqual(draftNames(), ['截图.png', '语音.wav', '录屏.mp4', '数据.csv'])
   const thumbnail = draftRail().querySelector('[aria-label="预览 截图.png"]')
   const image = thumbnail.querySelector('img')
-  assert.equal(thumbnail.disabled, true, 'preview waits for the thumbnail to decode')
-  assert.match(thumbnail.className, /ComposerAttachments-module-thumbnail/)
-  await act(async () => { image.dispatchEvent(new window.Event('load')) })
-  assert.equal(thumbnail.disabled, false)
+  assert.equal(thumbnail.hasAttribute('data-test-native-gallery'), true)
   await act(async () => { thumbnail.click() })
   const dialog = window.document.querySelector('[role="dialog"][aria-label="预览 截图.png"]')
   assert.equal(dialog.querySelector('img').src, image.src)
@@ -700,9 +742,8 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
     assert.deepEqual([...row.querySelectorAll('a[download]')].map(link => link.download), ['截图.png', '语音.wav', '录屏.mp4'])
     assert.equal(row.querySelector('[aria-label="移除 截图.png"]'), null)
     const thumb = row.querySelector('button[aria-label="预览 截图.png"]')
-    assert.match(thumb.className, /ComposerAttachments-module-thumbnail/)
+    assert.equal(thumb.hasAttribute('data-test-native-gallery'), true)
     const original = thumb.querySelector('img')
-    await act(async () => { original.dispatchEvent(new window.Event('load')) })
     await act(async () => { thumb.click() })
     const lightbox = window.document.querySelector('[role="dialog"][aria-label="预览 截图.png"]')
     assert.equal(lightbox.querySelector('img').src, original.src)
@@ -854,9 +895,38 @@ test('FWD-009 附件读取期间切换会话不写错草稿', async t => {
   assert.equal((await store.snapshot()).data.workspaces[UNASSIGNED].items[0].done, false)
 })
 
+test('archive retry keeps the completed handoff and only retries the store write', async t => {
+  let failArchive = true
+  const ctx = await setup({ beforeStoreWrite: op => {
+    if (failArchive && op.upserts?.some(item => item.done)) return json(400, { ok: false, code: 'STORE_FAILED' })
+  } })
+  const { window, act, store } = ctx
+  t.after(() => window.close())
+  const chat = mountChatComposer(ctx, 'session-1', '原草稿')
+  await openHostNotes(ctx)
+  const insert = await addNoteWithFiles(ctx, '只填入一次', [new window.File(['original'], '文件.txt')])
+  await act(async () => { insert.click() })
+  assert.equal(chat.draft, '原草稿\n只填入一次')
+  assert.equal(chat.files.length, 1)
+  assert.equal((await store.snapshot()).data.workspaces[UNASSIGNED].items[0].done, false)
+  const receiptKey = 'dsh.aside-note.archive-retries'
+  assert.ok(window.sessionStorage.getItem(receiptKey))
+
+  const button = window.document.querySelector('.dsh-an-headerBtn')
+  await act(async () => button.click())
+  await act(async () => button.click())
+  failArchive = false
+  await act(async () => window.document.querySelector('[aria-label="重试归档"]').click())
+  assert.equal(chat.draft, '原草稿\n只填入一次')
+  assert.equal(chat.files.length, 1)
+  assert.equal(chat.pastes, 2)
+  assert.equal((await store.snapshot()).data.workspaces[UNASSIGNED].items[0].done, true)
+  assert.equal(window.sessionStorage.getItem(receiptKey), null)
+})
+
 test('NOTE-012 拒绝无效附件并保留上传失败前的草稿', async t => {
-  const ctx = await setup({ uploadDown: true })
-  const { window, act, calls } = ctx
+  const ctx = await setup({ holdUploads: true })
+  const { window, act, calls, requests } = ctx
   t.after(() => window.close())
   const { button } = await ctx.openPanel()
   await act(async () => { button.click() })
@@ -870,9 +940,25 @@ test('NOTE-012 拒绝无效附件并保留上传失败前的草稿', async t => 
     transferFiles(window, form, 'drop', [new window.File([], '空文件.txt')])
   })
   assert.equal(uploads().length, 0)
-  await act(async () => transferFiles(window, form, 'drop', [new window.File(['data'], '读不到.txt')]))
-  assert.equal(uploads().length, 1)
+  await act(async () => transferFiles(window, form, 'drop', [
+    new window.File(['data'], '读不到.txt'), new window.File(['more'], '取消.txt'),
+  ]))
+  assert.equal(uploads().length, 2)
+  await act(async () => requests[0].progress(2))
+  assert.equal(form.querySelector('[role="progressbar"][aria-label="读不到.txt"]').getAttribute('aria-valuenow'), '50')
+  assert.equal(form.querySelector('[role="progressbar"][aria-label="取消.txt"]').getAttribute('aria-valuenow'), null)
+  await act(async () => form.querySelector('[aria-label="移除 取消.txt"]').click())
+  assert.equal(requests[1].aborted, true)
+  await act(async () => { requests[1].finish(); requests[0].finish(502) })
   assert.equal(textarea.value, '先留在这里')
-  assert.equal(form.querySelector('.dsh-an-attachments'), null)
-  assert.equal(form.querySelector('.dsh-an-addBtn').disabled, false)
+  assert.equal(form.querySelector('.dsh-an-addBtn').disabled, true)
+  await act(async () => button.click())
+  await act(async () => button.click())
+  const reopened = window.document.querySelector('.dsh-an-popover form')
+  await act(async () => reopened.querySelector('[aria-label="重新上传 读不到.txt"]').click())
+  assert.equal(uploads().length, 3)
+  assert.equal(requests[2].file, requests[0].file)
+  await act(async () => requests[2].finish())
+  assert.deepEqual([...reopened.querySelectorAll('[download]')].map(link => link.download), ['读不到.txt'])
+  assert.equal(reopened.querySelector('.dsh-an-addBtn').disabled, false)
 })

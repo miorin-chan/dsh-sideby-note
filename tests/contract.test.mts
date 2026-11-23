@@ -305,7 +305,8 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /startPanelHeightResize/)
   assert.doesNotMatch(client, /refreshMemoBadges/)
   assert.doesNotMatch(client, /BoundDock/)
-  assert.match(client, /ReactDOMClient\.createRoot/)
+  assert.match(client, /createPortal\(h\('div'/)
+  assert.doesNotMatch(read('src/client/index.ts'), /createRoot/)
   assert.match(client, /IconCopy/)
   assert.match(client, /copyText/)
   assert.match(client, /toast\.copied/)
@@ -906,13 +907,10 @@ test('archived notes sort by newest archive', () => {
   assert.equal(factory.completedStamp({}), 0)
 })
 
-test('the composer sends on Enter and breaks on Shift+Enter, like the main composer', () => {
+test('the composer adds on Enter and preserves Shift+Enter and IME', () => {
   const composer = read('src/client/ui/useComposerDraft.ts')
-  // Plain Enter adds; Shift+Enter keeps the textarea's native line break.
-  assert.match(composer, /if \(event\.shiftKey\) return/)
-  assert.match(composer, /event\.preventDefault\(\)\n    if \(event\.repeat\) return\n    add\(\)/)
-  // An IME candidate Enter is left to the browser, never adding a note.
-  assert.match(composer, /if \(composing\) return/)
+  assert.match(composer, /if \(event\.shiftKey \|\| composing\) return/)
+  assert.match(composer, /event\.preventDefault\(\)\n    if \(!event\.repeat\) void add\(\)/)
   // The old configurable chord path is gone.
   assert.doesNotMatch(composer, /sendShortcut|insertDraftNewline|isSendModifier/)
   assert.doesNotMatch(read('src/client/constants.ts'), /SEND_SHORTCUT|MOD_LABEL|isSendModifier/)
@@ -978,18 +976,18 @@ test('the insert action uses the product list-pen glyph', () => {
 
 test('putting a note into the chat archives it in the same step', () => {
   const popover = read('src/client/ui/MemoPopover.ts')
-  const start = popover.indexOf('const insertItem = async (item: WorkspaceNote) => {')
+  const start = popover.indexOf('const insertItem = async (item: WorkspaceNote,')
   assert.ok(start > 0, 'insert handler missing')
   const handler = popover.slice(start, popover.indexOf('\n  }\n', start))
   // The note is written bare; no prompt and no list marker.
   assert.doesNotMatch(handler, /prefix|forward\.prefix|`- /)
   assert.match(handler, /await appendToConversation\(sessionId, item, props\.getComposerInput, operation\.signal\)/)
-  assert.match(handler, /if \(result !== 'inserted'\) \{\n\s+if \(result !== 'cancelled'\) report\(result\)\n\s+return\n\s+\}/)
+  assert.match(handler, /if \(result\.status !== 'inserted'\) \{\n\s+if \(result\.status !== 'cancelled'\) report\(result\.status\)\n\s+return\n\s+\}/)
   assert.match(handler, /const ok = await archive\(item\)/)
-  assert.match(handler, /'inserted'[^\n]*'archiveFailed'/)
+  assert.match(handler, /report\(ok \? success : 'archiveFailed'\)/)
   assert.ok(handler.indexOf('appendToConversation') < handler.indexOf('archive(item)'), 'archive only after the complete note enters the draft')
   const actions = read('src/client/ui/useNoteActions.ts')
-  assert.match(actions, /if \(candidate\.id !== item\.noteId \|\| candidate\.done\) return candidate/, 'archiving is one-way')
+  assert.match(actions, /if \(candidate\.done\) return candidate/, 'archiving is one-way')
   assert.match(actions, /done: true, updatedAt: now, completedAt: now/)
 })
 
@@ -1086,7 +1084,7 @@ test('the open panel follows a live locale switch', () => {
   const popover = read('src/client/ui/MemoPopover.ts')
   assert.match(popover, /React\.useSyncExternalStore\(subscribeLocale, readLocaleRevision/)
   assert.match(popover, /const localeId = typeof props\.getLocaleId === 'function'/)
-  assert.match(read('src/client/index.ts'), /root\.render\(h\(MemoPopover, \{\n\s+sessionId: panel\.sessionId,\n\s+say: tr,\n\s+locale,/)
+  assert.match(read('src/client/index.ts'), /h\(MemoPopover, \{\n\s+sessionId: panel\.sessionId,\n\s+say: tr,\n\s+locale,/)
 })
 
 

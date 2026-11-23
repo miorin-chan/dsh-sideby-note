@@ -6,11 +6,14 @@
  * useSessionMemoStore.
  */
 import React from 'react'
+import type { RenderFactorySlot } from '@deepseek-ai/dsh-client-ui-slots'
+import type { FileDragService } from '@deepseek-ai/dsh-client-ui-file-drag/client'
 import { PANEL_DEFAULT_WIDTH, SCOPE_MODE_KEY } from '../constants'
 import { draftKeyForSession, UNASSIGNED_WORKSPACE, workspaceCatalogReady, workspaceForSession, workspaceById, type ScopeMode } from '../scope'
 import { STORE_READY_LISTENERS, TODO_LISTENERS, notifyTodoChange } from '../storage/events'
 import { retryStorage } from '../storage/boot'
 import { readScopeMode, writeScopeMode } from '../storage/prefs'
+import { hasArchiveRetry, setArchiveRetry } from '../storage/archiveRetries'
 import { isHostConnectionFailure, storageFailure, storageMode } from '../storage/state'
 import { useMemoStore, type WorkspaceNote } from './useSessionMemoStore'
 import { usePanelGeometry } from './usePanelGeometry'
@@ -52,11 +55,17 @@ type MemoComposerProps = Parameters<typeof useComposerDraft>[0] & {
   composerRef: React.Ref<MemoComposerHandle>
   nameOfWorkspace: (id: string) => string
   say: (key: string, vars?: Record<string, string>) => string
+  renderFactorySlot?: RenderFactorySlot
+  readFileDrag: FileDragService['read']
 }
 
-function MemoComposer({ composerRef, nameOfWorkspace, say, ...options }: MemoComposerProps) {
+function MemoComposer({ composerRef, nameOfWorkspace, say, renderFactorySlot, readFileDrag, ...options }: MemoComposerProps) {
   const { workspaceId, canUpload, storageInUse, report } = options
-  const { draft, draftLocked, isSubmitting, isRecalling, isUploading, addRef, composingRef, add, recall, addFiles, removeAttachment, onDraftChange, onDraftKeyDown } = useComposerDraft(options)
+  const {
+    draft, draftLocked, isSubmitting, isRecalling, hasUnresolvedAttachments, attachmentItems,
+    addRef, isComposing, onCompositionStart, onCompositionEnd,
+    add, recall, addFiles, removeAttachment, removeUpload, retryUpload, onDraftChange, onDraftKeyDown,
+  } = useComposerDraft(options)
   React.useImperativeHandle(composerRef, (): MemoComposerHandle => ({
     recall,
     focus: () => addRef.current?.focus({ preventScroll: true }),
@@ -73,33 +82,56 @@ function MemoComposer({ composerRef, nameOfWorkspace, say, ...options }: MemoCom
     destination: destinationHint,
     destinationPending: !destination,
     attachments: draft.attachments,
+    attachmentItems,
+    renderFactorySlot,
+    readFileDrag,
     draftLocked,
     isSubmitting,
     isRecalling,
-    isUploading,
+    hasUnresolvedAttachments,
     canUpload,
     storageInUse,
     onFiles: addFiles,
     onRemove: removeAttachment,
+    onRemoveUpload: removeUpload,
+    onRetryUpload: retryUpload,
+    onReadFailed: () => report('attachmentReadFailed'),
     onUnavailable: () => report('attachmentUnavailable'),
     onBusy: () => report('attachmentBusy'),
     inputRef: addRef,
     onDraftChange,
-    onCompositionStart: () => { composingRef.current = true },
-    onCompositionEnd: () => { composingRef.current = false },
+    onCompositionStart,
+    onCompositionEnd,
     onKeyDown: onDraftKeyDown,
     onSubmit: event => {
       event.preventDefault()
-      if (!composingRef.current) add()
+      if (!isComposing()) void add()
     },
   })
 }
 
 const noteKey = (item: WorkspaceNote) => JSON.stringify([item.workspaceId, item.noteId])
+const noteContentKey = (item: WorkspaceNote) => JSON.stringify([noteKey(item), item.text, item.attachments ?? []])
+type PartialForward = Extract<Awaited<ReturnType<typeof appendToConversation>>, { status: 'partial' }>
+
+// Partial handoffs reference the retained draft instance on this page.
+const partialForwards = new Map<string, PartialForward>()
+
+function hasUnresolvedForward(result: PartialForward, current: ReturnType<ComposerInputForSession>): boolean {
+  if (!result.state) return result.draftChanged
+  if (!current) return true
+  const draft = current.state.getSnapshot()
+  if (result.draftChanged && draft.draft && draft.draft !== result.draftBefore) return true
+  if (result.remainingAttachmentIds.some(id => draft.attachmentIds.includes(id))) return true
+  return current.state === result.state && result.attachmentListChanged && draft.attachmentIds.length > 0
+    && result.attachmentIdsBefore.some((id, index) => draft.attachmentIds[index] !== id)
+}
 
 interface MemoPopoverProps {
   sessionId: string
   getComposerInput: ComposerInputForSession
+  renderFactorySlot?: RenderFactorySlot
+  readFileDrag: FileDragService['read']
   say: (key: string, vars?: Record<string, string | number>) => string
   locale?: DshLocaleService
   getLocaleId?: () => string
@@ -115,9 +147,7 @@ interface MemoPopoverProps {
 export function MemoPopover(props: MemoPopoverProps) {
   const say = props.say
   const localeService = props.locale
-  // The locale service publishes a revision on every language switch. The
-  // popover lives in its own React root, so without this subscription a panel
-  // opened before the switch would keep the previous language until reopened.
+  // Re-render the open panel on language changes independently of the frame seat.
   const subscribeLocale = React.useCallback(callback => {
     if (localeService && typeof localeService.subscribe === 'function') return localeService.subscribe(callback)
     return () => {}
@@ -262,25 +292,52 @@ export function MemoPopover(props: MemoPopoverProps) {
     notifyTodoChange()
   }
 
-  const insertItem = async (item: WorkspaceNote) => {
+  const insertItem = async (item: WorkspaceNote, trigger: HTMLButtonElement) => {
     const key = noteKey(item)
+    const contentKey = noteContentKey(item)
+    const partialKey = JSON.stringify([contentKey, sessionId])
     if (inserting.current.has(key)) return
     const mode = storageMode()
     if (mode === 'probing' || mode === 'error') {
       report('saveFailed')
       return
     }
+    const retryArchive = hasArchiveRetry(contentKey)
+    const previous = partialForwards.get(partialKey)
+    if (!retryArchive && previous && hasUnresolvedForward(previous, props.getComposerInput(sessionId))) {
+      report('insertPartial')
+      return
+    }
+    partialForwards.delete(partialKey)
+
     const operation = new AbortController()
     inserting.current.set(key, operation)
     setInsertingKeys(new Set(inserting.current.keys()))
     try {
-      const result = await appendToConversation(sessionId, item, props.getComposerInput, operation.signal)
-      if (result !== 'inserted') {
-        if (result !== 'cancelled') report(result)
-        return
+      if (!retryArchive) {
+        const result = await appendToConversation(sessionId, item, props.getComposerInput, operation.signal)
+        if (result.status === 'partial') {
+          partialForwards.set(partialKey, result)
+          report('insertPartial')
+          return
+        }
+        if (result.status !== 'inserted') {
+          if (result.status !== 'cancelled') report(result.status)
+          return
+        }
+        setArchiveRetry(contentKey, true)
       }
-      const ok = await archive(item)
-      report(ok ? 'inserted' : 'archiveFailed')
+      const restoreFocus = document.activeElement === trigger
+      const ok = await archive(item).catch(() => false)
+      if (ok) {
+        setArchiveRetry(contentKey, false)
+        if (restoreFocus) requestAnimationFrame(() => {
+          if (document.activeElement !== document.body && document.activeElement !== trigger) return
+          panelRef.current?.querySelector('.dsh-an-doneToggle')?.focus({ preventScroll: true })
+        })
+      }
+      const success = retryArchive ? 'archiveRetried' : item.attachments?.length ? 'insertedWithAttachments' : 'inserted'
+      report(ok ? success : 'archiveFailed')
     } finally {
       operation.abort()
       if (inserting.current.get(key) === operation) {
@@ -309,10 +366,12 @@ export function MemoPopover(props: MemoPopoverProps) {
       item,
       archived: item.done === true,
       insertPending: insertingKeys.has(noteKey(item)),
+      retryArchive: hasArchiveRetry(noteContentKey(item)),
       workspaceName: showWorkspace ? nameOfWorkspace(owner) : undefined,
       isCurrentWorkspace: workspace?.workspaceId === owner,
       onOpenWorkspace: canOpenWorkspace ? () => props.onOpenWorkspace(owner) : undefined,
       say,
+      renderFactorySlot: props.renderFactorySlot,
       localeId,
       onToast: report,
       onInsert: insertItem,
@@ -406,6 +465,8 @@ export function MemoPopover(props: MemoPopoverProps) {
       storageInUse,
       canUpload,
       focusOnMount: props.focusComposerOnMount,
+      renderFactorySlot: props.renderFactorySlot,
+      readFileDrag: props.readFileDrag,
     }),
     storeMode === 'probing' && h('p', { className: 'dsh-an-listStatus', role: 'status' }, countStatus),
     storeMode !== 'probing' && h(NoteList, {
