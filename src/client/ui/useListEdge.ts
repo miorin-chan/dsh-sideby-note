@@ -3,7 +3,7 @@ import React from 'react'
 import { syncStickyHeads } from './position'
 
 export function useListEdge({ items, showOpen, showDone }) {
-  const listRef = React.useRef(null)
+  const listRef = React.useRef<HTMLDivElement>(null)
   const [listHasMore, setListHasMore] = React.useState(false)
 
   /** The bottom fade exists only while the list can still scroll down. */

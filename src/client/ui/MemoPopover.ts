@@ -26,6 +26,7 @@ import { useRowReorder } from './useRowReorder'
 import { useClearConfirm } from './useClearConfirm'
 import { useListEdge } from './useListEdge'
 import { useOutsideDismiss } from './useOutsideDismiss'
+import { scrollNoteIntoView } from './position'
 import { compareDoneItems } from '../domain/items'
 import { appendToConversation, type ComposerInputForSession } from '../domain/forward'
 
@@ -36,6 +37,7 @@ import { ComposerForm } from './ComposerForm'
 import { NoteList } from './NoteList'
 
 const h = React.createElement
+const NOTE_HIGHLIGHT_MS = 2500
 
 function subscribeStorageStatus(callback: () => void) {
   STORE_READY_LISTENERS.add(callback)
@@ -127,8 +129,13 @@ function hasUnresolvedForward(result: PartialForward, current: ReturnType<Compos
     && result.attachmentIdsBefore.some((id, index) => draft.attachmentIds[index] !== id)
 }
 
+export type NoteJump = Pick<WorkspaceNote, 'workspaceId' | 'noteId'> & {
+  keyboardTrigger?: HTMLButtonElement
+}
+
 interface MemoPopoverProps {
   sessionId: string
+  noteToReveal?: NoteJump
   getComposerInput: ComposerInputForSession
   renderFactorySlot?: RenderFactorySlot
   readFileDrag: FileDragService['read']
@@ -140,7 +147,7 @@ interface MemoPopoverProps {
   placement: string
   focusComposerOnMount: boolean
   onClose: (restoreFocus?: boolean) => void
-  onOpenWorkspace?: (workspaceId: string) => void
+  onOpenWorkspace?: (note: NoteJump) => void
   onToast?: (kind: string) => void
 }
 
@@ -266,6 +273,38 @@ export function MemoPopover(props: MemoPopoverProps) {
   })
   useOutsideDismiss(panelRef, props.anchorRef, props.onClose)
 
+  const [revealedNote, setRevealedNote] = React.useState<{ note: NoteJump; highlighted: boolean }>()
+  const revealRowRef = React.useRef<HTMLLIElement>(null)
+  const noteToReveal = props.noteToReveal
+  const revealItem = noteToReveal && workspace?.workspaceId === noteToReveal.workspaceId
+    ? items.find(item => item.workspaceId === noteToReveal.workspaceId && item.noteId === noteToReveal.noteId)
+    : undefined
+  React.useLayoutEffect(() => {
+    if (!noteToReveal || !revealItem || revealedNote?.note === noteToReveal) return
+    const section = revealItem.done ? 'done' : 'open'
+    if (!sectionsRef.current[section]) {
+      applySections({ ...sectionsRef.current, [section]: true })
+      return
+    }
+    const list = listRef.current
+    const row = revealRowRef.current
+    if (!list || !row) return
+    scrollNoteIntoView(list, row)
+    const { keyboardTrigger } = noteToReveal
+    if (keyboardTrigger && (document.activeElement === keyboardTrigger || document.activeElement === document.body)) {
+      row.focus({ preventScroll: true })
+    }
+    syncListEdge()
+    setRevealedNote({ note: noteToReveal, highlighted: true })
+  })
+  React.useEffect(() => {
+    if (!revealedNote?.highlighted) return
+    const timer = window.setTimeout(() => {
+      setRevealedNote(current => current === revealedNote ? { ...revealedNote, highlighted: false } : current)
+    }, NOTE_HIGHLIGHT_MS)
+    return () => window.clearTimeout(timer)
+  }, [revealedNote])
+
   const clearDone = async () => {
     const idsByWorkspace = new Map<string, Set<string>>()
     for (const item of doneItems) {
@@ -364,7 +403,7 @@ export function MemoPopover(props: MemoPopoverProps) {
     if (!inserting.current.has(noteKey(item))) void composerRef.current?.recall(item, takeBack)
   }
 
-  const row = item => {
+  const row = (item: WorkspaceNote) => {
     const owner: string = item.workspaceId
     const showWorkspace = effectiveMode === 'global'
     const canOpenWorkspace = showWorkspace && owner !== UNASSIGNED_WORKSPACE
@@ -377,7 +416,15 @@ export function MemoPopover(props: MemoPopoverProps) {
       retryArchive: hasArchiveRetry(noteContentKey(item)),
       workspaceName: showWorkspace ? nameOfWorkspace(owner) : undefined,
       isCurrentWorkspace: workspace?.workspaceId === owner,
-      onOpenWorkspace: canOpenWorkspace ? () => props.onOpenWorkspace(owner) : undefined,
+      onOpenWorkspace: canOpenWorkspace
+        ? (event: React.MouseEvent<HTMLButtonElement>) => props.onOpenWorkspace({
+            workspaceId: owner,
+            noteId: item.noteId,
+            keyboardTrigger: event.detail === 0 && event.currentTarget === document.activeElement ? event.currentTarget : undefined,
+          })
+        : undefined,
+      rowRef: item === revealItem ? revealRowRef : undefined,
+      highlighted: item === revealItem && revealedNote?.note === noteToReveal && revealedNote.highlighted,
       say,
       renderFactorySlot: props.renderFactorySlot,
       localeId,

@@ -23,6 +23,14 @@ export function syncStickyHeads(node) {
   }
 }
 
+/** Scroll the note list, using layout positions unaffected by row animations. */
+export function scrollNoteIntoView(list: HTMLDivElement, row: HTMLLIElement) {
+  const head = row.closest('.dsh-an-listSection')?.firstElementChild
+  const headHeight = head?.getBoundingClientRect().height ?? 0
+  const centerOffset = Math.max(0, (list.clientHeight - headHeight - row.offsetHeight) / 2)
+  list.scrollTop = Math.max(0, row.offsetTop - headHeight - centerOffset)
+}
+
 /**
  * Frame-owned top safety margin for floating surfaces. Read from the layout
  * rather than baked in, so macOS window chrome and the Windows titlebar both

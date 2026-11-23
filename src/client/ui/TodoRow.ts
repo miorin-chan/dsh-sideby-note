@@ -10,6 +10,7 @@ const h = React.createElement
 export function TodoRow(props) {
   const {
     item, archived, insertPending, retryArchive, workspaceName, isCurrentWorkspace, onOpenWorkspace,
+    rowRef, highlighted,
     say, renderFactorySlot, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey,
   } = props
   const attachments = item.attachments ?? []
@@ -49,8 +50,11 @@ export function TodoRow(props) {
   return h(
     'li',
     {
+      ref: rowRef,
       className: archived ? 'dsh-an-row dsh-an-rowArchived' : 'dsh-an-row',
       'data-row-id': item.id,
+      'data-jump-highlight': highlighted ? '' : undefined,
+      tabIndex: rowRef ? -1 : undefined,
       'data-sortable': dragProps ? 'true' : undefined,
       ...dragProps,
     },

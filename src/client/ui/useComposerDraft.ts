@@ -73,7 +73,7 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
     node.style.height = `${node.scrollHeight + 2}px`
   }
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     resizeAdd(addRef.current)
   }, [draft.add])
 

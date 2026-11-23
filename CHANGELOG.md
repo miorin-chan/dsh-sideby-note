@@ -50,7 +50,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   Hover tints the shared background beneath both filters, including the curved gaps at their seam.
   The entry badge shows the current workspace count when available, or the global count in a standalone session.
 - In **Global**, click a workspace’s arrow or name to start a new conversation there.
-  The panel stays open during the jump.
+  The panel stays open, scrolls to the note you clicked, and briefly outlines it.
   Selecting the current workspace keeps the current conversation.
   The workspace link sits below the note content, with **Insert** to the left of the content.
 - Existing session notes move to their owning workspaces.
@@ -101,7 +101,8 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - 单行标题栏显示全局和当前工作区各自的待续数，工作区由文件夹图标和名称表示。
   悬停时，浅高亮铺满两个筛选项共用的外层胶囊，包括交界处的圆角空隙。
   入口角标显示所在工作区的待续数，独立会话显示全局待续数。
-- 全局模式下，点击工作区图标或名称可在对应工作区打开新会话，跳转时面板保持打开。
+- 全局模式下，点击工作区图标或名称可在对应工作区打开新会话。
+  面板保持打开，自动滚到刚点击的便笺，并短暂用边框高亮。
   如果已在该工作区，则保留当前会话。
   工作区链接放在便笺内容下方，「填入」在正文左侧。
 - 旧会话便笺会移入所属工作区，归属未知的便笺可在「全局」查看。

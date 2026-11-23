@@ -1165,21 +1165,64 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.ok(browserWorkspaceItems(window, 'ws-2').every(item => !item.done), 'global clear reaches other workspaces')
   })
 
-  await t.test('SCOPE-015 面板内跳转工作区时保持面板打开', async () => {
+  await t.test('SCOPE-015 面板内跳转工作区时保持面板打开', async t => {
+    const openTarget = { id: 'seed-2', text: '目标工作区的待续便笺', done: false, createdAt: 8, updatedAt: 8 }
+    const archivedTarget = { id: 'archive-jump', text: '共享工作区的归档便笺', done: true, createdAt: 9, updatedAt: 9, completedAt: 9 }
+    const store = JSON.parse(window.localStorage.getItem(WORKSPACE_KEY))
+    store.workspaces['ws-2'].items.push(openTarget)
+    store.workspaces['ws-1'].items.push(archivedTarget)
+    await act(async () => {
+      window.localStorage.setItem(WORKSPACE_KEY, JSON.stringify(store))
+      window.dispatchEvent(new window.StorageEvent('storage', { key: WORKSPACE_KEY }))
+    })
+    const rowByText = text => [...secondPopover.querySelectorAll('.dsh-an-row')]
+      .find(row => row.querySelector('.dsh-an-text').textContent === text)
+    const highlightedRows = () => [...secondPopover.querySelectorAll('[data-jump-highlight]')]
+    const rowOffsets = new Map([
+      [JSON.stringify(['ws-2', openTarget.id]), 340],
+      [JSON.stringify(['ws-1', archivedTarget.id]), 640],
+    ])
+    t.mock.getter(window.HTMLElement.prototype, 'offsetTop', function () {
+      return rowOffsets.get(this.dataset.rowId) ?? 0
+    })
+    t.mock.getter(window.HTMLElement.prototype, 'offsetHeight', function () {
+      return this.dataset.rowId === JSON.stringify(['ws-1', archivedTarget.id]) ? 360 : 48
+    })
+    const setTimeout = window.setTimeout.bind(window)
+    let expireHighlight
+    t.mock.method(window, 'setTimeout', (callback, delay, ...args) => {
+      if (delay !== 2500) return setTimeout(callback, delay, ...args)
+      expireHighlight = callback
+      return setTimeout(callback, 60000, ...args)
+    })
+
     await typeInto(inputOf(secondPopover), '原工作区的草稿')
     const draftsKey = 'dsh.aside-note.drafts'
     const drafts = JSON.parse(window.localStorage.getItem(draftsKey))
-    drafts.sessions['ws:ws-2'] = { add: '目标工作区的草稿' }
+    const targetDraft = '目标工作区的草稿\n第二行'
+    drafts.sessions['ws:ws-2'] = { add: targetDraft }
+    t.mock.getter(window.Element.prototype, 'scrollHeight', function () {
+      return this.matches('.dsh-an-input') && this.value === targetDraft ? 118 : 0
+    })
     window.localStorage.setItem(draftsKey, JSON.stringify(drafts))
     const fieldBeforeJump = inputOf(secondPopover)
     const list = secondPopover.querySelector('.dsh-an-listArea')
     const listRect = list.getBoundingClientRect()
     list.getBoundingClientRect = () => ({ ...listRect, height: 320, bottom: listRect.top + 320 })
+    Object.defineProperty(list, 'clientHeight', {
+      get: () => inputOf(secondPopover).style.height === '120px' ? 200 : 320,
+    })
     list.scrollTop = 32
-    const jump = secondPopover.querySelector('button[aria-label="在 另一工作区 打开新会话"]')
-    await act(async () => { jump.click() })
+    const targetRow = rowByText(openTarget.text)
+    const jump = targetRow.querySelector('button[aria-label="在 另一工作区 打开新会话"]')
+    await act(async () => {
+      jump.focus()
+      jump.dispatchEvent(new window.MouseEvent('click', { bubbles: true, detail: 0 }))
+    })
     assert.equal(document.querySelector('.dsh-an-popover'), secondPopover)
     assert.equal(fieldBeforeJump.value, '原工作区的草稿')
+    assert.deepEqual(highlightedRows(), [])
+    assert.equal(list.scrollTop, 32, 'the source list stays in place until the target session appears')
 
     const itemsBeforeJump = workspaceItems()
     const draggedText = openList().querySelector('.dsh-an-text')
@@ -1198,13 +1241,16 @@ test('workspace notes share a list and global actions preserve ownership', async
     })
     assert.equal(document.querySelector('.dsh-an-popover'), secondPopover, 'the same panel stays open while the header is absent')
     assert.equal(secondPopover.querySelector('.dsh-an-listArea'), list)
-    assert.equal(list.scrollTop, 32)
-    assert.equal(inputOf(secondPopover).value, '目标工作区的草稿')
+    assert.equal(list.scrollTop, 252, 'the note is centered in the space left after the destination draft grows')
+    assert.equal(inputOf(secondPopover).value, targetDraft)
+    assert.equal(document.activeElement, targetRow, 'keyboard activation moves focus to the revealed note')
     assert.equal(secondPopover.querySelector('.dsh-an-destination'), null,
       'the global composer does not repeat the current workspace shown in the scope switch')
     assert.equal(jump.getAttribute('aria-current'), 'location')
-    assert.equal(secondPopover.querySelector('.dsh-an-row .dsh-an-workspaceJump'), jump,
+    assert.equal(openList().firstElementChild.querySelector('.dsh-an-workspaceJump').getAttribute('aria-current'), 'location',
       'the target workspace moves to the front as soon as the panel follows the jump')
+    assert.notEqual(openList().firstElementChild, targetRow, 'the selected note is not the first note in the workspace')
+    assert.deepEqual(highlightedRows(), [targetRow], 'only the clicked note is outlined, even with a duplicate ID in another workspace')
     await act(async () => { pointer(draggedText, 'pointerup', 60) })
     assert.deepEqual(workspaceItems(), itemsBeforeJump, 'the old drop position must not reorder the workspace after the jump')
     assert.equal(openList().dataset.dragging, undefined, 'the drag ends when the list is reordered by the jump')
@@ -1226,13 +1272,32 @@ test('workspace notes share a list and global actions preserve ownership', async
     const saved = JSON.parse(window.localStorage.getItem(draftsKey)).sessions
     assert.equal(saved['ws:ws-1'].add, '原工作区的草稿')
     assert.equal(saved['ws:ws-2'].add, '目标工作区的新草稿')
+    await act(async () => { expireHighlight() })
+    assert.deepEqual(highlightedRows(), [], 'the outline disappears after the reveal interval')
+    assert.equal(list.scrollTop, 252, 'clearing the outline does not scroll again')
 
-    await act(async () => { secondPopover.querySelector('button[aria-label="在 共享工作区 打开新会话"]').click() })
+    const archivedToggle = secondPopover.querySelector('.dsh-an-doneHead .dsh-an-doneToggle')
+    await act(async () => { archivedToggle.click() })
+    await act(async () => {
+      rowByText(archivedTarget.text).querySelector('.dsh-an-workspaceJump').click()
+      archivedToggle.click()
+    })
+    assert.equal(archivedToggle.getAttribute('aria-expanded'), 'false')
     assert.equal(workspaceStarts.at(-1), 'ws-1')
     await act(async () => {
-      finishWorkspaceOpen()
+      finishWorkspaceOpen('session-1')
       corner.replaceWith(utilities)
       secondRoot.render(React.createElement(capture, { sessionId: 'session-1', useWorkspaces: confirmedWorkspaces }))
+    })
+    assert.equal(archivedToggle.getAttribute('aria-expanded'), 'true', 'the target archive is reopened when necessary')
+    assert.equal(list.scrollTop, 616, 'a tall note starts just below the sticky archive header')
+    assert.deepEqual(highlightedRows(), [rowByText(archivedTarget.text)])
+
+    await act(async () => { secondPopover.querySelector('button[aria-label="在 另一工作区 打开新会话"]').click() })
+    assert.equal(workspaceStarts.at(-1), 'ws-2')
+    await act(async () => {
+      finishWorkspaceOpen()
+      secondRoot.render(React.createElement(capture, { sessionId: 'session-2', useWorkspaces: confirmedWorkspaces }))
     })
     assert.equal(document.querySelector('.dsh-an-popover'), null,
       'an ordinary session switch superseding the jump still closes the panel')

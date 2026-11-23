@@ -34,7 +34,7 @@ import { requestHostRefresh, storageMode } from './storage/state'
 import { migrateWorkspaceNotes } from './storage/workspace'
 import { createToastSeat } from './ui/toastSeat'
 import { createHeaderEntry } from './ui/headerEntry'
-import { MemoPopover } from './ui/MemoPopover'
+import { MemoPopover, type NoteJump } from './ui/MemoPopover'
 import { SendDraftToNotes, type ComposerNoteSlotProps } from './ui/SendDraftToNotes'
 
 const h = React.createElement
@@ -150,7 +150,8 @@ function apply(ctx: DshClientCtx) {
     anchorRef: { current: HTMLButtonElement }
     sessionId: string
     focusComposerOnMount: boolean
-    navigation?: { sessionId: string; workspace: NoteWorkspace }
+    noteToReveal?: NoteJump
+    navigation?: { sessionId: string; workspace: NoteWorkspace; note: NoteJump }
   } | null = null
   const panelListeners = new Set<() => void>()
   const readPanel = () => activePopover
@@ -223,16 +224,18 @@ function apply(ctx: DshClientCtx) {
     return typeof service?.openWorkspace === 'function' ? service : undefined
   }
 
-  const openNoteWorkspace = (targetId: string) => {
-    if (workspaceForSession(activeSessionId)?.workspaceId === targetId) return
+  const openNoteWorkspace = (note: NoteJump) => {
+    if (workspaceForSession(activeSessionId)?.workspaceId === note.workspaceId) return
     const panel = activePopover
-    const target = workspaceById(targetId)
+    const target = workspaceById(note.workspaceId)
     const navigation = getWorkspaceNavigation()
     if (!panel || !target || !navigation) return
     // Record the exact session only when the host is about to open it. Failed
     // or superseded requests leave ordinary conversation switches alone.
     void navigation.openWorkspace(target.workspaceId, sessionId => {
-      if (activePopover?.id === panel.id) activePopover.navigation = { sessionId, workspace: target }
+      if (activePopover?.id !== panel.id) return
+      const keyboardTrigger = document.activeElement === note.keyboardTrigger ? note.keyboardTrigger : undefined
+      activePopover.navigation = { sessionId, workspace: target, note: { ...note, keyboardTrigger } }
     }).catch((error: unknown) => { console.warn('workspace jump failed:', error) })
   }
 
@@ -252,6 +255,7 @@ function apply(ctx: DshClientCtx) {
         sessionId: panel.sessionId,
         say: tr,
         locale,
+        noteToReveal: panel.noteToReveal,
         getComposerInput,
         renderFactorySlot,
         readFileDrag,
@@ -392,7 +396,10 @@ function apply(ctx: DshClientCtx) {
         if (followedJump && listedWorkspace) delete panel.navigation
         if (sessionChanged || workspaceChanged) {
           prepareMemoSession(sessionId)
-          updatePanel({ ...panel, sessionId, focusComposerOnMount: false })
+          updatePanel({
+            ...panel, sessionId, focusComposerOnMount: false,
+            noteToReveal: followedJump ? navigation.note : undefined,
+          })
         }
       } else if (sessionChanged || workspaceChanged) {
         closeMemoPopover()
