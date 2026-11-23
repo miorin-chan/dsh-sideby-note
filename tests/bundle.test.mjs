@@ -29,7 +29,7 @@ const RUNNING = manifest.version
 // version instead of pinning one shape, which broke every release.
 const CHANNELS = /-(?:alpha|beta|rc)\./.test(RUNNING) ? ['latest', 'next'] : ['latest']
 const REGISTRY_URLS = ['https://registry.npmjs.org', 'https://registry.npmmirror.com']
-  .flatMap(host => CHANNELS.map(channel => `${host}/dsh-sideby-note/${channel}`))
+  .flatMap(host => CHANNELS.map(channel => `${host}/%40miorin%2Fdsh-sideby-note/${channel}`))
 // The core only: a prerelease build (1.1.2-beta.1) would otherwise make PATCH NaN.
 const [MAJOR, MINOR, PATCH] = RUNNING.replace(/-.*$/, '').split('.').map(Number)
 const LATEST = `${MAJOR + 1}.0.0`
@@ -148,7 +148,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   window.__ModuleLoader__ = { load: spec => { loaded = spec } }
   window.eval(bundle)
 
-  assert.equal(loaded.id, 'dsh-sideby-note')
+  assert.equal(loaded.id, '@miorin/dsh-sideby-note')
   const moduleTable = {
     react: React,
     'react/jsx-runtime': ReactJSXRuntime,

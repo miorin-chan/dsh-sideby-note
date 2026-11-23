@@ -19,13 +19,13 @@
  */
 import React from 'react'
 import type { NotesEntry, NotesState, RunPhase, UpdateRunState } from './useUpdateCenter'
+import { PLUGIN_PACKAGE } from '../constants'
 import type { ReleaseNoteGroup } from '../update/releaseNotes'
 import { isPrereleaseVersion } from '../update/latest'
 
 const h = React.createElement
 
 const NOTES_ID = 'dsh-an-update-notes'
-const UPDATE_PACKAGE = 'dsh-sideby-note'
 
 /** Failure codes the card can explain without echoing the host's message. */
 const FAILURE_COPY: Record<string, string> = {
@@ -122,15 +122,14 @@ export function UpdateNotice(props: {
   const manualCommand = React.useMemo(() => {
     const hinted = run.message?.trim() ?? ''
     const prerelease = isPrereleaseVersion(latestVersion)
-    // A host from an older build may send a command that omits the version, or
-    // one that omits the npmjs pin for a prerelease. Use its hint only when it
-    // names both, so the card cannot hand over a command that installs the
-    // stable line.
-    const hintPinsTarget = hinted.includes(latestVersion)
-    const hintPinsRegistry = !prerelease || hinted.includes('--registry=https://registry.npmjs.org/')
-    if (/^npx\s/u.test(hinted) && hintPinsTarget && hintPinsRegistry) return hinted
+    // A host from an older build may still name the unscoped package or omit
+    // the registry pin for a prerelease.
     const registry = prerelease ? ' --registry=https://registry.npmjs.org/' : ''
-    const packageSpec = prerelease ? `${UPDATE_PACKAGE}@${latestVersion}` : UPDATE_PACKAGE
+    const packageSpec = prerelease ? `${PLUGIN_PACKAGE}@${latestVersion}` : PLUGIN_PACKAGE
+    const hintNamesPackage = hinted.includes(` ${packageSpec} install `)
+    const hintPinsTarget = hinted.includes(` --version ${latestVersion} `)
+    const hintPinsRegistry = !prerelease || hinted.includes(`${registry} `)
+    if (/^npx\s/u.test(hinted) && hintNamesPackage && hintPinsTarget && hintPinsRegistry) return hinted
     return `npx -y${registry} ${packageSpec} install --version ${latestVersion}`
   }, [run.message, latestVersion])
   /**

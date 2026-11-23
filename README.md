@@ -6,7 +6,7 @@
 
 > **个人改版说明**：本项目由 [光吟（LighghtEeloo）](https://github.com/LighghtEeloo) 改版，基于并受原作者 [阿三石（Rayle8）](https://github.com/Rayle8) 的 [dsh-aside-note](https://github.com/Rayle8/dsh-aside-note)（旁边记 / AsideNote）启发，仅作个人使用，正文大部分保留自原 README。与上游的主要区别：
 >
-> - 界面名称与文案改为「边记部 / Sideby Note」；包名、插件 id 与更新通道改为本仓库的 `dsh-sideby-note`，安装命令为 `npx dsh-sideby-note install`。
+> - 界面名称与文案改为「边记部 / Sideby Note」；包名与 npm 更新通道为 `@miorin/dsh-sideby-note`，插件 id 为 `dsh-sideby-note`，安装命令为 `npx @miorin/dsh-sideby-note install`。
 > - **移除匿名功能统计**：不再内置腾讯云 RUM SDK，不发送任何使用事件；设置 › 隐私中的统计开关与相关本地存储键一并移除。
 > - 沿用上游的 `dsh.aside-note.*` 存储键；升级时会自动迁移旧会话便笺。
 > - README 截图来自本改版，而非上游版本。
@@ -39,14 +39,14 @@
 
 ## 快速安装
 
-边记部以 npm 包 `dsh-sideby-note` 装进 DSH profile。两种方式选一个：把提示词交给 agent，或自己执行一条命令。
+边记部以 npm 包 `@miorin/dsh-sideby-note` 装进 DSH profile。两种方式选一个：把提示词交给 agent，或自己执行一条命令。
 
 ### 通过 agent 安装
 
 把下面这段发给你的 agent：
 
 ```text
-帮我安装 DSH 插件 Sideby Note（边记部），在终端执行：npx -y dsh-sideby-note install
+帮我安装 DSH 插件 Sideby Note（边记部），在终端执行：npx -y @miorin/dsh-sideby-note install
 装好后不用重启 DSH，会话右上角即可看到「边记部」入口；如果没出现，
 让我到「插件」页刷新，再把它手动关闭并开启一次。
 如果提示找不到 DSH 或找不到 profile，转告我先安装并启动 DeepSeek Harness 再重试；
@@ -56,20 +56,23 @@
 ### 通过命令行安装
 
 ```bash
-npx dsh-sideby-note install
+npx @miorin/dsh-sideby-note install
 ```
 
-脚本会从 npm 临时拉取本包，找到 DSH profile（存在 `DSH_PROFILE_DIR` 时用它，否则默认 `~/.dsh/profiles/desktop`），先把 `package.json` 和 `pnpm-lock.yaml` 备份到 `.local-backup/`，再写入依赖、把 `dsh-sideby-note` 追加进 `dsh.profile.bundles`，然后用 **DeepSeek Harness 自带的 node 与 pnpm** 执行 `pnpm install`（找不到运行时才回退到 PATH 上的 pnpm，可用 `DSH_RUNTIME_DIR` 指定），最后校验装出来的 `client/client.js`。用宿主自己的工具链是为了让 profile 的 pnpm store 与宿主保持一致——换成另一个主版本的 pnpm 写入，宿主下次安装会报 `ERR_PNPM_UNEXPECTED_STORE`。
+脚本会从 npm 临时拉取本包，找到 DSH profile（存在 `DSH_PROFILE_DIR` 时用它，否则默认 `~/.dsh/profiles/desktop`），先把 `package.json` 和 `pnpm-lock.yaml` 备份到 `.local-backup/`，再写入依赖、把 `@miorin/dsh-sideby-note` 加入 `dsh.profile.bundles`，然后用 **DeepSeek Harness 自带的 node 与 pnpm** 执行 `pnpm install`（找不到运行时才回退到 PATH 上的 pnpm，可用 `DSH_RUNTIME_DIR` 指定），最后校验装出来的 `client/client.js`。用宿主自己的工具链是为了让 profile 的 pnpm store 与宿主保持一致——换成另一个主版本的 pnpm 写入，宿主下次安装会报 `ERR_PNPM_UNEXPECTED_STORE`。
 
 ```bash
-npx dsh-sideby-note install --profile work    # 指定 profile
-npx dsh-sideby-note install --dry-run         # 只打印计划，不改任何文件
-npx dsh-sideby-note install --version 0.1.0   # 固定版本，而不是 ^0.1.0
+npx @miorin/dsh-sideby-note install --profile work    # 指定 profile
+npx @miorin/dsh-sideby-note install --dry-run         # 只打印计划，不改任何文件
+npx @miorin/dsh-sideby-note install --version 0.1.0   # 固定版本，而不是 ^0.1.0
 ```
+
+从无 scope 的 `dsh-sideby-note` 升级时，请执行上面的安装命令。安装器会在备份后替换所选 profile 的旧依赖和组合包条目，
+便笺和附件仍可在原来的位置读取。旧版的应用内更新无法切换包名。
 
 重复执行是幂等的。装完不需要重启 DSH：profile 会在约 1 秒内重新组合，安装后会话右上角即可看到「边记部」入口。如果入口没有出现，到侧边栏「插件」页刷新，把它关闭再开启一次，运行中的 Host 会重新组合，入口随即可见。
 
-卸载：从 `dsh.profile.bundles` 移除 `dsh-sideby-note`，在 profile 目录执行 `pnpm remove dsh-sideby-note`，无需重启；右上角入口随之消失，若「插件」页里仍列着它，刷新该页即可。
+卸载：从 `dsh.profile.bundles` 移除 `@miorin/dsh-sideby-note`，在 profile 目录执行 `pnpm remove @miorin/dsh-sideby-note`，无需重启；右上角入口随之消失，若「插件」页里仍列着它，刷新该页即可。
 
 ## 为什么做边记部
 
@@ -234,11 +237,11 @@ npm run test:mutate   # 变异测试：确认用例能抓到真实缺陷
 ```json
 {
   "dependencies": {
-    "dsh-sideby-note": "link:<path-to-repo>"
+    "@miorin/dsh-sideby-note": "link:<path-to-repo>"
   },
   "dsh": {
     "profile": {
-      "bundles": ["dsh-sideby-note"]
+      "bundles": ["@miorin/dsh-sideby-note"]
     }
   }
 }
@@ -249,7 +252,7 @@ npm run test:mutate   # 变异测试：确认用例能抓到真实缺陷
 入口是 `src/client/index.ts`，导出 `apply(ctx)`；tsdown 负责套上 DSH 的加载壳：
 
 ```js
-window.__ModuleLoader__.load({ id: 'dsh-sideby-note', factory: (require) => { … } })
+window.__ModuleLoader__.load({ id: '@miorin/dsh-sideby-note', factory: (require) => { … } })
 ```
 
 产物单独提交：CI 会重建并对比 `client/`，不一致就失败，因此不要手改 `client/client.js`。

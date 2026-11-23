@@ -218,12 +218,12 @@ docs/assets/             # README 截图（preview-* 与 features/）
 而运行中的 Desktop 拒绝移除正被 fiber 使用的插件（`bundle-in-use`）——面板打开时它永远处于这个状态。
 宿主改为就地覆盖，三级降级：
 
-1. `pluginManager.installBundle('dsh-sideby-note@<v>', { enabled: false })`（`enabled: false` 表示只换包，
+1. `pluginManager.installBundle('@miorin/dsh-sideby-note@<v>', { enabled: false })`（`enabled: false` 表示只换包，
    不动 profile 的 bundle 选择）
 2. 若被拒为 `already-installed`：`dsh plugin add <spec> --save-exact`
 3. 仍不可用：用该 profile 自带的包管理器 `add <spec> --save-exact`
 
-装完回读 `node_modules/dsh-sideby-note/package.json`，必须等于目标版本，否则报 `RESOLVED_VERSION_MISMATCH`。
+装完回读 `node_modules/@miorin/dsh-sideby-note/package.json`，必须等于目标版本，否则报 `RESOLVED_VERSION_MISMATCH`。
 成功返回 `restartRequired: true`——DSH 不重载已加载的包，新版本在下次启动生效。
 
 更新有两个同源端点，请求须通过 DSH 会话校验，写入使用 POST：`GET /dsh-sideby-note/update/probe`、
@@ -233,6 +233,10 @@ docs/assets/             # README 截图（preview-* 与 features/）
 自 1.1.2-beta.7 起，客户端不再保留插件市场客户端或探测：宿主没有路由、
 或拒绝码属于「终端命令能绕过」的一类时，卡片直接给出手动命令。
 命令由宿主生成，带目标版本与 profile 目录；预发布还会固定 `npx` 的 npmjs registry，避免装回稳定版。
+
+包名切换由显式执行的安装器完成。它备份目标 profile 的 manifest 与 lockfile，替换旧依赖与组合包条目；
+Cordis 行 id 沿用 `dsh-sideby-note`，按行 id 匹配的自定义 patch 继续生效。
+若自定义 patch 还用旧包名限定匹配，需把其中的 `name` 改为 scoped 包名。
 
 ### 为何不查「有 agent 正在运行」
 

@@ -71,7 +71,7 @@ test('the installer is used first and its result is verified', async () => {
     },
     readVersion: disk.readVersion,
   })
-  assert.deepEqual(calls, [{ spec: 'dsh-sideby-note@1.1.2', options: { enabled: false } }])
+  assert.deepEqual(calls, [{ spec: '@miorin/dsh-sideby-note@1.1.2', options: { enabled: false } }])
   assert.equal(result.route, 'dsh')
   assert.equal(result.updated, true)
   // DSH keeps the loaded build until it restarts.
@@ -91,11 +91,11 @@ test('already-installed falls through to the plugin command', async () => {
     pluginCommand: async args => {
       commands.push(args)
       disk.installed()
-      return { exitCode: 0, output: '+ dsh-sideby-note 1.1.2' }
+      return { exitCode: 0, output: '+ @miorin/dsh-sideby-note 1.1.2' }
     },
     readVersion: disk.readVersion,
   })
-  assert.deepEqual(commands, [['add', 'dsh-sideby-note@1.1.2', '--save-exact']])
+  assert.deepEqual(commands, [['add', '@miorin/dsh-sideby-note@1.1.2', '--save-exact']])
   assert.equal(result.route, 'dsh-plugin')
   assert.equal(result.updated, true)
 })
@@ -142,7 +142,7 @@ test('the profile package manager is the last automatic route', async () => {
   assert.equal(result.route, 'package-manager')
   assert.deepEqual(spawned, [{
     command: 'node',
-    args: ['pnpm.mjs', 'add', 'dsh-sideby-note@1.1.2', '--save-exact'],
+    args: ['pnpm.mjs', 'add', '@miorin/dsh-sideby-note@1.1.2', '--save-exact'],
     cwd: PROFILE,
   }])
 })
@@ -219,7 +219,7 @@ test('no route at all says so and hands over the command', async () => {
       assert.equal(error.code, 'AUTO_UPDATE_UNAVAILABLE')
       assert.equal(error.retryable, false)
       assert.equal(error.diagnostic, manualCommand(PROFILE, TARGET))
-      assert.match(error.diagnostic, /^npx -y dsh-sideby-note install --version 1\.1\.2 --profile-dir /)
+      assert.match(error.diagnostic, /^npx -y @miorin\/dsh-sideby-note install --version 1\.1\.2 --profile-dir /)
       return true
     },
   )
@@ -227,7 +227,7 @@ test('no route at all says so and hands over the command', async () => {
 
 test('the manual command pins a prerelease to npmjs', () => {
   const command = manualCommand(PROFILE, '1.1.2-beta.7')
-  assert.match(command, /^npx -y --registry=https:\/\/registry\.npmjs\.org\/ dsh-sideby-note@1\.1\.2-beta\.7 install --version 1\.1\.2-beta\.7 --profile-dir /)
+  assert.match(command, /^npx -y --registry=https:\/\/registry\.npmjs\.org\/ @miorin\/dsh-sideby-note@1\.1\.2-beta\.7 install --version 1\.1\.2-beta\.7 --profile-dir /)
 })
 
 test('a non-version target is rejected before anything runs', async () => {

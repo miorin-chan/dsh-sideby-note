@@ -55,9 +55,9 @@ test('builds a bilingual body with install links, markers and the compare link',
   assert.match(body, /## 更新内容/)
   assert.match(body, /<!-- app-update-notes:en:start -->/)
   assert.match(body, /<!-- app-update-notes:zh:start -->/)
-  assert.match(body, /npm install dsh-sideby-note@2\.1\.0/)
+  assert.match(body, /@miorin\/dsh-sideby-note@2\.1\.0 install --version 2\.1\.0/)
   const repoUrl = 'https://github.com/miorin-chan/dsh-sideby-note'
-  assert.ok(body.includes(`${repoUrl}/releases/download/v2.1.0/dsh-sideby-note-2.1.0.tgz`))
+  assert.ok(body.includes(`${repoUrl}/releases/download/v2.1.0/miorin-dsh-sideby-note-2.1.0.tgz`))
   assert.ok(body.includes(`${repoUrl}/compare/v2.0.1...v2.1.0`))
   assert.ok(body.includes(`${repoUrl}/releases/tag/v2.1.0`))
   // The English release page must not swallow the Chinese block, and vice versa.

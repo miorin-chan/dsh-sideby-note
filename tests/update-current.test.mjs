@@ -66,7 +66,7 @@ test('an up-to-date manual check never offers the running version', async t => {
   let loaded = null
   window.__ModuleLoader__ = { load: spec => { loaded = spec } }
   window.eval(bundle)
-  assert.equal(loaded.id, 'dsh-sideby-note')
+  assert.equal(loaded.id, '@miorin/dsh-sideby-note')
 
   const moduleTable = {
     react: React,

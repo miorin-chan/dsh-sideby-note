@@ -10,7 +10,7 @@ import { homedir } from 'node:os'
 import { isAbsolute, join, resolve } from 'node:path'
 
 /** The package this host half updates and reports on. */
-export const PACKAGE = 'dsh-sideby-note'
+export const PACKAGE = '@miorin/dsh-sideby-note'
 
 /**
  * Parse a JSON file, or answer undefined when it is missing or malformed.

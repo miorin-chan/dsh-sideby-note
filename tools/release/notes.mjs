@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url'
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const DEFAULT_REPO_ROOT = path.resolve(HERE, '..', '..')
 
-const PACKAGE = 'dsh-sideby-note'
+const PACKAGE = '@miorin/dsh-sideby-note'
 
 function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -83,6 +83,9 @@ export function buildReleaseBody(options) {
   const english = enBlock || fallback
   const chinese = zhBlock || fallback
 
+  const tarball = `${packageName.replace(/^@/, '').replace('/', '-')}-${version}.tgz`
+  const tarballUrl = `https://github.com/${repo}/releases/download/${tag}/${tarball}`
+  const installCommand = `npx -y --registry=https://registry.npmjs.org/ ${packageName}@${version} install --version ${version}`
   const body = [
     '# English',
     '',
@@ -92,8 +95,8 @@ export function buildReleaseBody(options) {
     '',
     '## Install or upgrade',
     '',
-    `- \`npm install ${packageName}@${version}\`, or update the profile dependency and run \`pnpm install\`.`,
-    `- Release tarball: [${packageName}-${version}.tgz](https://github.com/${repo}/releases/download/${tag}/${packageName}-${version}.tgz).`,
+    `- Run \`${installCommand}\` to install into your DSH profile. This also replaces an existing unscoped installation.`,
+    `- Release tarball: [${tarball}](${tarballUrl}).`,
     '- Then restart DSH, or toggle the bundle off and on in Plugins.',
     '',
     '# 中文',
@@ -104,8 +107,8 @@ export function buildReleaseBody(options) {
     '',
     '## 安装或升级',
     '',
-    `- \`npm install ${packageName}@${version}\`，或更新 profile 依赖后执行 \`pnpm install\`。`,
-    `- Release 附件：[${packageName}-${version}.tgz](https://github.com/${repo}/releases/download/${tag}/${packageName}-${version}.tgz)。`,
+    `- 执行 \`${installCommand}\` 安装到 DSH profile。该命令也会替换已有的无 scope 安装。`,
+    `- Release 附件：[${tarball}](${tarballUrl})。`,
     '- 然后重启 DSH，或在「插件」页把组合包关闭再开启。',
   ]
 

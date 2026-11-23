@@ -18,7 +18,7 @@
 
 ## 结构与命名
 
-- 公开 npm 包、插件 id 和更新通道统一为 `dsh-sideby-note`。
+- 公开 npm 包与 npm 更新通道使用 `@miorin/dsh-sideby-note`，Cordis 行 id 与 CLI 命令使用 `dsh-sideby-note`。
   界面名称为「边记部 / Sideby Note」。
   保留上游的 `dsh.aside-note` 存储键及兼容格式，具体契约见架构文档。
 - 本插件可以独立安装、启用与停用。`index.js` 与 `host/` 承载宿主存储和更新端点。

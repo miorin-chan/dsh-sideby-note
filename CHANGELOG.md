@@ -27,6 +27,8 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   To bring a file into chat, add the downloaded file through DSH’s composer.
 
 ### Changed
+- Sideby Note now installs as `@miorin/dsh-sideby-note`.
+  Run the scoped installer once to move an existing profile to the new package name.
 - The panel now offers **Global** to view notes across all workspaces and **Workspace** to view the current one.
   **Global** is available in new blank sessions.
   **Workspace** is available when a workspace is bound.
@@ -74,6 +76,8 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   要把原文件带进对话，可下载后通过 DSH 输入框添加。
 
 ### 变更
+- 边记部的 npm 包改为 `@miorin/dsh-sideby-note`。
+  已有用户可运行新安装器，把所选 profile 迁移到新包名。
 - 面板可用「全局」查看各工作区的便笺，也可在绑定工作区后用「工作区」查看当前工作区的便笺。
   空白新会话也能用「全局」。新增便笺始终写入当前工作区，独立会话写入未分配工作区。
   行操作和排序都在便笺所属工作区内生效。

@@ -6,7 +6,7 @@
  * here is dependency-injected and free of widget state so the contract test can
  * exercise the source order, the one-hour cache and the comparison in Node.
  */
-import { PLUGIN_REPO_URL, PLUGIN_VERSION } from '../constants'
+import { PLUGIN_PACKAGE, PLUGIN_REPO_URL, PLUGIN_VERSION } from '../constants'
 import { MAX_RELEASE_HISTORY, selectReleaseHistory } from './releaseHistory'
 import type { ReleaseHistory } from './releaseHistory'
 
@@ -153,7 +153,7 @@ export function createUpdateProbe(options: UpdateProbeOptions = {}) {
   }
 
   function readNpmVersion(host: string, channel: string): Promise<string | null> {
-    return readJson(`${host}/dsh-sideby-note/${channel}`).then(body =>
+    return readJson(`${host}/${encodeURIComponent(PLUGIN_PACKAGE)}/${channel}`).then(body =>
       body !== null && typeof body.version === 'string' ? body.version : null,
     )
   }

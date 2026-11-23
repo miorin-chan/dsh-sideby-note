@@ -61,7 +61,7 @@ async function boot(t, apply) {
   let loaded = null
   window.__ModuleLoader__ = { load: spec => { loaded = spec } }
   window.eval(bundle)
-  assert.equal(loaded.id, 'dsh-sideby-note')
+  assert.equal(loaded.id, '@miorin/dsh-sideby-note')
 
   const moduleTable = {
     react: React,
@@ -140,7 +140,7 @@ const clipboard = window => {
 }
 
 test('UPD-007 宿主没有更新路由时给命令兜底', async t => {
-  const hint = `npx -y --registry=https://registry.npmjs.org/ dsh-sideby-note@${NEXT} install --version ${NEXT} --profile-dir "${PROFILE}"`
+  const hint = `npx -y --registry=https://registry.npmjs.org/ @miorin/dsh-sideby-note@${NEXT} install --version ${NEXT} --profile-dir "${PROFILE}"`
   const { window, act, popover, calls, until, dispose } = await boot(t, () => json(501, {
     ok: false,
     code: 'AUTO_UPDATE_UNAVAILABLE',
@@ -171,10 +171,8 @@ test('UPD-007 宿主没有更新路由时给命令兜底', async t => {
   await dispose()
 })
 
-test('a prerelease host hint without the npmjs pin is replaced by the pinned command', async t => {
-  // An older host half pins the version but not the registry. Handing that hint
-  // over would let npx fetch the stable installer and miss the prerelease.
-  const stale = `npx -y dsh-sideby-note install --version ${NEXT} --profile-dir "${PROFILE}"`
+test('a prerelease host hint naming the legacy package is replaced even when it pins npmjs', async t => {
+  const stale = `npx -y --registry=https://registry.npmjs.org/ dsh-sideby-note@${NEXT} install --version ${NEXT} --profile-dir "${PROFILE}"`
   const { act, popover, until, dispose } = await boot(t, () => json(501, {
     ok: false,
     code: 'AUTO_UPDATE_UNAVAILABLE',
@@ -189,7 +187,7 @@ test('a prerelease host hint without the npmjs pin is replaced by the pinned com
 
   assert.ok(!fallback.textContent.includes(stale), 'the stale hint is not rendered verbatim')
   assert.match(fallback.textContent, /--registry=https:\/\/registry\.npmjs\.org\//)
-  assert.match(fallback.textContent, /dsh-sideby-note@9\.9\.9-beta\.1/)
+  assert.match(fallback.textContent, /@miorin\/dsh-sideby-note@9\.9\.9-beta\.1/)
   assert.match(fallback.textContent, /--version 9\.9\.9-beta\.1/)
   await dispose()
 })
@@ -210,7 +208,7 @@ test('a host refusal a terminal can get past uses the pinned command', async t =
   // The host sent no hint for this code, so the card pins the offered version
   // itself; a prerelease also names npmjs so npx cannot pick the stable line.
   assert.match(fallback.textContent, /npx -y --registry=https:\/\/registry\.npmjs\.org\//)
-  assert.match(fallback.textContent, new RegExp(`dsh-sideby-note@${NEXT.replaceAll('.', '\\.')}`))
+  assert.match(fallback.textContent, new RegExp(`@miorin/dsh-sideby-note@${NEXT.replaceAll('.', '\\.')}`))
   assert.match(fallback.textContent, new RegExp(`--version ${NEXT.replaceAll('.', '\\.')}`))
   assert.equal(calls.filter(call => call.url.includes('/dsh-market/')).length, 0,
     'the market is never probed')

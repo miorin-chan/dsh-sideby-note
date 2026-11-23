@@ -50,9 +50,9 @@ function installScript() {
   return [
     '#!/bin/sh',
     'set -e',
-    'mkdir -p node_modules/dsh-sideby-note/client',
-    `printf '{"version":"0.1.0"}' > node_modules/dsh-sideby-note/package.json`,
-    `printf '// bundle\\n' > node_modules/dsh-sideby-note/client/client.js`,
+    'mkdir -p node_modules/@miorin/dsh-sideby-note/client',
+    `printf '{"version":"0.1.0"}' > node_modules/@miorin/dsh-sideby-note/package.json`,
+    `printf '// bundle\\n' > node_modules/@miorin/dsh-sideby-note/client/client.js`,
     '',
   ].join('\n')
 }
@@ -96,11 +96,11 @@ test('a fresh profile gets the dependency and the bundle line', (t) => {
   assert.equal(result.status, 0, result.stderr)
 
   const manifest = manifestOf(dir)
-  assert.equal(manifest.dependencies['dsh-sideby-note'], '^0.1.0')
+  assert.equal(manifest.dependencies['@miorin/dsh-sideby-note'], '^0.1.0')
   assert.deepEqual(manifest.dsh.profile.bundles, [
     '@deepseek-ai/dsh-base',
     '@deepseek-ai/dsh-web-app',
-    'dsh-sideby-note',
+    '@miorin/dsh-sideby-note',
   ])
   assert.ok(existsSync(join(dir, '.local-backup')), 'the manifest is backed up before it is edited')
 })
@@ -122,7 +122,7 @@ test(
     const result = spawnSync(process.execPath, [SCRIPT, '--profile-dir', dir], { encoding: 'utf8', env })
 
     assert.equal(result.status, 0, result.stderr)
-    assert.match(result.stdout, /installed: dsh-sideby-note@0\.1\.0/)
+    assert.match(result.stdout, /installed: @miorin\/dsh-sideby-note@0\.1\.0/)
     assert.match(result.stdout, /After install/)
     assert.match(result.stdout, /Plugins page/)
     assert.match(result.stdout, /边记部/)
@@ -179,9 +179,9 @@ test(
       '  *" --registry=https://registry.npmjs.org/"*) ;;',
       '  *) printf "[ERR_PNPM_NO_MATCHING_VERSION] No matching version found\\n" >&2; exit 1 ;;',
       'esac',
-      'mkdir -p node_modules/dsh-sideby-note/client',
-      `printf '{"version":"1.1.2-beta.7"}' > node_modules/dsh-sideby-note/package.json`,
-      `printf '// bundle\\n' > node_modules/dsh-sideby-note/client/client.js`,
+      'mkdir -p node_modules/@miorin/dsh-sideby-note/client',
+      `printf '{"version":"1.1.2-beta.7"}' > node_modules/@miorin/dsh-sideby-note/package.json`,
+      `printf '// bundle\\n' > node_modules/@miorin/dsh-sideby-note/client/client.js`,
       '',
     ].join('\n'))
     chmodSync(node, 0o755)
@@ -201,27 +201,73 @@ test(
     assert.equal(invocations.length, 2, 'one miss, one npmjs retry')
     assert.doesNotMatch(invocations[0], /--registry=/)
     assert.match(invocations[1], /--registry=https:\/\/registry\.npmjs\.org\//)
-    assert.equal(manifestOf(dir).dependencies['dsh-sideby-note'], '1.1.2-beta.7')
-    assert.match(result.stdout, /installed: dsh-sideby-note@1\.1\.2-beta\.7/)
+    assert.equal(manifestOf(dir).dependencies['@miorin/dsh-sideby-note'], '1.1.2-beta.7')
+    assert.match(result.stdout, /installed: @miorin\/dsh-sideby-note@1\.1\.2-beta\.7/)
   },
 )
 
 test('re-running is idempotent and keeps the existing bundle order', (t) => {
   const manifest = structuredClone(BASE)
-  manifest.dependencies['dsh-sideby-note'] = '~0.9.9'
-  manifest.dsh.profile.bundles.splice(1, 0, 'dsh-sideby-note')
+  manifest.dependencies['@miorin/dsh-sideby-note'] = '~0.9.9'
+  manifest.dsh.profile.bundles.splice(1, 0, '@miorin/dsh-sideby-note')
   const dir = makeProfile(manifest, t)
 
   assert.equal(runInstaller(dir, ['--no-install']).status, 0)
   assert.equal(runInstaller(dir, ['--no-install']).status, 0)
 
   const after = manifestOf(dir)
-  assert.equal(after.dependencies['dsh-sideby-note'], '^0.1.0')
+  assert.equal(after.dependencies['@miorin/dsh-sideby-note'], '^0.1.0')
   assert.deepEqual(after.dsh.profile.bundles, [
     '@deepseek-ai/dsh-base',
-    'dsh-sideby-note',
+    '@miorin/dsh-sideby-note',
     '@deepseek-ai/dsh-web-app',
   ])
+})
+
+test('the scoped installer replaces the legacy package in place after backing up the profile', (t) => {
+  const manifest = structuredClone(BASE)
+  manifest.dependencies['dsh-sideby-note'] = '^0.1.0'
+  manifest.dsh.profile.bundles.splice(1, 0, 'dsh-sideby-note')
+  const dir = makeProfile(manifest, t)
+  const original = readFileSync(join(dir, 'package.json'), 'utf8')
+  const lock = 'lockfileVersion: \'9.0\'\n'
+  writeFileSync(join(dir, 'pnpm-lock.yaml'), lock)
+
+  const preview = runInstaller(dir, ['--dry-run'])
+  assert.equal(preview.status, 0, preview.stderr)
+  assert.match(preview.stdout, /replaces: dsh-sideby-note/)
+  assert.equal(readFileSync(join(dir, 'package.json'), 'utf8'), original)
+  assert.equal(existsSync(join(dir, '.local-backup')), false)
+
+  const result = runInstaller(dir, ['--no-install'])
+  assert.equal(result.status, 0, result.stderr)
+  assert.deepEqual(manifestOf(dir).dependencies, { '@miorin/dsh-sideby-note': '^0.1.0' })
+  assert.deepEqual(manifestOf(dir).dsh.profile.bundles, [
+    '@deepseek-ai/dsh-base',
+    '@miorin/dsh-sideby-note',
+    '@deepseek-ai/dsh-web-app',
+  ])
+  const backupRoot = join(dir, '.local-backup')
+  const [backup] = readdirSync(backupRoot)
+  assert.equal(readFileSync(join(backupRoot, backup, 'package.json'), 'utf8'), original)
+  assert.equal(readFileSync(join(backupRoot, backup, 'pnpm-lock.yaml'), 'utf8'), lock)
+})
+
+test('a profile selecting both names keeps the scoped bundle in its existing position', (t) => {
+  const manifest = structuredClone(BASE)
+  manifest.devDependencies = { 'dsh-sideby-note': '^0.1.0', 'other-package': '1.0.0' }
+  manifest.dsh.profile.bundles.unshift('dsh-sideby-note')
+  manifest.dsh.profile.bundles.push('@miorin/dsh-sideby-note')
+  const dir = makeProfile(manifest, t)
+
+  const result = runInstaller(dir, ['--no-install'])
+  assert.equal(result.status, 0, result.stderr)
+  assert.deepEqual(manifestOf(dir).dsh.profile.bundles, [
+    '@deepseek-ai/dsh-base',
+    '@deepseek-ai/dsh-web-app',
+    '@miorin/dsh-sideby-note',
+  ])
+  assert.deepEqual(manifestOf(dir).devDependencies, { 'other-package': '1.0.0' })
 })
 
 test('--dry-run reports the plan without touching the manifest', (t) => {
@@ -239,7 +285,7 @@ test('--version writes the exact range it was given', (t) => {
   const dir = makeProfile(structuredClone(BASE), t)
 
   assert.equal(runInstaller(dir, ['--no-install', '--version', '2.0.1']).status, 0)
-  assert.equal(manifestOf(dir).dependencies['dsh-sideby-note'], '2.0.1')
+  assert.equal(manifestOf(dir).dependencies['@miorin/dsh-sideby-note'], '2.0.1')
 })
 
 test('a directory that is not a DSH profile is refused untouched', (t) => {

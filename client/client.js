@@ -1,4 +1,4 @@
-window.__ModuleLoader__.load({ id: "dsh-sideby-note", factory: (require) => {
+window.__ModuleLoader__.load({ id: "@miorin/dsh-sideby-note", factory: (require) => {
 
 var module = { exports: {} }; var exports = module.exports;
 // \0rolldown/runtime.js
@@ -711,6 +711,7 @@ const WORKSPACE_STORAGE_KEY = "dsh.aside-note.workspaces";
 const DRAFT_STORAGE_KEY = "dsh.aside-note.drafts";
 /** Shown in the panel footer; keep in sync with package.json. */
 const PLUGIN_VERSION = "0.1.0";
+const PLUGIN_PACKAGE = "@miorin/dsh-sideby-note";
 const PLUGIN_REPO_URL = "https://github.com/miorin-chan/dsh-sideby-note";
 /** Last chosen list scope: the workspace list or the session list. */
 const SCOPE_MODE_KEY = "dsh.aside-note.scope-mode";
@@ -4134,7 +4135,7 @@ function createUpdateProbe(options = {}) {
 		return fetchWithTimeout(fetchImpl, url).then((response) => response.ok ? response.json() : null).catch(() => null);
 	}
 	function readNpmVersion(host, channel) {
-		return readJson(`${host}/dsh-sideby-note/${channel}`).then((body) => body !== null && typeof body.version === "string" ? body.version : null);
+		return readJson(`${host}/${encodeURIComponent(PLUGIN_PACKAGE)}/${channel}`).then((body) => body !== null && typeof body.version === "string" ? body.version : null);
 	}
 	function readGitHubVersion() {
 		return readJson(UPDATE_GITHUB_RELEASE_URL).then((body) => {
@@ -5600,7 +5601,6 @@ function StorageDetails({ say, mode, showStatus, onToast }) {
 */
 const h$7 = react.default.createElement;
 const NOTES_ID = "dsh-an-update-notes";
-const UPDATE_PACKAGE = "dsh-sideby-note";
 /** Failure codes the card can explain without echoing the host's message. */
 const FAILURE_COPY = {
 	PLUGIN_NOT_INSTALLED: "update.notInstalled",
@@ -5679,10 +5679,13 @@ function UpdateNotice(props) {
 	const manualCommand = react.default.useMemo(() => {
 		const hinted = run.message?.trim() ?? "";
 		const prerelease = isPrereleaseVersion(latestVersion);
-		const hintPinsTarget = hinted.includes(latestVersion);
-		const hintPinsRegistry = !prerelease || hinted.includes("--registry=https://registry.npmjs.org/");
-		if (/^npx\s/u.test(hinted) && hintPinsTarget && hintPinsRegistry) return hinted;
-		return `npx -y${prerelease ? " --registry=https://registry.npmjs.org/" : ""} ${prerelease ? `${UPDATE_PACKAGE}@${latestVersion}` : UPDATE_PACKAGE} install --version ${latestVersion}`;
+		const registry = prerelease ? " --registry=https://registry.npmjs.org/" : "";
+		const packageSpec = prerelease ? `${PLUGIN_PACKAGE}@${latestVersion}` : PLUGIN_PACKAGE;
+		const hintNamesPackage = hinted.includes(` ${packageSpec} install `);
+		const hintPinsTarget = hinted.includes(` --version ${latestVersion} `);
+		const hintPinsRegistry = !prerelease || hinted.includes(`${registry} `);
+		if (/^npx\s/u.test(hinted) && hintNamesPackage && hintPinsTarget && hintPinsRegistry) return hinted;
+		return `npx -y${registry} ${packageSpec} install --version ${latestVersion}`;
 	}, [run.message, latestVersion]);
 	/**
 	* No host route, or a refusal a terminal can get past: the user needs the

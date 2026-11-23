@@ -3,4 +3,4 @@
 # (./client/client.js) and registers the session entry plus its panel.
 - insert:
     - id: dsh-sideby-note
-      name: 'dsh-sideby-note'
+      name: '@miorin/dsh-sideby-note'

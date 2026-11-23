@@ -1,7 +1,8 @@
 # 发布与版本迭代
 
 本文是边记部（Sideby Note）的分支、构建与发布手册。
-发布动作只有两个入口：`main` 分支和 `vX.Y.Z` tag；npm 与 GitHub Release 都由同一次 tag 推送完成。
+日常发布由 `vX.Y.Z` tag 推送触发，生成 npm 包与 GitHub Release。
+新包名首次发布的准备见下文的 Trusted Publisher 说明。
 
 ## 分支模型
 
@@ -59,10 +60,10 @@ git push -u origin feat/xxx
 | 破坏性变更（存储键、插件 id、DSH 兼容范围） | `1.0.0` |
 | 预发布 | `0.2.0-beta.1` |
 
-`dsh-sideby-note` 从 **0.1.0** 起走自己的 0.x 线；更早的版本属于上游 `dsh-aside-note`，只作历史保留。
-caret 范围跨不过 0.x 的 minor，
+边记部从 **0.1.0** 起走自己的 0.x 线，npm 包从 `dsh-sideby-note` 迁至 `@miorin/dsh-sideby-note`。
+更早的版本属于上游 `dsh-aside-note`，只作历史保留。caret 范围跨不过 0.x 的 minor，
 所以每次发 `0.x.0` 都要把 `scripts/install.mjs` 的 `DEFAULT_RANGE` 一并改成新的 `^0.x.0`——
-`npx dsh-sideby-note install` 取到的总是最新安装器，新用户因此会装上最新一行。
+`npx @miorin/dsh-sideby-note install` 取到的总是最新安装器，新用户因此会装上最新一行。
 
 预发布 tag 形如 `v0.2.0-beta.1`：workflow 会发布到 npm 的 `next` dist-tag，并把 GitHub Release 标记为 prerelease，
 不会影响稳定用户的更新提示。
@@ -151,7 +152,10 @@ tag 一致），生成器按这个标题取小节。
 `tests/release-notes-build.test.mjs` 会同时校验发布页正文与面板解析结果，防止两边漂移。
 
 Trusted Publisher 必须绑定迁移后的组织仓库。
-下次发版前，在 npm 包设置中核对以下配置：
+`@miorin/dsh-sideby-note` 有自己的 Trusted Publisher 配置。
+全新的包名需要由具备 `@miorin` 发布权限的维护者用 2FA 执行首次公开发布，或暂存后批准。
+见 npm 的[公开 scoped 包发布文档](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages/)。
+包名在 registry 中创建后，再按 [npm trust 文档](https://docs.npmjs.com/cli/v11/commands/npm-trust)绑定以下配置：
 
 ```text
 type: github
@@ -164,7 +168,7 @@ permissions: publish, stage publish
 过期后重跑下面的命令并用 security key 重新授权：
 
 ```bash
-npx -y npm@11.21.1 trust github dsh-sideby-note \
+npx -y npm@11.21.1 trust github @miorin/dsh-sideby-note \
   --file publish.yml \
   --repo miorin-chan/dsh-sideby-note \
   --allow-publish \
@@ -177,12 +181,12 @@ npx -y npm@11.21.1 trust github dsh-sideby-note \
 ## 发布后校验
 
 ```bash
-npm view dsh-sideby-note version dist-tags --registry=https://registry.npmjs.org/
+npm view @miorin/dsh-sideby-note version dist-tags --registry=https://registry.npmjs.org/
 gh run list -R miorin-chan/dsh-sideby-note -L 3
 gh release view v0.1.0 -R miorin-chan/dsh-sideby-note
 ```
 
-再在一个临时目录 `npm install dsh-sideby-note@0.1.0`，或在测试 profile 里加载，确认 bundle 能启动。
+再在一个临时目录 `npm install @miorin/dsh-sideby-note@0.1.0`，或在测试 profile 里加载，确认 bundle 能启动。
 
 ## 更新提示的耦合
 
@@ -206,10 +210,14 @@ gh release view v0.1.0 -R miorin-chan/dsh-sideby-note
 node tools/release/notes.mjs --version 0.1.0 --tag v0.1.0 --out notes.md
 gh release create v0.1.0 --verify-tag --title "边记部 0.1.0" --notes-file notes.md
 npm pack --pack-destination dist
-gh release upload v0.1.0 dist/dsh-sideby-note-0.1.0.tgz --clobber
+gh release upload v0.1.0 dist/miorin-dsh-sideby-note-0.1.0.tgz --clobber
 ```
 
 ## 应用内更新的路径与兜底
+
+已发布的无 scope 版本仍会检查和安装旧包名。
+新版发布到 scoped 包后，已有用户需显式运行 scoped 安装器迁移一次。
+仅发布新包不会把旧版的应用内更新切换过去。
 
 「立即更新」通过**宿主自己的更新端点**执行，不是插件市场，也不是本插件自己跑包管理器。
 客户端通过两个经 DSH 会话验证的宿主端点更新：
@@ -221,13 +229,13 @@ gh release upload v0.1.0 dist/dsh-sideby-note-0.1.0.tgz --clobber
 命令由宿主生成，带目标版本和 profile 目录：
 
 ```bash
-npx -y dsh-sideby-note install --version 1.1.2-beta.7 --profile-dir "<profile>"
+npx -y @miorin/dsh-sideby-note install --version 1.1.2 --profile-dir "<profile>"
 ```
 
 预发布还会把 `npx` 固定到 npmjs 并指定包版本，例如：
 
 ```bash
-npx -y --registry=https://registry.npmjs.org/ dsh-sideby-note@1.1.2-beta.7 install --version 1.1.2-beta.7 --profile-dir "<profile>"
+npx -y --registry=https://registry.npmjs.org/ @miorin/dsh-sideby-note@1.1.2-beta.7 install --version 1.1.2-beta.7 --profile-dir "<profile>"
 ```
 
 安装器本身也会在默认 registry 返回 `ERR_PNPM_NO_MATCHING_VERSION` 时用 npmjs 重试一次，

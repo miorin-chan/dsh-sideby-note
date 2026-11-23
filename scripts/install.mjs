@@ -8,12 +8,12 @@
  * it is safe to re-run: an already-configured profile is left as it is.
  *
  * Usage:
- *   npx dsh-sideby-note install                     # DSH_PROFILE_DIR, else "desktop"
- *   npx dsh-sideby-note install --profile work      # ~/.dsh/profiles/work (or %USERPROFILE%\.dsh\profiles\work)
- *   npx dsh-sideby-note install --profile-dir <dir> # explicit profile directory
- *   npx dsh-sideby-note install --version 0.1.0    # exact pin instead of ^0.1.0
- *   npx dsh-sideby-note install --dry-run          # print the plan, change nothing
- *   npx dsh-sideby-note install --no-install       # edit the manifest only
+ *   npx @miorin/dsh-sideby-note install                     # DSH_PROFILE_DIR, else "desktop"
+ *   npx @miorin/dsh-sideby-note install --profile work      # ~/.dsh/profiles/work (or %USERPROFILE%\.dsh\profiles\work)
+ *   npx @miorin/dsh-sideby-note install --profile-dir <dir> # explicit profile directory
+ *   npx @miorin/dsh-sideby-note install --version 0.1.0    # exact pin instead of ^0.1.0
+ *   npx @miorin/dsh-sideby-note install --dry-run          # print the plan, change nothing
+ *   npx @miorin/dsh-sideby-note install --no-install       # edit the manifest only
  *
  * A profile edit does not need a restart: DSH re-composes the profile within
  * about a second, and the page picks the new client bundle up on its next load.
@@ -23,9 +23,10 @@ import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 
-const PACKAGE = 'dsh-sideby-note'
+const PACKAGE = '@miorin/dsh-sideby-note'
+const LEGACY_PACKAGE = 'dsh-sideby-note'
 // A caret range never crosses a 0.x minor, so this must move with every
-// 0.x.0 release; `npx dsh-sideby-note install` fetches the latest installer,
+// 0.x.0 release; `npx @miorin/dsh-sideby-note install` fetches the latest installer,
 // which then pulls the latest line.
 const DEFAULT_RANGE = '^0.1.0'
 
@@ -221,15 +222,26 @@ if (!manifest.dsh?.profile) {
 const before = JSON.stringify(manifest)
 manifest.dependencies ??= {}
 const previous = manifest.dependencies[PACKAGE]
+const legacy = manifest.dependencies[LEGACY_PACKAGE] ?? manifest.devDependencies?.[LEGACY_PACKAGE]
 manifest.dependencies[PACKAGE] = range
+// Migrate the old package only when this installer is explicitly run. Both
+// packages insert the same Cordis row, so they must not be selected together.
+delete manifest.dependencies[LEGACY_PACKAGE]
+if (manifest.devDependencies) delete manifest.devDependencies[LEGACY_PACKAGE]
 
 const bundles = (manifest.dsh.profile.bundles ??= [])
-if (!bundles.includes(PACKAGE)) bundles.push(PACKAGE)
+const legacyIndex = bundles.indexOf(LEGACY_PACKAGE)
+if (!bundles.includes(PACKAGE)) {
+  if (legacyIndex === -1) bundles.push(PACKAGE)
+  else bundles[legacyIndex] = PACKAGE
+}
+manifest.dsh.profile.bundles = bundles.filter(name => name !== LEGACY_PACKAGE)
 
 const changed = JSON.stringify(manifest) !== before
 console.log(`profile : ${dir}`)
 console.log(`package : ${PACKAGE}@${range}${previous && previous !== range ? `  (was ${previous})` : ''}`)
-console.log(`bundles : ${bundles.join(', ')}`)
+if (legacy !== undefined || legacyIndex !== -1) console.log(`replaces: ${LEGACY_PACKAGE}`)
+console.log(`bundles : ${manifest.dsh.profile.bundles.join(', ')}`)
 
 if (dryRun) {
   console.log(changed ? '\n(dry run) would update package.json and run the package manager' : '\n(dry run) already up to date')

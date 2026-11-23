@@ -13,7 +13,8 @@ const LOCALE_IDS = ['zh', 'en', 'ja', 'es', 'fr', 'de', 'ru', 'pt']
 
 test('package declares the DSH bundle and web client halves', () => {
   const manifest = JSON.parse(read('package.json'))
-  assert.equal(manifest.name, 'dsh-sideby-note')
+  assert.equal(manifest.name, '@miorin/dsh-sideby-note')
+  assert.equal(manifest.bin['dsh-sideby-note'], 'scripts/install.mjs')
   assert.equal(manifest.type, 'module')
   assert.equal(manifest.exports['.'], './index.js')
   assert.equal(manifest.exports['./client'], './client/client.js')
@@ -100,7 +101,7 @@ test('the client checks for a newer release, reads its notes inline and falls ba
   assert.match(client, /https:\/\/registry\.npmmirror\.com/)
   assert.match(client, /api\.github\.com\/repos/)
   // The tag is a variable now: a prerelease build also reads `next`.
-  assert.match(client, /dsh-sideby-note\/\$\{channel\}/)
+  assert.match(client, /encodeURIComponent\(PLUGIN_PACKAGE\)/)
   assert.match(client, /const channels = isPrereleaseVersion/)
   assert.match(client, /tag_name/)
   assert.match(client, /export function createUpdateProbe/)
@@ -127,7 +128,7 @@ test('the client checks for a newer release, reads its notes inline and falls ba
   assert.match(client, /'update\.prompt'/)
   // A manual command always pins the offered version; prereleases also tell
   // npx where to fetch the package from.
-  assert.match(client, /const UPDATE_PACKAGE = 'dsh-sideby-note'/)
+  assert.match(client, /const PLUGIN_PACKAGE = '@miorin\/dsh-sideby-note'/)
   assert.match(client, /npx -y\$\{registry\}/)
   assert.match(client, /--version \$\{latestVersion\}/)
   assert.match(client, /PLUGIN_VERSION\.includes\('-'\)/)
@@ -163,8 +164,8 @@ test('the update probe falls back from npm to the mirror and GitHub, and caches 
   })
   assert.equal(await probe.latest(), '2.1.0')
   assert.deepEqual(calls, [
-    'https://registry.npmjs.org/dsh-sideby-note/latest',
-    'https://registry.npmmirror.com/dsh-sideby-note/latest',
+    'https://registry.npmjs.org/%40miorin%2Fdsh-sideby-note/latest',
+    'https://registry.npmmirror.com/%40miorin%2Fdsh-sideby-note/latest',
   ], 'npm is consulted first and the mirror is the fallback')
   calls.length = 0
   now += hour - 1
@@ -188,8 +189,8 @@ test('the update probe falls back from npm to the mirror and GitHub, and caches 
   })
   assert.equal(await releaseOnly.latest(), '2.1.2', 'a GitHub Release backs a checkout that is not on npm, with its v prefix stripped')
   assert.deepEqual(releaseCalls, [
-    'https://registry.npmjs.org/dsh-sideby-note/latest',
-    'https://registry.npmmirror.com/dsh-sideby-note/latest',
+    'https://registry.npmjs.org/%40miorin%2Fdsh-sideby-note/latest',
+    'https://registry.npmmirror.com/%40miorin%2Fdsh-sideby-note/latest',
     'https://api.github.com/repos/miorin-chan/dsh-sideby-note/releases/latest',
   ], 'GitHub is consulted only after both npm hosts miss')
 
@@ -219,7 +220,7 @@ test('patch inserts exactly the package host row', () => {
   const patch = read('cordis.patch.yml')
   assert.match(patch, /- insert:/)
   assert.match(patch, /id: dsh-sideby-note/)
-  assert.match(patch, /name: 'dsh-sideby-note'/)
+  assert.match(patch, /name: '@miorin\/dsh-sideby-note'/)
   assert.doesNotMatch(patch, /@local\//)
 })
 
@@ -243,7 +244,7 @@ test('host and browser entries use the package identity', () => {
   // The loader shell is now emitted by tsdown, not hand-written in the source.
   const bundle = read('client/client.js')
   assert.match(bundle, /^window\.__ModuleLoader__\.load\(/)
-  assert.match(bundle, /id: "dsh-sideby-note"/)
+  assert.match(bundle, /id: "@miorin\/dsh-sideby-note"/)
   assert.match(bundle, /return module\.exports; \} \}\);/)
   assert.doesNotMatch(client, /__ModuleLoader__/, 'the source must not carry a hand-written shell')
   // The blank new-session page renders hero options but not the composer
@@ -532,13 +533,12 @@ function readLiteral(file, name) {
 /** The shipped update probe and comparator, evaluated from the built bundle. */
 function readUpdateHelpers() {
   const bundle = read('client/client.js')
-  // The probe block derives the GitHub endpoint from PLUGIN_REPO_URL; carry
-  // that one line so the snippet stands alone outside the module scope.
-  const repoLine = bundle.match(/const PLUGIN_REPO_URL = "[^"]+";/)[0]
+  // Carry the package and repository constants into the standalone snippet.
+  const identity = bundle.match(/const PLUGIN_(?:PACKAGE|REPO_URL) = "[^"]+";/g).join('\n')
   const start = bundle.indexOf('const UPDATE_REGISTRY_HOSTS = ')
   const end = bundle.indexOf('const updateProbe = createUpdateProbe', start)
   assert.ok(start > 0 && end > start, 'update helpers not found in the bundle')
-  return new Function(`${repoLine}\n${bundle.slice(start, end)}\nreturn { createUpdateProbe, isNewerVersion }`)()
+  return new Function(`${identity}\n${bundle.slice(start, end)}\nreturn { createUpdateProbe, isNewerVersion }`)()
 }
 
 test('colours come from theme aliases, never from a second palette', () => {

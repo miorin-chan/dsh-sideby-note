@@ -98,8 +98,8 @@ cat > "$WORK/dshhome/profiles/$PROFILE/package.json" <<JSON
 {
   "name": "dsh-profile-$PROFILE",
   "private": true,
-  "dependencies": { "dsh-sideby-note": "link:$REPO" },
-  "dsh": { "profile": { "bundles": ["@deepseek-ai/dsh-base", "@deepseek-ai/dsh-web-app", "dsh-sideby-note"] } }
+  "dependencies": { "@miorin/dsh-sideby-note": "link:$REPO" },
+  "dsh": { "profile": { "bundles": ["@deepseek-ai/dsh-base", "@deepseek-ai/dsh-web-app", "@miorin/dsh-sideby-note"] } }
 }
 JSON
 
@@ -111,9 +111,9 @@ DSH_HOME="$WORK/dshhome" "$DSH_CLI" plugin --profile "$PROFILE" install --offlin
 
 ```bash
 P="$WORK/dshhome/profiles/$PROFILE"
-readlink "$P/node_modules/dsh-sideby-note"
-shasum -a 256 "$P/node_modules/dsh-sideby-note/client/client.js" "$REPO/client/client.js"
-DSH_HOME="$WORK/dshhome" "$DSH_CLI" --profile "$PROFILE" --dump-config | grep -n "dsh-sideby-note"
+readlink "$P/node_modules/@miorin/dsh-sideby-note"
+shasum -a 256 "$P/node_modules/@miorin/dsh-sideby-note/client/client.js" "$REPO/client/client.js"
+DSH_HOME="$WORK/dshhome" "$DSH_CLI" --profile "$PROFILE" --dump-config | grep -n "@miorin/dsh-sideby-note"
 ```
 
 ### 步骤 3：起 DSH web，取 token
@@ -200,7 +200,7 @@ rm -rf "$WORK/chrome" "$WORK/chrome.log"       # 浏览器现场约 80MB
 ## 6. `result.md` 模板
 
 ```markdown
-# 边记部 dsh-sideby-note · 自动化测试报告
+# 边记部 @miorin/dsh-sideby-note · 自动化测试报告
 
 - 运行时间：YYYY-MM-DD HH:MM – HH:MM（Asia/Shanghai）
 - 结论：**PASS / FAIL**（单元/契约测试 X/Y，UI 冒烟 A/B）
@@ -217,7 +217,7 @@ rm -rf "$WORK/chrome" "$WORK/chrome.log"       # 浏览器现场约 80MB
 | Chrome | `<CDP /json/version 里的 Browser>` |
 
 ## 2. 隔离 profile 与插件挂载
-- profile：`sideby-note-wt`，bundles = base + web-app + dsh-sideby-note
+- profile：`sideby-note-wt`，bundles = base + web-app + @miorin/dsh-sideby-note
 - `link:` 指向工作树；profile 内 `client/client.js` 与工作树 sha256 一致：`<hash>`
 
 ## 3. 自动化测试

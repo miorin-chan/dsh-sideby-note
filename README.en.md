@@ -6,7 +6,7 @@ Asynchronously draft your ideas while the agent is working
 
 > **Personal fork notice:** This is a personal adaptation by [LighghtEeloo (光吟)](https://github.com/LighghtEeloo) of [dsh-aside-note](https://github.com/Rayle8/dsh-aside-note) (旁边记 / AsideNote), the original project by [Rayle8 (阿三石)](https://github.com/Rayle8); most of the text below is preserved from the original README. Main differences from the original:
 >
-> - Display name and copy are **Sideby Note** (边记部); the package name, plugin id and update channel are the fork's `dsh-sideby-note`, installed with `npx dsh-sideby-note install`.
+> - Display name and copy are **Sideby Note** (边记部); the npm package and update channel use `@miorin/dsh-sideby-note`, and the plugin ID is `dsh-sideby-note`, installed with `npx @miorin/dsh-sideby-note install`.
 > - **Anonymous feature statistics removed:** the Tencent Cloud RUM SDK, reporting code, Settings › Privacy switch and related local storage keys are gone, so no usage events are sent.
 > - Storage keys keep the upstream `dsh.aside-note.*` names. Upgrades automatically migrate legacy session notes.
 > - The README screenshots come from this fork, not upstream.
@@ -43,14 +43,14 @@ when the session is bound to a workspace.
 
 ## Quick install
 
-Sideby Note installs into a DSH profile as the npm package `dsh-sideby-note`. Pick one: hand the prompt to an agent, or run a single command.
+Sideby Note installs into a DSH profile as the npm package `@miorin/dsh-sideby-note`. Pick one: hand the prompt to an agent, or run a single command.
 
 ### Install with an agent
 
 Give your agent this block:
 
 ```text
-Install the DSH plugin Sideby Note by running: npx -y dsh-sideby-note install
+Install the DSH plugin Sideby Note by running: npx -y @miorin/dsh-sideby-note install
 No DSH restart is needed afterwards: the 边记部 entry is at the top right of the conversation.
 If it is missing, tell me to refresh the Plugins page and switch the plugin off and on once.
 If it says DSH or a profile cannot be found, tell me to install and start the DeepSeek Harness
@@ -60,20 +60,29 @@ client first and retry; do not clone the repo, hand-assemble dependencies, or re
 ### Install from the command line
 
 ```bash
-npx dsh-sideby-note install
+npx @miorin/dsh-sideby-note install
 ```
 
-The installer pulls this package from npm, finds the DSH profile (it honours `DSH_PROFILE_DIR`, otherwise `~/.dsh/profiles/desktop`), backs up `package.json` and `pnpm-lock.yaml` into `.local-backup/`, adds the dependency, appends `dsh-sideby-note` to `dsh.profile.bundles`, runs `pnpm install` **through the node and pnpm DeepSeek Harness ships** (falling back to the pnpm on PATH, and `DSH_RUNTIME_DIR` pins a runtime) and finally verifies the installed `client/client.js`. The host's own toolchain keeps the profile's pnpm store in step with the host — a profile written by another pnpm major answers `ERR_PNPM_UNEXPECTED_STORE` on the host's next install.
+The installer finds the DSH profile (`DSH_PROFILE_DIR` or `~/.dsh/profiles/desktop`) and backs up its
+`package.json` and `pnpm-lock.yaml` into `.local-backup/`. It adds `@miorin/dsh-sideby-note` to the dependencies
+and `dsh.profile.bundles`, runs `pnpm install`, and verifies the installed `client/client.js`.
+It prefers the node and pnpm that ship with DeepSeek Harness and falls back to pnpm on PATH.
+Use `DSH_RUNTIME_DIR` to specify a runtime. Using the host's pnpm avoids `ERR_PNPM_UNEXPECTED_STORE` on the next
+host install when the store layout differs between pnpm major versions.
 
 ```bash
-npx dsh-sideby-note install --profile work    # pick a profile
-npx dsh-sideby-note install --dry-run         # print the plan, write nothing
-npx dsh-sideby-note install --version 0.1.0   # pin the version instead of ^0.1.0
+npx @miorin/dsh-sideby-note install --profile work    # pick a profile
+npx @miorin/dsh-sideby-note install --dry-run         # print the plan, write nothing
+npx @miorin/dsh-sideby-note install --version 0.1.0   # pin the version instead of ^0.1.0
 ```
+
+To upgrade from the unscoped `dsh-sideby-note`, run the install command above. The installer backs up the
+selected profile and replaces its old dependency and bundle selection. Notes and attachments remain available
+from their existing storage. The old in-app updater cannot switch package names.
 
 It is safe to re-run. No restart is needed: DSH re-composes the profile within about a second, and the 边记部 entry appears at the top right of the conversation. If it does not, refresh the sidebar **Plugins** page and toggle the plugin off and on once — the running host recomposes and the entry appears.
 
-To uninstall, drop `dsh-sideby-note` from `dsh.profile.bundles`, run `pnpm remove dsh-sideby-note` in the profile directory, and no restart is needed: the entry disappears right away, and if the **Plugins** page still lists it, refresh that page.
+To uninstall, drop `@miorin/dsh-sideby-note` from `dsh.profile.bundles`, run `pnpm remove @miorin/dsh-sideby-note` in the profile directory, and no restart is needed: the entry disappears right away, and if the **Plugins** page still lists it, refresh that page.
 
 ## Why Sideby Note
 
@@ -255,11 +264,11 @@ To run the checkout inside DSH, link it into a profile (replace `<path-to-repo>`
 ```json
 {
   "dependencies": {
-    "dsh-sideby-note": "link:<path-to-repo>"
+    "@miorin/dsh-sideby-note": "link:<path-to-repo>"
   },
   "dsh": {
     "profile": {
-      "bundles": ["dsh-sideby-note"]
+      "bundles": ["@miorin/dsh-sideby-note"]
     }
   }
 }
@@ -270,7 +279,7 @@ After adding the bundle row, toggle it off/on in the sidebar **Plugins** page to
 The entry is `src/client/index.ts`, which exports `apply(ctx)`; tsdown wraps it in DSH's loader shell:
 
 ```js
-window.__ModuleLoader__.load({ id: 'dsh-sideby-note', factory: (require) => { … } })
+window.__ModuleLoader__.load({ id: '@miorin/dsh-sideby-note', factory: (require) => { … } })
 ```
 
 The artifact is committed: CI rebuilds it and fails when `client/` does not match, so do not edit `client/client.js` by hand.

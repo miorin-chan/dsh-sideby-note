@@ -34,7 +34,7 @@ const BODY = `# English
 
 ## Install
 
-- npm install dsh-sideby-note
+- npx @miorin/dsh-sideby-note install
 
 # 中文
 

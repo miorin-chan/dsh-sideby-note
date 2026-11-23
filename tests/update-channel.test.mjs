@@ -20,11 +20,11 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 /** The probe and comparator as shipped, evaluated from the built bundle. */
 function readUpdateHelpers() {
   const bundle = fs.readFileSync(path.join(root, 'client', 'client.js'), 'utf8')
-  const repoLine = bundle.match(/const PLUGIN_REPO_URL = "[^"]+";/)[0]
+  const identity = bundle.match(/const PLUGIN_(?:PACKAGE|REPO_URL) = "[^"]+";/g).join('\n')
   const start = bundle.indexOf('const UPDATE_REGISTRY_HOSTS = ')
   const end = bundle.indexOf('const updateProbe = createUpdateProbe', start)
   assert.ok(start > 0 && end > start, 'update helpers not found in the bundle')
-  return new Function(`${repoLine}\n${bundle.slice(start, end)}\nreturn { createUpdateProbe, isNewerVersion, isPrereleaseVersion, isPublishedChannel }`)()
+  return new Function(`${identity}\n${bundle.slice(start, end)}\nreturn { createUpdateProbe, isNewerVersion, isPrereleaseVersion, isPublishedChannel }`)()
 }
 
 const json = version => ({ ok: true, json: async () => ({ version }) })
@@ -41,7 +41,7 @@ test('a stable build reads `latest` alone', async () => {
     currentVersion: '1.1.1',
   })
   assert.equal(await probe.latest(), '1.1.2')
-  assert.deepEqual(calls, ['https://registry.npmjs.org/dsh-sideby-note/latest'])
+  assert.deepEqual(calls, ['https://registry.npmjs.org/%40miorin%2Fdsh-sideby-note/latest'])
   assert.equal(calls.some(url => url.endsWith('/next')), false, 'a stable build never asks for a prerelease')
 })
 
@@ -58,8 +58,8 @@ test('a prerelease build reads `next` and takes the newer beta', async () => {
   })
   assert.equal(await probe.latest(), '1.2.0-beta.2')
   assert.deepEqual(calls, [
-    'https://registry.npmjs.org/dsh-sideby-note/latest',
-    'https://registry.npmjs.org/dsh-sideby-note/next',
+    'https://registry.npmjs.org/%40miorin%2Fdsh-sideby-note/latest',
+    'https://registry.npmjs.org/%40miorin%2Fdsh-sideby-note/next',
   ])
   assert.equal(isNewerVersion('1.2.0-beta.2', '1.2.0-beta.1'), true)
 })

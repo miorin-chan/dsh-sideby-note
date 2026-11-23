@@ -26,12 +26,12 @@ function makeProfile(t) {
   t.after(() => rmSync(dir, { recursive: true, force: true }))
   writeFileSync(join(dir, 'package.json'), JSON.stringify({
     name: 'dsh-profile-desktop',
-    dependencies: { 'dsh-sideby-note': '1.1.1' },
-    dsh: { profile: { bundles: ['dsh-sideby-note'] } },
+    dependencies: { '@miorin/dsh-sideby-note': '1.1.1' },
+    dsh: { profile: { bundles: ['@miorin/dsh-sideby-note'] } },
   }))
-  const installed = join(dir, 'node_modules', 'dsh-sideby-note')
+  const installed = join(dir, 'node_modules', '@miorin/dsh-sideby-note')
   mkdirSync(installed, { recursive: true })
-  writeFileSync(join(installed, 'package.json'), JSON.stringify({ name: 'dsh-sideby-note', version: '1.1.1' }))
+  writeFileSync(join(installed, 'package.json'), JSON.stringify({ name: '@miorin/dsh-sideby-note', version: '1.1.1' }))
   return dir
 }
 
@@ -159,21 +159,33 @@ test('a second click during an install is answered busy', async t => {
   assert.equal(settled.status, 502)
   assert.equal(settled.body.code, 'bundle-in-use')
   assert.equal(settled.body.retryable, true)
-  assert.match(settled.body.hint, /^npx -y dsh-sideby-note install --version 1\.1\.2 --profile-dir /,
+  assert.match(settled.body.hint, /^npx -y @miorin\/dsh-sideby-note install --version 1\.1\.2 --profile-dir /,
     'a refusal a terminal can get past carries the exact command')
 })
 
 test('the probe reports the profile and refuses a checkout install', async t => {
+  const calls = []
+  t.mock.method(globalThis, 'fetch', async url => {
+    calls.push(url)
+    return url.startsWith('https://registry.npmjs.org/')
+      ? { ok: false }
+      : { ok: true, json: async () => ({ version: '1.1.2' }) }
+  })
   const dir = makeProfile(t)
   writeFileSync(join(dir, 'package.json'), JSON.stringify({
     name: 'dsh-profile-desktop',
-    dependencies: { 'dsh-sideby-note': 'link:../checkout' },
-    dsh: { profile: { bundles: ['dsh-sideby-note'] } },
+    dependencies: { '@miorin/dsh-sideby-note': 'link:../checkout' },
+    dsh: { profile: { bundles: ['@miorin/dsh-sideby-note'] } },
   }))
   const routes = mount(dir, undefined)
   const answer = await call(routes, PROBE_PATH, { method: 'GET' })
   assert.equal(answer.status, 200)
   assert.equal(answer.body.mode, 'link')
+  assert.equal(answer.body.latest, '1.1.2')
+  assert.deepEqual(calls, [
+    'https://registry.npmjs.org/%40miorin%2Fdsh-sideby-note/latest',
+    'https://registry.npmmirror.com/%40miorin%2Fdsh-sideby-note/latest',
+  ])
   assert.equal(answer.body.updateSupported, false)
   assert.equal(answer.body.reason, 'linked-or-manual')
 })

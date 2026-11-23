@@ -191,8 +191,8 @@ try {
 {
   "name": "dsh-profile-$Profile",
   "private": true,
-  "dependencies": { "dsh-sideby-note": "link:$($Repo -replace '\\', '/')" },
-  "dsh": { "profile": { "bundles": ["@deepseek-ai/dsh-base", "@deepseek-ai/dsh-web-app", "dsh-sideby-note"] } }
+  "dependencies": { "@miorin/dsh-sideby-note": "link:$($Repo -replace '\\', '/')" },
+  "dsh": { "profile": { "bundles": ["@deepseek-ai/dsh-base", "@deepseek-ai/dsh-web-app", "@miorin/dsh-sideby-note"] } }
 }
 "@
   Set-Content -Path (Join-Path $Work "dshhome\profiles\$Profile\package.json") -Value $profileJson -Encoding utf8
