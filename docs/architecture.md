@@ -180,10 +180,11 @@ docs/assets/             # README 截图（preview-* 与 features/）
   不压缩、无 sourcemap，产物入库便于 review 与逐行合并。
 - CSS 通过一个 `?inline` 虚拟模块进来（虚拟 id 用相对路径，避免把本机绝对路径写进产物注释）。
 - 版本号在 `constants.ts`，契约测试保证与 `package.json` 一致。
-- CI（Node 22 / 24）：`npm ci` → `npm run build` → `git diff --exit-code client/`（产物必
-  须与源码一致）→ lint → typecheck → `test:run`（逐用例记录）→ `catalog:check` → `design:review --strict`。
+- CI（Node 22 / 24）：`npm ci` 安装并构建 → `git diff --exit-code client/ host/` 核对入库产物 → lint →
+  typecheck → `test:run`（逐用例记录）→ `catalog:check` → `design:review --strict`。
   `typecheck` 同时覆盖 `tsdown.config.ts`。
-- `npm run check` 本地串起 lint、typecheck、构建、测试与用例校验；发布走 `npm publish`（`prepack` 会重建产物）。
+- `npm run check` 串起 lint、typecheck、构建、测试与用例校验。
+  `npm ci`、`npm pack` 和 `npm publish` 通过 `prepare` 构建。
 
 ## 6. 测试
 

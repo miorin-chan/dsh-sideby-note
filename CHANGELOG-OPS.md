@@ -18,6 +18,8 @@
 
 ## next-released
 
+- **构建：** 源码依赖安装、测试与打包自动生成 Host 和 Client 产物。
+  CI 在安装后对照提交中的构建产物。
 - **npm 发布：** 使用 `@miorin` scope，Release 说明与附件链接同步采用 `npm pack` 的 scoped 包文件名。
 - **仓库迁移：** 项目链接、应用内更新和 Release 说明生成器统一指向 `miorin-chan/dsh-sideby-note`。
 - **测试基建：** 随上游 1.2.0 引入规则与用例目录、逐用例执行记录和 CI 校验，详见 [测试工程](./docs/testing.md)。

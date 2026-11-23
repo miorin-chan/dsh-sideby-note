@@ -23,11 +23,8 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: npm
 
-      - name: Install
+      - name: Install and build
         run: npm ci
-
-      - name: Build
-        run: npm run build
 
       # The market can install with build scripts blocked, so the client and
       # host artifacts in the package must match the TypeScript source.

@@ -56,16 +56,16 @@
   "scripts": {
     "build": "npm run build:host && tsdown",
     "build:host": "tsdown --config tsdown.host.config.ts",
+    "prepare": "npm run build 1>&2",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.host.json",
     "lint": "oxlint src host/*.ts",
-    "test": "node --test tests/*.test.mjs",
-    "check": "npm run lint && npm run typecheck && npm run build && npm test && npm run catalog:check",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "check": "npm run lint && npm run typecheck && npm test && npm run catalog:check",
     "release": "node tools/release.mjs",
-    "prepack": "npm run build",
     "catalog:check": "node tools/catalog/check.mjs",
     "design:review": "node tools/catalog/review.mjs",
-    "test:run": "node tools/catalog/run.mjs",
-    "test:strict": "node tools/catalog/run.mjs --strict",
+    "test:run": "npm run build && node tools/catalog/run.mjs",
+    "test:strict": "npm run build && node tools/catalog/run.mjs --strict",
     "test:mutate": "node tools/catalog/mutate.mjs"
   },
   "dsh": {

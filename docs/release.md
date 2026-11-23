@@ -27,8 +27,8 @@
 ```bash
 git switch -c feat/xxx main
 # 改 src/client/**，并把说明写到 CHANGELOG.md 的 ## next-released 下
-npm run check          # lint + typecheck + 测试 + build
-npm run build          # 确保 client/client.js 与源码同步
+npm ci                # 安装开发依赖并生成 Host 和 Client 产物
+npm run check          # lint、类型检查、构建与测试
 git add src client CHANGELOG.md
 git commit -m "feat: ..."
 git push -u origin feat/xxx
