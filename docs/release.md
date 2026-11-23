@@ -150,12 +150,13 @@ tag 一致），生成器按这个标题取小节。
 再加 `--out notes.md` 可写到文件。
 `tests/release-notes-build.test.mjs` 会同时校验发布页正文与面板解析结果，防止两边漂移。
 
-trusted publisher 配置：
+Trusted Publisher 必须绑定迁移后的组织仓库。
+下次发版前，在 npm 包设置中核对以下配置：
 
 ```text
 type: github
 file: publish.yml
-repository: LighghtEeloo/dsh-sideby-note
+repository: miorin-chan/dsh-sideby-note
 permissions: publish, stage publish
 ```
 
@@ -165,7 +166,7 @@ permissions: publish, stage publish
 ```bash
 npx -y npm@11.21.1 trust github dsh-sideby-note \
   --file publish.yml \
-  --repo LighghtEeloo/dsh-sideby-note \
+  --repo miorin-chan/dsh-sideby-note \
   --allow-publish \
   --registry=https://registry.npmjs.org/ -y
 ```
@@ -177,8 +178,8 @@ npx -y npm@11.21.1 trust github dsh-sideby-note \
 
 ```bash
 npm view dsh-sideby-note version dist-tags --registry=https://registry.npmjs.org/
-gh run list -R LighghtEeloo/dsh-sideby-note -L 3
-gh release view v0.1.0 -R LighghtEeloo/dsh-sideby-note
+gh run list -R miorin-chan/dsh-sideby-note -L 3
+gh release view v0.1.0 -R miorin-chan/dsh-sideby-note
 ```
 
 再在一个临时目录 `npm install dsh-sideby-note@0.1.0`，或在测试 profile 里加载，确认 bundle 能启动。
@@ -251,7 +252,7 @@ npx -y --registry=https://registry.npmjs.org/ dsh-sideby-note@1.1.2-beta.7 insta
 | workflow 在 changelog 校验步骤失败 | `CHANGELOG.md` 缺少非空的 `## <version>` 小节；删掉 tag，把 `next-released` 改名后重新提交并重打 tag |
 | `EPUBLISHCONFLICT` / 版本已存在 | 该版本已发布，不能覆盖；改为新版本号 |
 | CI 报 `client/` 与源码不一致 | 本地 `npm run build` 后把 `client/client.js` 一起提交 |
-| `ENEEDAUTH` / OIDC 认证失败 | trusted publisher 的 workflow 文件名或仓库名不匹配；核对 `publish.yml` 与 `LighghtEeloo/dsh-sideby-note` |
+| `ENEEDAUTH` / OIDC 认证失败 | trusted publisher 的 workflow 文件名或仓库名不匹配；核对 `publish.yml` 与 `miorin-chan/dsh-sideby-note` |
 | 配置过期 | 重跑上面的 `npm trust` 命令并完成 Touch ID 授权 |
 | 刚发布后 `npm view` 仍是旧版本 | registry 传播或 npmmirror 同步有延迟；等几分钟，更新检查的镜像回退会自动处理 |
 | Release 已存在但没有 tgz 资产 | 重跑 workflow 会先卡在 npm 版本冲突；手动 `npm pack` 后 `gh release upload <tag> <tgz> --clobber` |

@@ -11,7 +11,7 @@ Asynchronously draft your ideas while the agent is working
 > - Storage keys keep the upstream `dsh.aside-note.*` names. Upgrades automatically migrate legacy session notes.
 > - The README screenshots come from this fork, not upstream.
 
-[Sideby Note source code](https://github.com/LighghtEeloo/dsh-sideby-note)
+[Sideby Note source code](https://github.com/miorin-chan/dsh-sideby-note)
 
 Jot it down · Open as needed · Tuck it away
 
@@ -110,7 +110,7 @@ Click a note's **Insert** button to append its text to the current chat input; t
 
 > With host storage, browsers connected to the same DSH host share notes. See [Where data lives](#where-data-lives) for the upgrade and fallback behavior.
 
-[Quick install](#quick-install) · [Feedback and issues](https://github.com/LighghtEeloo/dsh-sideby-note/issues)
+[Quick install](#quick-install) · [Feedback and issues](https://github.com/miorin-chan/dsh-sideby-note/issues)
 
 ## Features
 

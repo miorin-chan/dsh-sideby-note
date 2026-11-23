@@ -12,7 +12,7 @@
  * cannot forget them. Usage:
  *
  *   node tools/release/notes.mjs --version 0.10.0 --tag v0.10.0 \
- *     --prev v0.9.9 --repo LighghtEeloo/dsh-sideby-note --out notes.md
+ *     --prev v0.9.9 --repo miorin-chan/dsh-sideby-note --out notes.md
  *
  * Exported for tests; `main()` only runs when this file is executed.
  */
@@ -67,7 +67,7 @@ export function buildReleaseBody(options) {
     version,
     tag = `v${version}`,
     prevTag = '',
-    repo = 'LighghtEeloo/dsh-sideby-note',
+    repo = 'miorin-chan/dsh-sideby-note',
     packageName = PACKAGE,
   } = options
 
@@ -148,7 +148,7 @@ function main() {
     version,
     tag: args.tag || `v${version}`,
     prevTag: args.prev || '',
-    repo: args.repo || 'LighghtEeloo/dsh-sideby-note',
+    repo: args.repo || undefined,
   })
   if (args.out) fs.writeFileSync(args.out, body)
   else process.stdout.write(body)

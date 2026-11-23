@@ -48,7 +48,6 @@ test('builds a bilingual body with install links, markers and the compare link',
     version: '2.1.0',
     tag: 'v2.1.0',
     prevTag: 'v2.0.1',
-    repo: 'LighghtEeloo/dsh-sideby-note',
   })
   assert.match(body, /^# English/)
   assert.match(body, /## What's changed/)
@@ -57,8 +56,10 @@ test('builds a bilingual body with install links, markers and the compare link',
   assert.match(body, /<!-- app-update-notes:en:start -->/)
   assert.match(body, /<!-- app-update-notes:zh:start -->/)
   assert.match(body, /npm install dsh-sideby-note@2\.1\.0/)
-  assert.match(body, /dsh-sideby-note-2\.1\.0\.tgz/)
-  assert.match(body, /compare\/v2\.0\.1\.\.\.v2\.1\.0/)
+  const repoUrl = 'https://github.com/miorin-chan/dsh-sideby-note'
+  assert.ok(body.includes(`${repoUrl}/releases/download/v2.1.0/dsh-sideby-note-2.1.0.tgz`))
+  assert.ok(body.includes(`${repoUrl}/compare/v2.0.1...v2.1.0`))
+  assert.ok(body.includes(`${repoUrl}/releases/tag/v2.1.0`))
   // The English release page must not swallow the Chinese block, and vice versa.
   assert.equal(extractLocaleBlock(body, 'en').includes('更新中心'), false)
   assert.equal(extractLocaleBlock(body, 'zh').includes('Update centre'), false)

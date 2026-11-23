@@ -711,7 +711,7 @@ const WORKSPACE_STORAGE_KEY = "dsh.aside-note.workspaces";
 const DRAFT_STORAGE_KEY = "dsh.aside-note.drafts";
 /** Shown in the panel footer; keep in sync with package.json. */
 const PLUGIN_VERSION = "0.1.0";
-const PLUGIN_REPO_URL = "https://github.com/LighghtEeloo/dsh-sideby-note";
+const PLUGIN_REPO_URL = "https://github.com/miorin-chan/dsh-sideby-note";
 /** Last chosen list scope: the workspace list or the session list. */
 const SCOPE_MODE_KEY = "dsh.aside-note.scope-mode";
 const SCOPE_MODE_DEFAULT = "workspace";
@@ -4708,7 +4708,7 @@ function useUpdateCenter(localeId) {
 	}, []);
 	/** Copy the ready-to-paste update prompt; the caller reports the outcome. */
 	const copyPrompt = react.default.useCallback((text) => copyText(text), []);
-	const fullReleaseUrl = notes.entries[0]?.url || (latestVersion ? `${"https://github.com/LighghtEeloo/dsh-sideby-note"}/releases/tag/v${latestVersion}` : null);
+	const fullReleaseUrl = notes.entries[0]?.url || (latestVersion ? `${"https://github.com/miorin-chan/dsh-sideby-note"}/releases/tag/v${latestVersion}` : null);
 	return {
 		check,
 		latestVersion,

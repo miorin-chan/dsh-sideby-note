@@ -95,7 +95,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
 - **旧版本：** 修复了上一个版本的问题。 （#30）
 <!-- app-update-notes:zh:end -->
 `
-  const releaseUrl = version => `https://github.com/LighghtEeloo/dsh-sideby-note/releases/tag/v${version}`
+  const releaseUrl = version => `https://github.com/miorin-chan/dsh-sideby-note/releases/tag/v${version}`
   const RELEASES = [
     { tag_name: `v${LATEST}`, html_url: releaseUrl(LATEST), body: RELEASE_BODY },
     { tag_name: `v${IN_BETWEEN}`, html_url: releaseUrl(IN_BETWEEN), body: OLDER_BODY },
@@ -125,7 +125,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
       }
       return json(200, { version: LATEST })
     }
-    if (url === 'https://api.github.com/repos/LighghtEeloo/dsh-sideby-note/releases?per_page=50') {
+    if (url === 'https://api.github.com/repos/miorin-chan/dsh-sideby-note/releases?per_page=50') {
       return json(200, RELEASES)
     }
     if (url === '/dsh-sideby-note/update/apply' && method === 'POST') {
@@ -317,7 +317,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(window.localStorage.getItem('dsh.aside-note.analytics'), null)
     await act(async () => { storageToggle().click() })
     const allowed = new Set([...REGISTRY_URLS, '/dsh-sideby-note/store',
-      '/dsh-sideby-note/store/location', 'https://api.github.com/repos/LighghtEeloo/dsh-sideby-note/releases?per_page=50'])
+      '/dsh-sideby-note/store/location', 'https://api.github.com/repos/miorin-chan/dsh-sideby-note/releases?per_page=50'])
     assert.deepEqual(calls.filter(call => call.method !== 'GET' || !allowed.has(call.url)), [],
       'opening the panel and storage details only reads storage and update endpoints')
   })

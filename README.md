@@ -11,7 +11,7 @@
 > - 沿用上游的 `dsh.aside-note.*` 存储键；升级时会自动迁移旧会话便笺。
 > - README 截图来自本改版，而非上游版本。
 
-[边记部源码](https://github.com/LighghtEeloo/dsh-sideby-note)
+[边记部源码](https://github.com/miorin-chan/dsh-sideby-note)
 
 轻量记录 · 按需打开 · 用完收起
 
@@ -106,7 +106,7 @@ npx dsh-sideby-note install --version 0.1.0   # 固定版本，而不是 ^0.1.0
 
 > 宿主存储可用时，同一 DSH 宿主上的浏览器共享便笺。升级和回落行为见[数据保存在哪里](#数据保存在哪里)。
 
-[查看安装方法](#快速安装) · [反馈问题或建议](https://github.com/LighghtEeloo/dsh-sideby-note/issues)
+[查看安装方法](#快速安装) · [反馈问题或建议](https://github.com/miorin-chan/dsh-sideby-note/issues)
 
 ## 功能
 

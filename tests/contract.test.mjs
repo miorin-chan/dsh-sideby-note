@@ -190,7 +190,7 @@ test('the update probe falls back from npm to the mirror and GitHub, and caches 
   assert.deepEqual(releaseCalls, [
     'https://registry.npmjs.org/dsh-sideby-note/latest',
     'https://registry.npmmirror.com/dsh-sideby-note/latest',
-    'https://api.github.com/repos/LighghtEeloo/dsh-sideby-note/releases/latest',
+    'https://api.github.com/repos/miorin-chan/dsh-sideby-note/releases/latest',
   ], 'GitHub is consulted only after both npm hosts miss')
 
   let offline = true

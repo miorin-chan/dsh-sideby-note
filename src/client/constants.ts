@@ -16,7 +16,7 @@ export const WORKSPACE_STORAGE_KEY = 'dsh.aside-note.workspaces'
 export const DRAFT_STORAGE_KEY = 'dsh.aside-note.drafts'
 /** Shown in the panel footer; keep in sync with package.json. */
 export const PLUGIN_VERSION = '0.1.0'
-export const PLUGIN_REPO_URL = 'https://github.com/LighghtEeloo/dsh-sideby-note'
+export const PLUGIN_REPO_URL = 'https://github.com/miorin-chan/dsh-sideby-note'
 /** Last chosen list scope: the workspace list or the session list. */
 export const SCOPE_MODE_KEY = 'dsh.aside-note.scope-mode'
 export const SCOPE_MODE_DEFAULT = 'workspace'

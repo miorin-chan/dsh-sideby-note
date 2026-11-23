@@ -7,11 +7,11 @@
   "author": "Rayle8",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LighghtEeloo/dsh-sideby-note.git"
+    "url": "git+https://github.com/miorin-chan/dsh-sideby-note.git"
   },
-  "homepage": "https://github.com/LighghtEeloo/dsh-sideby-note#readme",
+  "homepage": "https://github.com/miorin-chan/dsh-sideby-note#readme",
   "bugs": {
-    "url": "https://github.com/LighghtEeloo/dsh-sideby-note/issues"
+    "url": "https://github.com/miorin-chan/dsh-sideby-note/issues"
   },
   "keywords": [
     "dsh",
