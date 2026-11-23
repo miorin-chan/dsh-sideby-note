@@ -7,6 +7,8 @@
 
 - [README.md](README.md) 是中文用户文档，[README.en.md](README.en.md) 是英文版。
   两份都说明安装、使用与数据保存范围。
+- 插件详情页要整体短、每项一眼能懂。
+  只展示用户当下需要知道或操作的内容，细节按需展开。
 - [架构文档](docs/architecture.md)记录运行时契约、数据模型与构建，[面板 UI 规则](docs/panel-ui-rules.md)记录界面约束。
   维护文档沿用中文。
 - [发布手册](docs/release.md)、[自动化验收 SOP](docs/auto-test-sop.md)和[截图 SOP](docs/screenshot-sop.md)分别维护发布、
