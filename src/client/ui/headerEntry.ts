@@ -11,7 +11,7 @@ import { storageMode } from '../storage/state'
 import { readVisibleNotes } from '../storage/workspace'
 import { TODO_LISTENERS } from '../storage/events'
 
-const HEADER_ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" aria-hidden="true"><path d="M3.25 2.75h6.5l3 3v7.5c0 .55-.45 1-1 1H3.25c-.55 0-1-.45-1-1V3.75c0-.55.45-1 1-1Z"/><path d="M9.75 2.75v3h3"/><path d="M4.9 7.6h5.4M4.9 9.9h3.6" stroke-linecap="round"/></svg>'
+export const NOTE_ICON_MARKUP = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" aria-hidden="true"><path d="M3.25 2.75h6.5l3 3v7.5c0 .55-.45 1-1 1H3.25c-.55 0-1-.45-1-1V3.75c0-.55.45-1 1-1Z"/><path d="M9.75 2.75v3h3"/><path d="M4.9 7.6h5.4M4.9 9.9h3.6" stroke-linecap="round"/></svg>'
 
 interface HeaderEntryOptions {
   getSessionId: () => string
@@ -93,7 +93,7 @@ export function createHeaderEntry({ getSessionId, getActiveAnchor, getLocaleId, 
     if (button.dataset.signature !== signature) {
       const icon = document.createElement('span')
       icon.className = 'dsh-an-headerIcon'
-      icon.innerHTML = HEADER_ICON
+      icon.innerHTML = NOTE_ICON_MARKUP
       button.replaceChildren(icon)
       if (open !== null && open > 0) {
         const count = document.createElement('span')

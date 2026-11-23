@@ -210,6 +210,17 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-popFoot{flex-shrink:0}
 .dsh-an-error{color:var(--dsw-alias-state-error-primary)}
 
+/* Conversation composer action, sized like the toolbar's secondary controls. */
+.dsh-an-sendDraft{display:inline-flex;align-items:center;justify-content:center;gap:var(--an-space-1);flex:none;min-width:28px;height:28px;padding:0 var(--an-space-2);border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);white-space:nowrap;cursor:pointer}
+.dsh-an-sendDraft svg{display:block}
+.dsh-an-sendDraft:focus-visible{outline:2px solid var(--dsw-focus-ring-color,var(--dsw-alias-label-primary));outline-offset:1px}
+.dsh-an-sendDraft:active:not(:disabled,[aria-busy="true"]){background:var(--an-active)}
+.dsh-an-sendDraft:disabled{opacity:.55;cursor:default}
+@container (max-width:620px){
+.dsh-an-sendDraft{padding:0}
+.dsh-an-sendDraftLabel{display:none}
+}
+
 /* ── 12 会话顶部入口 · H28/R8，计数徽标为胶囊 ──────────────────────── */
 .dsh-an-headerBtn{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);font:inherit;cursor:pointer;transition:var(--an-transition)}
 .dsh-an-headerBtn:active{background:var(--an-active);color:var(--dsw-alias-label-primary)}
@@ -252,7 +263,7 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-doneToggle:hover,.dsh-an-storageToggle:hover,.dsh-an-updateToggle:hover{background:var(--an-hover)}
 .dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}
-.dsh-an-headerBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
+.dsh-an-headerBtn:hover,.dsh-an-sendDraft:hover:not(:disabled,[aria-busy="true"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}
 .dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}
 }

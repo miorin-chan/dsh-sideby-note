@@ -215,3 +215,22 @@ cases:
         status: automated
     suites: [pr, nightly, release]
     tags: [attachment, validation]
+
+  - id: NOTE-013
+    title: 从主输入框移入文本草稿并保留未保存内容
+    priority: P1
+    class: C
+    rules: [R-NOTE-CHAT-DRAFT, R-NOTE-PERSIST, R-SCOPE-SAVE]
+    risk: data_loss
+    expected:
+      - 空草稿时按钮不可用，280 字符的文本保存到当前工作区后清空原草稿
+      - 超长、带附件或写入失败时草稿保留，且没有新便笺
+      - 保存期间连点只创建一条，后续编辑仍留在输入框
+      - 引用、引文和首尾格式留在原草稿，键盘提交清空后焦点返回输入框
+    automation:
+      - type: integration
+        file: tests/host-bundle.test.mts
+        test: NOTE-013 从主输入框移入文本草稿并保留未保存内容
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [composer, persistence, concurrency]

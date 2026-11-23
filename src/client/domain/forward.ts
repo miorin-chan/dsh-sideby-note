@@ -4,6 +4,7 @@ import { readAttachment, type NoteAttachment } from './attachments.ts'
 export interface ComposerInputSource {
   state: Pick<SessionInput['state'], 'getSnapshot'>
   removeAttachment?: SessionInput['removeAttachment']
+  focus?: SessionInput['focus']
 }
 export type ComposerInputForSession = (sessionId: string) => ComposerInputSource | undefined
 

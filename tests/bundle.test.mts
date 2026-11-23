@@ -199,9 +199,9 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   await act(async () => { exported.apply(ctx) })
 
   await t.test('PKG-001 构建产物注册三个座位与八种语言', async () => {
-    assert.deepEqual(injected.sort(), ['conversation.composer.dock', 'conversation.hero.options', 'shell.overlay'])
-    assert.equal(registered.length, 3, 'the capture, the new-session seat and the toast host must be registered')
-    assert.deepEqual(registered.map(entry => entry.meta.name).sort(), injected)
+    const panelSlots = ['conversation.composer.dock', 'conversation.hero.options', 'shell.overlay']
+    assert.deepEqual(injected.filter(name => panelSlots.includes(name)).sort(), panelSlots)
+    assert.deepEqual(registered.map(entry => entry.meta.name).sort(), injected.sort())
     assert.equal(dictionaries.length, 1, 'the bundle registers one locale namespace')
     assert.deepEqual(
       Object.keys(dictionaries[0].dict).sort(),

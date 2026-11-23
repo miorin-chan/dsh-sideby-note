@@ -12,6 +12,9 @@ import { readSessionStore, writeSessionStore } from './session'
 const text = value => (value ? String(value) : '')
 const bucket = value => (value && typeof value === 'object' && !Array.isArray(value) ? value : {})
 
+type NoteUpdater = (items: ReturnType<typeof normalizeItems>) => ReturnType<typeof normalizeItems>
+const workspaceUpdates = new Map<string, Promise<boolean>>()
+
 function seededOf(record) {
   const raw = record && record.seededSessionIds
   if (!Array.isArray(raw)) return []
@@ -141,6 +144,21 @@ export async function writeWorkspaceRecord(workspaceId, record, base = null) {
     seededSessionIds: seededOf(seededSource),
   }
   return writeWorkspaceStore(store)
+}
+
+/** Apply panel and conversation edits to the latest committed workspace list. */
+export function updateWorkspaceNotes(workspaceId: string, update: NoteUpdater): Promise<boolean> {
+  const run = async () => {
+    const current = readWorkspaceRecord(workspaceId)
+    const items = update(current.items)
+    return writeWorkspaceRecord(workspaceId, { ...current, items, updatedAt: Date.now() }, current.items)
+  }
+  const previous = workspaceUpdates.get(workspaceId) ?? Promise.resolve()
+  const writing = previous.then(run, run)
+  workspaceUpdates.set(workspaceId, writing)
+  return writing.finally(() => {
+    if (workspaceUpdates.get(workspaceId) === writing) workspaceUpdates.delete(workspaceId)
+  })
 }
 
 /** Migrate known memberships, with a recovery bucket for unassigned browser notes. */

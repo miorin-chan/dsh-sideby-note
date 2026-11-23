@@ -241,8 +241,11 @@ async function setup(options = {}) {
     const reactRoot = ReactDOMClient.createRoot(container)
     await act(async () => {
       const FrameOverlay = registered.find(entry => entry.meta.name === 'shell.overlay').component
+      const composerEntry = registered.find(entry => entry.meta.name === 'conversation.input.right')
+      const slotProps = { sessionId: 'session-1', ...props }
       reactRoot.render(React.createElement(React.Fragment, null,
-        React.createElement(capture, { sessionId: 'session-1', ...props }),
+        React.createElement(capture, slotProps),
+        props.useInput && React.createElement(composerEntry.component, slotProps),
         React.createElement(FrameOverlay, { renderFactorySlot }),
       ))
     })
@@ -264,7 +267,7 @@ async function setup(options = {}) {
     return popover
   }
 
-  return { window, dom, domain, store, calls, requests, composerScopes, previewUrls, revokedPreviews, openPanel, addNote, settle, act }
+  return { window, dom, domain, store, calls, requests, composerScopes, previewUrls, revokedPreviews, openPanel, addNote, settle, act, React }
 }
 
 test('STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记', async t => {
@@ -297,6 +300,109 @@ test('STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记'
     .find(row => row.querySelector('.dsh-an-text').textContent === '旧便笺')
   assert.ok(migratedRow.querySelector('.dsh-an-insert'), 'compatibility marks do not disable the fork insert action')
   assert.equal(migratedRow.querySelector('[data-forwarded]'), null)
+})
+
+test('NOTE-013 从主输入框移入文本草稿并保留未保存内容', async t => {
+  let storeResponse
+  let writes = 0
+  const ctx = await setup({ beforeStoreWrite: op => {
+    if (op.op === 'list.patch') {
+      writes += 1
+      return storeResponse
+    }
+  } })
+  const { window, act, store, React } = ctx
+  t.after(() => window.close())
+  const sessionId = 'session-1'
+  let snapshot = { draft: '', draftRev: 0, attachmentIds: [], occurrences: [], phase: 'plain' }
+  const listeners = new Set<() => void>()
+  const state = {
+    getSnapshot: () => snapshot,
+    subscribe: (listener: () => void) => {
+      listeners.add(listener)
+      return () => { listeners.delete(listener) }
+    },
+  }
+  const edit = (draft: string, attachmentIds: string[] = [], occurrences = []) => {
+    snapshot = { ...snapshot, draft, attachmentIds, occurrences, draftRev: snapshot.draftRev + 1 }
+    for (const listener of listeners) listener()
+  }
+  let persistedDraft: string | undefined
+  let returnedFocus = false
+  const input = { state, focus: () => { returnedFocus = true } }
+  ctx.composerScopes.set(sessionId, { get: name => name === 'conversation' ? { input: { for: () => input } } : undefined })
+  await ctx.openPanel({
+    sessionId,
+    useWorkspaces: select => select({ phase: 'ready', items: [{ workspaceId: 'ws-1', title: '工作区', sessionIds: [sessionId] }] }),
+    useInput: select => React.useSyncExternalStore(state.subscribe, () => select(snapshot)),
+    inputActions: {
+      setDraft: edit,
+      persistDraft: () => { persistedDraft = snapshot.draft },
+      submit: () => { assert.fail('saving a note must never submit the chat draft') },
+    },
+  })
+  const button = window.document.querySelector<HTMLButtonElement>('button[aria-label="发至边记部"]')!
+  const click = () => act(async () => button.click())
+  const notes = async () => (await store.snapshot()).data.workspaces['ws-1']?.items ?? []
+  const toast = () => window.document.querySelector('[data-test-toast]')?.textContent
+  assert.equal(button.disabled, true)
+  assert.equal(button.type, 'button')
+
+  const limit = '稿'.repeat(280)
+  await act(async () => edit(`${limit}多`))
+  await click()
+  assert.match(toast(), /280/)
+  assert.equal(snapshot.draft, `${limit}多`)
+  await act(async () => edit('带附件的提示词', ['attachment-1']))
+  await click()
+  assert.match(toast(), /附件/)
+  assert.deepEqual(snapshot.attachmentIds, ['attachment-1'])
+  assert.equal(writes, 0)
+
+  await act(async () => edit(limit))
+  storeResponse = json(400, { ok: false, code: 'STORE_FAILED' })
+  await click()
+  assert.deepEqual(await notes(), [])
+  assert.equal(snapshot.draft, limit)
+  assert.match(toast(), /保存失败/)
+  assert.equal(persistedDraft, undefined)
+
+  const accepted = Promise.withResolvers()
+  storeResponse = accepted.promise
+  await act(async () => { button.focus(); button.click(); button.click() })
+  assert.equal(button.getAttribute('aria-busy'), 'true')
+  assert.equal(snapshot.draft, limit, 'wait for the durable write')
+  await act(async () => { accepted.resolve(undefined) })
+  assert.deepEqual((await notes()).map(({ text, done }) => ({ text, done })), [{ text: limit, done: false }])
+  assert.equal(writes, 2, 'one failed write and one successful retry despite the double click')
+  assert.equal(snapshot.draft, '')
+  assert.equal(persistedDraft, '')
+  assert.equal(returnedFocus, true)
+  assert.equal(button.disabled, true)
+  assert.match(toast(), /已发至边记部/)
+
+  const changed = Promise.withResolvers()
+  storeResponse = changed.promise
+  await act(async () => edit('稍后继续'))
+  await click()
+  await act(async () => edit('刚编辑的新内容'))
+  await act(async () => { changed.resolve(undefined) })
+  assert.deepEqual((await notes()).map(note => note.text), ['稍后继续', limit])
+  assert.equal(snapshot.draft, '刚编辑的新内容')
+  assert.match(toast(), /原草稿已保留/)
+
+  storeResponse = undefined
+  for (const [draft, occurrences] of [
+    ['核对 @"README.md"', [{ occurrenceId: 1 }]],
+    ['看这里 > 引文'],
+    ['  首行缩进\n'],
+  ] as const) {
+    await act(async () => edit(draft, [], [...(occurrences ?? [])]))
+    await click()
+    assert.equal((await notes())[0].text, draft.trim())
+    assert.equal(snapshot.draft, draft)
+    assert.match(toast(), /原草稿已保留/)
+  }
 })
 
 test('SCOPE-017 连续切换范围时旧保存响应不覆盖最新选择', async t => {

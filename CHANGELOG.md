@@ -16,6 +16,9 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 
 <!-- app-update-notes:en:start -->
 ### Added
+- Use **Send to Sideby Note** in the chat input toolbar to move a text draft to the workspace’s open notes.
+  The input clears once the note contains the whole draft.
+  Edits made during saving stay in the input.
 - Toggle the panel with `Mod+E` on Desktop.
   Change or clear the binding in DSH’s keyboard shortcut settings.
   macOS and Windows browsers use `Mod+Alt+E` by default.
@@ -75,6 +78,9 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 
 <!-- app-update-notes:zh:start -->
 ### 新增
+- 提示词输入框右侧增加「发至边记部」，可把纯文本草稿移入当前工作区的「待续」。
+  草稿能完整写入便笺时，保存成功后清空输入框。
+  保存期间的编辑会保留。
 - 桌面版可用 `Mod+E` 打开或收起面板，可在 DSH 快捷键设置里改键或停用。
   macOS 和 Windows 浏览器版默认用 `Mod+Alt+E`，Linux 浏览器版默认未绑定。
 - 便笺可通过选择、粘贴或拖放添加附件，支持预览常见图片、音频和视频，也可下载原文件。

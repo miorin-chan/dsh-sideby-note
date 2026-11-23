@@ -97,6 +97,7 @@ A few small tasks should not need a whole management system. Capture a thought, 
 ### Capture it and keep going
 
 Click the **Sideby Note** button at the top right of the conversation to open the right-side panel. Record tasks, ideas, and details to revisit. The button shows the open count; drag an open note directly to change the order.
+Use **Send to Sideby Note** on the right of the chat input toolbar to move a text-only draft of up to 280 characters to the workspace’s open notes.
 
 ### Keep it in the workspace and pick it up later
 

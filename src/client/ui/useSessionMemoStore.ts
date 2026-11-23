@@ -1,18 +1,15 @@
 /** The filtered view and a serialized writer for workspace records. */
 import React from 'react'
 import { SESSION_STORAGE_KEY, WORKSPACE_STORAGE_KEY } from '../constants'
-import { normalizeItems } from '../domain/items'
 import { STORE_READY_LISTENERS, TODO_LISTENERS } from '../storage/events'
 import { storageMode } from '../storage/state'
-import { readVisibleNotes, readWorkspaceRecord, writeWorkspaceRecord } from '../storage/workspace'
+import { readVisibleNotes, updateWorkspaceNotes } from '../storage/workspace'
 
 export type WorkspaceNote = ReturnType<typeof readVisibleNotes>[number]
-type NoteUpdater = (items: ReturnType<typeof normalizeItems>) => ReturnType<typeof normalizeItems>
 
 export function useMemoStore(workspaceFilter: string | null) {
   const [allItems, setAllItems] = React.useState(() => readVisibleNotes(null))
   const [syncError, setSyncError] = React.useState(false)
-  const chainRef = React.useRef<Promise<unknown>>(Promise.resolve())
 
   React.useLayoutEffect(() => {
     setSyncError(false)
@@ -37,17 +34,11 @@ export function useMemoStore(workspaceFilter: string | null) {
     }
   }, [])
 
-  const commit = React.useCallback((workspaceId: string, update: NoteUpdater) => {
-    const run = chainRef.current.then(async () => {
-      const current = readWorkspaceRecord(workspaceId)
-      const next = { ...current, items: normalizeItems(update(current.items)), updatedAt: Date.now() }
-      const ok = await writeWorkspaceRecord(workspaceId, next, current.items)
-      setSyncError(!ok)
-      if (ok) setAllItems(readVisibleNotes(null))
-      return ok
-    })
-    chainRef.current = run.catch(() => undefined)
-    return run
+  const commit = React.useCallback(async (workspaceId: string, update: Parameters<typeof updateWorkspaceNotes>[1]) => {
+    const ok = await updateWorkspaceNotes(workspaceId, update)
+    setSyncError(!ok)
+    if (ok) setAllItems(readVisibleNotes(null))
+    return ok
   }, [])
 
   return { allItems, syncError, commit }

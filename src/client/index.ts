@@ -2,9 +2,8 @@
  * Sideby Note browser half.
  *
  * The plugin entry: injects the stylesheet, binds the locale namespace and
- * seats the two slots (session capture + frame-wide toast host) plus the
- * host-owned header entry. Copy, storage, domain rules and the panel UI live
- * in their own modules; P2 splits the remaining UI out of this file.
+ * seats the session capture, composer action and frame overlay alongside
+ * the host-owned header entry.
  */
 import React from 'react'
 import { createPortal } from 'react-dom'
@@ -36,6 +35,7 @@ import { migrateWorkspaceNotes } from './storage/workspace'
 import { createToastSeat } from './ui/toastSeat'
 import { createHeaderEntry } from './ui/headerEntry'
 import { MemoPopover } from './ui/MemoPopover'
+import { SendDraftToNotes, type ComposerNoteSlotProps } from './ui/SendDraftToNotes'
 
 const h = React.createElement
 const toggleCommandId = `${NS}.toggle` as ShortcutCommandId
@@ -169,8 +169,7 @@ function apply(ctx: DshClientCtx) {
     const scope = sessions?.scope(sessionId as Parameters<ISessions['scope']>[0])
     const conversation: IConversation | undefined = scope?.get('conversation')
     if (!scope || !conversation?.input) return undefined
-    const input = conversation.input.for(scope)
-    return { state: input.state, removeAttachment: id => input.removeAttachment(id) }
+    return conversation.input.for(scope)
   }
   const readFileDrag: FileDragService['read'] = transfer => {
     const service: FileDragService | undefined = ctx.get('fileDrag')
@@ -451,6 +450,21 @@ function apply(ctx: DshClientCtx) {
         locale: NS,
       },
       BoundSessionCapture,
+    ),
+  )
+
+  function ComposerNoteEntry(props: ComposerNoteSlotProps) {
+    return h(SendDraftToNotes, { ...props, getComposerInput, say: tr, showToast: toastSeat.showText })
+  }
+
+  ctx.slots.inject('conversation.input.right', () =>
+    ctx.slots.register(
+      {
+        name: 'conversation.input.right',
+        id: `${PANEL_ID}.send-draft`,
+        locale: NS,
+      },
+      ComposerNoteEntry,
     ),
   )
 

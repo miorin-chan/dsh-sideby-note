@@ -46,6 +46,19 @@ features:
             text: 空文件被拒绝，上传失败时已有草稿保留
         technique: [状态迁移, 故障注入]
 
+      - id: R-NOTE-CHAT-DRAFT
+        statement: 从会话输入框发来的纯文本草稿保存为待续便笺，保存成功后清理原草稿。
+        failure: 保存失败或响应迟到时，会话草稿及后续编辑可能丢失。
+        kind: interaction
+        branches:
+          - kind: valid
+            text: 280 字符以内的文本保存到当前工作区，保存成功后清空原草稿
+          - kind: invalid
+            text: 带附件、超长或写入失败时保留完整草稿，不新增便笺
+          - kind: boundary
+            text: 保存期间编辑草稿时保留新内容，连点仍只创建一条便笺；引用和首尾格式保留在原输入框
+        technique: [边界值, 故障注入, 时序]
+
       - id: R-NOTE-ORDER
         statement: 新便笺加入所属工作区的待续区首位。待续便笺支持键盘和拖动重排，归档便笺在各显示分组内按归档时间倒序。
         failure: 新便笺沉到底部、刚完成的找不到，用户重复记录同一件事。
