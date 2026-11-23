@@ -107,7 +107,7 @@ In a standalone session, new notes go into a reserved unassigned workspace and a
 
 ### Bring it back when you are ready
 
-Click a note's **Insert** button to append its text to the current chat input; the note is archived in the same step. Add to or edit it, then send when you are ready. Several notes stack on new lines after whatever is already in the composer. Inserting a note never sends the message automatically.
+Click a note’s **Insert** button to add its text and all attachments to the current chat draft and then archive the note. Note text starts on a new line after any existing text. Review or edit the draft and send it when you are ready.
 
 ### Small details for everyday use
 
@@ -130,7 +130,7 @@ Click a note's **Insert** button to append its text to the current chat input; t
   and closes when you switch sessions elsewhere.
 - **Note actions**: add, reorder, copy, insert a note into the chat input, and rewind one into the composer to edit; there is no manual checkbox — inserting it archives it. Clearing archived notes asks for confirmation, and archived notes expand for review. Clearing the composer after rewinding a note removes it.
 - **Attachments**: choose files with the paperclip, paste them from the clipboard, or drop them onto the note composer. A note can hold up to 10 nonempty files of up to 25 MiB each, with optional text. Select a file name to preview supported images, audio, and video. Each attachment can be downloaded, and recalling a note restores its attachments with the text.
-- **Insert**: the note's text is appended on a new line to the **currently open conversation's** composer and the note moves to **Archived**. You decide when to send. To include an attachment, download it and add it through the DSH composer. Notes that contain only attachments can be archived directly.
+- **Insert** adds the note’s text and original files to the **currently open conversation’s** draft, after any existing content. Attachment-only notes work the same way. Once the composer accepts the complete note, it moves to **Archived**. You decide when to send. DSH applies its usual attachment limits, and the note stays open if a file cannot be read or the composer rejects the batch.
 - **Drag to reorder**. Move an open note by dragging it or by focusing Insert and pressing ↑ / ↓.
   Reordering applies within the note’s own workspace. Esc cancels an active drag.
   Archived notes stay in archive order.

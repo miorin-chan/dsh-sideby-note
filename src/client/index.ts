@@ -8,7 +8,9 @@
  */
 import React from 'react'
 import ReactDOMClient from 'react-dom/client'
+import type { ISessions } from '@deepseek-ai/dsh-api-session-controller/client'
 import type { WorkspaceId, WorkspaceSnapshot } from '@deepseek-ai/dsh-api-workspace-controller/client'
+import type { IConversation } from '@deepseek-ai/dsh-client-ui-conversation/client'
 import type { UiWorkspace } from '@deepseek-ai/dsh-client-ui-workspace/client'
 import type { ShortcutBinding, ShortcutCatalogEntry, ShortcutCommandId, Shortcuts } from '@deepseek-ai/dsh-client-shortcuts/client'
 
@@ -17,7 +19,7 @@ import { officialAttachmentCSS } from './ui/AttachmentList'
 import { NS, PANEL_ID, STORAGE_MODE_KEY } from './constants'
 import { DICT, fill, makeSay } from './i18n'
 import { bindWorkspace, draftKeyForSession, workspaceById, workspaceForSession, type NoteWorkspace } from './scope'
-import { setForwardTarget } from './domain/forward'
+import type { ComposerInputForSession } from './domain/forward'
 import { bootStorage, retryStorage } from './storage/boot'
 import { ensureDraftScope } from './storage/drafts'
 import {
@@ -147,6 +149,14 @@ function apply(ctx: DshClientCtx) {
     navigation?: { sessionId: string; workspace: NoteWorkspace }
   } | null = null
   let activeSessionId = ''
+  const getComposerInput: ComposerInputForSession = sessionId => {
+    if (sessionId !== activeSessionId) return undefined
+    const sessions: ISessions | undefined = ctx.get('sessions')
+    const scope = sessions?.scope(sessionId as Parameters<ISessions['scope']>[0])
+    const conversation: IConversation | undefined = scope?.get('conversation')
+    if (!scope || !conversation?.input) return undefined
+    return conversation.input.for(scope).state
+  }
 
   const toastSeat = createToastSeat(tr)
   let refreshHeaderEntry = () => {}
@@ -228,6 +238,7 @@ function apply(ctx: DshClientCtx) {
       sessionId: panel.sessionId,
       say: tr,
       locale,
+      getComposerInput,
       getLocaleId: localeId,
       anchorRef: panel.anchorRef,
       placement: 'right',
@@ -247,7 +258,6 @@ function apply(ctx: DshClientCtx) {
     if (storageMode() === 'host') requestHostRefresh()
     if (workspaceCatalog) void migrateWorkspaceNotes(workspaceCatalog)
     prepareMemoSession(sessionId)
-    setForwardTarget(sessionId)
     const container = document.createElement('div')
     container.dataset.dshMemoPopoverRoot = 'true'
     document.body.appendChild(container)
@@ -362,7 +372,6 @@ function apply(ctx: DshClientCtx) {
       workspaceCatalog = catalog
       bindWorkspace(sessionId, workspace, sessionReady, catalog)
       activeSessionId = sessionId
-      if (sessionChanged) setForwardTarget(sessionId)
       if (panel && (followedJump || resolvedCurrentWorkspace)) {
         if (followedJump && listedWorkspace) delete panel.navigation
         if (sessionChanged || workspaceChanged) {

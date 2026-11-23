@@ -411,6 +411,17 @@ features:
             text: 尾部已有换行时直接追加，不产生额外空行
         technique: [决策表, 状态迁移]
 
+      - id: R-FWD-ATTACHMENTS
+        statement: 填入时把所有附件按保存顺序带进当前会话草稿，原文件名和内容随附件一起保留。
+        failure: 用户以为多媒体已进入对话，实际只带进正文或部分文件。
+        kind: state
+        branches:
+          - kind: valid
+            text: 混合便笺和纯附件便笺都可填入，原有草稿与附件保留
+          - kind: invalid
+            text: 原文件读取失败、输入框拒收或会话切换时，便笺保持待续
+        technique: [状态迁移, 故障注入, 时序]
+
       - id: R-FWD-ARCHIVE
         statement: 递入成功后归档所属清单中的便笺；归档条目不再提供递入操作。
         failure: 递入失败后便笺消失，或已归档便笺可再次递入造成重复。

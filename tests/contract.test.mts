@@ -288,7 +288,6 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /SECTION_STATE_KEY/)
   assert.match(client, /readSectionState/)
   assert.doesNotMatch(client, /const bullet = |- \$\{note\}/, 'notes are no longer written as list items')
-  assert.match(client, /value\.endsWith\('\\n'\) \? note : `\\n\$\{note\}`/, 'successive notes join the draft on new lines')
   assert.match(client, /appendToConversation/)
   assert.match(client, /IconInsert/)
   assert.match(client, /item\.insert/)
@@ -979,16 +978,16 @@ test('the insert action uses the product list-pen glyph', () => {
 
 test('putting a note into the chat archives it in the same step', () => {
   const popover = read('src/client/ui/MemoPopover.ts')
-  const start = popover.indexOf('const insertItem = async item => {')
+  const start = popover.indexOf('const insertItem = async (item: WorkspaceNote) => {')
   assert.ok(start > 0, 'insert handler missing')
   const handler = popover.slice(start, popover.indexOf('\n  }\n', start))
   // The note is written bare; no prompt and no list marker.
   assert.doesNotMatch(handler, /prefix|forward\.prefix|`- /)
-  // No composer on screen: nothing changes and the note stays open.
-  assert.match(handler, /if \(hasText && !appendToConversation\(item\.text\)\) \{\n\s+report\('insertFailed'\)\n\s+return\n\s+\}/)
+  assert.match(handler, /await appendToConversation\(sessionId, item, props\.getComposerInput, operation\.signal\)/)
+  assert.match(handler, /if \(result !== 'inserted'\) \{\n\s+if \(result !== 'cancelled'\) report\(result\)\n\s+return\n\s+\}/)
   assert.match(handler, /const ok = await archive\(item\)/)
   assert.match(handler, /'inserted'[^\n]*'archiveFailed'/)
-  assert.ok(handler.indexOf('appendToConversation') < handler.indexOf('archive(item)'), 'archive only after the text landed')
+  assert.ok(handler.indexOf('appendToConversation') < handler.indexOf('archive(item)'), 'archive only after the complete note enters the draft')
   const actions = read('src/client/ui/useNoteActions.ts')
   assert.match(actions, /if \(candidate\.id !== item\.noteId \|\| candidate\.done\) return candidate/, 'archiving is one-way')
   assert.match(actions, /done: true, updatedAt: now, completedAt: now/)

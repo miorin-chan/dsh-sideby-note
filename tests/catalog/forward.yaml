@@ -103,3 +103,55 @@ cases:
         status: automated
     suites: [nightly, release]
     tags: [forward, archive]
+
+  - id: FWD-007
+    title: 填入保留正文和全部原文件
+    priority: P1
+    class: A
+    rules: [R-FWD-ATTACHMENTS, R-FWD-PLAIN, R-FWD-ARCHIVE]
+    risk: ux
+    expected:
+      - 图片、音频、视频和普通文件按顺序加入当前草稿，已有正文及附件保留
+      - 纯附件便笺也可用同一个操作填入并归档
+    automation:
+      - type: integration
+        file: tests/host-bundle.test.mts
+        test: FWD-007 填入保留正文和全部原文件
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [forward, attachment, archive]
+
+  - id: FWD-008
+    title: 附件不可用或拒收时保留待续便笺
+    priority: P1
+    class: E
+    rules: [R-FWD-ATTACHMENTS, R-FWD-ARCHIVE]
+    risk: ux
+    expected:
+      - 任何原文件读取失败时，便笺保留待续且对话草稿不变
+      - 输入框拒收该批文件时，显示失败反馈并保留待续便笺及对话草稿
+      - 恢复后重试可填入完整便笺并归档
+    automation:
+      - type: integration
+        file: tests/host-bundle.test.mts
+        test: FWD-008 附件不可用或拒收时保留待续便笺
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [forward, attachment, failure]
+
+  - id: FWD-009
+    title: 附件读取期间切换会话不写错草稿
+    priority: P1
+    class: F
+    rules: [R-FWD-ATTACHMENTS, R-FWD-TARGET]
+    risk: ux
+    expected:
+      - 附件读取期间同一便笺的重复点击只触发一次操作
+      - 会话切换后，在途操作不再写入草稿，便笺保持待续
+    automation:
+      - type: integration
+        file: tests/host-bundle.test.mts
+        test: FWD-009 附件读取期间切换会话不写错草稿
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [forward, attachment, session]

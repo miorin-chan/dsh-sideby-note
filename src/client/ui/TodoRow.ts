@@ -3,15 +3,15 @@ import React from 'react'
 import { copyText } from '../domain/clipboard'
 import { metaLabel, rowAge } from '../domain/items'
 import { AttachmentList } from './AttachmentList'
-import { Glyph, IconCopy, IconInsert, IconRewind, Tooltip, icon, withTooltip } from './primitives'
+import { IconCopy, IconInsert, IconRewind, Tooltip, withTooltip } from './primitives'
 
 const h = React.createElement
 
 export function TodoRow(props) {
-  const { item, archived, workspaceName, isCurrentWorkspace, onOpenWorkspace, say, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey } = props
+  const { item, archived, insertPending, workspaceName, isCurrentWorkspace, onOpenWorkspace, say, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey } = props
   const attachments = item.attachments ?? []
   const hasText = Boolean(item.text)
-  const insertLabel = say(hasText ? (attachments.length ? 'attachment.insertText' : 'item.insert') : 'attachment.archive')
+  const insertLabel = say('item.insert')
   const workspaceLabel = onOpenWorkspace
     ? say(isCurrentWorkspace ? 'item.currentWorkspace' : 'item.openWorkspace', { workspace: workspaceName })
     : undefined
@@ -19,7 +19,7 @@ export function TodoRow(props) {
     className: 'dsh-an-workspaceName',
     title: workspaceLabel ? undefined : workspaceName,
   }, workspaceName)
-  const [pending, setPending] = React.useState('')
+  const [copying, setCopying] = React.useState(false)
   const mountedRef = React.useRef(true)
 
   React.useEffect(() => {
@@ -30,13 +30,13 @@ export function TodoRow(props) {
   }, [])
 
   const copy = async () => {
-    if (pending) return
-    setPending('copy')
+    if (copying) return
+    setCopying(true)
     let ok = false
     try {
       ok = await copyText(item.text)
     } finally {
-      if (mountedRef.current) setPending('')
+      if (mountedRef.current) setCopying(false)
     }
     if (!mountedRef.current) return
     // Settled outcome goes to the frame-wide toast, which outlives the panel.
@@ -59,12 +59,13 @@ export function TodoRow(props) {
         'aria-label': insertLabel,
         'aria-description': say('item.reorder'),
         'aria-keyshortcuts': 'ArrowUp ArrowDown',
+        'aria-busy': insertPending || undefined,
+        'aria-disabled': insertPending || undefined,
+        'data-loading': insertPending ? 'true' : undefined,
         onKeyDown: onReorderKey,
-        onClick: () => onInsert(item),
+        onClick: () => { void onInsert(item) },
       },
-      hasText ? h(IconInsert) : icon('IconArchiveOutlineRegular')
-        ? h(Glyph, { name: 'IconArchiveOutlineRegular', size: 14 })
-        : h('span', { 'aria-hidden': true }, '✓'),
+      h(IconInsert),
     ))),
     h('div', { className: 'dsh-an-rowBody' },
       hasText ? h('div', { className: 'dsh-an-text' }, item.text) : null,
@@ -96,8 +97,8 @@ export function TodoRow(props) {
             type: 'button',
             className: 'dsh-an-iconBtn',
             'aria-label': say('item.copy'),
-            'aria-busy': pending === 'copy' ? 'true' : 'false',
-            'data-loading': pending === 'copy' ? 'true' : undefined,
+            'aria-busy': copying,
+            'data-loading': copying ? 'true' : undefined,
             onClick: copy,
           },
           h(IconCopy, null),
@@ -109,6 +110,7 @@ export function TodoRow(props) {
             type: 'button',
             className: 'dsh-an-iconBtn',
             'aria-label': say('item.recall'),
+            'aria-disabled': insertPending || undefined,
             onClick: () => onRecall(item),
           },
           h(IconRewind, null),

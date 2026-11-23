@@ -64,6 +64,7 @@ async function setup(options = {}) {
   const store = createStore(fakeCtx(domain, { list: () => [] }))
   const calls = []
   const attachments = new Map()
+  const composerScopes = new Map()
   const previewUrls = []
   window.URL.createObjectURL = blob => `blob:https://example.test/preview-${previewUrls.push(blob.type)}`
   const revokedPreviews = []
@@ -106,6 +107,7 @@ async function setup(options = {}) {
     }
     if (url.startsWith('/dsh-sideby-note/attachments?')) {
       const id = new window.URL(url, window.location.href).searchParams.get('id')
+      if (await options.rejectAttachmentRead?.(id, init.signal)) return json(404, {})
       const blob = attachments.get(id)
       return { ok: Boolean(blob), blob: async () => blob }
     }
@@ -152,6 +154,7 @@ async function setup(options = {}) {
       IconChevronRightOutlineRegular: () => React.createElement('svg'),
       fileExtension: name => name.split('.').at(-1),
       fileSizeText: bytes => `${bytes} B`,
+      Toast: ({ text }) => React.createElement('span', { 'data-test-toast': '' }, text),
     },
   }
   const requireShim = id => {
@@ -167,7 +170,7 @@ async function setup(options = {}) {
     getLocale: () => ({ id: 'zh' }),
   }
   const ctx = {
-    get: name => (name === 'locale' ? locale : undefined),
+    get: name => ({ locale, sessions: { scope: sessionId => composerScopes.get(sessionId) } })[name],
     effect: fn => {
       const dispose = fn()
       if (typeof dispose === 'function') dispose()
@@ -195,7 +198,11 @@ async function setup(options = {}) {
     window.document.body.appendChild(container)
     const reactRoot = ReactDOMClient.createRoot(container)
     await act(async () => {
-      reactRoot.render(React.createElement(capture, { sessionId: 'session-1', ...props }))
+      const ToastHost = registered.find(entry => entry.meta.name === 'shell.overlay').component
+      reactRoot.render(React.createElement(React.Fragment, null,
+        React.createElement(capture, { sessionId: 'session-1', ...props }),
+        React.createElement(ToastHost),
+      ))
     })
     await settle()
     const button = window.document.querySelector('._headerUtilities > .dsh-an-headerBtn')
@@ -215,7 +222,7 @@ async function setup(options = {}) {
     return popover
   }
 
-  return { window, dom, domain, store, calls, previewUrls, revokedPreviews, openPanel, addNote, settle, act }
+  return { window, dom, domain, store, calls, composerScopes, previewUrls, revokedPreviews, openPanel, addNote, settle, act }
 }
 
 test('STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记', async t => {
@@ -564,10 +571,73 @@ function transferFiles(window, target, eventType, files) {
   assert.equal(event.defaultPrevented, true)
 }
 
+function mountChatComposer({ window, composerScopes }, sessionId = 'session-1', draft = '', existingFiles = []) {
+  // jsdom has no ClipboardEvent or DataTransfer constructor. The fake host
+  // consumes the browser event and publishes ids like the shipped Composer.
+  window.ClipboardEvent ??= class extends window.Event {
+    constructor(type, init) {
+      super(type, init)
+      this.clipboardData = init.clipboardData
+    }
+  }
+  window.DataTransfer ??= class {
+    files = []
+    items = { add: file => this.files.push(file) }
+    text = ''
+    setData(type, value) { assert.equal(type, 'text/plain'); this.text = value }
+    getData(type) { return type === 'text/plain' ? this.text : '' }
+  }
+  const root = window.document.createElement('div')
+  root.dataset.conversationSession = sessionId
+  root.innerHTML = '<div data-composer-input contenteditable="true" role="textbox"></div>'
+  window.document.body.appendChild(root)
+  const editor = root.firstElementChild
+  editor.getBoundingClientRect = () => ({ width: 480, height: 50 })
+  const chat = { draft, files: [...existingFiles], acceptFiles: true, pastes: 0 }
+  const textNode = editor.appendChild(window.document.createTextNode(draft))
+  const selection = window.getSelection()
+  let start = draft.length
+  let end = draft.length
+  // The native editor keeps its own selection until selectionchange is delivered.
+  window.document.addEventListener('selectionchange', () => {
+    if (selection.anchorNode === editor && selection.focusNode === editor) {
+      start = end = textNode.length
+    } else if (selection.anchorNode === textNode && selection.focusNode === textNode) {
+      start = selection.anchorOffset
+      end = selection.focusOffset
+    }
+  })
+  chat.select = (anchor, focus) => {
+    editor.focus()
+    selection.setBaseAndExtent(textNode, anchor, textNode, focus)
+    window.document.dispatchEvent(new window.Event('selectionchange'))
+  }
+  Object.defineProperty(editor, 'innerText', { get: () => chat.draft })
+  const state = { getSnapshot: () => ({ draft: chat.draft, attachmentIds: chat.files.map((_, index) => String(index)) }) }
+  const sessionInput = { state }
+  composerScopes.set(sessionId, { get: name => name === 'conversation' ? { input: { for: () => sessionInput } } : undefined })
+  editor.addEventListener('paste', event => {
+    chat.pastes += 1
+    const { files } = event.clipboardData
+    event.preventDefault()
+    if (chat.acceptFiles) chat.files.push(...files)
+    const text = event.clipboardData.getData('text/plain')
+    if (text) {
+      const draft = chat.draft.slice(0, start) + text + chat.draft.slice(end)
+      window.queueMicrotask(() => {
+        chat.draft = draft
+        textNode.data = draft
+      })
+    }
+  })
+  return chat
+}
+
 test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
   const ctx = await setup()
   const { window, act, store } = ctx
   t.after(() => window.close())
+  const composer = mountChatComposer(ctx)
   const { button } = await ctx.openPanel()
   const panel = () => window.document.querySelector('.dsh-an-popover')
   const toggle = () => act(async () => { button.click() })
@@ -661,7 +731,9 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
   assert.deepEqual(ctx.previewUrls.slice(-3), ['image/png', 'audio/wav', 'video/mp4'])
   const download = row.querySelector('[download="截图.png"]')
   assert.equal(new window.URL(download.href).searchParams.get('id'), note.attachments[0].id)
-  await act(async () => { row.querySelector('[aria-label="归档便笺"]').click() })
+  await act(async () => { row.querySelector('[aria-label="填入"]').click() })
+  assert.deepEqual(composer.files.map(file => file.name), ['截图.png', '语音.wav', '录屏.mp4'])
+  assert.equal(composer.draft, '')
   assert.ok(ctx.revokedPreviews.includes(openImageUrl))
   const archiveToggle = [...panel().querySelectorAll('.dsh-an-doneToggle')].find(button => button.textContent.includes('归档'))
   if (archiveToggle.getAttribute('aria-expanded') === 'false') await act(async () => { archiveToggle.click() })
@@ -671,6 +743,115 @@ test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
   assert.ok(ctx.revokedPreviews.includes(archivedImageUrl))
   assert.deepEqual(draftNames(), ['截图.png', '语音.wav', '录屏.mp4'])
   assert.deepEqual((await store.snapshot()).data.workspaces[UNASSIGNED].items, [])
+})
+
+async function addNoteWithFiles(ctx, text, files) {
+  const panel = ctx.window.document.querySelector('.dsh-an-popover')
+  await ctx.act(async () => transferFiles(ctx.window, panel.querySelector('form'), 'drop', files))
+  await ctx.addNote(text)
+  return panel.querySelector('.dsh-an-row:not(.dsh-an-rowArchived) .dsh-an-insert')
+}
+
+const openHostNotes = async ctx => {
+  const { button } = await ctx.openPanel()
+  await ctx.act(async () => { button.click() })
+}
+
+test('FWD-007 填入保留正文和全部原文件', async t => {
+  const ctx = await setup()
+  const { window, act, store } = ctx
+  t.after(() => window.close())
+  const oldFile = new window.File(['original'], '已有.txt')
+  const chat = mountChatComposer(ctx, 'session-1', '原草稿\n', [oldFile])
+  await openHostNotes(ctx)
+  const originals = [
+    new window.File(['image'], '截图.png', { type: 'image/png' }),
+    new window.File(['audio'], '录音.wav', { type: 'audio/wav' }),
+    new window.File(['video'], '录屏.mp4', { type: 'video/mp4' }),
+    new window.File(['data'], '数据.csv', { type: 'text/csv' }),
+  ]
+  const insert = await addNoteWithFiles(ctx, '便笺正文', originals)
+  assert.equal(insert.getAttribute('aria-label'), '填入')
+  chat.select(0, 1)
+  await act(async () => { insert.click() })
+  assert.equal(chat.draft, '原草稿\n便笺正文')
+  assert.equal(chat.files[0], oldFile)
+  for (const [index, original] of originals.entries()) {
+    const inserted = chat.files[index + 1]
+    assert.equal(inserted.name, original.name)
+    assert.equal(inserted.type, original.type)
+    assert.equal(await inserted.text(), await original.text())
+  }
+  assert.equal(chat.files.length, 5)
+  assert.equal((await store.snapshot()).data.workspaces[UNASSIGNED].items[0].done, true)
+
+  const onlyFiles = await addNoteWithFiles(ctx, '', [originals[1]])
+  await act(async () => { onlyFiles.click() })
+  assert.equal(chat.draft, '原草稿\n便笺正文')
+  assert.equal(chat.files.at(-1).name, '录音.wav')
+  assert.ok((await store.snapshot()).data.workspaces[UNASSIGNED].items.every(item => item.done))
+})
+
+test('FWD-008 附件不可用或拒收时保留待续便笺', async t => {
+  let readFails = false
+  const ctx = await setup({ rejectAttachmentRead: id => readFails && id.endsWith('2') })
+  const { window, act, store } = ctx
+  t.after(() => window.close())
+  const chat = mountChatComposer(ctx, 'session-1', '原草稿')
+  await openHostNotes(ctx)
+  const insert = await addNoteWithFiles(ctx, '带两个文件', [
+    new window.File(['audio'], '录音.wav', { type: 'audio/wav' }),
+    new window.File(['data'], '文件.txt'),
+  ])
+  readFails = true
+  await act(async () => { insert.click() })
+  assert.equal(chat.draft, '原草稿')
+  assert.equal(chat.pastes, 0)
+  assert.equal((await store.snapshot()).data.workspaces[UNASSIGNED].items[0].done, false)
+  const toast = () => window.document.querySelector('[data-test-toast]').textContent
+  assert.match(toast(), /无法读取便笺附件/)
+
+  readFails = false
+  chat.acceptFiles = false
+  await act(async () => { insert.click() })
+  assert.equal(chat.draft, '原草稿')
+  assert.deepEqual(chat.files, [])
+  assert.equal((await store.snapshot()).data.workspaces[UNASSIGNED].items[0].done, false)
+  assert.match(toast(), /无法接收这组附件/)
+
+  chat.acceptFiles = true
+  await act(async () => { insert.click() })
+  assert.equal(chat.draft, '原草稿\n带两个文件')
+  assert.deepEqual(chat.files.map(file => file.name), ['录音.wav', '文件.txt'])
+  assert.equal((await store.snapshot()).data.workspaces[UNASSIGNED].items[0].done, true)
+})
+
+test('FWD-009 附件读取期间切换会话不写错草稿', async t => {
+  const entered = Promise.withResolvers()
+  const release = Promise.withResolvers()
+  let reads = 0
+  const ctx = await setup({ rejectAttachmentRead: async (_id, signal) => {
+    reads += 1
+    entered.resolve(signal)
+    await release.promise
+    return false
+  } })
+  const { window, act, store } = ctx
+  t.after(() => window.close())
+  const first = mountChatComposer(ctx, 'session-1', '原会话')
+  const second = mountChatComposer(ctx, 'session-2', '新会话')
+  await openHostNotes(ctx)
+  const insert = await addNoteWithFiles(ctx, '等待附件读取', [new window.File(['audio'], '录音.wav', { type: 'audio/wav' })])
+  await act(async () => { insert.click(); insert.click() })
+  const signal = await entered.promise
+  assert.equal(reads, 1)
+  assert.equal(insert.getAttribute('aria-busy'), 'true')
+  await ctx.openPanel({ sessionId: 'session-2' })
+  assert.equal(signal.aborted, true)
+  await act(async () => { release.resolve() })
+  assert.deepEqual([first.draft, second.draft], ['原会话', '新会话'])
+  assert.equal(first.pastes + second.pastes, 0)
+  assert.equal((await store.snapshot()).data.workspaces[UNASSIGNED].items[0].done, false)
 })
 
 test('NOTE-012 拒绝无效附件并保留上传失败前的草稿', async t => {

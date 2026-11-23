@@ -24,7 +24,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   Preview supported images, audio, and video, or download the original files.
   Images in drafts, open notes, and archived notes use DSH-style thumbnails and open in DSH’s original-image viewer.
   Other draft attachments use DSH’s file cards. Attachments survive draft recovery and recall.
-  To bring a file into chat, add the downloaded file through DSH’s composer.
+  **Insert** carries the text and all attachments into the current chat draft in one click.
 
 ### Changed
 - Sideby Note now installs as `@miorin/dsh-sideby-note`.
@@ -73,7 +73,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - 便笺可通过选择、粘贴或拖放添加附件，支持预览常见图片、音频和视频，也可下载原文件。
   草稿、待续和归档中的图片均使用 DSH 样式的缩略图，点击后用官方图片查看器打开原图。
   其他草稿附件使用 DSH 文件卡。重开面板或退回便笺时会恢复附件。
-  要把原文件带进对话，可下载后通过 DSH 输入框添加。
+  点「填入」即可把正文和全部附件一起带进当前对话草稿。
 
 ### 变更
 - 边记部的 npm 包改为 `@miorin/dsh-sideby-note`。

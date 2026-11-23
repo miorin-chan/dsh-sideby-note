@@ -67,7 +67,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 身份 | `constants.ts` | 包与插件的 id、`dsh-an-*` 相关的键与上限 |
 | 文案 | `i18n/` | `zh.ts` 定义键集合与 `MessageKey`；其余 7 种 DSH 官方语言用 `Record<MessageKey, string>`，缺键编译失败；运行时未知语言或缺键一律回退英文 |
 | 领域 | `domain/items.ts` | `normalizeItems`（防御性清洗、去重）、归档排序、`moveOpenItem`（只重排待续，归档留在原槽位）、相对时间文案 |
-| 领域 | `domain/forward.ts` | 「填入」：把便笺作为纯文本写进**当前会话**的 Lexical contenteditable 或 textarea，按换行接在已有内容后面；按 `[data-conversation-session]` 限定输入框。写入成功后由面板把该便笺归档 |
+| 领域 | `domain/forward.ts` | 「填入」按会话限定输入框。读取附件原文件，按保存顺序交给 DSH 的原生粘贴入口，通过该会话公开的输入状态确认接收，再追加纯文本 |
 | 存储 | `storage/workspace.ts` | 读写各工作区清单，供面板筛选和汇总。宿主写入使用 `list.patch` diff，本地写入先合并并发变更 |
 | 存储 | `storage/merge.ts` | 本地回落模式的按 id 合并：双方新增都保留，同一条目取较新的 `updatedAt`，本页相对上次读取删除的条目不再复活 |
 | 存储 | `storage/boot.ts` | 启动探测、一次性迁移、模式标记与提示；不可用不切换，成功后单向 host |
@@ -171,8 +171,10 @@ docs/assets/             # README 截图（preview-* 与 features/）
 提交后重新加入原工作区。输入框已有未提交内容时不覆盖，改为提示先发送或清空。
 录入框的键位固定与主会话一致：Enter 发送，Shift+Enter 换行，输入法选词时的 Enter 交给浏览器。
 
-便笺没有手动勾选：「填入」把便笺作为纯文本写入会话输入框（已有内容时按换行接在后面），
-写入成功后同一步把它归档（`done: true` 与 `completedAt`，字段名沿用旧结构以便原样读取）；找不到输入框时不改任何数据。
+「填入」把原始附件追加到当前会话草稿，并在已有正文之后另起一行追加便笺正文。
+纯附件便笺也使用这条路径。附件先完整读取，再由 DSH 校验整批文件。
+读文件失败、输入框不可用或拒收附件时，便笺保持待续。
+草稿接收正文和全部附件后，便笺在所属工作区归档（`done: true` 与 `completedAt`）。
 各工作区的待续顺序由各自的存储数组决定。
 `useRowReorder` 处理指针拖动与 ↑ / ↓ 键，移动范围限于该便笺所属工作区。
 拖动期间只改行的内联 `transform`，松手才经 `moveOpenItem` 写入一次，再在 layout effect 里把被拖行从松手处滑入新位置。

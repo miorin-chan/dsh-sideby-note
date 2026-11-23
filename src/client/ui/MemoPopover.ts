@@ -12,7 +12,7 @@ import { STORE_READY_LISTENERS, TODO_LISTENERS, notifyTodoChange } from '../stor
 import { retryStorage } from '../storage/boot'
 import { readScopeMode, writeScopeMode } from '../storage/prefs'
 import { isHostConnectionFailure, storageFailure, storageMode } from '../storage/state'
-import { useMemoStore } from './useSessionMemoStore'
+import { useMemoStore, type WorkspaceNote } from './useSessionMemoStore'
 import { usePanelGeometry } from './usePanelGeometry'
 
 import { useSections } from './useSections'
@@ -24,7 +24,7 @@ import { useClearConfirm } from './useClearConfirm'
 import { useListEdge } from './useListEdge'
 import { useOutsideDismiss } from './useOutsideDismiss'
 import { compareDoneItems } from '../domain/items'
-import { appendToConversation } from '../domain/forward'
+import { appendToConversation, type ComposerInputForSession } from '../domain/forward'
 
 import { TodoRow } from './TodoRow'
 import { PanelHead } from './PanelHead'
@@ -95,7 +95,24 @@ function MemoComposer({ composerRef, nameOfWorkspace, say, ...options }: MemoCom
   })
 }
 
-export function MemoPopover(props) {
+const noteKey = (item: WorkspaceNote) => JSON.stringify([item.workspaceId, item.noteId])
+
+interface MemoPopoverProps {
+  sessionId: string
+  getComposerInput: ComposerInputForSession
+  say: (key: string, vars?: Record<string, string | number>) => string
+  locale?: DshLocaleService
+  getLocaleId?: () => string
+  localeId?: string
+  anchorRef: React.RefObject<HTMLButtonElement>
+  placement: string
+  focusComposerOnMount: boolean
+  onClose: (restoreFocus?: boolean) => void
+  onOpenWorkspace?: (workspaceId: string) => void
+  onToast?: (kind: string) => void
+}
+
+export function MemoPopover(props: MemoPopoverProps) {
   const say = props.say
   const localeService = props.locale
   // The locale service publishes a revision on every language switch. The
@@ -111,7 +128,7 @@ export function MemoPopover(props) {
       const snapshot = typeof localeService.getSnapshot === 'function'
         ? localeService.getSnapshot()
         : localeService.getLocale()
-      return snapshot && typeof snapshot.revision === 'number' ? snapshot.revision : 0
+      return snapshot && typeof snapshot === 'object' ? snapshot.revision ?? 0 : 0
     } catch {
       return 0
     }
@@ -168,7 +185,16 @@ export function MemoPopover(props) {
   // Version check, release notes and the in-app update share one hook; the
   // registry answer is cached for an hour across panel opens.
   const update = useUpdateCenter(localeId)
-  const inserting = React.useRef(new Set<string>())
+  const inserting = React.useRef(new Map<string, AbortController>())
+  const [insertingKeys, setInsertingKeys] = React.useState<ReadonlySet<string>>(() => new Set())
+  React.useLayoutEffect(() => {
+    const operations = inserting.current
+    setInsertingKeys(new Set())
+    return () => {
+      for (const operation of operations.values()) operation.abort()
+      operations.clear()
+    }
+  }, [sessionId])
   const canUpload = storeMode === 'host'
   const composerRef = React.useRef<MemoComposerHandle>(null)
   const { archive, move, takeBack } = useNoteActions({ commit, report })
@@ -236,31 +262,31 @@ export function MemoPopover(props) {
     notifyTodoChange()
   }
 
-  /**
-   * Inserting a note into the conversation archives it: its text goes into the
-   * conversation composer and the row moves to the archive in the same step.
-   * When no composer is on screen nothing changes, so the note stays open.
-   */
-  const insertItem = async item => {
-    if (inserting.current.has(item.id)) return
+  const insertItem = async (item: WorkspaceNote) => {
+    const key = noteKey(item)
+    if (inserting.current.has(key)) return
     const mode = storageMode()
     if (mode === 'probing' || mode === 'error') {
       report('saveFailed')
       return
     }
-    // Attachment-only notes use the archive action after a manual hand-off.
-    const hasText = Boolean(item.text)
-    if (hasText && !appendToConversation(item.text)) {
-      report('insertFailed')
-      return
-    }
-    inserting.current.add(item.id)
+    const operation = new AbortController()
+    inserting.current.set(key, operation)
+    setInsertingKeys(new Set(inserting.current.keys()))
     try {
+      const result = await appendToConversation(sessionId, item, props.getComposerInput, operation.signal)
+      if (result !== 'inserted') {
+        if (result !== 'cancelled') report(result)
+        return
+      }
       const ok = await archive(item)
-      if (ok && hasText && item.attachments?.length) report('attachmentTextInserted')
-      else report(hasText ? (ok ? 'inserted' : 'archiveFailed') : (ok ? 'archived' : 'saveFailed'))
+      report(ok ? 'inserted' : 'archiveFailed')
     } finally {
-      inserting.current.delete(item.id)
+      operation.abort()
+      if (inserting.current.get(key) === operation) {
+        inserting.current.delete(key)
+        setInsertingKeys(new Set(inserting.current.keys()))
+      }
     }
   }
 
@@ -270,7 +296,7 @@ export function MemoPopover(props) {
    * would silently destroy it; ask the user to send or clear it first instead.
    */
   const recallItem = item => {
-    if (!inserting.current.has(item.id)) void composerRef.current?.recall(item, takeBack)
+    if (!inserting.current.has(noteKey(item))) void composerRef.current?.recall(item, takeBack)
   }
 
   const row = item => {
@@ -282,6 +308,7 @@ export function MemoPopover(props) {
       key: item.id,
       item,
       archived: item.done === true,
+      insertPending: insertingKeys.has(noteKey(item)),
       workspaceName: showWorkspace ? nameOfWorkspace(owner) : undefined,
       isCurrentWorkspace: workspace?.workspaceId === owner,
       onOpenWorkspace: canOpenWorkspace ? () => props.onOpenWorkspace(owner) : undefined,
