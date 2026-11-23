@@ -53,7 +53,8 @@
 
 ## 验证与发布
 
-- 本地交付按[本机实装与验收 SOP](docs/auto-test-sop.md)先备份现有数据，再构建并更新当前 profile 里的已有边记部条目。
+- 本地交付按[本机实装与验收 SOP](docs/auto-test-sop.md)先备份 `.dsh` 中的宿主便笺和附件，
+  再构建并更新当前 profile 里的已有边记部条目。
   本地实装只复用现有 bundle 和安装来源，并在现用 GUI 验收。
   若源码接入现用 profile，备份须先于构建。
 - 运行 `npm run check`（lint、类型检查、构建、`tests/` 下的契约与集成测试）。

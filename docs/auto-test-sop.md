@@ -1,26 +1,23 @@
 # 边记部本机实装与验收 SOP
 
 本地交付在当前使用的 DSH profile 里完成。
-先备份现有便笺、附件和浏览器草稿，再构建、更新并验收现有的 `@miorin/dsh-sideby-note` 条目。
+先备份 `.dsh` 中的宿主便笺和附件，再构建、更新并验收现有的 `@miorin/dsh-sideby-note` 条目。
 沿用原包名、安装来源与 `dsh-sideby-note` 行 ID。
 
-## 1. 备份当前数据
+## 1. 备份宿主便笺和附件
 
 - 记录运行中的 profile、现有插件来源和待部署的 Git 提交。
   可在「插件」详情或 DSH 插件管理工具中确认来源。
 - 展开边记部页脚的「存储与更新」，确认宿主清单的实际路径。
   等正在保存的便笺和附件写入完毕后，一起复制清单及其旁边的 `dsh-sideby-note-attachments/`。
   默认清单位于 `$DSH_HOME/storages/aside_note.json`。
-- 从当前 GUI 所在的 origin 导出 `localStorage` 中 `dsh.aside-note` 和以 `dsh.aside-note.` 开头的键值，
-  保存到同一备份目录。
-  这些键包含本地回落清单、未提交草稿及面板状态。记录 origin 以便恢复。
-  使用浏览器回落存储时，浏览器侧清单就是要备份的便笺数据。
+- 备份范围限于 `$DSH_HOME` 下的宿主清单和附件目录。
+  宿主清单尚未创建时，在验收记录中写明该状态。
 - 备份留在本机私有目录。验收记录只保留备份路径、数据范围和校验结果。
 
 宿主清单存在时，在 macOS 可用下面的命令复制并核对宿主文件。
 按面板显示的路径设置 `SIDEBY_NOTE_STORE`，或使用默认值。
 `SIDEBY_NOTE_BACKUP_ROOT` 可指定已有写权限的本机备份目录。
-只使用浏览器存储时，直接导出浏览器键值。
 
 ```bash
 set -e
@@ -39,28 +36,6 @@ if test -d "$sideby_attachments"; then
 fi
 cmp -s "$sideby_store" "$sideby_backup/aside_note.json"
 printf 'Backup: %s\n' "$sideby_backup"
-```
-
-可操作当前页面时，用同源浏览器环境导出以下插件键值。
-把下载的 JSON 放进同一备份目录。
-
-```js
-(() => {
-  const store = window.localStorage
-  const prefix = 'dsh.aside-note'
-  const values = Object.fromEntries(Object.keys(store)
-    .filter(key => key === prefix || key.startsWith(`${prefix}.`))
-    .map(key => [key, store.getItem(key)]))
-  const file = new Blob([JSON.stringify({ origin: location.origin, values }, null, 2)], {
-    type: 'application/json',
-  })
-  const url = URL.createObjectURL(file)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = 'sideby-note-browser-storage.json'
-  link.click()
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
-})()
 ```
 
 ## 2. 构建并直接更新现有条目
@@ -90,5 +65,5 @@ printf 'Backup: %s\n' "$sideby_backup"
 
 如果更新引起数据读取异常，先停止写入，记录错误和当前文件状态。
 先恢复之前的插件版本或安装来源，再判断是否需要恢复数据。
-确认要从备份恢复时，在写入停止后一起恢复宿主清单和附件，浏览器侧数据回到对应的 origin。
+确认要从备份恢复时，在写入停止后一起恢复宿主清单和附件。
 保留更新后新增的数据副本，便于核对。
