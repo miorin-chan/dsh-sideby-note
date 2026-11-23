@@ -254,6 +254,8 @@ Release notes are composed by `tools/release/notes.mts` from `CHANGELOG.md` — 
 ## Development
 
 The Host sources live in `index.ts` and `host/`, and the Client sources live in `src/client/`.
+To update a local installation, follow the [local deployment and verification SOP](./docs/auto-test-sop.md).
+Back up the data first, then build, update the existing entry in the active profile, and verify it in the same UI.
 
 ```bash
 npm ci                # install dependencies and build Host and Client
@@ -263,23 +265,6 @@ npm run catalog:check # validate the test catalog against the tests
 npm run test:run      # per-case run record + report.html/md (.test/runs/)
 npm run test:mutate   # mutation check: do the cases catch real defects?
 ```
-
-To run the checkout inside DSH, link it into a profile (replace `<path-to-repo>`) and run `pnpm install` in the profile directory:
-
-```json
-{
-  "dependencies": {
-    "@miorin/dsh-sideby-note": "link:<path-to-repo>"
-  },
-  "dsh": {
-    "profile": {
-      "bundles": ["@miorin/dsh-sideby-note"]
-    }
-  }
-}
-```
-
-After adding the bundle row, toggle it off/on in the sidebar **Plugins** page to recompose a running Host without a restart.
 
 The entry is `src/client/index.ts`, which exports `apply(ctx)`; tsdown wraps it in DSH's loader shell:
 
@@ -295,8 +280,6 @@ The npm package ships the generated JavaScript. Git tracks the TypeScript source
 - The top-right entry is injected into the host header with a MutationObserver, because the host's re-render reclaims a React portal there.
 
 The panel mounts as its own `react-dom/client` root on `document.body` and follows the trigger with fixed positioning. All styles use DSH's `--dsw-alias-*` theme variables, so light and dark themes work.
-
-Run `npm run build` after source changes; the dev client HMR swaps the new bundle, otherwise refresh or restart DSH.
 
 The screenshot and preview pipeline lives in the [screenshot SOP](./docs/screenshot-sop.md): one command re-shoots both themes from an isolated profile, and credentials are not copied unless `COPY_CREDENTIALS=1`.
 

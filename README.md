@@ -224,7 +224,8 @@ npx @miorin/dsh-sideby-note install --version 0.1.0   # 固定版本，而不是
 
 ## 开发
 
-宿主源码在 `index.ts` 和 `host/`，客户端源码在 `src/client/`。在源码仓库运行以下命令。
+宿主源码在 `index.ts` 和 `host/`，客户端源码在 `src/client/`。
+更新本机的边记部时，先按[本机实装与验收 SOP](./docs/auto-test-sop.md)备份数据，再构建、更新并验收现用 profile 里的已有条目。
 
 ```bash
 npm ci                # 安装依赖并生成 Host 和 Client 产物
@@ -234,23 +235,6 @@ npm run catalog:check # 只校验测试案例目录与测试是否对得上
 npm run test:run      # 逐用例执行记录 + report.html/md（.test/runs/）
 npm run test:mutate   # 变异测试：确认用例能抓到真实缺陷
 ```
-
-本地调试时把仓库 link 进 DSH profile（`<path-to-repo>` 换成克隆目录），再在 profile 目录执行 `pnpm install`：
-
-```json
-{
-  "dependencies": {
-    "@miorin/dsh-sideby-note": "link:<path-to-repo>"
-  },
-  "dsh": {
-    "profile": {
-      "bundles": ["@miorin/dsh-sideby-note"]
-    }
-  }
-}
-```
-
-新增插件行后，在侧边栏「插件」页把该组合包关闭再开启，运行中的 Host 会在线重新组合，无需重启。
 
 入口是 `src/client/index.ts`，导出 `apply(ctx)`；tsdown 负责套上 DSH 的加载壳：
 
@@ -266,8 +250,6 @@ JavaScript 产物随 npm 包分发，Git 记录 TypeScript 源码和构建配置
 - 顶部右侧入口由 MutationObserver 注入宿主 header，因为宿主重渲染会回收 React portal。
 
 面板用 `react-dom/client` 的独立 root 挂到 `document.body`，用 fixed 定位跟随入口；所有样式使用 DSH 的 `--dsw-alias-*` 主题变量，自动适配明暗主题。
-
-修改源码后先 `npm run build`；开发模式下 DSH 会热替换新 bundle，否则刷新页面或重启 DSH。
 
 截图与预览图的产出流程见 [截图与预览图 SOP](./docs/screenshot-sop.md)：在隔离 profile 里造演示会话，一条命令重拍明暗两套；凭据默认不复制。
 

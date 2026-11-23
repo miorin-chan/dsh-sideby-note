@@ -104,7 +104,7 @@ CI（`.github/workflows/ci.yml`）按顺序执行：
 
 1. **真机验证**：配额满、磁盘满、profile 只读在 jsdom 里注入。
    宿主路由由单元和集成测试覆盖，`aside_note.json` 的读写可用真实 DSH 存储栈验证。
-   Electron 界面验收按 [自动化验收 SOP](./auto-test-sop.md) 执行。
+   Electron 界面验收按[本机实装与验收 SOP](./auto-test-sop.md)执行。
 2. **发版证据**：`run.json` 目前只进 CI artifact（30 天），发版时应挂到 GitHub Release 作为长期证据，尚未接入；
 3. **性能**：400 条已验证功能可用，滚动与渲染耗时未测量；
 4. **变异测试**：13 个变异覆盖关键路径，不是全量；宿主迁移、宿主合并与错误态没有对应变异；

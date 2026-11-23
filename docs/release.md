@@ -24,6 +24,8 @@
 
 ## 日常开发循环
 
+源码已接入现用 DSH profile 时，先按[本机实装与验收 SOP](./auto-test-sop.md)备份数据，再运行会生成产物的命令。
+
 ```bash
 git switch -c feat/xxx main
 # 改宿主或客户端源码，并把说明写到 CHANGELOG.md 的 ## next-released 下
@@ -45,10 +47,9 @@ git push -u origin feat/xxx
 - Host 和 Client 的 JavaScript 由构建生成，随 npm 包发布。
   CI 连续打包两次，核对运行文件、内容和完整性。
 - `package.json` 的 `version` 与 `src/client/constants.ts` 的 `PLUGIN_VERSION` 必须一致，契约测试会检查。
-- UI 改动先在隔离的 DSH profile 里用 `npm pack` 的 tgz 做一次真机冒烟；
-  **发版之前**按 [截图与预览图 SOP](./screenshot-sop.md) 重拍 README 截图并单独提交（`docs: reshoot …`），
-  这样 `release: <version>` 提交与随后的 `v<version>` tag 自带新图。
-  不要等发完版再补图——那只能移动已发布的 tag。
+- UI 改动按[本机实装与验收 SOP](./auto-test-sop.md)备份数据、更新现用 profile 的已有插件并完成实机冒烟。
+  **发版之前**按[截图与预览图 SOP](./screenshot-sop.md)重拍 README 截图并单独提交（`docs: reshoot …`）。
+  `release: <version>` 提交与随后生成的 `v<version>` tag 由此包含本版截图。
 
 ## 版本策略
 

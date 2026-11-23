@@ -12,8 +12,8 @@
 - [架构文档](docs/architecture.md)记录运行时契约、数据模型与构建。
   [面板 UI 规则](docs/panel-ui-rules.md)记录录入区的原生输入框能力目标、组件复用与界面约束。
   维护文档沿用中文。
-- [发布手册](docs/release.md)、[自动化验收 SOP](docs/auto-test-sop.md)和[截图 SOP](docs/screenshot-sop.md)分别维护发布、
-  验收和截图步骤。
+- [发布手册](docs/release.md)、
+  [本机实装与验收 SOP](docs/auto-test-sop.md)和[截图 SOP](docs/screenshot-sop.md)分别维护发布、实装验收和截图步骤。
 - 用户可见变化写入 [CHANGELOG.md](CHANGELOG.md) 的 `## next-released`，由它生成发布说明。
   文档结构、截图与基建变化写入 [CHANGELOG-OPS.md](CHANGELOG-OPS.md) 的同名小节。
 
@@ -53,13 +53,14 @@
 
 ## 验证与发布
 
+- 本地交付按[本机实装与验收 SOP](docs/auto-test-sop.md)先备份现有数据，再构建并更新当前 profile 里的已有边记部条目。
+  本地实装只复用现有 bundle 和安装来源，并在现用 GUI 验收。
+  若源码接入现用 profile，备份须先于构建。
 - 运行 `npm run check`（lint、类型检查、构建、`tests/` 下的契约与集成测试）。
   源码依赖安装、`npm test` 和打包均会重建 Host 与 Client。
-  用 `npm pack --dry-run` 检查包内容。
 - 在工作区根目录运行 `node tools/new-dsh-plugin/cli.mts --check plugins/dsh-sideby-note` 检查骨架。
-- 交付验收与发版前按自动化验收 SOP 使用独立工作树和隔离 DSH profile，保持现用 profile 与凭据独立。
-  界面改动用打包后的 tgz 做实机冒烟，发版前按截图 SOP 重拍。
-  报告中区分自动化测试和实际界面观察。
+- 发版时用 `npm pack --dry-run` 检查发布包内容，并按截图 SOP 重拍。
+  验收记录分别写明自动化检查、安装校验和实际界面观察。
 - 版本、标签与发布说明遵循发布手册。
   调整主版本需经用户同意。
 

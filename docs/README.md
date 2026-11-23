@@ -8,7 +8,7 @@
 ## 源码仓库维护文档
 
 - [架构](architecture.md)记录运行时契约、数据模型、目录与构建流程。
-- [自动化验收 SOP](auto-test-sop.md)说明隔离 DSH profile 和 UI 冒烟检查。
+- [本机实装与验收 SOP](auto-test-sop.md)说明如何备份便笺数据、更新现用 profile 的已有条目并验收。
 - [截图与预览图 SOP](screenshot-sop.md)说明演示数据、截取流程与素材产出。
 - [发布与版本迭代](release.md)记录分支、构建、发版和更新说明约定。
 - [测试工程](testing.md)记录业务规则、用例目录、执行记录和 CI 门禁。
