@@ -53,7 +53,7 @@
 - 运行 `npm run check`（lint、类型检查、构建、`tests/` 下的契约与集成测试）。
   源码依赖安装、`npm test` 和打包均会重建 Host 与 Client。
   用 `npm pack --dry-run` 检查包内容。
-- 在工作区根目录运行 `node tools/new-dsh-plugin/cli.mjs --check plugins/dsh-sideby-note` 检查骨架。
+- 在工作区根目录运行 `node tools/new-dsh-plugin/cli.mts --check plugins/dsh-sideby-note` 检查骨架。
 - 交付验收与发版前按自动化验收 SOP 使用独立工作树和隔离 DSH profile，保持现用 profile 与凭据独立。
   界面改动用打包后的 tgz 做实机冒烟，发版前按截图 SOP 重拍。
   报告中区分自动化测试和实际界面观察。
