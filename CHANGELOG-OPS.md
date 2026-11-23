@@ -18,6 +18,8 @@
 
 ## next-released
 
+- **文档**更新了录入区的设计目标，尽可能支持 DSH 原生输入框的全部能力，优先复用原生组件库。
+  [录入区设计](./docs/panel-ui-rules.md#原生输入框能力与组件复用)
 - **构建：** 安装器、维护脚本和测试迁移至 `.mts`。
   构建继续以可执行的 `scripts/install.mjs` 随 npm 包分发安装器。
 - **构建：** Host 改用 TypeScript 源码，依赖安装、测试与打包自动生成 Host 和 Client 产物。

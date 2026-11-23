@@ -165,6 +165,8 @@ npx @miorin/dsh-sideby-note install --version 0.1.0   # 固定版本，而不是
 
 ## 设计规范
 
+录入区的长期目标见[原生输入框能力与组件复用](./docs/panel-ui-rules.md#原生输入框能力与组件复用)。
+
 面板与入口按钮的样式由 `src/client/styles/panel.css` 的令牌块统一驱动，改一处即可全站生效：
 
 | 维度 | 令牌 | 取值 |

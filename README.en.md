@@ -185,6 +185,8 @@ These screenshots show the previous panel in both themes. The current panel plac
 
 ## Design tokens
 
+See the [composer design and component reuse goals](./docs/panel-ui-rules.md#原生输入框能力与组件复用).
+
 The panel and the entry button read from one token block in `src/client/styles/panel.css`:
 
 | Axis | Token | Values |
