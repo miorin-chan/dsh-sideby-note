@@ -35,6 +35,10 @@ export function sessionReadyFor(sessionId: string) {
   return binding.sessionId !== sessionId || binding.ready
 }
 
+export function bindableSessionId(sessionId: string): string | undefined {
+  return sessionId && binding.sessionId === sessionId && binding.ready ? sessionId : undefined
+}
+
 export function draftKeyForSession(sessionId: string) {
   const workspace = workspaceForSession(sessionId)
   return workspace ? `ws:${workspace.workspaceId}` : sessionId

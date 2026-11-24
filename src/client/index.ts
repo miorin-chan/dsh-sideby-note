@@ -392,7 +392,7 @@ function apply(ctx: DshClientCtx) {
     const useSessions = typeof props.useSessions === 'function' ? props.useSessions : useNoSessions
     const snapshot: unknown = useWorkspaces(state => state)
     const summary = useSessions(state => state?.byId?.[sessionId])
-    const sessionReady = summary?.blank !== true
+    const sessionReady = summary?.blank === undefined ? !props.newSessionPage : !summary.blank
     const catalog = React.useMemo(() => {
       if (!hasWorkspaceHook) return []
       if (!isWorkspaceSnapshot(snapshot) || (snapshot.phase !== undefined && snapshot.phase !== 'ready')) return null
@@ -475,6 +475,10 @@ function apply(ctx: DshClientCtx) {
     ),
   )
 
+  function NewSessionCapture(props: React.ComponentProps<typeof BoundSessionCapture>) {
+    return h(BoundSessionCapture, { ...props, newSessionPage: true })
+  }
+
   // The blank new-session page renders hero options but not the composer dock,
   // so this second seat captures the same session/workspace context there. It
   // paints nothing; the entry itself stays the host-owned header button.
@@ -486,7 +490,7 @@ function apply(ctx: DshClientCtx) {
         order: 30,
         locale: NS,
       },
-      BoundSessionCapture,
+      NewSessionCapture,
     ),
   )
 

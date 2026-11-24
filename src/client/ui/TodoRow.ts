@@ -18,6 +18,7 @@ interface TodoRowProps {
   onOpenWorkspace?: React.MouseEventHandler<HTMLButtonElement>
   sessionLink?: { current: boolean; onOpen?: React.MouseEventHandler<HTMLButtonElement>; title?: string }
   onToggleSession?: () => void
+  sessionBindingDisabled?: boolean
   rowRef?: React.Ref<HTMLLIElement>
   highlighted?: boolean
   say: (key: string, vars?: Record<string, string>) => string
@@ -33,7 +34,7 @@ interface TodoRowProps {
 export function TodoRow(props: TodoRowProps) {
   const {
     item, archived, insertPending, retryArchive, workspaceName, isCurrentWorkspace, onOpenWorkspace,
-    sessionLink, onToggleSession, rowRef, highlighted,
+    sessionLink, onToggleSession, sessionBindingDisabled, rowRef, highlighted,
     say, renderFactorySlot, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey,
   } = props
   const attachments = item.attachments ?? []
@@ -161,7 +162,7 @@ export function TodoRow(props: TodoRowProps) {
           type: 'button',
           className: 'dsh-an-iconBtn dsh-an-sessionBinding',
           'aria-label': sessionToggleLabel,
-          disabled: insertPending,
+          disabled: insertPending || sessionBindingDisabled,
           onClick: onToggleSession,
         }, sessionGlyph())),
         // Rewind moves the note back to the panel's editor.

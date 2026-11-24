@@ -1456,6 +1456,13 @@ test('a blank new session opens a usable notes panel from the header corner', as
     await act(async () => { button.click() })
     popover = document.querySelector('.dsh-an-popover')
     assert.ok(popover, 'the corner entry opens the panel')
+    const composerBinding = popover.querySelector('form .dsh-an-sessionBinding')
+    const rowBinding = popover.querySelector('.dsh-an-row .dsh-an-sessionBinding')
+    assert.equal(composerBinding.disabled, true)
+    assert.equal(composerBinding.getAttribute('aria-pressed'), 'false')
+    assert.equal(rowBinding.disabled, true)
+    await act(async () => { composerBinding.click(); rowBinding.click() })
+    assert.ok(browserWorkspaceItems(window, 'ws-new').every(item => item.linkedSessionId === undefined))
     scopeButtons = () => [...popover.querySelectorAll('.dsh-an-scopeBtn')]
     assert.deepEqual(scopeButtons().map(node => node.dataset.scopeMode), ['global', 'workspace'])
     assert.equal(scopeButtons()[1].querySelector('.dsh-an-scopeName').textContent, '新会话工作区')
@@ -1473,7 +1480,7 @@ test('a blank new session opens a usable notes panel from the header corner', as
     await act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
     const workspaceStore = JSON.parse(window.localStorage.getItem('dsh.aside-note.workspaces'))
     assert.ok(
-      workspaceStore.workspaces['ws-new'].items.some(item => item.text === '新会话里记一条'),
+      workspaceStore.workspaces['ws-new'].items.some(item => item.text === '新会话里记一条' && item.linkedSessionId === undefined),
       'a note written before the first turn lands in the workspace list',
     )
   })
@@ -1493,6 +1500,10 @@ test('a blank new session opens a usable notes panel from the header corner', as
     assert.equal(document.querySelector('._headerUtilities > .dsh-an-headerBtn'), button,
       'the entry moves into the conversation utilities row once the session starts')
     assert.equal(button.dataset.anchor, 'utilities')
+    const composerBinding = popover.querySelector('form .dsh-an-sessionBinding')
+    assert.equal(composerBinding.disabled, false)
+    assert.equal(composerBinding.getAttribute('aria-pressed'), 'true')
+    assert.equal(popover.querySelector('.dsh-an-row .dsh-an-sessionBinding').disabled, false)
     assert.deepEqual(scopeButtons().map(node => node.dataset.scopeMode), ['global', 'workspace'])
     assert.equal(scopeButtons()[1].querySelector('.dsh-an-scopeName').textContent, '新会话工作区')
     assert.equal(scopeButtons()[0].getAttribute('aria-pressed'), 'true', 'Global stays selected across the first turn')
@@ -1501,7 +1512,7 @@ test('a blank new session opens a usable notes panel from the header corner', as
       input.dispatchEvent(new window.Event('input', { bubbles: true }))
     })
     await act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
-    assert.ok(browserWorkspaceItems(window, 'ws-new').some(item => item.text === '会话开始后的事项'),
+    assert.ok(browserWorkspaceItems(window, 'ws-new').some(item => item.text === '会话开始后的事项' && item.linkedSessionId === 'session-new'),
       'notes still go to the workspace after the first turn')
     assert.equal(JSON.parse(window.localStorage.getItem('dsh.aside-note')).sessions['session-new'], undefined)
   })

@@ -9,7 +9,7 @@ import React from 'react'
 import type { RenderFactorySlot } from '@deepseek-ai/dsh-client-ui-slots'
 import type { FileDragService } from '@deepseek-ai/dsh-client-ui-file-drag/client'
 import { PANEL_DEFAULT_WIDTH, SCOPE_MODE_KEY } from '../constants'
-import { draftKeyForSession, UNASSIGNED_WORKSPACE, workspaceCatalogReady, workspaceForSession, workspaceById, type ScopeMode } from '../scope'
+import { bindableSessionId, draftKeyForSession, UNASSIGNED_WORKSPACE, workspaceCatalogReady, workspaceForSession, workspaceById, type ScopeMode } from '../scope'
 import { STORE_READY_LISTENERS, TODO_LISTENERS, notifyTodoChange } from '../storage/events'
 import { retryStorage } from '../storage/boot'
 import { readScopeMode, writeScopeMode } from '../storage/prefs'
@@ -60,11 +60,12 @@ type MemoComposerProps = Parameters<typeof useComposerDraft>[0] & {
   say: (key: string, vars?: Record<string, string>) => string
   renderFactorySlot?: RenderFactorySlot
   readFileDrag: FileDragService['read']
+  showSessionBinding: boolean
   canBindSession: boolean
   sessionTitle: (id: string) => string | undefined
 }
 
-function MemoComposer({ composerRef, nameOfWorkspace, say, renderFactorySlot, readFileDrag, canBindSession, sessionTitle, ...options }: MemoComposerProps) {
+function MemoComposer({ composerRef, nameOfWorkspace, say, renderFactorySlot, readFileDrag, showSessionBinding, canBindSession, sessionTitle, ...options }: MemoComposerProps) {
   const { workspaceId, canUpload, storageInUse, report } = options
   const {
     draft, linkedSessionId, draftLocked, isSubmitting, isRecalling, hasUnresolvedAttachments, attachmentItems,
@@ -91,8 +92,9 @@ function MemoComposer({ composerRef, nameOfWorkspace, say, renderFactorySlot, re
       : say('add.placeholder'),
     destination: destinationHint ? { text: destinationHint, visible: showDestination } : undefined,
     destinationPending: !destination,
-    sessionBinding: canBindSession || linkedSessionId ? {
+    sessionBinding: showSessionBinding || linkedSessionId ? {
       linked: Boolean(linkedSessionId),
+      disabled: !canBindSession,
       title: linkedSessionId ? sessionTitle(linkedSessionId) : undefined,
       onToggle: toggleSessionBinding,
     } : undefined,
@@ -216,7 +218,8 @@ export function MemoPopover(props: MemoPopoverProps) {
   const jump = props.noteToReveal
   const showLinkedNote = jump?.viaSession && jump !== dismissedSessionJump && jump.workspaceId !== workspace?.workspaceId
   const workspaceFilter = mode === 'workspace' && !showLinkedNote ? workspace?.workspaceId ?? null : null
-  const getBindableSessionId = () => sessionId && props.getActiveSessionId() === sessionId ? sessionId : null
+  const getBindableSessionId = () => bindableSessionId(sessionId)
+  const canBindSession = Boolean(getBindableSessionId())
   const effectiveMode = workspaceFilter ? 'workspace' : 'global'
   const nameOfWorkspace = (id: string) => id === UNASSIGNED_WORKSPACE
     ? say('scope.unassigned')
@@ -441,8 +444,9 @@ export function MemoPopover(props: MemoPopoverProps) {
     const key = noteKey(item)
     const pending = changingBindings.current
     if (inserting.current.has(key) || pending.has(key) || !countsAvailable) return
-    const next = item.linkedSessionId ? null : getBindableSessionId()
-    if (!item.linkedSessionId && !next) return
+    const target = getBindableSessionId()
+    if (!target) return
+    const next = item.linkedSessionId ? null : target
     pending.add(key)
     try {
       await setSessionBinding(item, next)
@@ -473,7 +477,8 @@ export function MemoPopover(props: MemoPopoverProps) {
       insertPending: insertingKeys.has(noteKey(item)),
       retryArchive: hasArchiveRetry(noteContentKey(item)),
       sessionLink,
-      onToggleSession: countsAvailable && (linkedSessionId || getBindableSessionId()) ? () => toggleRowBinding(item) : undefined,
+      onToggleSession: countsAvailable && (linkedSessionId || sessionId) ? () => toggleRowBinding(item) : undefined,
+      sessionBindingDisabled: !canBindSession,
       workspaceName: showWorkspace ? nameOfWorkspace(owner) : undefined,
       isCurrentWorkspace: workspace?.workspaceId === owner,
       onOpenWorkspace: canOpenWorkspace
@@ -575,7 +580,8 @@ export function MemoPopover(props: MemoPopoverProps) {
       say,
       draftKey,
       workspaceId,
-      canBindSession: Boolean(sessionId),
+      showSessionBinding: Boolean(sessionId),
+      canBindSession,
       sessionTitle: props.sessionTitle,
       getBindableSessionId,
       commit,

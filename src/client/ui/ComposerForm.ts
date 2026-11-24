@@ -13,7 +13,7 @@ interface ComposerFormProps {
   placeholder: string
   destination?: { text: string; visible: boolean }
   destinationPending: boolean
-  sessionBinding?: { linked: boolean; onToggle: () => void; title?: string }
+  sessionBinding?: { linked: boolean; disabled: boolean; onToggle: () => void; title?: string }
   attachments: React.ComponentProps<typeof AttachmentList>['attachments']
   attachmentItems: React.ComponentProps<typeof AttachmentList>['attachmentItems']
   renderFactorySlot?: React.ComponentProps<typeof AttachmentList>['renderFactorySlot']
@@ -177,7 +177,7 @@ export function ComposerForm(props: ComposerFormProps) {
       'aria-pressed': sessionBinding.linked,
       'aria-description': sessionBinding.linked ? sessionHint : undefined,
       title: Tooltip ? undefined : sessionHint,
-      disabled: busy || draftLocked || destinationPending || storageInUse,
+      disabled: sessionBinding.disabled || busy || draftLocked || destinationPending || storageInUse,
       onClick: sessionBinding.onToggle,
     }, h('span', { className: 'dsh-an-sessionGlyph', 'aria-hidden': true }, icon('IconLinkOutlineRegular')
       ? h(Glyph, { name: 'IconLinkOutlineRegular', size: 16 }) : '🔗'))),

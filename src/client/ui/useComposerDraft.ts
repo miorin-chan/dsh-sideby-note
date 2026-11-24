@@ -246,8 +246,9 @@ export function useComposerDraft({ draftKey, workspaceId, getBindableSessionId, 
 
   const toggleSessionBinding = () => {
     if (!key || storageInUse || actionsByDraft.has(key)) return
-    const next = linkFor(draftRef.current) ? null : getBindableSessionId?.()
-    if (next === undefined) return
+    const target = getBindableSessionId?.()
+    if (!target) return
+    const next = linkFor(draftRef.current) ? null : target
     if (!saveAddDraft(key, draftRef.current.add, undefined, undefined, next)) report('saveFailed')
   }
 

@@ -139,7 +139,7 @@ cases:
     risk: ux
     expected:
       - 有工作区绑定的空白新会话可在「全局」「工作区」之间切换
-      - 此时写入的便笺进入工作区清单
+      - 录入区和列表条目的绑定按钮置灰，此时写入的便笺不绑定会话，仍进入工作区清单
     automation:
       - type: integration
         file: tests/bundle.test.mts
@@ -156,7 +156,7 @@ cases:
     risk: ux
     expected:
       - 面板保持打开，入口从 header 角落移到对话工具行
-      - 保留原筛选，新增便笺仍写入当前工作区
+      - 保留原筛选，绑定按钮恢复可用，新增便笺默认绑定且仍写入当前工作区
     automation:
       - type: integration
         file: tests/bundle.test.mts

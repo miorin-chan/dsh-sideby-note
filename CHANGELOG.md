@@ -16,7 +16,8 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 
 <!-- app-update-notes:en:start -->
 ### Added
-- New notes link to the current session without changing their workspace.
+- New notes link to the current session once it starts, without changing their workspace.
+  On a blank new-session page, binding controls are disabled and notes are saved unlinked.
   Use the link button to unlink. Separate workspace and session links appear on the same line beneath the note.
   Linked notes only insert into their own session.
 - Use **Send to Sideby Note** in the chat input toolbar to move a text draft to the workspace’s open notes.
@@ -81,7 +82,8 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 
 <!-- app-update-notes:zh:start -->
 ### 新增
-- 新增便笺默认绑定当前会话，仍留在原工作区，点绑定图标即可解绑。
+- 会话开始后，新增便笺默认绑定当前会话，仍留在原工作区，点绑定图标即可解绑。
+  空白新会话的绑定按钮置灰，仍可保存未绑定的便笺。
   条目下方的「工作区 / 会话」各自可跳转。
   已绑定便笺只在对应会话中填入。
 - 提示词输入框右侧增加「发至边记部」，可把纯文本草稿移入当前工作区的「待续」。

@@ -4,7 +4,7 @@ import { MAX_TEXT } from '../constants'
 import type { ComposerInputForSession, ComposerInputSource } from '../domain/forward'
 import { uid } from '../domain/id'
 import type { MessageKey } from '../i18n/zh'
-import { UNASSIGNED_WORKSPACE, workspaceCatalogReady, workspaceForSession } from '../scope'
+import { bindableSessionId, UNASSIGNED_WORKSPACE, workspaceCatalogReady, workspaceForSession } from '../scope'
 import { updateWorkspaceNotes } from '../storage/workspace'
 import { NOTE_ICON_MARKUP } from './headerEntry'
 import { Tooltip, withTooltip } from './primitives'
@@ -57,6 +57,7 @@ export function SendDraftToNotes({ sessionId, useInput, inputActions, getCompose
       return
     }
     const workspaceId = workspaceForSession(sessionId)?.workspaceId ?? UNASSIGNED_WORKSPACE
+    const linkedSessionId = bindableSessionId(sessionId)
     // A timed-out host write may have already created this note. Retrying the
     // same draft revision reuses its id even if the toolbar is remounted.
     const attempt = previous?.revision === before.draftRev && previous.workspaceId === workspaceId
@@ -68,7 +69,10 @@ export function SendDraftToNotes({ sessionId, useInput, inputActions, getCompose
     try {
       const saved = await updateWorkspaceNotes(workspaceId, items => {
         if (items.some(item => item.id === attempt.id)) return items
-        const note = { id: attempt.id, text, done: false, createdAt: attempt.writtenAt, updatedAt: attempt.writtenAt, linkedSessionId: sessionId }
+        const note = {
+          id: attempt.id, text, done: false, createdAt: attempt.writtenAt, updatedAt: attempt.writtenAt,
+          ...(linkedSessionId ? { linkedSessionId } : {}),
+        }
         return [note, ...items]
       }).catch(() => false)
       if (!saved) {
