@@ -3,7 +3,7 @@ import React from 'react'
 import { copyText } from '../domain/clipboard'
 import { metaLabel, rowAge } from '../domain/items'
 import { AttachmentList } from './AttachmentList'
-import { Glyph, IconCopy, IconInsert, IconRewind, Tooltip, icon, withTooltip } from './primitives'
+import { Glyph, IconCopy, IconInsert, IconRewind, SessionLinkGlyph, Tooltip, withTooltip } from './primitives'
 import type { WorkspaceNote } from './useSessionMemoStore'
 
 const h = React.createElement
@@ -49,8 +49,7 @@ export function TodoRow(props: TodoRowProps) {
   const sessionTitle = sessionLink?.title
   const openSessionHint = openSessionLabel && sessionTitle ? `${openSessionLabel} — ${sessionTitle}` : openSessionLabel
   const sessionText = sessionLink?.current ? say('session.current') : sessionTitle || openSessionLabel || say('session.linked')
-  const sessionGlyph = () => h('span', { className: 'dsh-an-sessionGlyph', 'aria-hidden': true }, icon('IconLinkOutlineRegular')
-    ? h(Glyph, { name: 'IconLinkOutlineRegular', size: 14 }) : '🔗')
+  const sessionGlyph = () => h(SessionLinkGlyph, { size: 14 })
   const workspaceLabel = onOpenWorkspace
     ? say(isCurrentWorkspace ? 'item.currentWorkspace' : 'item.openWorkspace', { workspace: workspaceName })
     : undefined
@@ -162,9 +161,10 @@ export function TodoRow(props: TodoRowProps) {
           type: 'button',
           className: 'dsh-an-iconBtn dsh-an-sessionBinding',
           'aria-label': sessionToggleLabel,
+          'data-linked': Boolean(sessionLink),
           disabled: insertPending || sessionBindingDisabled,
           onClick: onToggleSession,
-        }, sessionGlyph())),
+        }, h(SessionLinkGlyph, { size: 14, unlink: Boolean(sessionLink) }))),
         // Rewind moves the note back to the panel's editor.
         withTooltip(say('item.recall'), h(
           'button',

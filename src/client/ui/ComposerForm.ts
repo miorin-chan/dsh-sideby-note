@@ -3,7 +3,7 @@ import React from 'react'
 import type { FileDragService } from '@deepseek-ai/dsh-client-ui-file-drag/client'
 import { MAX_TEXT } from '../constants'
 import { AttachmentList } from './AttachmentList'
-import { Glyph, Tooltip, icon, withTooltip } from './primitives'
+import { Glyph, SessionLinkGlyph, Tooltip, icon, withTooltip } from './primitives'
 
 const h = React.createElement
 
@@ -175,12 +175,12 @@ export function ComposerForm(props: ComposerFormProps) {
       className: 'dsh-an-attachBtn dsh-an-sessionBinding',
       'aria-label': say('session.bind'),
       'aria-pressed': sessionBinding.linked,
+      'data-linked': sessionBinding.linked,
       'aria-description': sessionBinding.linked ? sessionHint : undefined,
       title: Tooltip ? undefined : sessionHint,
       disabled: sessionBinding.disabled || busy || draftLocked || destinationPending || storageInUse,
       onClick: sessionBinding.onToggle,
-    }, h('span', { className: 'dsh-an-sessionGlyph', 'aria-hidden': true }, icon('IconLinkOutlineRegular')
-      ? h(Glyph, { name: 'IconLinkOutlineRegular', size: 16 }) : '🔗'))),
+    }, h(SessionLinkGlyph, { size: 16, unlink: sessionBinding.linked }))),
     withTooltip(addLabel, h(
       'button',
       {

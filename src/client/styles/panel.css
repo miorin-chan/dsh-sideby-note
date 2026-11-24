@@ -41,8 +41,9 @@ html[data-platform="darwin"] .dsh-an-popover{-webkit-app-region:no-drag}
 .dsh-an-composerTools{display:flex;align-items:center;gap:var(--an-space-1)}
 .dsh-an-attachBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}
 .dsh-an-attachBtn:disabled{cursor:not-allowed;opacity:.55}
-.dsh-an-sessionBinding[aria-pressed="true"]{background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);box-shadow:inset 0 0 0 0.5px var(--dsw-alias-border-l3)}
-.dsh-an-sessionGlyph{display:grid;place-items:center;flex:none;font-variant-emoji:text}
+.dsh-an-sessionBinding[data-linked="true"]:not(:disabled){background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-brand-primary);box-shadow:inset 0 0 0 0.5px var(--dsw-alias-border-l3)}
+.dsh-an-sessionGlyph{position:relative;display:grid;place-items:center;flex:none;font-variant-emoji:text}
+.dsh-an-sessionGlyph[data-link-action="unlink"]::after{content:"";position:absolute;top:50%;left:50%;width:100%;height:1.5px;background:currentColor;transform:translate(-50%,-50%) rotate(45deg);pointer-events:none}
 .dsh-an-destination,.dsh-an-attachmentStatus{grid-column:1/-1;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}
 .dsh-an-attachments{min-width:0;container-type:inline-size}
 .dsh-an-add>.dsh-an-attachments{grid-column:1/-1}
