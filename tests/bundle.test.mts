@@ -977,7 +977,8 @@ test('workspace notes share a list and global actions preserve ownership', async
   })
 
   await t.test('SCOPE-005 工作区范围新增便笺落在共享清单', async () => {
-    // A note created from session-1 belongs to its workspace.
+    // An explicitly shared note created in session-1 belongs to its workspace.
+    await act(async () => { popover.querySelector('form .dsh-an-sessionBinding').click() })
     await typeInto(inputOf(popover), '新增的共享事项')
     await act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
     const afterAdd = JSON.parse(window.localStorage.getItem('dsh.aside-note.workspaces'))
@@ -1121,7 +1122,8 @@ test('workspace notes share a list and global actions preserve ownership', async
     await act(async () => { secondPopover.querySelector('[data-scope-mode="global"]').click() })
     assert.equal(secondInput.value, '第二个会话的草稿', 'the draft follows the workspace across conversations')
     await act(async () => { secondPopover.querySelector('.dsh-an-addBtn').click() })
-    assert.ok(workspaceItems().some(item => item.text === '第二个会话的草稿'))
+    assert.equal(workspaceItems().find(item => item.text === '第二个会话的草稿')?.linkedSessionId, 'session-1',
+      'the shared draft keeps the link set when typing started, even when saved in session-2')
     assert.deepEqual(browserWorkspaceItems(window, 'ws-2'), otherBefore)
     assert.deepEqual(JSON.parse(window.localStorage.getItem('dsh.aside-note')).sessions, {})
     assert.equal(JSON.parse(window.localStorage.getItem('dsh.aside-note.drafts')).sessions['ws:ws-1'], undefined,

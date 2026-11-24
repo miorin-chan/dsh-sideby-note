@@ -97,7 +97,7 @@ A few small tasks should not need a whole management system. Capture a thought, 
 ### Capture it and keep going
 
 Click the **Sideby Note** button at the top right of the conversation to open the right-side panel. Record tasks, ideas, and details to revisit. The button shows the open count; drag an open note directly to change the order.
-Use **Send to Sideby Note** on the right of the chat input toolbar to move a text-only draft of up to 280 characters to the workspace’s open notes.
+Use **Send to Sideby Note** on the right of the chat input toolbar to move a text-only draft of up to 280 characters to the workspace’s open notes, linked to that conversation.
 
 ### Keep it in the workspace and pick it up later
 
@@ -109,7 +109,7 @@ In a standalone session, new notes go into a reserved unassigned workspace and a
 
 ### Return to the conversation or continue here
 
-Notes are shared across the workspace by default. To keep a note with a particular conversation, choose **Link to current session** in the note composer or on the note itself. The link changes neither the note’s workspace nor its visibility or count. Use the session link on the note to return, or unlink it at any time. Recalling a note for editing preserves the link.
+New notes made in a conversation link to that session by default. Use the link button to unlink the draft or change an existing note. The link changes neither the note’s workspace nor its visibility or count. Below a note, use **Workspace / Session** to jump to either destination. Recalling a note for editing preserves its link or lack of one.
 
 Use **Insert** in the current conversation for an unlinked note, or in the linked conversation for a linked one. Opening that conversation does not change its draft. **Insert** appends the text and all attachments to the draft, then archives the note. Note text starts on a new line after any existing text. Review or edit the draft and send it when you are ready.
 

@@ -34,7 +34,7 @@ async function fixture(t) {
         })(),
         subscribe: () => () => {},
       } },
-      uiWorkspace: { openSession: id => { navigation = id } },
+      uiWorkspace: { openSession: id => { navigation = id }, openWorkspace: async () => {} },
     },
     prepare(window) {
       window.localStorage.setItem('dsh.aside-note', JSON.stringify({ version: 1, sessions: { 'session-2': { items: [old] } } }))
@@ -64,15 +64,20 @@ test('NOTE-014 可选绑定不改变工作区且随退回草稿保留', async t 
   try {
     assert.equal(f.items()[0].linkedSessionId, undefined, 'legacy session migration does not infer a link')
     const toggle = () => clickOf(f.panel().querySelector('form'), bindLabel)
-    assert.equal(toggle().getAttribute('aria-pressed'), 'false')
-    await f.click(toggle())
-    assert.equal(toggle().getAttribute('aria-pressed'), 'true')
+    assert.equal(toggle().getAttribute('aria-pressed'), 'true', 'a fresh draft already links the active session')
     await f.type('绑定便笺')
     await f.add()
     assert.equal(f.items().find(note => note.text === '绑定便笺').linkedSessionId, 'session-1')
-    assert.equal(toggle().getAttribute('aria-pressed'), 'false', 'the next note is not linked by default')
+    assert.equal(toggle().getAttribute('aria-pressed'), 'true', 'each new draft starts linked')
+    await f.click(toggle())
+    assert.equal(toggle().getAttribute('aria-pressed'), 'false')
+    await f.type('手动解绑的便笺')
     await f.selectSession('session-2')
     await f.app.open()
+    assert.equal(toggle().getAttribute('aria-pressed'), 'false', 'explicit unlink survives switching sessions')
+    await f.add()
+    assert.equal(f.items().find(note => note.text === '手动解绑的便笺').linkedSessionId, undefined)
+    assert.equal(toggle().getAttribute('aria-pressed'), 'true', 'saving resets the override for the next note')
     await f.click(clickOf(f.row('绑定便笺'), '退回'))
     assert.equal(f.items().some(note => note.text === '绑定便笺'), false)
     assert.equal(JSON.parse(f.app.window.localStorage.getItem(DRAFTS)).sessions[`ws:${workspaceId}`].linkedSessionId, 'session-1')
@@ -92,6 +97,22 @@ test('NOTE-014 可选绑定不改变工作区且随退回草稿保留', async t 
     await f.click(clickOf(f.row('编辑后的便笺'), bindLabel))
     assert.equal(f.items().find(note => note.id === recalled.id).linkedSessionId, 'session-2')
     assert.equal(f.items().find(note => note.id === 'old').linkedSessionId, undefined)
+    await f.click(clickOf(f.row('旧便笺'), '退回'))
+    assert.equal(toggle().getAttribute('aria-pressed'), 'false', 'recalling a legacy note does not add a link')
+    await f.add()
+    assert.equal(f.items().find(note => note.text === '旧便笺').linkedSessionId, undefined)
+
+    await f.type('当前标签页的草稿')
+    await f.app.act(async () => {
+      const storage = f.app.window.localStorage
+      const drafts = JSON.parse(storage.getItem(DRAFTS))
+      drafts.sessions[`ws:${workspaceId}`] = { add: '另一标签页的草稿', linkedSessionId: 'session-1' }
+      storage.setItem(DRAFTS, JSON.stringify(drafts))
+      f.app.window.dispatchEvent(new f.app.window.StorageEvent('storage', { key: DRAFTS }))
+    })
+    await f.add()
+    assert.equal(f.field().value, '当前标签页的草稿')
+    assert.equal(f.items().some(note => note.text === '当前标签页的草稿'), false, 'text and session from different tabs are never combined')
   } finally {
     await f.app.dispose()
   }
@@ -108,7 +129,12 @@ test('FWD-010 绑定便笺只在目标会话填入且返回本身不写草稿', 
     await f.click(insert())
     assert.equal(f.chat('session-2').value, '')
     assert.equal(f.items()[0].done, false)
+    assert.equal(f.row('旧便笺').querySelector('.dsh-an-contextDivider'), null, 'a lone session link needs no separator')
+    await f.click(f.panel().querySelector('[data-scope-mode="global"]')!)
     const returnButton = clickOf(f.row('旧便笺'), `${openLabel} — Talk 1`)
+    const context = returnButton.closest('.dsh-an-rowContext')!
+    assert.ok(context.querySelector('.dsh-an-workspaceJump'), 'the workspace remains a separate action')
+    assert.equal(context.querySelector('.dsh-an-contextDivider')?.textContent, '/')
     returnButton.focus()
     await f.click(returnButton)
     assert.equal(f.navigation, 'session-1')

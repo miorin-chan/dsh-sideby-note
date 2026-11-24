@@ -46,6 +46,7 @@ export function TodoRow(props: TodoRowProps) {
   const sessionToggleLabel = onToggleSession ? say(sessionLink ? 'session.unbind' : 'session.bind') : undefined
   const openSessionLabel = sessionLink?.onOpen && !sessionLink.current ? say('session.open') : undefined
   const sessionTitle = sessionLink?.title
+  const openSessionHint = openSessionLabel && sessionTitle ? `${openSessionLabel} — ${sessionTitle}` : openSessionLabel
   const sessionText = sessionLink?.current ? say('session.current') : sessionTitle || openSessionLabel || say('session.linked')
   const sessionGlyph = () => h('span', { className: 'dsh-an-sessionGlyph', 'aria-hidden': true }, icon('IconLinkOutlineRegular')
     ? h(Glyph, { name: 'IconLinkOutlineRegular', size: 14 }) : '🔗')
@@ -113,8 +114,8 @@ export function TodoRow(props: TodoRowProps) {
       hasText ? h('div', { className: 'dsh-an-text' }, item.text) : null,
       h(AttachmentList, { attachments, say, renderFactorySlot }),
     ),
-    workspaceName && h('div', { className: 'dsh-an-rowWorkspace' },
-      workspaceLabel ? withTooltip(workspaceLabel, h('button', {
+    (workspaceName || sessionLink) && h('div', { className: workspaceName ? 'dsh-an-rowContext dsh-an-rowWorkspace' : 'dsh-an-rowContext' },
+      workspaceName && (workspaceLabel ? withTooltip(workspaceLabel, h('button', {
         type: 'button',
         className: 'dsh-an-workspaceJump',
         'aria-label': workspaceLabel,
@@ -124,19 +125,18 @@ export function TodoRow(props: TodoRowProps) {
       },
       h('span', { className: 'dsh-an-workspaceGlyph', 'aria-hidden': true }, isCurrentWorkspace ? '•' : '↗'),
       workspaceText,
-      )) : workspaceText,
-    ),
-    sessionLink && h('div', { className: 'dsh-an-rowSession' },
-      openSessionLabel ? withTooltip(openSessionLabel, h('button', {
+      )) : workspaceText),
+      workspaceName && sessionLink && h('span', { className: 'dsh-an-contextDivider', 'aria-hidden': true }, '/'),
+      sessionLink && (openSessionHint ? withTooltip(openSessionHint, h('button', {
         type: 'button',
         className: 'dsh-an-sessionJump',
-        'aria-label': sessionTitle ? `${openSessionLabel} — ${sessionTitle}` : openSessionLabel,
-        title: Tooltip ? undefined : sessionTitle || openSessionLabel,
+        'aria-label': openSessionHint,
+        title: Tooltip ? undefined : openSessionHint,
         onClick: sessionLink.onOpen,
       }, sessionGlyph(), h('span', { className: 'dsh-an-contextName' }, sessionText),
       h('span', { className: 'dsh-an-sessionGlyph', 'aria-hidden': true }, '↗')))
         : h('span', { className: 'dsh-an-sessionLabel', title: sessionTitle },
-            sessionGlyph(), h('span', { className: 'dsh-an-contextName' }, sessionText)),
+            sessionGlyph(), h('span', { className: 'dsh-an-contextName' }, sessionText))),
     ),
     h(
       'div',

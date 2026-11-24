@@ -67,7 +67,7 @@ type MemoComposerProps = Parameters<typeof useComposerDraft>[0] & {
 function MemoComposer({ composerRef, nameOfWorkspace, say, renderFactorySlot, readFileDrag, canBindSession, sessionTitle, ...options }: MemoComposerProps) {
   const { workspaceId, canUpload, storageInUse, report } = options
   const {
-    draft, draftLocked, isSubmitting, isRecalling, hasUnresolvedAttachments, attachmentItems,
+    draft, linkedSessionId, draftLocked, isSubmitting, isRecalling, hasUnresolvedAttachments, attachmentItems,
     addRef, isComposing, onCompositionStart, onCompositionEnd,
     add, recall, addFiles, removeAttachment, removeUpload, retryUpload, toggleSessionBinding, onDraftChange, onDraftKeyDown,
   } = useComposerDraft(options)
@@ -91,9 +91,9 @@ function MemoComposer({ composerRef, nameOfWorkspace, say, renderFactorySlot, re
       : say('add.placeholder'),
     destination: destinationHint ? { text: destinationHint, visible: showDestination } : undefined,
     destinationPending: !destination,
-    sessionBinding: canBindSession || draft.linkedSessionId ? {
-      linked: Boolean(draft.linkedSessionId),
-      title: draft.linkedSessionId ? sessionTitle(draft.linkedSessionId) : undefined,
+    sessionBinding: canBindSession || linkedSessionId ? {
+      linked: Boolean(linkedSessionId),
+      title: linkedSessionId ? sessionTitle(linkedSessionId) : undefined,
       onToggle: toggleSessionBinding,
     } : undefined,
     attachments: draft.attachments,

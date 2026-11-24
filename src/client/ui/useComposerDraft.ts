@@ -1,7 +1,7 @@
 /** The add box: draft persistence, auto-grow and the composer key gestures. */
 import React from 'react'
 import { MAX_TEXT } from '../constants'
-import { notifyDraftAttachments, readScopeDrafts, saveAddDraft, subscribeDraftAttachments } from '../storage/drafts'
+import { notifyDraftAttachments, readScopeDrafts, RESET_DRAFT_SESSION_LINK, saveAddDraft, subscribeDraftAttachments } from '../storage/drafts'
 import { uid } from '../domain/id'
 import { PRIMITIVES } from './primitives'
 import {
@@ -42,7 +42,12 @@ export function useComposerDraft({ draftKey, workspaceId, getBindableSessionId, 
       const uploads = readDraftUploadView(key, saved)
       setUploadView(uploads)
       const next = inheritedAction.current ? saved : {
-        ...saved, add: draftRef.current.add, workspaceId: saved.workspaceId ?? uploads?.workspaceId,
+        ...saved,
+        add: draftRef.current.add,
+        workspaceId: saved.workspaceId ?? uploads?.workspaceId,
+        // A different tab may have replaced the text. Keep this visible text's
+        // binding with it rather than importing a link meant for the other text.
+        linkedSessionId: saved.add === draftRef.current.add.slice(0, MAX_TEXT) ? saved.linkedSessionId : draftRef.current.linkedSessionId,
       }
       inheritedAction.current = undefined
       const current = draftRef.current
@@ -101,26 +106,42 @@ export function useComposerDraft({ draftKey, workspaceId, getBindableSessionId, 
     draftRef.current = next
     setDraft(next)
   }
+  const linkFor = (value: Draft) => value.linkedSessionId === undefined ? getBindableSessionId?.() ?? undefined : value.linkedSessionId
+  const linkedSessionId = linkFor(draft)
   const attachmentItems = uploadView?.items ?? attachedItems(draft.attachments)
   const hasUnresolvedAttachments = uploadView !== undefined
   const addFiles = (files: readonly File[]) => {
     if (!key || !files.length || !canUpload || actionsByDraft.has(key)) return
-    if (!addDraftUploads(key, files)) report('attachmentLimit')
+    if (!addDraftUploads(key, files)) {
+      report('attachmentLimit')
+      return
+    }
+    const saved = readScopeDrafts(key)
+    const link = linkFor(saved)
+    if (saved.linkedSessionId === undefined && link && !saveAddDraft(key, saved.add, undefined, undefined, link)) report('saveFailed')
   }
   const retryUpload = (id: string) => {
     if (canUpload && !actionsByDraft.has(key)) retryDraftUpload(key, id)
   }
+  const resetLinkAfterRemovingLastFile = () => {
+    const saved = readScopeDrafts(key)
+    if (!saved.linkedSessionId || hasContent(saved) || hasContent(draftRef.current) || hasDraftUploads(key)) return
+    if (!saveAddDraft(key, saved.add, undefined, undefined, RESET_DRAFT_SESSION_LINK)) report('saveFailed')
+  }
   const removeUpload = (id: string) => {
-    if (!actionsByDraft.has(key)) removeDraftUpload(key, id)
+    if (actionsByDraft.has(key)) return
+    removeDraftUpload(key, id)
+    resetLinkAfterRemovingLastFile()
   }
   const removeAttachment = (index: number) => {
     if (actionsByDraft.has(key)) return
     const error = removeDraftAttachment(key, index, draft)
     if (error) report(error)
+    else resetLinkAfterRemovingLastFile()
   }
 
   const clearSavedAttachments = ({ remainingText }: DraftCleanup) => {
-    if (saveAddDraft(key, remainingText, [], null, null)) {
+    if (saveAddDraft(key, remainingText, [], null, RESET_DRAFT_SESSION_LINK)) {
       pendingCleanup.delete(key)
       showDraft({ add: remainingText, attachments: [], workspaceId: undefined })
     } else report('saveFailed')
@@ -148,6 +169,7 @@ export function useComposerDraft({ draftKey, workspaceId, getBindableSessionId, 
       report('attachmentUploadFailed')
       return
     }
+    const link = linkFor(submitted)
     actionsByDraft.set(key, 'submit')
     notifyDraftAttachments(key)
     try {
@@ -155,7 +177,7 @@ export function useComposerDraft({ draftKey, workspaceId, getBindableSessionId, 
       const item = {
         id: uid(), text, done: false, createdAt: now, updatedAt: now,
         ...(attachments.length ? { attachments } : {}),
-        ...(submitted.linkedSessionId ? { linkedSessionId: submitted.linkedSessionId } : {}),
+        ...(link ? { linkedSessionId: link } : {}),
       }
       const ok = await commit(submitted.workspaceId ?? workspaceId, currentItems => [item, ...currentItems])
       if (!ok) {
@@ -196,16 +218,16 @@ export function useComposerDraft({ draftKey, workspaceId, getBindableSessionId, 
         add: String(item.text || '').slice(0, MAX_TEXT),
         attachments: item.attachments ?? [],
         workspaceId: item.workspaceId === workspaceId ? undefined : item.workspaceId,
-        ...(item.linkedSessionId ? { linkedSessionId: item.linkedSessionId } : {}),
+        linkedSessionId: item.linkedSessionId ?? null,
       }
-      if (!saveAddDraft(key, next.add, next.attachments, next.workspaceId ?? null, next.linkedSessionId ?? null)) {
+      if (!saveAddDraft(key, next.add, next.attachments, next.workspaceId ?? null, next.linkedSessionId)) {
         report('saveFailed')
         return
       }
       if (!(await takeBack(item))) {
         const saved = readScopeDrafts(key)
         if (saved.add === next.add && sameDraftLocation(saved, next) && sameAttachments(saved.attachments, next.attachments)) {
-          saveAddDraft(key, before.add, before.attachments, before.workspaceId ?? null, before.linkedSessionId ?? null)
+          saveAddDraft(key, before.add, before.attachments, before.workspaceId ?? null, before.linkedSessionId === undefined ? RESET_DRAFT_SESSION_LINK : before.linkedSessionId)
         }
         return
       }
@@ -224,10 +246,9 @@ export function useComposerDraft({ draftKey, workspaceId, getBindableSessionId, 
 
   const toggleSessionBinding = () => {
     if (!key || storageInUse || actionsByDraft.has(key)) return
-    const saved = readScopeDrafts(key)
-    const linkedSessionId: string | null = saved.linkedSessionId ? null : getBindableSessionId()
-    if (!saved.linkedSessionId && !linkedSessionId) return
-    if (!saveAddDraft(key, draftRef.current.add, undefined, undefined, linkedSessionId)) report('saveFailed')
+    const next = linkFor(draftRef.current) ? null : getBindableSessionId?.()
+    if (next === undefined) return
+    if (!saveAddDraft(key, draftRef.current.add, undefined, undefined, next)) report('saveFailed')
   }
 
   const onDraftChange = event => {
@@ -238,13 +259,14 @@ export function useComposerDraft({ draftKey, workspaceId, getBindableSessionId, 
     const keepOwner = value.trim() || saved.attachments.length
     const owner = keepOwner || uploads ? saved.workspaceId ?? uploads?.workspaceId : undefined
     const storedOwner = keepOwner ? owner : undefined
-    const linkedSessionId = keepOwner || uploads ? saved.linkedSessionId : undefined
+    const keepsDraft = keepOwner || uploads
+    const linkedSessionId = keepsDraft ? linkFor(saved) : !hasContent(draftRef.current) ? saved.linkedSessionId : undefined
     const next = { add: value, attachments: saved.attachments, workspaceId: owner, linkedSessionId }
     showDraft(next)
     if (uploads) setUploadView(uploads)
-    if (saveAddDraft(key, value, undefined, storedOwner ?? null, linkedSessionId ?? null) && uploads) {
-      acceptDraftUploadText(key, value, storedOwner)
-    }
+    const written = saveAddDraft(key, value, undefined, storedOwner ?? null, linkedSessionId === undefined ? RESET_DRAFT_SESSION_LINK : linkedSessionId)
+    if (written && uploads) acceptDraftUploadText(key, value, storedOwner)
+    if (!written && linkedSessionId !== saved.linkedSessionId) showDraft({ ...next, linkedSessionId: saved.linkedSessionId })
     resizeAdd(event.target)
   }
 
@@ -269,7 +291,7 @@ export function useComposerDraft({ draftKey, workspaceId, getBindableSessionId, 
   }
 
   return {
-    draft, draftLocked, isSubmitting, isRecalling, hasUnresolvedAttachments, attachmentItems,
+    draft, linkedSessionId, draftLocked, isSubmitting, isRecalling, hasUnresolvedAttachments, attachmentItems,
     addRef, isComposing, onCompositionStart, onCompositionEnd,
     add, recall, addFiles, removeAttachment, retryUpload, removeUpload, toggleSessionBinding, onDraftChange, onDraftKeyDown,
   }

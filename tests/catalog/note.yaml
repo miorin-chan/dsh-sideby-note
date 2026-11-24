@@ -242,8 +242,8 @@ cases:
     rules: [R-NOTE-SESSION-LINK]
     risk: ux
     expected:
-      - 新增可绑定当前会话，下条默认不绑定，旧条目不自动绑定
-      - 退回、重开和重新提交保留原绑定和原工作区，已有条目可解绑再绑定到当前会话
+      - 新增默认绑定当前会话，可在录入区解绑，提交后的下一条恢复默认
+      - 旧条目不自动绑定，退回、重开和重新提交保留原绑定和原工作区，已有条目可解绑再绑定到当前会话
     automation:
       - type: integration
         file: tests/linked-session-bundle.test.mts

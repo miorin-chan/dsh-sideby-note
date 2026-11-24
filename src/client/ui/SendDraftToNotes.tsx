@@ -68,7 +68,7 @@ export function SendDraftToNotes({ sessionId, useInput, inputActions, getCompose
     try {
       const saved = await updateWorkspaceNotes(workspaceId, items => {
         if (items.some(item => item.id === attempt.id)) return items
-        const note = { id: attempt.id, text, done: false, createdAt: attempt.writtenAt, updatedAt: attempt.writtenAt }
+        const note = { id: attempt.id, text, done: false, createdAt: attempt.writtenAt, updatedAt: attempt.writtenAt, linkedSessionId: sessionId }
         return [note, ...items]
       }).catch(() => false)
       if (!saved) {

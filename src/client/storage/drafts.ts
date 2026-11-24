@@ -17,8 +17,12 @@ interface ScopeDraft {
   add: string
   attachments: NoteAttachment[]
   workspaceId: string | undefined
-  linkedSessionId?: string
+  // Missing follows the active session. Null is an explicit unlink for this draft.
+  linkedSessionId?: string | null
 }
+
+export const RESET_DRAFT_SESSION_LINK = Symbol('reset draft session link')
+const readDraftSessionLink = (value: unknown) => value === null ? null : normalizeLinkedSessionId(value)
 
 const keyOf = value => (value ? String(value) : '')
 const attachmentChanges = new Set<(key: string) => void>()
@@ -96,7 +100,7 @@ export function writeDraftStore(store) {
 export function readScopeDrafts(key): ScopeDraft {
   const id = keyOf(key)
   const record = id ? readDraftStore().sessions[id] : null
-  const linkedSessionId = normalizeLinkedSessionId(record?.linkedSessionId)
+  const linkedSessionId = readDraftSessionLink(record?.linkedSessionId)
   return {
     add: typeof record?.add === 'string' ? record.add : '',
     attachments: normalizeAttachments(record?.attachments),
@@ -109,14 +113,15 @@ export function pruneDraftScope(store, key) {
   const record = store.sessions[key]
   if (!record) return
   const hasAdd = typeof record.add === 'string' && record.add.length > 0
-  if (!hasAdd && !normalizeLinkedSessionId(record.linkedSessionId) && normalizeAttachments(record.attachments).length === 0) {
+  if (!hasAdd && readDraftSessionLink(record.linkedSessionId) === undefined && normalizeAttachments(record.attachments).length === 0) {
     delete store.sessions[key]
   }
 }
 
-/** Leave the link intact when omitted and remove it when explicitly null. */
+/** Omission keeps the choice. Null opts out, while reset returns to the current-session default. */
 export function saveAddDraft(
-  key: string, text: string, attachments?: NoteAttachment[], workspaceId?: string | null, linkedSessionId?: string | null,
+  key: string, text: string, attachments?: NoteAttachment[], workspaceId?: string | null,
+  linkedSessionId?: string | null | typeof RESET_DRAFT_SESSION_LINK,
 ) {
   const id = keyOf(key)
   if (!id) return false
@@ -129,11 +134,11 @@ export function saveAddDraft(
   else if (attachments) delete record.attachments
   if (workspaceId) record.workspaceId = workspaceId
   else if (workspaceId === null) delete record.workspaceId
-  const previousLink = normalizeLinkedSessionId(record.linkedSessionId)
-  const link = normalizeLinkedSessionId(linkedSessionId)
+  const previousLink = readDraftSessionLink(record.linkedSessionId)
+  const link = readDraftSessionLink(linkedSessionId)
   if (link !== undefined) record.linkedSessionId = link
-  else if (linkedSessionId === null) delete record.linkedSessionId
-  const linkChanged = previousLink !== normalizeLinkedSessionId(record.linkedSessionId)
+  else if (linkedSessionId === RESET_DRAFT_SESSION_LINK) delete record.linkedSessionId
+  const linkChanged = previousLink !== readDraftSessionLink(record.linkedSessionId)
   // Inline editing is gone; retire an edit map left by an older version.
   delete record.edits
   store.sessions[id] = record
@@ -144,7 +149,7 @@ export function saveAddDraft(
 }
 
 export function clearAddDraft(key: string) {
-  return saveAddDraft(key, '', [], null, null)
+  return saveAddDraft(key, '', [], null, RESET_DRAFT_SESSION_LINK)
 }
 
 /**
@@ -167,7 +172,7 @@ export function ensureDraftScope(key, sessionId, sessionIds) {
 
   const add = typeof legacy.add === 'string' ? legacy.add.slice(0, MAX_TEXT) : ''
   const attachments = normalizeAttachments(legacy.attachments)
-  const linkedSessionId = normalizeLinkedSessionId(legacy.linkedSessionId)
+  const linkedSessionId = readDraftSessionLink(legacy.linkedSessionId)
   if (!add && attachments.length === 0 && linkedSessionId === undefined) return false
 
   store.sessions[target] = {

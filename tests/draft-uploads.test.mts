@@ -232,7 +232,7 @@ test('STORE-036 上传完成或移除附件不覆盖草稿会话关联', async t
   requests[1].succeed(hostId(2))
   await settle()
   assert.deepEqual(savedNames(), ['second.txt'])
-  assert.equal(readScopeDrafts(draftKey).linkedSessionId, undefined)
+  assert.equal(readScopeDrafts(draftKey).linkedSessionId, null)
   assert.equal(hasDraftUploads(draftKey), false)
 })
 

@@ -114,7 +114,9 @@ test('STORE-035 浏览器草稿会话关联支持保留、清除与旧记录迁�
   assert.equal(saveAddDraft(key, 'typed', undefined, undefined, next), true)
   assert.equal(readScopeDrafts(key).linkedSessionId, next)
   assert.equal(saveAddDraft(key, 'typed', undefined, undefined, null), true)
-  assert.deepEqual(readScopeDrafts(key), { add: 'typed', attachments: [], workspaceId: undefined })
+  assert.deepEqual(readScopeDrafts(key), { add: 'typed', attachments: [], workspaceId: undefined, linkedSessionId: null })
+  assert.equal(ensureDraftScope('ws:unlinked', key, [key]), true)
+  assert.equal(readScopeDrafts('ws:unlinked').linkedSessionId, null)
   assert.deepEqual(changes, ['source', key, key])
 
   assert.equal(saveAddDraft(key, '', undefined, undefined, link), true)

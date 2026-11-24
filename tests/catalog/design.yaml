@@ -60,7 +60,7 @@ features:
         technique: [边界值, 故障注入, 时序]
 
       - id: R-NOTE-SESSION-LINK
-        statement: 便笺可选绑定当前会话，绑定或解绑不改变便笺的工作区归属或可见范围，退回编辑仍保留绑定。
+        statement: 新便笺默认绑定当前会话且可解绑，绑定或解绑不改变便笺的工作区归属或可见范围，退回编辑保留原绑定状态。
         failure: 旧便笺被意外绑定，或编辑、刷新后找不到要继续的会话。
         kind: state
         branches:

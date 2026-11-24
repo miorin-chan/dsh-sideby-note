@@ -373,7 +373,8 @@ test('NOTE-013 从主输入框移入文本草稿并保留未保存内容', async
   assert.equal(button.getAttribute('aria-busy'), 'true')
   assert.equal(snapshot.draft, limit, 'wait for the durable write')
   await act(async () => { accepted.resolve(undefined) })
-  assert.deepEqual((await notes()).map(({ text, done }) => ({ text, done })), [{ text: limit, done: false }])
+  assert.deepEqual((await notes()).map(({ text, done, linkedSessionId }) => ({ text, done, linkedSessionId })),
+    [{ text: limit, done: false, linkedSessionId: sessionId }])
   assert.equal(writes, 2, 'one failed write and one successful retry despite the double click')
   assert.equal(snapshot.draft, '')
   assert.equal(persistedDraft, '')
