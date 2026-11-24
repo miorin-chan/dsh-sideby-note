@@ -225,7 +225,6 @@ function apply(ctx: DshClientCtx) {
   }
 
   const openNoteWorkspace = (note: NoteJump) => {
-    if (workspaceForSession(activeSessionId)?.workspaceId === note.workspaceId) return
     const panel = activePopover
     const target = workspaceById(note.workspaceId)
     const navigation = getWorkspaceNavigation()

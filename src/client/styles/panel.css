@@ -60,8 +60,7 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-rowWorkspace{grid-area:2/2;margin-top:2px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-row)}
 .dsh-an-workspaceJump{display:flex;align-items:center;gap:var(--an-space-1);max-width:100%;min-height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer;transition:var(--an-transition)}
 .dsh-an-workspaceJump:focus-visible{outline:2px solid var(--dsw-alias-label-primary);outline-offset:1px}
-.dsh-an-workspaceJump[aria-current]{cursor:default}
-.dsh-an-workspaceJump:not([aria-current]):active{color:var(--dsw-alias-label-primary);background:var(--an-active)}
+.dsh-an-workspaceJump:active{color:var(--dsw-alias-label-primary);background:var(--an-active)}
 .dsh-an-workspaceGlyph{flex:none}
 .dsh-an-workspaceName{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dsh-an-input{display:block;align-self:center;width:100%;min-width:0;box-sizing:border-box;min-height:var(--an-lh-row);max-height:120px;padding:0;border:0;outline:0;background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-row);line-height:var(--an-lh-row);resize:none;overflow-y:auto;overflow-x:hidden}
@@ -254,7 +253,7 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}
 .dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta{opacity:0}
 .dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
-.dsh-an-workspaceJump:not([aria-current]):hover .dsh-an-workspaceName{text-decoration:underline;text-underline-offset:2px}
+.dsh-an-workspaceJump:hover .dsh-an-workspaceName{text-decoration:underline;text-underline-offset:2px}
 .dsh-an-popClose:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-scope[role="group"]:hover{background-color:color-mix(in srgb,var(--dsw-alias-bg-layer-1) 70%,var(--dsw-alias-interactive-bg-hover-solid))}
 .dsh-an-scopeBtn:hover{color:var(--dsw-alias-label-primary)}

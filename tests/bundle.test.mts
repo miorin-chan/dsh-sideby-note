@@ -904,10 +904,12 @@ test('workspace notes share a list and global actions preserve ownership', async
     const ids = duplicateRows.map(row => row.dataset.rowId)
     assert.equal(new Set(ids).size, 2, 'equal raw IDs in different workspaces get distinct row IDs')
     assert.ok(ids.every(id => id && id !== 'seed-2'))
-    const currentJump = popover.querySelector('button[aria-label="当前工作区：共享工作区"]')
+    const currentJump = popover.querySelector('button[aria-label="在 共享工作区 打开新会话"]')
     const otherJump = popover.querySelector('button[aria-label="在 另一工作区 打开新会话"]')
-    assert.equal(currentJump.getAttribute('aria-current'), 'location')
-    assert.equal(otherJump.getAttribute('aria-current'), null)
+    for (const jump of [currentJump, otherJump]) {
+      assert.equal(jump.getAttribute('aria-current'), null)
+      assert.equal(jump.querySelector('.dsh-an-workspaceGlyph').textContent, '↗')
+    }
     const workspaceLine = otherJump.closest('.dsh-an-rowWorkspace')
     const otherName = otherJump.querySelector('.dsh-an-workspaceName')
     assert.equal(otherName.textContent, '另一工作区')
@@ -916,12 +918,12 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.ok(body.querySelector('.dsh-an-text'))
     assert.ok(body.previousElementSibling.querySelector('.dsh-an-insert'))
     await act(async () => { currentJump.querySelector('.dsh-an-workspaceName').click() })
-    assert.deepEqual(workspaceStarts, [], 'the current workspace keeps the current conversation')
+    assert.deepEqual(workspaceStarts, ['ws-1'], 'clicking the current workspace starts a session there')
     assert.equal(document.querySelector('.dsh-an-popover'), popover)
     await act(async () => { otherName.click() })
-    assert.deepEqual(workspaceStarts, ['ws-2'], 'clicking the workspace name starts a session in the target')
+    assert.deepEqual(workspaceStarts, ['ws-1', 'ws-2'], 'clicking the workspace name starts a session in the target')
     await act(async () => { otherJump.querySelector('.dsh-an-workspaceGlyph').click() })
-    assert.deepEqual(workspaceStarts, ['ws-2', 'ws-2'], 'the glyph activates the same button')
+    assert.deepEqual(workspaceStarts, ['ws-1', 'ws-2', 'ws-2'], 'the glyph activates the same button')
     assert.equal(window.localStorage.getItem('dsh.aside-note.scope-mode'), 'global')
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 40)) })
     assert.equal(header.querySelector('.dsh-an-headerCount').textContent, '2',
@@ -1249,8 +1251,8 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.equal(document.activeElement, targetRow, 'keyboard activation moves focus to the revealed note')
     assert.equal(secondPopover.querySelector('.dsh-an-destination'), null,
       'the global composer does not repeat the current workspace shown in the scope switch')
-    assert.equal(jump.getAttribute('aria-current'), 'location')
-    assert.equal(openList().firstElementChild.querySelector('.dsh-an-workspaceJump').getAttribute('aria-current'), 'location',
+    assert.equal(jump.getAttribute('aria-label'), '在 另一工作区 打开新会话')
+    assert.equal(openList().firstElementChild.querySelector('.dsh-an-workspaceJump').getAttribute('aria-label'), '在 另一工作区 打开新会话',
       'the target workspace moves to the front as soon as the panel follows the jump')
     assert.notEqual(openList().firstElementChild, targetRow, 'the selected note is not the first note in the workspace')
     assert.deepEqual(highlightedRows(), [targetRow], 'only the clicked note is outlined, even with a duplicate ID in another workspace')
@@ -1299,6 +1301,19 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.equal(archivedToggle.getAttribute('aria-expanded'), 'true', 'the target archive is reopened when necessary')
     assert.equal(list.scrollTop, 616, 'a tall note starts just below the sticky archive header')
     assert.deepEqual(highlightedRows(), [rowByText(archivedTarget.text)])
+
+    const sameWorkspaceJump = secondPopover.querySelector('button[aria-label="在 共享工作区 打开新会话"]')
+    const sameWorkspaceRow = sameWorkspaceJump.closest('.dsh-an-row')
+    assert.notEqual(sameWorkspaceRow, rowByText(archivedTarget.text))
+    await act(async () => { sameWorkspaceJump.click() })
+    assert.equal(workspaceStarts.at(-1), 'ws-1')
+    await act(async () => {
+      finishWorkspaceOpen('session-5')
+      secondRoot.render(React.createElement(capture, { sessionId: 'session-5', useWorkspaces: confirmedWorkspaces }))
+    })
+    assert.equal(document.querySelector('.dsh-an-popover'), secondPopover, 'a new session in the same workspace keeps the panel open')
+    assert.equal(inputOf(secondPopover).value, '原工作区的草稿')
+    assert.deepEqual(highlightedRows(), [sameWorkspaceRow])
 
     await act(async () => { secondPopover.querySelector('button[aria-label="在 另一工作区 打开新会话"]').click() })
     assert.equal(workspaceStarts.at(-1), 'ws-2')
