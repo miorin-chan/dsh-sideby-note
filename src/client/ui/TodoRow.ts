@@ -9,7 +9,7 @@ const h = React.createElement
 
 export function TodoRow(props) {
   const {
-    item, archived, insertPending, retryArchive, workspaceName, onOpenWorkspace,
+    item, archived, insertPending, retryArchive, workspaceName, isCurrentWorkspace, onOpenWorkspace,
     rowRef, highlighted,
     say, renderFactorySlot, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey,
   } = props
@@ -17,7 +17,7 @@ export function TodoRow(props) {
   const hasText = Boolean(item.text)
   const insertLabel = say(retryArchive ? 'item.retryArchive' : 'item.insert')
   const workspaceLabel = onOpenWorkspace
-    ? say('item.openWorkspace', { workspace: workspaceName })
+    ? say(isCurrentWorkspace ? 'item.currentWorkspace' : 'item.openWorkspace', { workspace: workspaceName })
     : undefined
   const workspaceText = h('span', {
     className: 'dsh-an-workspaceName',
@@ -83,10 +83,11 @@ export function TodoRow(props) {
         type: 'button',
         className: 'dsh-an-workspaceJump',
         'aria-label': workspaceLabel,
+        'aria-current': isCurrentWorkspace ? 'location' : undefined,
         title: Tooltip ? undefined : workspaceLabel,
         onClick: onOpenWorkspace,
       },
-      h('span', { className: 'dsh-an-workspaceGlyph', 'aria-hidden': true }, '↗'),
+      h('span', { className: 'dsh-an-workspaceGlyph', 'aria-hidden': true }, isCurrentWorkspace ? '•' : '↗'),
       workspaceText,
       )) : workspaceText,
     ),

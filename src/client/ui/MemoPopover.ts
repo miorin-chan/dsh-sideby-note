@@ -420,6 +420,7 @@ export function MemoPopover(props: MemoPopoverProps) {
       insertPending: insertingKeys.has(noteKey(item)),
       retryArchive: hasArchiveRetry(noteContentKey(item)),
       workspaceName: showWorkspace ? nameOfWorkspace(owner) : undefined,
+      isCurrentWorkspace: workspace?.workspaceId === owner,
       onOpenWorkspace: canOpenWorkspace
         ? (event: React.MouseEvent<HTMLButtonElement>) => props.onOpenWorkspace({
             workspaceId: owner,

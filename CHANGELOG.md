@@ -50,8 +50,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   A folder icon and the workspace name identify the workspace filter.
   Hover tints the shared background beneath both filters, including the curved gaps at their seam.
   The entry badge shows the current workspace count when available, or the global count in a standalone session.
-- In **Global**, click a workspace’s arrow or name to start a new conversation there,
-  including in the current workspace.
+- In **Global**, click a workspace’s icon or name to start a new conversation there, including in the current workspace.
   The panel stays open, scrolls to the note you clicked, and briefly outlines it.
   The workspace link sits below the note content, with **Insert** to the left of the content.
 - Existing session notes move to their owning workspaces.
