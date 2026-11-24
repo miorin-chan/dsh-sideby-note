@@ -164,7 +164,7 @@ export function TodoRow(props: TodoRowProps) {
           'data-linked': Boolean(sessionLink),
           disabled: insertPending || sessionBindingDisabled,
           onClick: onToggleSession,
-        }, h(SessionLinkGlyph, { size: 14, unlink: Boolean(sessionLink) }))),
+        }, h(SessionLinkGlyph, { size: 14, linked: Boolean(sessionLink) }))),
         // Rewind moves the note back to the panel's editor.
         withTooltip(say('item.recall'), h(
           'button',

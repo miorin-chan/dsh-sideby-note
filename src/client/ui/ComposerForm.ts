@@ -180,7 +180,7 @@ export function ComposerForm(props: ComposerFormProps) {
       title: Tooltip ? undefined : sessionHint,
       disabled: sessionBinding.disabled || busy || draftLocked || destinationPending || storageInUse,
       onClick: sessionBinding.onToggle,
-    }, h(SessionLinkGlyph, { size: 16, unlink: sessionBinding.linked }))),
+    }, h(SessionLinkGlyph, { size: 16, linked: sessionBinding.linked }))),
     withTooltip(addLabel, h(
       'button',
       {
