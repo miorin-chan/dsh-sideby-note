@@ -38,12 +38,12 @@ export const IconChevron = () => h(Glyph, { name: 'IconChevronRightOutlineRegula
 export const IconEmpty = () => h(Glyph, { name: 'IconChecklistOutlineRegular', size: 18 })
 export const IconClose = () => h(Glyph, { name: 'IconCloseOutlineRegular', size: 14 })
 
-/** An intact chain indicates a link, while a slashed chain indicates no link. */
-export function SessionLinkGlyph({ size, linked = true }: { size: number; linked?: boolean }) {
+/** Draw the chain or its slashed variant. Each control chooses what the glyph represents. */
+export function SessionLinkGlyph({ size, slashed = false }: { size: number; slashed?: boolean }) {
   return h('span', {
     className: 'dsh-an-sessionGlyph',
     'aria-hidden': true,
-    'data-link-state': linked ? 'linked' : 'unlinked',
+    'data-chain': slashed ? 'slashed' : 'intact',
   }, icon('IconLinkOutlineRegular') ? h(Glyph, { name: 'IconLinkOutlineRegular', size }) : '🔗')
 }
 

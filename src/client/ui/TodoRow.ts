@@ -161,10 +161,9 @@ export function TodoRow(props: TodoRowProps) {
           type: 'button',
           className: 'dsh-an-iconBtn dsh-an-sessionBinding',
           'aria-label': sessionToggleLabel,
-          'data-linked': Boolean(sessionLink),
           disabled: insertPending || sessionBindingDisabled,
           onClick: onToggleSession,
-        }, h(SessionLinkGlyph, { size: 14, linked: Boolean(sessionLink) }))),
+        }, h(SessionLinkGlyph, { size: 14, slashed: Boolean(sessionLink) }))),
         // Rewind moves the note back to the panel's editor.
         withTooltip(say('item.recall'), h(
           'button',
