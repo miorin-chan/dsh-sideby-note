@@ -960,8 +960,12 @@ test('rows are bare lines whose age gives way to the actions', () => {
   const rules = cssRules()
   const meta = rules.find(rule => rule.selector === '.dsh-an-meta' && rule.media.includes('hover:hover'))
   assert.ok(meta && /opacity:1/.test(meta.body), 'pointer devices show the age at rest')
-  const swap = rules.find(rule => rule.selector === '.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta')
-  assert.ok(swap && /opacity:0/.test(swap.body), 'hover and focus hide the age behind the actions')
+  const swap = rules.find(rule => rule.selector === '.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:has(:focus-visible) .dsh-an-meta')
+  const reveal = rules.find(rule => rule.selector === '.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:has(:focus-visible) .dsh-an-actions')
+  assert.ok(swap && /opacity:0/.test(swap.body), 'hover and visible keyboard focus hide the age behind the actions')
+  assert.ok(reveal && /opacity:1;pointer-events:auto/.test(reveal.body), 'keyboard users can still see and use the actions')
+  assert.doesNotMatch(css, /\.dsh-an-row:focus-within\s+\.dsh-an-(?:actions|meta)/,
+    'a clicked link or row action must not hold the action bar open after the pointer leaves')
   // Archived notes only step down in ink; they are not struck through.
   assert.match(css, /\.dsh-an-rowArchived \.dsh-an-text\{color:var\(--dsw-alias-label-secondary\)\}/)
   assert.doesNotMatch(css, /line-through/)

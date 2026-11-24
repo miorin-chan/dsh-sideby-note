@@ -80,6 +80,8 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - Rapidly switching between Global and Workspace keeps the latest selection while it saves.
 
 ### Fixed
+- Hide a note’s action bar again when the pointer leaves after clicking a link or action.
+  Keyboard focus still reveals it.
 - On macOS, exclude the floating note panel from the window title bar's drag region so its controls stay clickable.
 <!-- app-update-notes:en:end -->
 
@@ -134,6 +136,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - 快速切换全局和工作区时，界面在保存期间会保持最新选择。
 
 ### 修复
+- 点击便笺链接或条目按钮后，鼠标移出条目即可收起操作栏，键盘聚焦仍会显示。
 - 在 macOS 上将边记部浮层排除出窗口标题栏拖拽区，避免面板按钮的点击被窗口接管。
 <!-- app-update-notes:zh:end -->
 

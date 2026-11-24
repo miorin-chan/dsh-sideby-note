@@ -258,8 +258,9 @@ html[data-platform="darwin"] .dsh-an-popover{-webkit-app-region:no-drag}
 .dsh-an-row:hover{background:var(--an-hover)}
 .dsh-an-meta{opacity:1}
 .dsh-an-actions{opacity:0;pointer-events:none}
-.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:focus-within .dsh-an-actions{opacity:1;pointer-events:auto}
-.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:focus-within .dsh-an-meta{opacity:0}
+/* A clicked button retains focus, but only visible keyboard focus should keep actions revealed. */
+.dsh-an-row:hover .dsh-an-actions,.dsh-an-row:has(:focus-visible) .dsh-an-actions{opacity:1;pointer-events:auto}
+.dsh-an-row:hover .dsh-an-meta,.dsh-an-row:has(:focus-visible) .dsh-an-meta{opacity:0}
 .dsh-an-iconBtn:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-workspaceJump:not([aria-current]):hover .dsh-an-workspaceName,.dsh-an-sessionJump:hover .dsh-an-contextName{text-decoration:underline;text-underline-offset:2px}
 .dsh-an-popClose:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
