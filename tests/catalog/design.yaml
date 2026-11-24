@@ -133,6 +133,7 @@ features:
           - kind: boundary
             text: 有工作区绑定的空白会话遵循已保存的全局选择
         technique: [决策表, 状态迁移]
+        reviewed: { by: "LighghtEeloo", at: '2026-11-24', hash: 'c7cf40624b8576b7' }
 
       - id: R-SCOPE-BLANK
         statement: 空白新会话可正常记录便笺。首轮对话后入口移入会话工具行，筛选保持原样。
@@ -166,6 +167,7 @@ features:
           - kind: boundary
             text: 已并入过的会话只补入不同 ID 的条目，重复打开不产生重复记录
         technique: [等价类, 状态迁移]
+        reviewed: { by: "LighghtEeloo", at: '2026-11-24', hash: '9f19f3aa2746fbef' }
 
       - id: R-SCOPE-SAVE
         statement: 新增便笺始终写入当前工作区；无工作区绑定时写入未归属清单。筛选只决定显示内容。
@@ -177,6 +179,7 @@ features:
           - kind: invalid
             text: 只切换筛选时便笺存储无变化，输入内容仍在草稿中
         technique: [决策表]
+        reviewed: { by: "LighghtEeloo", at: '2026-11-24', hash: '6c5ebdd83ae374e4' }
 
       - id: R-SCOPE-OWNER
         statement: 全局下的归档和退回操作按便笺原有归属写入，退回后重新提交仍回到原清单。
@@ -460,6 +463,7 @@ features:
           - kind: n-a
             reason: 入口缺失等于功能不可用，没有合法的“不显示入口”分支
         technique: [决策表]
+        reviewed: { by: "LighghtEeloo", at: '2026-11-24', hash: '07483d959194dfcb' }
 
       - id: R-PANEL-SHORTCUT
         statement: 会话工具行的入口可用时，DSH 快捷键可打开或收起面板，入口提示随有效键位更新。
