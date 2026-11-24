@@ -621,6 +621,10 @@ test('the floating panel is borderless and elevated, with no second stroke', () 
   assert.match(panel.body, /box-shadow:var\(--dsw-elevation-panel\)/)
   assert.match(panel.body, /background:var\(--dsh-an-panelSurface\)/)
   assert.doesNotMatch(panel.body, /backdrop-filter/, 'the opaque panel no longer blurs its backdrop')
+  const dragExclusions = rules.filter(rule => rule.body.includes('-webkit-app-region:'))
+  assert.deepEqual(dragExclusions.map(({ selector, body }) => [selector.trim(), body.trim()]), [
+    ['html[data-platform="darwin"] .dsh-an-popover', '-webkit-app-region:no-drag'],
+  ], 'exclude the actual fixed panel from native title-bar hit testing on macOS only')
   for (const rule of rules) {
     const hasNeutralBorder = /border:0?\.?5?px solid var\(--dsw-alias-border/.test(rule.body)
     const hasElevation = /box-shadow:var\(--dsw-elevation-/.test(rule.body)

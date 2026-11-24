@@ -78,6 +78,9 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - An empty note composer shows a faint “About {workspace}...” hint when the draft has a workspace.
   The save location appears in standalone sessions and for notes recalled from another workspace.
 - Rapidly switching between Global and Workspace keeps the latest selection while it saves.
+
+### Fixed
+- On macOS, exclude the floating note panel from the window title bar's drag region so its controls stay clickable.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
@@ -129,6 +132,9 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - 有工作区的便笺录入框为空时，淡色显示「关于{工作区}...」。
   独立会话和跨工作区退回便笺时仍会显示保存位置。
 - 快速切换全局和工作区时，界面在保存期间会保持最新选择。
+
+### 修复
+- 在 macOS 上将边记部浮层排除出窗口标题栏拖拽区，避免面板按钮的点击被窗口接管。
 <!-- app-update-notes:zh:end -->
 
 <!-- app-update-notes:en:start -->
