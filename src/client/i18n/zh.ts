@@ -139,7 +139,7 @@ export const zh = {
   "update.autoUnavailable": "这台宿主没有可用的自动更新通道；请用下面的命令",
   "update.manualHint": "也可以直接更新：在终端执行 {command}，或到「插件」页更新，装好后刷新页面即可",
   "update.copyPrompt": "拷贝更新提示词",
-  "update.prompt": "帮我更新 DSH 插件 Sideby Note（边记部）到 {version}：在终端执行 {command}，装好后刷新页面。"
+  "update.prompt": "帮我更新 DSH 插件边记部到 {version}：在终端执行 {command}，装好后刷新页面。"
 } as const
 
 export type MessageKey = keyof typeof zh

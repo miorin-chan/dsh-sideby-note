@@ -1,4 +1,4 @@
-# 边记部 · Sideby Note
+# 边记部
 
 当主代理大功告成之际，过去的你异步发出的思绪将如闪电般归来
 
@@ -6,7 +6,7 @@
 
 > **个人改版说明**：本项目由 [光吟（LighghtEeloo）](https://github.com/LighghtEeloo) 改版，基于并受原作者 [阿三石（Rayle8）](https://github.com/Rayle8) 的 [dsh-aside-note](https://github.com/Rayle8/dsh-aside-note)（旁边记 / AsideNote）启发，仅作个人使用，正文大部分保留自原 README。与上游的主要区别：
 >
-> - 界面名称与文案改为「边记部 / Sideby Note」；包名与 npm 更新通道为 `@miorin/dsh-sideby-note`，插件 id 为 `dsh-sideby-note`，安装命令为 `npx @miorin/dsh-sideby-note install`。
+> - 中文界面名称改为「边记部」；包名与 npm 更新通道为 `@miorin/dsh-sideby-note`，插件 id 为 `dsh-sideby-note`，安装命令为 `npx @miorin/dsh-sideby-note install`。
 > - **移除匿名功能统计**：不再内置腾讯云 RUM SDK，不发送任何使用事件；设置 › 隐私中的统计开关与相关本地存储键一并移除。
 > - 沿用上游的 `dsh.aside-note.*` 存储键；升级时会自动迁移旧会话便笺。
 > - README 截图来自本改版，而非上游版本。
@@ -46,7 +46,7 @@
 把下面这段发给你的 agent：
 
 ```text
-帮我安装 DSH 插件 Sideby Note（边记部），在终端执行：npx -y @miorin/dsh-sideby-note install
+帮我安装 DSH 插件边记部，在终端执行：npx -y @miorin/dsh-sideby-note install
 装好后不用重启 DSH，会话右上角即可看到「边记部」入口；如果没出现，
 让我到「插件」页刷新，再把它手动关闭并开启一次。
 如果提示找不到 DSH 或找不到 profile，转告我先安装并启动 DeepSeek Harness 再重试；

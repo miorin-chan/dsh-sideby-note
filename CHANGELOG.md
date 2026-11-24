@@ -36,6 +36,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   Escape returns focus to the entry.
 
 ### Changed
+- Use the Chinese name alone in the Chinese plugin title, details, and copied update prompt.
 - Sideby Note now installs as `@miorin/dsh-sideby-note`.
   Run the scoped installer once to move an existing profile to the new package name.
 - The panel now offers **Global** to view notes across all workspaces and **Workspace** to view the current one.
@@ -92,6 +93,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   按 Esc 关闭后焦点回到入口。
 
 ### 变更
+- 中文插件标题、详情和可复制的更新提示词统一使用「边记部」。
 - 边记部的 npm 包改为 `@miorin/dsh-sideby-note`。
   已有用户可运行新安装器，把所选 profile 迁移到新包名。
 - 面板可用「全局」查看各工作区的便笺，也可在绑定工作区后用「工作区」查看当前工作区的便笺。
