@@ -23,6 +23,8 @@ const TOAST_COPY = {
   clearPartial: { key: 'toast.clearPartial' },
   copyFailed: { key: 'toast.copyFailed' },
   insertFailed: { key: 'toast.insertFailed' },
+  sessionUnavailable: { key: 'toast.sessionUnavailable' },
+  sessionMismatch: { key: 'toast.sessionMismatch' },
   archiveFailed: { key: 'toast.archiveFailed' },
   pathCopied: { key: 'toast.pathCopied', tone: 'success' },
   revealFailed: { key: 'toast.revealFailed' },

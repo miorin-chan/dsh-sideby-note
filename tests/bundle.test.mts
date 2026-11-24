@@ -264,7 +264,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(addButton.textContent, '', 'the submit button shows only the icon')
     assert.ok(addButton.querySelector('svg[aria-hidden="true"] path'), 'the submit button renders a decorative icon')
     const formCopy = addField.form.cloneNode(true)
-    formCopy.querySelector('.dsh-an-attachBtn').remove()
+    formCopy.querySelector('.dsh-an-composerTools').remove()
     formCopy.querySelector('.dsh-an-destination').remove()
     assert.equal(formCopy.textContent.trim(), '', 'the composer has no visible keyboard hint')
     // Set the value through the prototype setter so React's value tracker sees a

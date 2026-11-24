@@ -1,5 +1,13 @@
 /** Row actions: archive a note, reorder the open ones, take one back into the composer. */
 import { moveOpenItem } from '../domain/items'
+import type { Note } from '../domain/items'
+import type { WorkspaceNote } from './useSessionMemoStore'
+
+function matchesNote(candidate: Note, item: WorkspaceNote) {
+  return candidate.id === item.noteId && candidate.text === item.text
+    && candidate.linkedSessionId === item.linkedSessionId
+    && JSON.stringify(candidate.attachments ?? []) === JSON.stringify(item.attachments ?? [])
+}
 
 export function useNoteActions({ commit, report }) {
   /**
@@ -10,8 +18,7 @@ export function useNoteActions({ commit, report }) {
   const archive = async item => {
     let matches = false
     const ok = await commit(item.workspaceId, currentItems => currentItems.map(candidate => {
-      if (candidate.id !== item.noteId || candidate.text !== item.text
-        || JSON.stringify(candidate.attachments ?? []) !== JSON.stringify(item.attachments ?? [])) return candidate
+      if (!matchesNote(candidate, item)) return candidate
       matches = true
       if (candidate.done) return candidate
       const now = Date.now()
@@ -38,14 +45,27 @@ export function useNoteActions({ commit, report }) {
    * A failed write keeps the row and its text exactly as they were; the
    * caller writes the recalled text only after this succeeds.
    */
-  const takeBack = async item => {
-    const ok = await commit(item.workspaceId, currentItems => currentItems.filter(candidate => candidate.id !== item.noteId))
-    if (!ok) {
-      report('saveFailed')
+  const takeBack = async (item: WorkspaceNote) => {
+    let removed = false
+    const ok = await commit(item.workspaceId, currentItems => currentItems.filter(candidate => {
+      if (!matchesNote(candidate, item)) return true
+      removed = true
       return false
-    }
-    return true
+    }))
+    if (!ok || !removed) report('saveFailed')
+    return ok && removed
   }
 
-  return { archive, move, takeBack }
+  const setSessionBinding = async (item: WorkspaceNote, linkedSessionId: string | null) => {
+    let matched = false
+    const ok = await commit(item.workspaceId, currentItems => currentItems.map(candidate => {
+      if (candidate.id !== item.noteId || candidate.linkedSessionId !== item.linkedSessionId) return candidate
+      matched = true
+      const { linkedSessionId: _previous, ...note } = candidate
+      return { ...note, ...(linkedSessionId ? { linkedSessionId } : {}), updatedAt: Date.now() }
+    })).catch(() => false)
+    if (!ok || !matched) report('saveFailed')
+  }
+
+  return { archive, move, takeBack, setSessionBinding }
 }

@@ -155,3 +155,37 @@ cases:
         status: automated
     suites: [pr, nightly, release]
     tags: [forward, attachment, session]
+
+  - id: FWD-010
+    title: 绑定便笺只在目标会话填入且返回本身不写草稿
+    priority: P1
+    class: A
+    rules: [R-FWD-SESSION-LINK]
+    risk: privacy
+    expected:
+      - 其他会话不可填入，返回绑定会话保持面板打开且不改变任何草稿
+      - 在目标会话明确填入后只修改该会话的草稿，并归档原工作区便笺
+    automation:
+      - type: integration
+        file: tests/linked-session-bundle.test.mts
+        test: FWD-010 绑定便笺只在目标会话填入且返回本身不写草稿
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [forward, session, navigation]
+
+  - id: FWD-011
+    title: 会话不可用或绑定刚变更时不填入
+    priority: P1
+    class: F
+    rules: [R-FWD-SESSION-LINK]
+    risk: privacy
+    expected:
+      - 在跨标签页变更送达界面前也不会通过旧操作写入错误会话
+      - 会话找不到时不改写或归档便笺，解绑后恢复普通填入
+    automation:
+      - type: integration
+        file: tests/linked-session-bundle.test.mts
+        test: FWD-011 会话不可用或绑定刚变更时不填入
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [forward, session, concurrency]

@@ -925,7 +925,7 @@ test('the composer adds on Enter and preserves Shift+Enter and IME', () => {
 test('open rows lead with Insert and support direct dragging', () => {
   const row = read('src/client/ui/TodoRow.ts')
   const css = readCss()
-  assert.doesNotMatch(row, /role: 'checkbox'|aria-checked|onToggle/, 'there is no manual completion any more')
+  assert.doesNotMatch(row, /role: 'checkbox'|aria-checked|onToggle\b/, 'there is no manual completion any more')
   assert.doesNotMatch(css, /dsh-an-check|dsh-an-rowFoot|dsh-an-itemBody/, 'the checkbox and footer styles are gone')
   assert.doesNotMatch(read('src/client/ui/useNoteActions.ts'), /done: !candidate\.done/, 'nothing toggles a note back and forth')
   assert.match(row, /className: 'dsh-an-leading' \}, archived \? null : withTooltip\(insertLabel/)
@@ -981,7 +981,7 @@ test('putting a note into the chat archives it in the same step', () => {
   const handler = popover.slice(start, popover.indexOf('\n  }\n', start))
   // The note is written bare; no prompt and no list marker.
   assert.doesNotMatch(handler, /prefix|forward\.prefix|`- /)
-  assert.match(handler, /await appendToConversation\(sessionId, item, props\.getComposerInput, operation\.signal\)/)
+  assert.match(handler, /await appendToConversation\(sessionId, item, props\.getComposerInput, operation\.signal, bindingIsCurrent\)/)
   assert.match(handler, /if \(result\.status !== 'inserted'\) \{\n\s+if \(result\.status !== 'cancelled'\) report\(result\.status\)\n\s+return\n\s+\}/)
   assert.match(handler, /const ok = await archive\(item\)/)
   assert.match(handler, /report\(ok \? success : 'archiveFailed'\)/)

@@ -234,3 +234,20 @@ cases:
         status: automated
     suites: [pr, nightly, release]
     tags: [composer, persistence, concurrency]
+
+  - id: NOTE-014
+    title: 可选绑定不改变工作区且随退回草稿保留
+    priority: P1
+    class: B
+    rules: [R-NOTE-SESSION-LINK]
+    risk: ux
+    expected:
+      - 新增可绑定当前会话，下条默认不绑定，旧条目不自动绑定
+      - 退回、重开和重新提交保留原绑定和原工作区，已有条目可解绑再绑定到当前会话
+    automation:
+      - type: integration
+        file: tests/linked-session-bundle.test.mts
+        test: NOTE-014 可选绑定不改变工作区且随退回草稿保留
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [session, recall, workspace]

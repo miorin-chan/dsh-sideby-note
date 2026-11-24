@@ -8,7 +8,7 @@ export interface ComposerInputSource {
 }
 export type ComposerInputForSession = (sessionId: string) => ComposerInputSource | undefined
 
-type InsertFailure = 'insertFailed' | 'attachmentInsertFailed' | 'cancelled'
+type InsertFailure = 'insertFailed' | 'attachmentInsertFailed' | 'sessionMismatch' | 'cancelled'
 export type ForwardResult =
   | { status: 'inserted' | 'attachmentReadFailed' | InsertFailure }
   | {
@@ -35,10 +35,10 @@ function frozen(phase: string | null | undefined): boolean {
   return phase === 'adjudicating' || phase === 'submitting' || phase === 'sending'
 }
 
-function findEditor(sessionId: string): HTMLElement | undefined {
+function findEditor(sessionId: string, requireSessionMarker: boolean): HTMLElement | undefined {
   if (!sessionId) return undefined
-  const hasSessionMarkers = document.querySelector(SESSION_MARKER) !== null
-  const inSession = (editor: HTMLElement) => !hasSessionMarkers
+  const checkMarker = requireSessionMarker || document.querySelector(SESSION_MARKER) !== null
+  const inSession = (editor: HTMLElement) => !checkMarker
     || editor.closest(SESSION_MARKER)?.getAttribute('data-conversation-session') === sessionId
   const available = (editor: HTMLElement) => {
     if (editor.closest('[hidden], [inert], [aria-hidden="true"], [data-composer-composing]')
@@ -111,7 +111,7 @@ async function pasteText(
   editor: HTMLElement,
   payload: string,
   lexical: boolean,
-  checkTarget: () => 'insertFailed' | 'cancelled' | undefined,
+  checkTarget: () => InsertFailure | undefined,
 ): Promise<InsertFailure | undefined> {
   const blocked = checkTarget()
   if (blocked) return blocked
@@ -148,12 +148,15 @@ async function pasteText(
 /** Transfer saved originals through the addressed composer's native intake. */
 export async function appendToConversation(
   sessionId: string,
-  note: { text: string; attachments?: readonly NoteAttachment[] },
+  note: { text: string; attachments?: readonly NoteAttachment[]; linkedSessionId?: string },
   getInput: ComposerInputForSession,
   signal: AbortSignal,
+  bindingIsCurrent: () => boolean = () => true,
 ): Promise<ForwardResult> {
   if (signal.aborted) return { status: 'cancelled' }
-  const editor = findEditor(sessionId)
+  if ((note.linkedSessionId && note.linkedSessionId !== sessionId) || !bindingIsCurrent()) return { status: 'sessionMismatch' }
+  const requireSessionMarker = Boolean(note.linkedSessionId)
+  const editor = findEditor(sessionId, requireSessionMarker)
   if (!editor) return { status: 'insertFailed' }
   const resolveInput = () => {
     try { return getInput(sessionId) } catch { return null }
@@ -200,7 +203,8 @@ export async function appendToConversation(
   }
   const blocked = () => {
     if (signal.aborted) return 'cancelled'
-    if (findEditor(sessionId) !== editor || !sameTarget() || frozen(input?.state.getSnapshot().phase)) return 'insertFailed'
+    if (!bindingIsCurrent()) return 'sessionMismatch'
+    if (findEditor(sessionId, requireSessionMarker) !== editor || !sameTarget() || frozen(input?.state.getSnapshot().phase)) return 'insertFailed'
     return undefined
   }
   const insert = async (): Promise<ForwardResult> => {

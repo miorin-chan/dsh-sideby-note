@@ -151,7 +151,7 @@ function apply(ctx: DshClientCtx) {
     sessionId: string
     focusComposerOnMount: boolean
     noteToReveal?: NoteJump
-    navigation?: { sessionId: string; workspace: NoteWorkspace; note: NoteJump }
+    navigation?: { sessionId: string; workspace?: NoteWorkspace; note: NoteJump }
   } | null = null
   const panelListeners = new Set<() => void>()
   const readPanel = () => activePopover
@@ -238,13 +238,39 @@ function apply(ctx: DshClientCtx) {
     }).catch((error: unknown) => { console.warn('workspace jump failed:', error) })
   }
 
+  const openNoteSession = (sessionId: string, note: NoteJump) => {
+    const panel = activePopover
+    if (!panel || sessionId === activeSessionId) return
+    const navigation: UiWorkspace | undefined = ctx.get('uiWorkspace')
+    const sessions: ISessions | undefined = ctx.get('sessions')
+    const id = sessionId as Parameters<ISessions['scope']>[0]
+    const catalog = sessions?.list?.getSnapshot()
+    if (typeof navigation?.openSession !== 'function' || (catalog?.phase === 'ready' && !Object.hasOwn(catalog.byId, id))) {
+      toastSeat.show('sessionUnavailable')
+      return
+    }
+    const pending = { sessionId, note }
+    panel.navigation = pending
+    try {
+      navigation.openSession(id)
+    } catch {
+      if (panel.navigation === pending) delete panel.navigation
+      toastSeat.show('sessionUnavailable')
+    }
+  }
+
   const prepareMemoSession = (sessionId: string) => {
     const workspace = workspaceForSession(sessionId)
     if (workspace) ensureDraftScope(draftKeyForSession(sessionId), sessionId, workspace.sessionIds)
   }
 
+  const getSessionList = () => (ctx.get('sessions') as ISessions | undefined)?.list
+  const subscribeSessions = (listener: () => void) => getSessionList()?.subscribe(listener) ?? (() => {})
+  const readSessionList = () => getSessionList()?.getSnapshot()
+
   function FrameOverlay({ renderFactorySlot, t }: Partial<PropsRenderFactories> & { t?: (key: string) => string }) {
     const panel = React.useSyncExternalStore(subscribePanel, readPanel)
+    const sessions = React.useSyncExternalStore(subscribeSessions, readSessionList)
     return h(React.Fragment, null,
       h(toastSeat.ToastHost, { t }),
       panel && createPortal(h('div', {
@@ -264,6 +290,11 @@ function apply(ctx: DshClientCtx) {
         focusComposerOnMount: panel.focusComposerOnMount,
         onClose: closeMemoPopover,
         onOpenWorkspace: getWorkspaceNavigation() ? openNoteWorkspace : undefined,
+        onOpenSession: openNoteSession,
+        getActiveSessionId: () => activeSessionId,
+        sessionTitle: id => Object.hasOwn(sessions?.byId ?? {}, id)
+          ? sessions?.byId[id as Parameters<ISessions['scope']>[0]]?.displayTitle
+          : undefined,
         onToast: toastSeat.show,
       })), document.body, String(panel.id)),
     )
@@ -384,7 +415,7 @@ function apply(ctx: DshClientCtx) {
       const navigation = panel?.navigation
       const followedJump = navigation?.sessionId === sessionId
       // The host can select the new session before its membership reaches the catalog.
-      const workspace = listedWorkspace ?? (followedJump ? navigation.workspace : null)
+      const workspace = listedWorkspace ?? (followedJump ? navigation.workspace ?? null : null)
       const sessionChanged = activeSessionId !== sessionId
       const workspaceChanged = workspaceForSession(activeSessionId)?.workspaceId !== workspace?.workspaceId
       const resolvedCurrentWorkspace = !sessionChanged && workspaceCatalog === null && catalog !== null
@@ -392,7 +423,7 @@ function apply(ctx: DshClientCtx) {
       bindWorkspace(sessionId, workspace, sessionReady, catalog)
       activeSessionId = sessionId
       if (panel && (followedJump || resolvedCurrentWorkspace)) {
-        if (followedJump && listedWorkspace) delete panel.navigation
+        if (followedJump && (listedWorkspace || !navigation.workspace)) delete panel.navigation
         if (sessionChanged || workspaceChanged) {
           prepareMemoSession(sessionId)
           updatePanel({

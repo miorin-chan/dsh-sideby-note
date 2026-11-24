@@ -242,6 +242,31 @@ test('a binding replacement or newly locked composer during file reads receives 
   }
 })
 
+test('a note whose session link changes during attachment reads never pastes', async t => {
+  const chat = mount(t, 'keep')
+  const started = Promise.withResolvers<void>()
+  const response = Promise.withResolvers<Response>()
+  t.mock.method(globalThis, 'fetch', () => { started.resolve(); return response.promise })
+  const note = { text: 'linked', attachments: originals.slice(0, 1), linkedSessionId: 'session' }
+  let sameLink = true
+  const signal = new AbortController().signal
+  assert.deepEqual(await appendToConversation('other', note, chat.getInput, signal), { status: 'sessionMismatch' })
+  const operation = appendToConversation('session', note, chat.getInput, signal, () => sameLink)
+  await started.promise
+  sameLink = false
+  let pastes = 0
+  onPaste(chat.editor, () => { pastes += 1 })
+  response.resolve(new Response('audio'))
+  assert.deepEqual(await operation, { status: 'sessionMismatch' })
+  assert.equal(pastes, 0)
+  assert.equal(chat.state.getSnapshot().draft, 'keep')
+  assert.deepEqual(chat.state.getSnapshot().attachmentIds, ['existing'])
+
+  chat.editor.parentElement.removeAttribute('data-conversation-session')
+  assert.deepEqual(await appendToConversation('session', { text: 'linked', linkedSessionId: 'session' }, chat.getInput, signal),
+    { status: 'insertFailed' }, 'never fall back to an unmarked editor for a linked note')
+})
+
 test('text uses native paste to preserve separators, references, and host placeholder sanitization', async t => {
   for (const [draft, separator] of [['old', '\n'], ['old\n', ''], [' \t', ''], ['', '']]) {
     await t.test(JSON.stringify(draft), async t => {

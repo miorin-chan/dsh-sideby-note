@@ -46,6 +46,7 @@ export function normalizeItems(items: unknown): Note[] {
     const done = item.done === true
     const createdAt = isFiniteNumber(item.createdAt) ? item.createdAt : Date.now()
     const updatedAt = isFiniteNumber(item.updatedAt) ? item.updatedAt : createdAt
+    const linkedSessionId = typeof item.linkedSessionId === 'string' && item.linkedSessionId.trim() ? item.linkedSessionId : undefined
     normalized.push({
       id,
       text: value,
@@ -54,6 +55,7 @@ export function normalizeItems(items: unknown): Note[] {
       updatedAt,
       ...(done && isFiniteNumber(item.completedAt) ? { completedAt: item.completedAt } : {}),
       ...(attachments.length > 0 ? { attachments } : {}),
+      ...(linkedSessionId === undefined ? {} : { linkedSessionId }),
     })
   }
   return normalized

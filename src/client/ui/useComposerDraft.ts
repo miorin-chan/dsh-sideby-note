@@ -22,7 +22,10 @@ const focusOnDesktop = (node: HTMLTextAreaElement) => {
   return true
 }
 
-export function useComposerDraft({ draftKey, workspaceId, commit, report, storageInUse, canUpload, focusOnMount }) {
+type Draft = ReturnType<typeof readScopeDrafts>
+const sameDraftLocation = (a: Draft, b: Draft) => a.workspaceId === b.workspaceId && a.linkedSessionId === b.linkedSessionId
+
+export function useComposerDraft({ draftKey, workspaceId, getBindableSessionId, commit, report, storageInUse, canUpload, focusOnMount }) {
   const key = draftKey ? String(draftKey) : ''
   const [draft, setDraft] = React.useState(() => readScopeDrafts(key))
   const draftRef = React.useRef(draft)
@@ -43,7 +46,7 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
       }
       inheritedAction.current = undefined
       const current = draftRef.current
-      if (next.add === current.add && next.workspaceId === current.workspaceId && sameAttachments(next.attachments, current.attachments)) return
+      if (next.add === current.add && sameDraftLocation(next, current) && sameAttachments(next.attachments, current.attachments)) return
       draftRef.current = next
       setDraft(next)
     }
@@ -117,7 +120,7 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
   }
 
   const clearSavedAttachments = ({ remainingText }: DraftCleanup) => {
-    if (saveAddDraft(key, remainingText, [], null)) {
+    if (saveAddDraft(key, remainingText, [], null, null)) {
       pendingCleanup.delete(key)
       showDraft({ add: remainingText, attachments: [], workspaceId: undefined })
     } else report('saveFailed')
@@ -129,14 +132,14 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
     const { attachments } = submitted
     if ((!submitted.workspaceId && !workspaceId) || !hasContent(submitted) || actionsByDraft.has(key) || hasDraftUploads(key) || storageInUse) return
     const latest = readScopeDrafts(key)
-    if (!sameAttachments(attachments, latest.attachments) || submitted.workspaceId !== latest.workspaceId) {
+    if (!sameAttachments(attachments, latest.attachments) || !sameDraftLocation(submitted, latest)) {
       notifyDraftAttachments(key)
       report('attachmentDraftChanged')
       return
     }
     const cleanup = pendingCleanup.get(key)
     if (cleanup && latest.add === submitted.add.slice(0, MAX_TEXT) && latest.add === cleanup.saved.add
-      && latest.workspaceId === cleanup.saved.workspaceId && sameAttachments(latest.attachments, cleanup.saved.attachments)) {
+      && sameDraftLocation(latest, cleanup.saved) && sameAttachments(latest.attachments, cleanup.saved.attachments)) {
       clearSavedAttachments(cleanup)
       return
     }
@@ -149,7 +152,11 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
     notifyDraftAttachments(key)
     try {
       const now = Date.now()
-      const item = { id: uid(), text, ...(attachments.length ? { attachments } : {}), done: false, createdAt: now, updatedAt: now }
+      const item = {
+        id: uid(), text, done: false, createdAt: now, updatedAt: now,
+        ...(attachments.length ? { attachments } : {}),
+        ...(submitted.linkedSessionId ? { linkedSessionId: submitted.linkedSessionId } : {}),
+      }
       const ok = await commit(submitted.workspaceId ?? workspaceId, currentItems => [item, ...currentItems])
       if (!ok) {
         report('saveFailed')
@@ -157,7 +164,7 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
       }
       const saved = readScopeDrafts(key)
       const current = draftRef.current
-      if (!sameAttachments(saved.attachments, attachments) || saved.workspaceId !== submitted.workspaceId
+      if (!sameAttachments(saved.attachments, attachments) || !sameDraftLocation(saved, submitted)
         || saved.add !== current.add.slice(0, MAX_TEXT)) {
         if (current === submitted) showDraft(saved)
         return
@@ -189,14 +196,16 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
         add: String(item.text || '').slice(0, MAX_TEXT),
         attachments: item.attachments ?? [],
         workspaceId: item.workspaceId === workspaceId ? undefined : item.workspaceId,
+        ...(item.linkedSessionId ? { linkedSessionId: item.linkedSessionId } : {}),
       }
-      if (!saveAddDraft(key, next.add, next.attachments, next.workspaceId ?? null)) {
+      if (!saveAddDraft(key, next.add, next.attachments, next.workspaceId ?? null, next.linkedSessionId ?? null)) {
         report('saveFailed')
         return
       }
       if (!(await takeBack(item))) {
-        if (JSON.stringify(readScopeDrafts(key)) === JSON.stringify(next)) {
-          saveAddDraft(key, before.add, before.attachments, before.workspaceId ?? null)
+        const saved = readScopeDrafts(key)
+        if (saved.add === next.add && sameDraftLocation(saved, next) && sameAttachments(saved.attachments, next.attachments)) {
+          saveAddDraft(key, before.add, before.attachments, before.workspaceId ?? null, before.linkedSessionId ?? null)
         }
         return
       }
@@ -213,6 +222,14 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
     })
   }
 
+  const toggleSessionBinding = () => {
+    if (!key || storageInUse || actionsByDraft.has(key)) return
+    const saved = readScopeDrafts(key)
+    const linkedSessionId: string | null = saved.linkedSessionId ? null : getBindableSessionId()
+    if (!saved.linkedSessionId && !linkedSessionId) return
+    if (!saveAddDraft(key, draftRef.current.add, undefined, undefined, linkedSessionId)) report('saveFailed')
+  }
+
   const onDraftChange = event => {
     if (draftLocked) return
     const value = event.target.value
@@ -221,10 +238,11 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
     const keepOwner = value.trim() || saved.attachments.length
     const owner = keepOwner || uploads ? saved.workspaceId ?? uploads?.workspaceId : undefined
     const storedOwner = keepOwner ? owner : undefined
-    const next = { ...saved, add: value, workspaceId: owner }
+    const linkedSessionId = keepOwner || uploads ? saved.linkedSessionId : undefined
+    const next = { add: value, attachments: saved.attachments, workspaceId: owner, linkedSessionId }
     showDraft(next)
     if (uploads) setUploadView(uploads)
-    if (saveAddDraft(key, value, undefined, storedOwner ?? null) && uploads) {
+    if (saveAddDraft(key, value, undefined, storedOwner ?? null, linkedSessionId ?? null) && uploads) {
       acceptDraftUploadText(key, value, storedOwner)
     }
     resizeAdd(event.target)
@@ -253,6 +271,6 @@ export function useComposerDraft({ draftKey, workspaceId, commit, report, storag
   return {
     draft, draftLocked, isSubmitting, isRecalling, hasUnresolvedAttachments, attachmentItems,
     addRef, isComposing, onCompositionStart, onCompositionEnd,
-    add, recall, addFiles, removeAttachment, retryUpload, removeUpload, onDraftChange, onDraftKeyDown,
+    add, recall, addFiles, removeAttachment, retryUpload, removeUpload, toggleSessionBinding, onDraftChange, onDraftKeyDown,
   }
 }

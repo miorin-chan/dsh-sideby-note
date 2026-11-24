@@ -6,6 +6,7 @@
  * instead of replacing each other's whole list. The scope preference is
  * optimistic and rolls back on failure.
  */
+import type { Note } from '../domain/items'
 import type { ScopeMode } from '../scope'
 import { postOp, type HostOpResult } from './host-client'
 import { notifyStoreError, notifyTodoChange } from './events'
@@ -43,8 +44,12 @@ function report(error: unknown) {
   notifyStoreError(failure)
 }
 
-function sameJson(a: unknown, b: unknown) {
-  return JSON.stringify(a) === JSON.stringify(b)
+// Key order can differ between the browser normalizer and a host snapshot.
+function sameNote(a: Note, b: Note) {
+  return a.id === b.id && a.text === b.text && a.done === b.done
+    && a.createdAt === b.createdAt && a.updatedAt === b.updatedAt && a.completedAt === b.completedAt
+    && a.linkedSessionId === b.linkedSessionId
+    && JSON.stringify(a.attachments) === JSON.stringify(b.attachments)
 }
 
 function toItems(record: any): any[] {
@@ -55,7 +60,7 @@ function toItems(record: any): any[] {
  * Persist the next ordered list for one scope.
  * @returns true when the host accepted (or nothing changed)
  */
-export async function commitList(listKey: string, nextItems: any[]): Promise<boolean> {
+export async function commitList(listKey: string, nextItems: Note[]): Promise<boolean> {
   if (!listKey) return false
   const table = 'workspaces'
   const current = hostRecord(table, listKey)
@@ -64,7 +69,7 @@ export async function commitList(listKey: string, nextItems: any[]): Promise<boo
   const nextById = new Map(nextItems.map(item => [item.id, item]))
   const upserts = nextItems.filter(item => {
     const previous = baseById.get(item.id)
-    return previous === undefined || !sameJson(previous, item)
+    return previous === undefined || !sameNote(previous, item)
   })
   const deletes = [...baseById.keys()].filter(id => !nextById.has(id))
   const order = nextItems.map(item => item.id)

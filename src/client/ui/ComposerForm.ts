@@ -3,7 +3,7 @@ import React from 'react'
 import type { FileDragService } from '@deepseek-ai/dsh-client-ui-file-drag/client'
 import { MAX_TEXT } from '../constants'
 import { AttachmentList } from './AttachmentList'
-import { Glyph, icon, withTooltip } from './primitives'
+import { Glyph, Tooltip, icon, withTooltip } from './primitives'
 
 const h = React.createElement
 
@@ -13,6 +13,7 @@ interface ComposerFormProps {
   placeholder: string
   destination?: { text: string; visible: boolean }
   destinationPending: boolean
+  sessionBinding?: { linked: boolean; onToggle: () => void; title?: string }
   attachments: React.ComponentProps<typeof AttachmentList>['attachments']
   attachmentItems: React.ComponentProps<typeof AttachmentList>['attachmentItems']
   renderFactorySlot?: React.ComponentProps<typeof AttachmentList>['renderFactorySlot']
@@ -43,7 +44,7 @@ const FILE_DRAG_TOKEN_TYPE = 'application/x-dsh-file'
 
 export function ComposerForm(props: ComposerFormProps) {
   const {
-    say, draft, placeholder, destination, destinationPending, attachments, attachmentItems, renderFactorySlot,
+    say, draft, placeholder, destination, destinationPending, sessionBinding, attachments, attachmentItems, renderFactorySlot,
     readFileDrag, draftLocked, isSubmitting, isRecalling, hasUnresolvedAttachments, canUpload, storageInUse,
     inputRef, onDraftChange, onCompositionStart, onCompositionEnd, onKeyDown, onSubmit,
     onFiles, onRemove, onRemoveUpload, onRetryUpload, onReadFailed, onUnavailable, onBusy,
@@ -60,6 +61,9 @@ export function ComposerForm(props: ComposerFormProps) {
   const addLabel = say('add.action')
   const destinationId = React.useId()
   const attachLabel = say('attachment.add')
+  const sessionAction = sessionBinding ? say(sessionBinding.linked ? 'session.unbind' : 'session.bind') : undefined
+  const linkedTitle = sessionBinding?.linked ? sessionBinding.title : undefined
+  const sessionHint = linkedTitle ? `${sessionAction} — ${linkedTitle}` : sessionAction
   const takeFiles = (files: File[]) => {
     if (!files.length) return
     if (!canUpload) onUnavailable()
@@ -166,6 +170,17 @@ export function ComposerForm(props: ComposerFormProps) {
     }, icon('IconPaperclipOutlineRegular')
       ? h(Glyph, { name: 'IconPaperclipOutlineRegular', size: 16 })
       : h('span', { 'aria-hidden': true }, '+'))),
+    sessionBinding && withTooltip(sessionHint, h('button', {
+      type: 'button',
+      className: 'dsh-an-attachBtn dsh-an-sessionBinding',
+      'aria-label': say('session.bind'),
+      'aria-pressed': sessionBinding.linked,
+      'aria-description': sessionBinding.linked ? sessionHint : undefined,
+      title: Tooltip ? undefined : sessionHint,
+      disabled: busy || draftLocked || destinationPending || storageInUse,
+      onClick: sessionBinding.onToggle,
+    }, h('span', { className: 'dsh-an-sessionGlyph', 'aria-hidden': true }, icon('IconLinkOutlineRegular')
+      ? h(Glyph, { name: 'IconLinkOutlineRegular', size: 16 }) : '🔗'))),
     withTooltip(addLabel, h(
       'button',
       {

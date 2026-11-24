@@ -3,19 +3,52 @@ import React from 'react'
 import { copyText } from '../domain/clipboard'
 import { metaLabel, rowAge } from '../domain/items'
 import { AttachmentList } from './AttachmentList'
-import { Glyph, IconCopy, IconInsert, IconRewind, Tooltip, withTooltip } from './primitives'
+import { Glyph, IconCopy, IconInsert, IconRewind, Tooltip, icon, withTooltip } from './primitives'
+import type { WorkspaceNote } from './useSessionMemoStore'
 
 const h = React.createElement
 
-export function TodoRow(props) {
+interface TodoRowProps {
+  item: WorkspaceNote
+  archived: boolean
+  insertPending: boolean
+  retryArchive: boolean
+  workspaceName?: string
+  isCurrentWorkspace: boolean
+  onOpenWorkspace?: React.MouseEventHandler<HTMLButtonElement>
+  sessionLink?: { current: boolean; onOpen?: React.MouseEventHandler<HTMLButtonElement>; title?: string }
+  onToggleSession?: () => void
+  rowRef?: React.Ref<HTMLLIElement>
+  highlighted?: boolean
+  say: (key: string, vars?: Record<string, string>) => string
+  renderFactorySlot?: React.ComponentProps<typeof AttachmentList>['renderFactorySlot']
+  localeId: string
+  onToast?: (kind: 'copied' | 'copyFailed') => void
+  onInsert: (item: WorkspaceNote, trigger: HTMLButtonElement) => void | Promise<void>
+  onRecall: (item: WorkspaceNote) => void | Promise<void>
+  dragProps?: React.DOMAttributes<HTMLLIElement>
+  onReorderKey?: React.KeyboardEventHandler<HTMLButtonElement>
+}
+
+export function TodoRow(props: TodoRowProps) {
   const {
     item, archived, insertPending, retryArchive, workspaceName, isCurrentWorkspace, onOpenWorkspace,
-    rowRef, highlighted,
+    sessionLink, onToggleSession, rowRef, highlighted,
     say, renderFactorySlot, localeId, onToast, onInsert, onRecall, dragProps, onReorderKey,
   } = props
   const attachments = item.attachments ?? []
   const hasText = Boolean(item.text)
   const insertLabel = say(retryArchive ? 'item.retryArchive' : 'item.insert')
+  const linkedElsewhere = Boolean(sessionLink && !sessionLink.current)
+  const insertDisabled = insertPending || linkedElsewhere
+  const insertHint = linkedElsewhere ? say('toast.sessionMismatch') : undefined
+  const reorderLabel = say('item.reorder')
+  const sessionToggleLabel = onToggleSession ? say(sessionLink ? 'session.unbind' : 'session.bind') : undefined
+  const openSessionLabel = sessionLink?.onOpen && !sessionLink.current ? say('session.open') : undefined
+  const sessionTitle = sessionLink?.title
+  const sessionText = sessionLink?.current ? say('session.current') : sessionTitle || openSessionLabel || say('session.linked')
+  const sessionGlyph = () => h('span', { className: 'dsh-an-sessionGlyph', 'aria-hidden': true }, icon('IconLinkOutlineRegular')
+    ? h(Glyph, { name: 'IconLinkOutlineRegular', size: 14 }) : '🔗')
   const workspaceLabel = onOpenWorkspace
     ? say(isCurrentWorkspace ? 'item.currentWorkspace' : 'item.openWorkspace', { workspace: workspaceName })
     : undefined
@@ -58,19 +91,21 @@ export function TodoRow(props) {
       'data-sortable': dragProps ? 'true' : undefined,
       ...dragProps,
     },
-    h('div', { className: 'dsh-an-leading' }, archived ? null : withTooltip(insertLabel, h(
+    h('div', { className: 'dsh-an-leading' }, archived ? null : withTooltip(insertLabel + (insertHint ? ` — ${insertHint}` : ''), h(
       'button',
       {
         type: 'button',
         className: 'dsh-an-iconBtn dsh-an-insert',
         'aria-label': insertLabel,
-        'aria-description': say('item.reorder'),
+        'aria-description': insertHint ? `${insertHint} ${reorderLabel}` : reorderLabel,
         'aria-keyshortcuts': 'ArrowUp ArrowDown',
         'aria-busy': insertPending || undefined,
-        'aria-disabled': insertPending || undefined,
+        'aria-disabled': insertDisabled || undefined,
         'data-loading': insertPending ? 'true' : undefined,
         onKeyDown: onReorderKey,
-        onClick: (event: React.MouseEvent<HTMLButtonElement>) => { void onInsert(item, event.currentTarget) },
+        onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
+          if (!insertDisabled) void onInsert(item, event.currentTarget)
+        },
       },
       retryArchive ? h(Glyph, { name: 'IconRefreshOutlineRegular', size: 14 }) : h(IconInsert),
     ))),
@@ -91,6 +126,18 @@ export function TodoRow(props) {
       workspaceText,
       )) : workspaceText,
     ),
+    sessionLink && h('div', { className: 'dsh-an-rowSession' },
+      openSessionLabel ? withTooltip(openSessionLabel, h('button', {
+        type: 'button',
+        className: 'dsh-an-sessionJump',
+        'aria-label': sessionTitle ? `${openSessionLabel} — ${sessionTitle}` : openSessionLabel,
+        title: Tooltip ? undefined : sessionTitle || openSessionLabel,
+        onClick: sessionLink.onOpen,
+      }, sessionGlyph(), h('span', { className: 'dsh-an-contextName' }, sessionText),
+      h('span', { className: 'dsh-an-sessionGlyph', 'aria-hidden': true }, '↗')))
+        : h('span', { className: 'dsh-an-sessionLabel', title: sessionTitle },
+            sessionGlyph(), h('span', { className: 'dsh-an-contextName' }, sessionText)),
+    ),
     h(
       'div',
       { className: 'dsh-an-trail' },
@@ -110,6 +157,13 @@ export function TodoRow(props) {
           },
           h(IconCopy, null),
         )) : null,
+        sessionToggleLabel && withTooltip(sessionToggleLabel, h('button', {
+          type: 'button',
+          className: 'dsh-an-iconBtn dsh-an-sessionBinding',
+          'aria-label': sessionToggleLabel,
+          disabled: insertPending,
+          onClick: onToggleSession,
+        }, sessionGlyph())),
         // Rewind moves the note back to the panel's editor.
         withTooltip(say('item.recall'), h(
           'button',

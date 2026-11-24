@@ -15,6 +15,7 @@ import { retryStorage } from '../storage/boot'
 import { readScopeMode, writeScopeMode } from '../storage/prefs'
 import { hasArchiveRetry, setArchiveRetry } from '../storage/archiveRetries'
 import { isHostConnectionFailure, storageFailure, storageMode } from '../storage/state'
+import { readWorkspaceRecord } from '../storage/workspace'
 import { useMemoStore, type WorkspaceNote } from './useSessionMemoStore'
 import { usePanelGeometry } from './usePanelGeometry'
 
@@ -59,14 +60,16 @@ type MemoComposerProps = Parameters<typeof useComposerDraft>[0] & {
   say: (key: string, vars?: Record<string, string>) => string
   renderFactorySlot?: RenderFactorySlot
   readFileDrag: FileDragService['read']
+  canBindSession: boolean
+  sessionTitle: (id: string) => string | undefined
 }
 
-function MemoComposer({ composerRef, nameOfWorkspace, say, renderFactorySlot, readFileDrag, ...options }: MemoComposerProps) {
+function MemoComposer({ composerRef, nameOfWorkspace, say, renderFactorySlot, readFileDrag, canBindSession, sessionTitle, ...options }: MemoComposerProps) {
   const { workspaceId, canUpload, storageInUse, report } = options
   const {
     draft, draftLocked, isSubmitting, isRecalling, hasUnresolvedAttachments, attachmentItems,
     addRef, isComposing, onCompositionStart, onCompositionEnd,
-    add, recall, addFiles, removeAttachment, removeUpload, retryUpload, onDraftChange, onDraftKeyDown,
+    add, recall, addFiles, removeAttachment, removeUpload, retryUpload, toggleSessionBinding, onDraftChange, onDraftKeyDown,
   } = useComposerDraft(options)
   React.useImperativeHandle(composerRef, (): MemoComposerHandle => ({
     recall,
@@ -88,6 +91,11 @@ function MemoComposer({ composerRef, nameOfWorkspace, say, renderFactorySlot, re
       : say('add.placeholder'),
     destination: destinationHint ? { text: destinationHint, visible: showDestination } : undefined,
     destinationPending: !destination,
+    sessionBinding: canBindSession || draft.linkedSessionId ? {
+      linked: Boolean(draft.linkedSessionId),
+      title: draft.linkedSessionId ? sessionTitle(draft.linkedSessionId) : undefined,
+      onToggle: toggleSessionBinding,
+    } : undefined,
     attachments: draft.attachments,
     attachmentItems,
     renderFactorySlot,
@@ -136,6 +144,7 @@ function hasUnresolvedForward(result: PartialForward, current: ReturnType<Compos
 
 export type NoteJump = Pick<WorkspaceNote, 'workspaceId' | 'noteId'> & {
   keyboardTrigger?: HTMLButtonElement
+  viaSession?: true
 }
 
 interface MemoPopoverProps {
@@ -153,6 +162,9 @@ interface MemoPopoverProps {
   focusComposerOnMount: boolean
   onClose: (restoreFocus?: boolean) => void
   onOpenWorkspace?: (note: NoteJump) => void
+  onOpenSession: (sessionId: string, note: NoteJump) => void
+  getActiveSessionId: () => string
+  sessionTitle: (id: string) => string | undefined
   onToast?: (kind: string) => void
 }
 
@@ -200,7 +212,11 @@ export function MemoPopover(props: MemoPopoverProps) {
   const workspace = workspaceForSession(sessionId)
   const catalogReady = workspaceCatalogReady()
   const workspaceId = workspace?.workspaceId ?? (catalogReady ? UNASSIGNED_WORKSPACE : null)
-  const workspaceFilter = mode === 'workspace' ? workspace?.workspaceId ?? null : null
+  const [dismissedSessionJump, dismissSessionJump] = React.useState<NoteJump>()
+  const jump = props.noteToReveal
+  const showLinkedNote = jump?.viaSession && jump !== dismissedSessionJump && jump.workspaceId !== workspace?.workspaceId
+  const workspaceFilter = mode === 'workspace' && !showLinkedNote ? workspace?.workspaceId ?? null : null
+  const getBindableSessionId = () => sessionId && props.getActiveSessionId() === sessionId ? sessionId : null
   const effectiveMode = workspaceFilter ? 'workspace' : 'global'
   const nameOfWorkspace = (id: string) => id === UNASSIGNED_WORKSPACE
     ? say('scope.unassigned')
@@ -227,6 +243,7 @@ export function MemoPopover(props: MemoPopoverProps) {
   // Version check, release notes and the in-app update share one hook; the
   // registry answer is cached for an hour across panel opens.
   const update = useUpdateCenter(localeId)
+  const changingBindings = React.useRef(new Set<string>())
   const inserting = React.useRef(new Map<string, AbortController>())
   const [insertingKeys, setInsertingKeys] = React.useState<ReadonlySet<string>>(() => new Set())
   React.useLayoutEffect(() => {
@@ -239,7 +256,7 @@ export function MemoPopover(props: MemoPopoverProps) {
   }, [sessionId])
   const canUpload = storeMode === 'host'
   const composerRef = React.useRef<MemoComposerHandle>(null)
-  const { archive, move, takeBack } = useNoteActions({ commit, report })
+  const { archive, move, takeBack, setSessionBinding } = useNoteActions({ commit, report })
   const panelRef = React.useRef(null)
   const {
     style,
@@ -281,7 +298,7 @@ export function MemoPopover(props: MemoPopoverProps) {
   const [revealedNote, setRevealedNote] = React.useState<{ note: NoteJump; highlighted: boolean }>()
   const revealRowRef = React.useRef<HTMLLIElement>(null)
   const noteToReveal = props.noteToReveal
-  const revealItem = noteToReveal && workspace?.workspaceId === noteToReveal.workspaceId
+  const revealItem = noteToReveal && (noteToReveal.viaSession || workspace?.workspaceId === noteToReveal.workspaceId)
     ? items.find(item => item.workspaceId === noteToReveal.workspaceId && item.noteId === noteToReveal.noteId)
     : undefined
   React.useLayoutEffect(() => {
@@ -338,6 +355,7 @@ export function MemoPopover(props: MemoPopoverProps) {
 
   const chooseScope = (next: ScopeMode) => {
     if (next === effectiveMode) return
+    if (jump?.viaSession) dismissSessionJump(jump)
     writeScopeMode(next)
     setMode(next)
     dismissClearConfirm()
@@ -348,10 +366,20 @@ export function MemoPopover(props: MemoPopoverProps) {
     const key = noteKey(item)
     const contentKey = noteContentKey(item)
     const partialKey = JSON.stringify([contentKey, sessionId])
-    if (inserting.current.has(key)) return
+    if (inserting.current.has(key) || changingBindings.current.has(key)) return
     const mode = storageMode()
     if (mode === 'probing' || mode === 'error') {
       report('saveFailed')
+      return
+    }
+    const bindingIsCurrent = () => {
+      if (props.getActiveSessionId() !== sessionId) return false
+      const current = readWorkspaceRecord(item.workspaceId).items.find(note => note.id === item.noteId)
+      return Boolean(current && current.linkedSessionId === item.linkedSessionId
+        && (!current.linkedSessionId || current.linkedSessionId === sessionId))
+    }
+    if (!bindingIsCurrent()) {
+      report('sessionMismatch')
       return
     }
     const retryArchive = hasArchiveRetry(contentKey)
@@ -367,7 +395,7 @@ export function MemoPopover(props: MemoPopoverProps) {
     setInsertingKeys(new Set(inserting.current.keys()))
     try {
       if (!retryArchive) {
-        const result = await appendToConversation(sessionId, item, props.getComposerInput, operation.signal)
+        const result = await appendToConversation(sessionId, item, props.getComposerInput, operation.signal, bindingIsCurrent)
         if (result.status === 'partial') {
           partialForwards.set(partialKey, result)
           report('insertPartial')
@@ -404,12 +432,37 @@ export function MemoPopover(props: MemoPopoverProps) {
    * The composer is the only text editor, so recalling over an existing draft
    * would silently destroy it; ask the user to send or clear it first instead.
    */
-  const recallItem = item => {
-    if (!inserting.current.has(noteKey(item))) void composerRef.current?.recall(item, takeBack)
+  const recallItem = (item: WorkspaceNote) => {
+    const key = noteKey(item)
+    if (!inserting.current.has(key) && !changingBindings.current.has(key)) void composerRef.current?.recall(item, takeBack)
+  }
+
+  const toggleRowBinding = async (item: WorkspaceNote) => {
+    const key = noteKey(item)
+    const pending = changingBindings.current
+    if (inserting.current.has(key) || pending.has(key) || !countsAvailable) return
+    const next = item.linkedSessionId ? null : getBindableSessionId()
+    if (!item.linkedSessionId && !next) return
+    pending.add(key)
+    try {
+      await setSessionBinding(item, next)
+    } finally {
+      pending.delete(key)
+    }
   }
 
   const row = (item: WorkspaceNote) => {
     const owner: string = item.workspaceId
+    const linkedSessionId = item.linkedSessionId
+    const currentSession = linkedSessionId === sessionId
+    const sessionLink = linkedSessionId ? {
+      current: currentSession,
+      title: props.sessionTitle(linkedSessionId),
+      onOpen: currentSession ? undefined : (event: React.MouseEvent<HTMLButtonElement>) => props.onOpenSession(linkedSessionId, {
+        workspaceId: owner, noteId: item.noteId, viaSession: true,
+        keyboardTrigger: event.detail === 0 && event.currentTarget === document.activeElement ? event.currentTarget : undefined,
+      }),
+    } : undefined
     const showWorkspace = effectiveMode === 'global'
     const canOpenWorkspace = showWorkspace && owner !== UNASSIGNED_WORKSPACE
       && workspaceById(owner) !== undefined && props.onOpenWorkspace
@@ -419,6 +472,8 @@ export function MemoPopover(props: MemoPopoverProps) {
       archived: item.done === true,
       insertPending: insertingKeys.has(noteKey(item)),
       retryArchive: hasArchiveRetry(noteContentKey(item)),
+      sessionLink,
+      onToggleSession: countsAvailable && (linkedSessionId || getBindableSessionId()) ? () => toggleRowBinding(item) : undefined,
       workspaceName: showWorkspace ? nameOfWorkspace(owner) : undefined,
       isCurrentWorkspace: workspace?.workspaceId === owner,
       onOpenWorkspace: canOpenWorkspace
@@ -520,6 +575,9 @@ export function MemoPopover(props: MemoPopoverProps) {
       say,
       draftKey,
       workspaceId,
+      canBindSession: Boolean(sessionId),
+      sessionTitle: props.sessionTitle,
+      getBindableSessionId,
       commit,
       report,
       storageInUse,

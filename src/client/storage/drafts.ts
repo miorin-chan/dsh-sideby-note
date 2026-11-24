@@ -11,6 +11,14 @@
 import { DRAFT_STORAGE_KEY, MAX_TEXT } from '../constants'
 import { setAsideUnreadable, storage } from './codec'
 import { normalizeAttachments, type NoteAttachment } from '../domain/attachments'
+import { normalizeLinkedSessionId } from '../domain/id'
+
+interface ScopeDraft {
+  add: string
+  attachments: NoteAttachment[]
+  workspaceId: string | undefined
+  linkedSessionId?: string
+}
 
 const keyOf = value => (value ? String(value) : '')
 const attachmentChanges = new Set<(key: string) => void>()
@@ -85,13 +93,15 @@ export function writeDraftStore(store) {
 }
 
 /** The unsaved composer draft of one scope (a workspace or a lone session). */
-export function readScopeDrafts(key) {
+export function readScopeDrafts(key): ScopeDraft {
   const id = keyOf(key)
   const record = id ? readDraftStore().sessions[id] : null
+  const linkedSessionId = normalizeLinkedSessionId(record?.linkedSessionId)
   return {
     add: typeof record?.add === 'string' ? record.add : '',
     attachments: normalizeAttachments(record?.attachments),
     workspaceId: typeof record?.workspaceId === 'string' ? record.workspaceId : undefined,
+    ...(linkedSessionId === undefined ? {} : { linkedSessionId }),
   }
 }
 
@@ -99,10 +109,15 @@ export function pruneDraftScope(store, key) {
   const record = store.sessions[key]
   if (!record) return
   const hasAdd = typeof record.add === 'string' && record.add.length > 0
-  if (!hasAdd && normalizeAttachments(record.attachments).length === 0) delete store.sessions[key]
+  if (!hasAdd && !normalizeLinkedSessionId(record.linkedSessionId) && normalizeAttachments(record.attachments).length === 0) {
+    delete store.sessions[key]
+  }
 }
 
-export function saveAddDraft(key: string, text: string, attachments?: NoteAttachment[], workspaceId?: string | null) {
+/** Leave the link intact when omitted and remove it when explicitly null. */
+export function saveAddDraft(
+  key: string, text: string, attachments?: NoteAttachment[], workspaceId?: string | null, linkedSessionId?: string | null,
+) {
   const id = keyOf(key)
   if (!id) return false
   const store = readDraftStore()
@@ -114,17 +129,22 @@ export function saveAddDraft(key: string, text: string, attachments?: NoteAttach
   else if (attachments) delete record.attachments
   if (workspaceId) record.workspaceId = workspaceId
   else if (workspaceId === null) delete record.workspaceId
+  const previousLink = normalizeLinkedSessionId(record.linkedSessionId)
+  const link = normalizeLinkedSessionId(linkedSessionId)
+  if (link !== undefined) record.linkedSessionId = link
+  else if (linkedSessionId === null) delete record.linkedSessionId
+  const linkChanged = previousLink !== normalizeLinkedSessionId(record.linkedSessionId)
   // Inline editing is gone; retire an edit map left by an older version.
   delete record.edits
   store.sessions[id] = record
   pruneDraftScope(store, id)
   const written = writeDraftStore(store)
-  if (written && attachments) notifyDraftAttachments(id)
+  if (written && (attachments || linkChanged)) notifyDraftAttachments(id)
   return written
 }
 
 export function clearAddDraft(key: string) {
-  return saveAddDraft(key, '', [], null)
+  return saveAddDraft(key, '', [], null, null)
 }
 
 /**
@@ -133,7 +153,7 @@ export function clearAddDraft(key: string) {
  * Runs once per workspace: the draft the user is looking at becomes the shared
  * buffer, and the workspace members' per-session copies are retired so that
  * clearing the buffer cannot resurrect them. A no-op outside a workspace, once
- * the shared key exists, or when the legacy record holds no text.
+ * the shared key exists, or when the legacy record has no draft to keep.
  */
 export function ensureDraftScope(key, sessionId, sessionIds) {
   const target = keyOf(key)
@@ -147,9 +167,15 @@ export function ensureDraftScope(key, sessionId, sessionIds) {
 
   const add = typeof legacy.add === 'string' ? legacy.add.slice(0, MAX_TEXT) : ''
   const attachments = normalizeAttachments(legacy.attachments)
-  if (!add && attachments.length === 0) return false
+  const linkedSessionId = normalizeLinkedSessionId(legacy.linkedSessionId)
+  if (!add && attachments.length === 0 && linkedSessionId === undefined) return false
 
-  store.sessions[target] = { ...(add ? { add } : {}), ...(attachments.length ? { attachments } : {}), ...(legacy.workspaceId ? { workspaceId: legacy.workspaceId } : {}) }
+  store.sessions[target] = {
+    ...(add ? { add } : {}),
+    ...(attachments.length ? { attachments } : {}),
+    ...(legacy.workspaceId ? { workspaceId: legacy.workspaceId } : {}),
+    ...(linkedSessionId === undefined ? {} : { linkedSessionId }),
+  }
   for (const member of members) delete store.sessions[member]
   // A stale workspace binding may not list the source; retire it regardless so
   // it cannot seed the shared key a second time.

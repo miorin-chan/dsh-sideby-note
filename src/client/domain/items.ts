@@ -1,7 +1,18 @@
 /** Note shape, ordering and relative time copy. */
 import { MAX_TEXT } from '../constants'
-import { uid } from './id'
-import { normalizeAttachments } from './attachments'
+import { normalizeLinkedSessionId, uid } from './id'
+import { normalizeAttachments, type NoteAttachment } from './attachments'
+
+export interface Note {
+  id: string
+  text: string
+  done: boolean
+  createdAt: number
+  updatedAt: number
+  completedAt?: number
+  attachments?: NoteAttachment[]
+  linkedSessionId?: string
+}
 
 /**
  * Stable id for a legacy record that never had one.
@@ -24,10 +35,10 @@ function legacyId(text, createdAt, updatedAt) {
  * Sanitize one session's notes. The store is user-editable, so treat
  * every field defensively and preserve the authored order.
  */
-export function normalizeItems(items) {
+export function normalizeItems(items: unknown): Note[] {
   if (!Array.isArray(items)) return []
-  const seen = new Set()
-  const normalized = []
+  const seen = new Set<string>()
+  const normalized: Note[] = []
   for (const raw of items) {
     if (!raw || typeof raw !== 'object') continue
     const text = String(raw.text || '').trim().slice(0, MAX_TEXT)
@@ -42,6 +53,7 @@ export function normalizeItems(items) {
     const done = raw.done === true
     const createdAt = Number.isFinite(raw.createdAt) ? raw.createdAt : Date.now()
     const updatedAt = Number.isFinite(raw.updatedAt) ? raw.updatedAt : createdAt
+    const linkedSessionId = normalizeLinkedSessionId(raw.linkedSessionId)
     normalized.push({
       id,
       text,
@@ -50,6 +62,7 @@ export function normalizeItems(items) {
       createdAt,
       updatedAt,
       ...(done && Number.isFinite(raw.completedAt) ? { completedAt: raw.completedAt } : {}),
+      ...(linkedSessionId === undefined ? {} : { linkedSessionId }),
     })
   }
   return normalized

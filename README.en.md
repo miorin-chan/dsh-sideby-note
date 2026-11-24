@@ -107,9 +107,11 @@ Both filters show their open counts. The entry badge shows the current workspace
 Whichever filter you use, new notes are saved to the current workspace for its sessions to share.
 In a standalone session, new notes go into a reserved unassigned workspace and appear under **Global**.
 
-### Bring it back when you are ready
+### Return to the conversation or continue here
 
-Click a note’s **Insert** button to add its text and all attachments to the current chat draft and then archive the note. Note text starts on a new line after any existing text. Review or edit the draft and send it when you are ready.
+Notes are shared across the workspace by default. To keep a note with a particular conversation, choose **Link to current session** in the note composer or on the note itself. The link changes neither the note’s workspace nor its visibility or count. Use the session link on the note to return, or unlink it at any time. Recalling a note for editing preserves the link.
+
+Use **Insert** in the current conversation for an unlinked note, or in the linked conversation for a linked one. Opening that conversation does not change its draft. **Insert** appends the text and all attachments to the draft, then archives the note. Note text starts on a new line after any existing text. Review or edit the draft and send it when you are ready.
 
 ### Small details for everyday use
 
@@ -132,7 +134,7 @@ Click a note’s **Insert** button to add its text and all attachments to the cu
   and closes when you switch sessions elsewhere.
 - **Note actions**: add, reorder, copy, insert a note into the chat input, and rewind one into the composer to edit; there is no manual checkbox — inserting it archives it. Clearing archived notes asks for confirmation, and archived notes expand for review. Clearing the composer after rewinding a note removes it.
 - **Attachments**: choose files with the paperclip, paste them from the clipboard, or drop them onto the note composer. A note can hold up to 10 nonempty files of up to 25 MiB each, with optional text. Select a file name to preview supported images, audio, and video. Each attachment can be downloaded, and recalling a note restores its attachments with the text.
-- **Insert** adds the note’s text and original files to the **currently open conversation’s** draft, after any existing content. Attachment-only notes work the same way. Once the composer accepts the complete note, it moves to **Archived**. You decide when to send. DSH applies its usual attachment limits, and the note stays open if a file cannot be read or the composer rejects the batch.
+- **Insert** adds the note’s text and original files to the open conversation’s draft, after any existing content. If the note is linked, Insert is only available in that conversation. Attachment-only notes work the same way. Once the composer accepts the complete note, it moves to **Archived**. You decide when to send. DSH applies its usual attachment limits, and the note stays open if a file cannot be read or the composer rejects the batch.
 - **Drag to reorder**. Move an open note by dragging it or by focusing Insert and pressing ↑ / ↓.
   Reordering applies within the note’s own workspace. Esc cancels an active drag.
 - **Remembered state**. New note drafts are saved per workspace, or per session for standalone sessions.

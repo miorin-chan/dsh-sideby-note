@@ -144,8 +144,8 @@ docs/assets/             # README 截图（preview-* 与 features/）
 - 展开页脚「存储与更新」后，通过 `GET /store/location` 读取该文件的完整路径，可复制路径。
   `POST /store/reveal` 让宿主在文件管理器中定位它。
   后端不是 JSON 文件时明确显示「无法定位」，不猜路径。
-- `Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt? }`；`text` 上限 280，
-  **清单条数不设上限**（400 条仍可展示与新增，见 `STORE-018`）。
+- `Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt?, attachments?, linkedSessionId? }`；
+  `text` 上限 280，**清单条数不设上限**（400 条仍可展示与新增，见 `STORE-018`）。
 - 每次写入整文件替换；数据量远小于文件系统压力，写入排队由领域写链串行化。
 
 ### 工作区归属与筛选
@@ -154,6 +154,11 @@ docs/assets/             # README 截图（preview-* 与 features/）
 两个筛选下新增便笺都写入当前工作区，会话独立于工作区时写入专用的未分配工作区。
 全局列表中的行保留所属工作区，归档、退回及重新提交等操作都写回该工作区。
 同一条 id 可出现在不同工作区，相应行通过工作区和便笺 id 一起定位。
+
+`linkedSessionId` 是工作区条目上的可选引用，与工作区归属无关，也不改变筛选和计数。
+旧记录缺少该字段时保持未绑定，旧会话清单迁移也不推断绑定。
+退回编辑时草稿保留引用，重新提交仍写回原工作区。引用失效不会删除条目或附件，可以手动解绑。
+切回不识别此字段的旧版或上游插件并改写条目时，绑定可能丢失。
 
 ### 旧会话便笺迁移
 
@@ -200,6 +205,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 录入框按 Enter 添加便笺，按 Shift+Enter 换行，输入法选词时的 Enter 交给输入法。
 
 「填入」把原始附件追加到当前会话草稿，并在已有正文之后另起一行追加便笺正文。
+已绑定便笺只可填入对应会话。通过 `uiWorkspace.openSession` 返回会话只导航，不写草稿。
 纯附件便笺也使用这条路径。附件先完整读取，再由 DSH 校验整批文件。
 读文件失败、输入框不可用或拒收附件时，便笺保持待续。
 草稿接收正文和全部附件后，便笺在所属工作区归档（`done: true` 与 `completedAt`）。

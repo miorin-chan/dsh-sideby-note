@@ -45,6 +45,7 @@ export const noteSchema = z.object({
   updatedAt: z.number(),
   completedAt: z.number().optional(),
   attachments: z.array(attachmentSchema).max(MAX_ATTACHMENTS).optional(),
+  linkedSessionId: z.string().regex(/\S/).optional(),
 }).refine(note => note.text.trim().length > 0 || Boolean(note.attachments?.length), {
   path: ['text'],
   message: 'a note requires text or an attachment',

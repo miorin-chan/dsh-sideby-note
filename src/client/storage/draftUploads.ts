@@ -68,10 +68,11 @@ function syncQueue(key: string, saved: SavedDraft) {
     // An external change invalidates older attempts. A deliberate retry can
     // attach their bytes to the now-current draft after the latest saved refs.
     if (!sameFiles || !sameOwner) queue.entries = [...saved.attachments, ...queue.entries.filter(isUpload)]
-    queue.saved = saved
     queue.workspaceId = saved.workspaceId
     queue.revision++
   }
+  // The link is metadata: it can change without invalidating an upload.
+  queue.saved = saved
   return queue
 }
 
@@ -109,7 +110,7 @@ function saveEntries(queue: DraftUploads, entries: DraftEntry[]) {
   // saveAddDraft notifies listeners synchronously. They should see the matching
   // queue and persisted refs, including when a later file finishes first.
   queue.entries = entries
-  queue.saved = { add, attachments, workspaceId }
+  queue.saved = { ...previousSaved, add, attachments, workspaceId }
   if (saveAddDraft(queue.key, add, attachments, workspaceId ?? null)) {
     if (!unresolved) uploadsByDraft.delete(queue.key)
     return true

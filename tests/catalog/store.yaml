@@ -538,3 +538,68 @@ cases:
         status: automated
     suites: [pr, nightly, release]
     tags: [host, attachments, schema]
+
+  - id: STORE-033
+    title: 宿主便笺会话关联往返且兼容旧记录
+    priority: P1
+    class: C
+    rules: [R-NOTE-SESSION-LINK]
+    risk: data_loss
+    expected:
+      - 宿主保留有效会话引用、支持解绑，旧记录仍可读写且不会自动关联
+    automation:
+      - type: integration
+        file: tests/host-store.test.mts
+        test: STORE-033 宿主便笺会话关联往返且兼容旧记录
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [host, session, schema]
+
+  - id: STORE-034
+    title: 浏览器便笺会话关联在本地和宿主模式往返
+    priority: P1
+    class: B
+    rules: [R-NOTE-SESSION-LINK]
+    risk: data_loss
+    expected:
+      - 浏览器在本地和宿主模式都能写入、读取和清除绑定，不改变工作区
+    automation:
+      - type: integration
+        file: tests/linked-session-storage.test.mts
+        test: STORE-034 浏览器便笺会话关联在本地和宿主模式往返
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [storage, session, fallback]
+
+  - id: STORE-035
+    title: 浏览器草稿会话关联支持保留、清除与旧记录迁移
+    priority: P1
+    class: C
+    rules: [R-NOTE-SESSION-LINK]
+    risk: data_loss
+    expected:
+      - 草稿绑定在普通编辑、重读和工作区迁移后保留，清除草稿不留下绑定
+      - 没有绑定的旧草稿保持未绑定
+    automation:
+      - type: integration
+        file: tests/linked-session-storage.test.mts
+        test: STORE-035 浏览器草稿会话关联支持保留、清除与旧记录迁移
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [draft, session, migration]
+
+  - id: STORE-036
+    title: 上传完成或移除附件不覆盖草稿会话关联
+    priority: P1
+    class: F
+    rules: [R-NOTE-SESSION-LINK, R-NOTE-ATTACHMENTS]
+    risk: data_loss
+    expected:
+      - 附件上传完成和移除时保留最新的草稿绑定
+    automation:
+      - type: integration
+        file: tests/draft-uploads.test.mts
+        test: STORE-036 上传完成或移除附件不覆盖草稿会话关联
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [draft, session, attachments]

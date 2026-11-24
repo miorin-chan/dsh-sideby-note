@@ -59,6 +59,30 @@ features:
             text: 保存期间编辑草稿时保留新内容，连点仍只创建一条便笺；引用和首尾格式保留在原输入框
         technique: [边界值, 故障注入, 时序]
 
+      - id: R-NOTE-SESSION-LINK
+        statement: 便笺可选绑定当前会话，绑定或解绑不改变便笺的工作区归属或可见范围，退回编辑仍保留绑定。
+        failure: 旧便笺被意外绑定，或编辑、刷新后找不到要继续的会话。
+        kind: state
+        branches:
+          - kind: valid
+            text: 绑定、解绑和重开都保留原工作区，正文与附件不受影响
+          - kind: boundary
+            text: 没有绑定的旧条目和草稿读作未绑定，旧会话清单迁移不推断关系
+          - kind: invalid
+            text: 空值或无效的绑定输入不产生绑定
+        technique: [状态迁移, 等价类]
+
+      - id: R-FWD-SESSION-LINK
+        statement: 绑定便笺只可填入绑定会话。打开会话与填入分开，打不开时可以保留便笺或解绑。
+        failure: 正文或附件被写进错误的对话，或便笺在未写入时被归档。
+        kind: interaction
+        branches:
+          - kind: valid
+            text: 打开目标不写草稿，明确填入后才写入目标并归档；未绑定的便笺照常填入当前会话
+          - kind: invalid
+            text: 目标缺失、处于其他会话或绑定在填入前改变时，草稿和归档状态保持不变
+        technique: [状态迁移, 故障注入, 时序]
+
       - id: R-NOTE-ORDER
         statement: 新便笺加入所属工作区的待续区首位。待续便笺支持键盘和拖动重排，归档便笺在各显示分组内按归档时间倒序。
         failure: 新便笺沉到底部、刚完成的找不到，用户重复记录同一件事。

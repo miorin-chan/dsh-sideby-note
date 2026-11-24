@@ -1,3 +1,8 @@
+/** Read an opaque session id without coercing, trimming or resolving it. */
+export function normalizeLinkedSessionId(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim() ? value : undefined
+}
+
 /** Stable ids for notes and drafts. */
 export function uid() {
   try {

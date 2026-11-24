@@ -89,6 +89,34 @@ test('list.patch creates, orders and deletes notes', async () => {
   assert.equal(snapshot.empty, false)
 })
 
+test('STORE-033 宿主便笺会话关联往返且兼容旧记录', async () => {
+  const domain = fakeDomain()
+  const store = await storeWith(domain)
+  const legacy = note('legacy')
+  const linked = { ...note('linked'), linkedSessionId: 'session:not-in-registry' }
+  const invalid = { ...note('invalid'), linkedSessionId: '  ' }
+  const record = { ...list(legacy, linked), seededSessionIds: [] }
+  assert.deepEqual(workspaceSchema.parse(record), record)
+  assert.deepEqual(sessionSchema.parse(list(legacy, linked)), list(legacy, linked))
+  assert.equal(workspaceSchema.safeParse({ ...record, items: [invalid] }).success, false)
+
+  await store.apply({ op: 'migrate', snapshot: { sessions: { old: list(legacy, linked) } } })
+  const ensured = await store.apply({ op: 'list.ensure', workspaceId: 'w1', sessionIds: ['old'] })
+  assert.deepEqual(ensured.record.items, [legacy, linked])
+
+  const patch = { op: 'list.patch', kind: 'workspace', listKey: 'w1' }
+  const reordered = await store.apply({ ...patch, order: ['linked', 'legacy'], upserts: [invalid] })
+  assert.deepEqual(reordered.record.items, [linked, legacy, note('invalid')])
+  const relinked = { ...linked, linkedSessionId: 'session:other' }
+  await store.apply({ ...patch, upserts: [relinked] })
+  await store.close()
+  const reopened = await storeWith(domain)
+  assert.deepEqual((await reopened.snapshot()).data.workspaces.w1.items, [relinked, legacy, note('invalid')])
+
+  await reopened.apply({ ...patch, upserts: [note('linked')] })
+  assert.deepEqual((await reopened.snapshot()).data.workspaces.w1.items, [note('linked'), legacy, note('invalid')])
+})
+
 test('STORE-023 宿主合并另一标签页新增的条目', async () => {
   const store = await storeWith(fakeDomain())
   const a = { id: 'a', text: 'A', done: false, createdAt: 1, updatedAt: 1 }

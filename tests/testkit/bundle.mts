@@ -70,7 +70,7 @@ export async function bootBundle(t, options = {}) {
     getLocale: () => ({ active: options.locale ?? 'zh' }),
   }
   const ctx = {
-    get: name => ({ locale, shortcuts: options.shortcuts })[name],
+    get: name => ({ locale, shortcuts: options.shortcuts, ...options.services })[name],
     inject: (deps, apply) => {
       if (deps.every(name => ctx.get(name))) apply(ctx)
     },
@@ -118,6 +118,12 @@ export async function bootBundle(t, options = {}) {
     })
     button = document.querySelector('.dsh-an-headerBtn')
   }
+  const render = async (nextProps = {}) => {
+    await act(async () => {
+      currentRoot.render(React.createElement(capture, { sessionId: 'session-1', ...nextProps }))
+    })
+    button = document.querySelector('.dsh-an-headerBtn')
+  }
   const dispose = async () => {
     await act(async () => { currentRoot.unmount() })
     for (const dispose of disposers) dispose()
@@ -131,6 +137,7 @@ export async function bootBundle(t, options = {}) {
     act,
     get button() { return button },
     open,
+    render,
     remount,
     settle,
     dispose,

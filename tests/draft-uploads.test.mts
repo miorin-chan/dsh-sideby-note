@@ -214,6 +214,28 @@ test('cross-tab owner and draft changes guard delayed writes and retry reuses up
   assert.equal(readScopeDrafts(draftKey).add, 'other tab changed the draft')
 })
 
+test('STORE-036 上传完成或移除附件不覆盖草稿会话关联', async t => {
+  const { requests } = setup(t)
+  assert.equal(saveAddDraft(draftKey, '', undefined, undefined, 'first-session'), true)
+  assert.equal(addDraftUploads(draftKey, [file('first.txt'), file('second.txt')]), true)
+  assert.equal(saveAddDraft(draftKey, '', undefined, undefined, 'latest-session'), true)
+  requests[0].succeed(hostId(1))
+  await settle()
+  assert.deepEqual(savedNames(), ['first.txt'])
+  assert.equal(readScopeDrafts(draftKey).linkedSessionId, 'latest-session')
+
+  assert.equal(removeDraftAttachment(draftKey, 0, readScopeDrafts(draftKey)), undefined)
+  assert.deepEqual(savedNames(), [])
+  assert.equal(readScopeDrafts(draftKey).linkedSessionId, 'latest-session')
+
+  assert.equal(saveAddDraft(draftKey, '', undefined, undefined, null), true)
+  requests[1].succeed(hostId(2))
+  await settle()
+  assert.deepEqual(savedNames(), ['second.txt'])
+  assert.equal(readScopeDrafts(draftKey).linkedSessionId, undefined)
+  assert.equal(hasDraftUploads(draftKey), false)
+})
+
 test('a local storage failure keeps the confirmed ref and typing preserves recalled ownership', async t => {
   const { requests, window } = setup(t)
   saveAddDraft(draftKey, 'draft text', [], 'recalled-owner')
