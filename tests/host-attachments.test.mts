@@ -34,9 +34,9 @@ async function fixture(t, backend = 'json') {
     },
     get(name) {
       if (name === 'connection') return {
-        requestRejection(req) {
-          if (req.headers['sec-fetch-site'] === 'cross-site') return 403
-          return req.headers.cookie === 'session=fixture' ? undefined : 401
+        admit(req) {
+          if (req.headers['sec-fetch-site'] === 'cross-site') return { rejection: 403 }
+          return req.headers.cookie === 'session=fixture' ? { peer: {} } : { rejection: 401 }
         },
       }
       if (name === 'storage') return { backend: new Map([['json', { root: jsonRoot }]]) }

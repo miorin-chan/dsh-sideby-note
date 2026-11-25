@@ -11,7 +11,7 @@ import test from 'node:test'
 import { createStore, StoreError } from '../host/store.js'
 import { LOCATION_PATH, REVEAL_PATH, registerStoreRoutes, revealCommand, resolveStoreFile, STORE_PATH } from '../host/store-route.js'
 import { createSpec, prefsSchema, sessionSchema, workspaceSchema } from '../host/store-spec.js'
-import { fakeCtx, fakeDomain, requestRejection } from './fake-store.mts'
+import { fakeCtx, fakeDomain, admit } from './fake-store.mts'
 
 function fakeServer() {
   const routes = new Map()
@@ -426,7 +426,7 @@ test('the spec is valid and rejects malformed records', () => {
 test('store routes enforce method, origin, content type and JSON body', async () => {
   const server = fakeServer()
   const store = await storeWith(fakeDomain())
-  const dispose = registerStoreRoutes(server, { ctx: { get: name => name === 'connection' ? { requestRejection } : undefined }, store })
+  const dispose = registerStoreRoutes(server, { ctx: { get: name => name === 'connection' ? { admit } : undefined }, store })
   const route = server.route(STORE_PATH)
   assert.equal(route.kind, 'exact')
 
@@ -464,8 +464,9 @@ test('store routes enforce method, origin, content type and JSON body', async ()
 
 test('store routes require the shared browser-session check', async () => {
   const denied = [
-    { connection: { requestRejection: () => 401 }, status: 401 },
-    { connection: { requestRejection: () => 403 }, status: 403 },
+    { connection: { admit: () => ({ rejection: 401 }) }, status: 401 },
+    { connection: { admit: () => ({ rejection: 403 }) }, status: 403 },
+    { connection: {}, status: 403 },
     { connection: undefined, status: 403 },
   ]
   for (const { connection, status } of denied) {
@@ -518,7 +519,7 @@ test('STORE-028 存储文件路径可查看', async () => {
   const backend = { root }
   const ctx = {
     get(name) {
-      if (name === 'connection') return { requestRejection }
+      if (name === 'connection') return { admit }
       if (name === 'storage') return { backend: { names: () => ['json'], get: () => backend } }
       if (name === 'storageDomain') return { config: { routes: { aside_note: 'json' } } }
       return undefined
@@ -542,7 +543,7 @@ test('STORE-028 存储文件路径可查看', async () => {
 
   // A backend without a file path is reported, never guessed.
   const emptyServer = fakeServer()
-  registerStoreRoutes(emptyServer, { ctx: { get: name => name === 'connection' ? { requestRejection } : undefined }, store: {} })
+  registerStoreRoutes(emptyServer, { ctx: { get: name => name === 'connection' ? { admit } : undefined }, store: {} })
   const missing = response()
   await emptyServer.route(REVEAL_PATH).handler(request('POST'), missing)
   assert.equal(missing.status, 404)
@@ -558,7 +559,7 @@ test('STORE-029 宿主区分文件已被占用与普通打开错误', async () =
     } : undefined,
   })
   const server = fakeServer()
-  const ctx = { get: name => name === 'connection' ? { requestRejection } : undefined }
+  const ctx = { get: name => name === 'connection' ? { admit } : undefined }
   registerStoreRoutes(server, { ctx, store })
   const res = response()
   await server.route(STORE_PATH).handler(request('GET'), res)

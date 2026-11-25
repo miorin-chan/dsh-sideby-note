@@ -69,6 +69,6 @@ export function fakeCtx(domain, workspaceRegistry) {
 }
 
 /** Stand-in for the Host authority checks used by route fixtures. */
-export function requestRejection(request) {
-  return request.headers['sec-fetch-site'] === 'cross-site' ? 403 : undefined
+export function admit(request) {
+  return request.headers['sec-fetch-site'] === 'cross-site' ? { rejection: 403 } : { peer: {} }
 }

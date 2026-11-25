@@ -13,7 +13,7 @@ import { join } from 'node:path'
 import test from 'node:test'
 
 import { APPLY_PATH, PROBE_PATH, registerUpdateRoutes } from '../host/route.js'
-import { requestRejection } from './fake-store.mts'
+import { admit } from './fake-store.mts'
 
 const ORIGIN = {
   host: '127.0.0.1:61433', origin: 'http://127.0.0.1:61433', 'sec-fetch-site': 'same-origin',
@@ -36,7 +36,7 @@ function makeProfile(t) {
 }
 
 /** Mount the routes on a stand-in for the host web server. */
-function mount(dir, installer, connection = { requestRejection }) {
+function mount(dir, installer, connection = { admit }) {
   const routes = new Map()
   const server = {
     register(route) {
@@ -110,7 +110,7 @@ test('a cross-site request cannot start an install', async t => {
 
 test('update routes preserve session rejection and fail closed without an authenticator', async () => {
   const installer = { installBundle: () => assert.fail('unauthorized request reached installer') }
-  for (const [connection, status] of [[{ requestRejection: () => 401 }, 401], [null, 403]]) {
+  for (const [connection, status] of [[{ admit: () => ({ rejection: 401 }) }, 401], [{}, 403], [null, 403]]) {
     const routes = mount(undefined, installer, connection)
     for (const [endpoint, method] of [[PROBE_PATH, 'GET'], [APPLY_PATH, 'POST']]) {
       const answer = await call(routes, endpoint, { method, body: { target: '1.1.2' } })

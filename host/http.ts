@@ -1,7 +1,9 @@
 /** Shared HTTP helpers for the plugin's host routes. */
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Context } from '@deepseek-ai/cordis'
-import type { ConnectionRequestRejection } from '@deepseek-ai/dsh-client-connection'
+import type {} from '@deepseek-ai/dsh-client-connection'
+
+export type RouteRejection = 401 | 403 | undefined
 
 export function sendJson(response: ServerResponse, status: number, body: unknown): void {
   response.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' })
@@ -9,12 +11,19 @@ export function sendJson(response: ServerResponse, status: number, body: unknown
 }
 
 /** Use the Host's authority, origin, and browser-session checks. */
-export function requestRejection(ctx: Context, request: IncomingMessage): ConnectionRequestRejection {
+export function requestRejection(ctx: Context, request: IncomingMessage): RouteRejection {
   try {
     const connection = ctx.get?.('connection')
-    if (typeof connection?.requestRejection === 'function') {
-      const rejection = connection.requestRejection(request)
-      if (rejection === undefined || rejection === 401) return rejection
+    if (typeof connection?.admit === 'function') {
+      const admission = connection.admit(request)
+      if (admission !== null && typeof admission === 'object') {
+        if ('rejection' in admission) {
+          return admission.rejection === 401 ? 401 : 403
+        }
+        if ('peer' in admission && admission.peer !== undefined) {
+          return undefined
+        }
+      }
     }
   } catch {
     // The route needs a working Host authenticator before serving the request.
