@@ -212,7 +212,7 @@ Feedback reuses product surfaces too: copy, rewind, insert, clear-archived, and 
 
 1. Click the **Sideby Note** button at the top right of the conversation to open the right-side panel.
    Select **Global** or the workspace name beside the folder icon in the panel header to filter notes.
-2. Write a follow-up in the panel. Click the return button (↵) beside the input or press Enter to save it.
+2. Write a follow-up in the panel. Click the return button (↵) below the input or press Enter to save it.
    Press Shift+Enter for a new line.
 3. To edit a note, click **Rewind** (↺) to return it to the note composer. Submitting the edit saves it in the
    note’s original workspace. Clearing the composer removes the note.
