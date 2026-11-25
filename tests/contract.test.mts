@@ -1045,7 +1045,7 @@ test('clearing archived notes asks for a second confirmation', () => {
   assert.match(client, /React\.useEffect\(\(\) => \(\) => stopClearConfirmTimer\(\), \[\]\)/)
   assert.match(client, /if \(confirmClear && \(!showDone \|\| doneCount === 0\)\) dismissClearConfirm\(\)/)
   assert.match(client, /doneCount: doneItems\.length/)
-  assert.match(client, /React\.useEffect\(\(\) => \{\n\s+dismissClearConfirm\(\)\n\s+\}, \[scope\]\)/)
+  assert.match(client, /React\.useEffect\(\(\) => \{\n\s+dismissClearConfirm\(\)\n\s+\}, \[sessionId, scope\]\)/)
 })
 
 test('the clear confirmation band reuses card tokens and a danger confirm', () => {

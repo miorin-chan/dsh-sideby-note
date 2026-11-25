@@ -418,21 +418,22 @@ function apply(ctx: DshClientCtx) {
       const workspace = listedWorkspace ?? (followedJump ? navigation.workspace ?? null : null)
       const sessionChanged = activeSessionId !== sessionId
       const workspaceChanged = workspaceForSession(activeSessionId)?.workspaceId !== workspace?.workspaceId
-      const resolvedCurrentWorkspace = !sessionChanged && workspaceCatalog === null && catalog !== null
       workspaceCatalog = catalog
       bindWorkspace(sessionId, workspace, sessionReady, catalog)
       activeSessionId = sessionId
-      if (panel && (followedJump || resolvedCurrentWorkspace)) {
-        if (followedJump && (listedWorkspace || !navigation.workspace)) delete panel.navigation
-        if (sessionChanged || workspaceChanged) {
-          prepareMemoSession(sessionId)
-          updatePanel({
-            ...panel, sessionId, focusComposerOnMount: false,
-            noteToReveal: followedJump ? navigation.note : undefined,
-          })
-        }
-      } else if (sessionChanged || workspaceChanged) {
-        closeMemoPopover()
+      if (panel && (sessionChanged || workspaceChanged)) {
+        prepareMemoSession(sessionId)
+        updatePanel({
+          ...panel,
+          sessionId,
+          focusComposerOnMount: false,
+          noteToReveal: followedJump ? navigation.note : sessionChanged ? undefined : panel.noteToReveal,
+          navigation: followedJump
+            ? (!listedWorkspace && navigation.workspace ? navigation : undefined)
+            : (sessionChanged ? undefined : navigation),
+        })
+      } else if (panel && followedJump && listedWorkspace) {
+        delete panel.navigation
       }
       if (catalog) void migrateWorkspaceNotes(catalog)
       notifyTodoChange()

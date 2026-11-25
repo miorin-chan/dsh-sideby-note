@@ -26,7 +26,7 @@ import { useNoteActions } from './useNoteActions'
 import { useRowReorder } from './useRowReorder'
 import { useClearConfirm } from './useClearConfirm'
 import { useListEdge } from './useListEdge'
-import { useOutsideDismiss } from './useOutsideDismiss'
+import { usePanelEscape } from './usePanelEscape'
 import { scrollNoteIntoView } from './position'
 import { compareDoneItems } from '../domain/items'
 import { appendToConversation, type ComposerInputForSession } from '../domain/forward'
@@ -296,7 +296,7 @@ export function MemoPopover(props: MemoPopoverProps) {
       return move(item, index - first)
     },
   })
-  useOutsideDismiss(panelRef, props.anchorRef, props.onClose)
+  usePanelEscape(props.onClose)
 
   const [revealedNote, setRevealedNote] = React.useState<{ note: NoteJump; highlighted: boolean }>()
   const revealRowRef = React.useRef<HTMLLIElement>(null)
@@ -350,6 +350,7 @@ export function MemoPopover(props: MemoPopoverProps) {
     applySections({ open: sectionsRef.current.open, done: false })
   }
   const { confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone } = useClearConfirm({
+    sessionId,
     scope: workspaceFilter,
     showDone,
     doneCount: doneItems.length,

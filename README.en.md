@@ -130,8 +130,7 @@ Use **Insert** in the current conversation for an unlinked note, or in the linke
 - **See notes across workspaces**. Under **Global**, actions on a note still save changes to the workspace that owns
   it. Tabs in the same browser stay in sync in real time.
 - **Entry and panel**. The top-right button shows the open count and opens a fixed panel aligned to the button.
-  The panel shifts left when the DSH right sidebar opens. It stays open when you jump to a workspace from a note
-  and closes when you switch sessions elsewhere.
+  The panel shifts left when the DSH right sidebar opens. Switching sessions leaves it open or closed as you left it.
 - **Note actions**: add, reorder, copy, insert a note into the chat input, and rewind one into the composer to edit; there is no manual checkbox — inserting it archives it. Clearing archived notes asks for confirmation, and archived notes expand for review. Clearing the composer after rewinding a note removes it.
 - **Attachments**: choose files with the paperclip, paste them from the clipboard, or drop them onto the note composer. A note can hold up to 10 nonempty files of up to 25 MiB each, with optional text. Select a file name to preview supported images, audio, and video. Each attachment can be downloaded, and recalling a note restores its attachments with the text.
 - **Insert** adds the note’s text and original files to the open conversation’s draft, after any existing content. If the note is linked, Insert is only available in that conversation. Attachment-only notes work the same way. Once the composer accepts the complete note, it moves to **Archived**. You decide when to send. DSH applies its usual attachment limits, and the note stays open if a file cannot be read or the composer rejects the batch.
@@ -219,7 +218,7 @@ Feedback reuses product surfaces too: copy, rewind, insert, clear-archived, and 
    note’s original workspace. Clearing the composer removes the note.
 4. To change the order within a workspace, drag an open note by its text or focus Insert and press ↑ / ↓.
 5. When you are ready to continue, click the note's **Insert** button: the text is appended to the chat input and the note is archived; review and send it yourself. Expand **Archived** to look back.
-6. Click outside the panel or press Esc to close. On Desktop, `Mod+E` toggles the panel (`⌘E` on macOS and `Ctrl+E` elsewhere).
+6. Use the close button, click the header toggle again, or press Esc to close. On Desktop, `Mod+E` toggles the panel (`⌘E` on macOS and `Ctrl+E` elsewhere).
    In macOS and Windows browsers, the default is `Mod+Alt+E`. Linux browsers start with no binding.
    Open the shortcut editor with `Mod+/` or **Settings › Edit shortcuts**, then find **Toggle Sideby Note** to change, clear, or restore the binding.
 

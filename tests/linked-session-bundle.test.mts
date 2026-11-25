@@ -79,8 +79,9 @@ test('NOTE-014 可选绑定不改变工作区且随退回草稿保留', async t 
     assert.equal(toggle().dataset.linked, 'false')
     assert.ok(toggle().querySelector('[data-chain="slashed"]'))
     await f.type('手动解绑的便笺')
+    const openPanel = f.panel()
     await f.selectSession('session-2')
-    await f.app.open()
+    assert.equal(f.panel(), openPanel, 'the open panel follows the session')
     assert.equal(toggle().getAttribute('aria-pressed'), 'false', 'explicit unlink survives switching sessions')
     await f.add()
     assert.equal(f.items().find(note => note.text === '手动解绑的便笺').linkedSessionId, undefined)
@@ -132,8 +133,9 @@ test('FWD-010 绑定便笺只在目标会话填入且返回本身不写草稿', 
   const f = await fixture(t)
   try {
     await f.click(clickOf(f.row('旧便笺'), bindLabel))
+    const openPanel = f.panel()
     await f.selectSession('session-2')
-    await f.app.open()
+    assert.equal(f.panel(), openPanel, 'the open panel follows the session')
     const insert = () => f.row('旧便笺').querySelector<HTMLButtonElement>('.dsh-an-insert')!
     assert.equal(insert().getAttribute('aria-disabled'), 'true')
     await f.click(insert())

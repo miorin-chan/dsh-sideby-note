@@ -1319,12 +1319,32 @@ test('workspace notes share a list and global actions preserve ownership', async
 
     await act(async () => { secondPopover.querySelector('button[aria-label="在 另一工作区 打开新会话"]').click() })
     assert.equal(workspaceStarts.at(-1), 'ws-2')
-    await act(async () => {
-      finishWorkspaceOpen()
-      secondRoot.render(React.createElement(capture, { sessionId: 'session-2', useWorkspaces: confirmedWorkspaces }))
-    })
-    assert.equal(document.querySelector('.dsh-an-popover'), null,
-      'an ordinary session switch superseding the jump still closes the panel')
+    const sessionEntry = document.createElement('button')
+    document.body.append(sessionEntry)
+    t.after(() => sessionEntry.remove())
+    const selectSession = sessionId => {
+      sessionEntry.onclick = () => secondRoot.render(React.createElement(capture, { sessionId, useWorkspaces: confirmedWorkspaces }))
+      return act(async () => {
+        pointer(sessionEntry, 'pointerdown', 0)
+        sessionEntry.focus()
+        sessionEntry.click()
+      })
+    }
+    finishWorkspaceOpen()
+    await selectSession('session-4')
+    assert.equal(document.querySelector('.dsh-an-popover'), secondPopover,
+      'a session click outside the panel keeps the same panel open')
+    assert.equal(document.querySelector('.dsh-an-headerBtn').getAttribute('aria-expanded'), 'true')
+    assert.equal(inputOf(secondPopover).value, '目标工作区的新草稿')
+    assert.equal(document.activeElement, sessionEntry, 'switching sessions does not pull focus into the panel')
+    assert.deepEqual(highlightedRows(), [], 'an unrelated switch clears the previous note reveal')
+    await selectSession('session-2')
+    assert.equal(inputOf(secondPopover).value, '原工作区的草稿')
+
+    await act(async () => { secondPopover.querySelector('.dsh-an-popClose').click() })
+    await selectSession('session-4')
+    assert.equal(document.querySelector('.dsh-an-popover'), null, 'a closed panel does not reopen in another session')
+    assert.equal(document.querySelector('.dsh-an-headerBtn').getAttribute('aria-expanded'), 'false')
   })
 
   await act(async () => { secondRoot.unmount() })
