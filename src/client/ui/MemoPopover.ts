@@ -94,9 +94,12 @@ function MemoComposer({ composerRef, nameOfWorkspace, say, renderFactorySlot, re
     destinationPending: !destination,
     sessionBinding: showSessionBinding || linkedSessionId ? {
       linked: Boolean(linkedSessionId),
-      disabled: !canBindSession,
+      disabled: !linkedSessionId && !canBindSession,
       title: linkedSessionId ? sessionTitle(linkedSessionId) : undefined,
-      onToggle: toggleSessionBinding,
+      onToggle: (event: React.MouseEvent<HTMLButtonElement>) => {
+        const restoreFocus = Boolean(linkedSessionId) && !canBindSession && document.activeElement === event.currentTarget
+        if (toggleSessionBinding() && restoreFocus) addRef.current?.focus({ preventScroll: true })
+      },
     } : undefined,
     attachments: draft.attachments,
     attachmentItems,
@@ -445,12 +448,11 @@ export function MemoPopover(props: MemoPopoverProps) {
     const key = noteKey(item)
     const pending = changingBindings.current
     if (inserting.current.has(key) || pending.has(key) || !countsAvailable) return
-    const target = getBindableSessionId()
-    if (!target) return
-    const next = item.linkedSessionId ? null : target
+    const next = item.linkedSessionId ? null : getBindableSessionId()
+    if (next === undefined) return
     pending.add(key)
     try {
-      await setSessionBinding(item, next)
+      return await setSessionBinding(item, next)
     } finally {
       pending.delete(key)
     }
@@ -479,7 +481,7 @@ export function MemoPopover(props: MemoPopoverProps) {
       retryArchive: hasArchiveRetry(noteContentKey(item)),
       sessionLink,
       onToggleSession: countsAvailable && (linkedSessionId || sessionId) ? () => toggleRowBinding(item) : undefined,
-      sessionBindingDisabled: !canBindSession,
+      sessionBindingDisabled: !linkedSessionId && !canBindSession,
       workspaceName: showWorkspace ? nameOfWorkspace(owner) : undefined,
       isCurrentWorkspace: workspace?.workspaceId === owner,
       onOpenWorkspace: canOpenWorkspace

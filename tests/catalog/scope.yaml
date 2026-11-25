@@ -132,18 +132,19 @@ cases:
     tags: [persistence, scope-switch]
 
   - id: SCOPE-008
-    title: 空白会话可切换筛选并写入工作区
+    title: 空白会话可切换筛选、写入工作区并解除已有绑定
     priority: P1
     class: C
     rules: [R-SCOPE-BLANK]
     risk: ux
     expected:
       - 有工作区绑定的空白新会话可在「全局」「工作区」之间切换
-      - 录入区和列表条目的绑定按钮置灰，此时写入的便笺不绑定会话，仍进入工作区清单
+      - 未绑定的草稿及条目不能新建绑定，新写的便笺仍进入工作区清单
+      - 已绑定的草稿及条目可以解绑，内容与工作区不变
     automation:
       - type: integration
         file: tests/bundle.test.mts
-        test: SCOPE-008 空白会话可切换筛选并写入工作区
+        test: SCOPE-008 空白会话可切换筛选、写入工作区并解除已有绑定
         status: automated
     suites: [pr, nightly, release]
     tags: [blank-session]

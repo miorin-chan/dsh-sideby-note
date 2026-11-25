@@ -1472,7 +1472,7 @@ test('a blank new session opens a usable notes panel from the header corner', as
       'the corner entry counts the workspace notes')
   })
 
-  await t.test('SCOPE-008 空白会话可切换筛选并写入工作区', async () => {
+  await t.test('SCOPE-008 空白会话可切换筛选、写入工作区并解除已有绑定', async () => {
     await act(async () => { button.click() })
     popover = document.querySelector('.dsh-an-popover')
     assert.ok(popover, 'the corner entry opens the panel')
@@ -1503,6 +1503,43 @@ test('a blank new session opens a usable notes panel from the header corner', as
       workspaceStore.workspaces['ws-new'].items.some(item => item.text === '新会话里记一条' && item.linkedSessionId === undefined),
       'a note written before the first turn lands in the workspace list',
     )
+
+    // Simulate links created from an existing session in another tab.
+    const workspaceNotes = workspaceStore.workspaces['ws-new'].items
+    for (const note of workspaceNotes) note.linkedSessionId = 'session-existing'
+    await act(async () => {
+      const key = 'dsh.aside-note.workspaces'
+      window.localStorage.setItem(key, JSON.stringify(workspaceStore))
+      window.dispatchEvent(new window.StorageEvent('storage', { key }))
+    })
+    const rows = () => [...popover.querySelectorAll('.dsh-an-row')]
+    const rowFor = text => rows().find(row => row.querySelector('.dsh-an-text').textContent === text)
+    const unlinkRow = rowFor('新会话前的事项').querySelector('.dsh-an-sessionBinding')
+    assert.equal(unlinkRow.getAttribute('aria-label'), '解除会话绑定')
+    assert.equal(unlinkRow.disabled, false)
+    unlinkRow.focus()
+    await act(async () => { unlinkRow.click() })
+    await act(async () => { await new Promise(resolve => window.requestAnimationFrame(resolve)) })
+    assert.equal(document.activeElement, rowFor('新会话前的事项').querySelector('button[aria-label="退回"]'))
+    const unlinkedRow = browserWorkspaceItems(window, 'ws-new').find(item => item.id === 'seed-new')
+    assert.equal(unlinkedRow.linkedSessionId, undefined)
+    assert.equal(unlinkedRow.text, '新会话前的事项')
+    assert.equal(rowFor(unlinkedRow.text).querySelector('.dsh-an-sessionBinding').disabled, true)
+
+    const recalledRow = rowFor('新会话里记一条')
+    await act(async () => { recalledRow.querySelector('button[aria-label="退回"]').click() })
+    assert.equal(input.value, '新会话里记一条')
+    assert.equal(composerBinding.getAttribute('aria-pressed'), 'true')
+    assert.equal(composerBinding.disabled, false)
+    composerBinding.focus()
+    await act(async () => { composerBinding.click() })
+    assert.equal(document.activeElement, input)
+    assert.equal(input.value, '新会话里记一条')
+    assert.equal(composerBinding.getAttribute('aria-pressed'), 'false')
+    assert.equal(composerBinding.disabled, true)
+    await act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
+    assert.ok(browserWorkspaceItems(window, 'ws-new').some(item => item.text === '新会话里记一条' && item.linkedSessionId === undefined),
+      'the recalled draft saves without its previous link')
   })
 
   await t.test('SCOPE-009 首轮对话后入口迁移并保留筛选', async () => {

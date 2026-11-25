@@ -13,7 +13,7 @@ interface ComposerFormProps {
   placeholder: string
   destination?: { text: string; visible: boolean }
   destinationPending: boolean
-  sessionBinding?: { linked: boolean; disabled: boolean; onToggle: () => void; title?: string }
+  sessionBinding?: { linked: boolean; disabled: boolean; onToggle: React.MouseEventHandler<HTMLButtonElement>; title?: string }
   attachments: React.ComponentProps<typeof AttachmentList>['attachments']
   attachmentItems: React.ComponentProps<typeof AttachmentList>['attachmentItems']
   renderFactorySlot?: React.ComponentProps<typeof AttachmentList>['renderFactorySlot']

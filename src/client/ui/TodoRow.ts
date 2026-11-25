@@ -17,7 +17,7 @@ interface TodoRowProps {
   isCurrentWorkspace: boolean
   onOpenWorkspace?: React.MouseEventHandler<HTMLButtonElement>
   sessionLink?: { current: boolean; onOpen?: React.MouseEventHandler<HTMLButtonElement>; title?: string }
-  onToggleSession?: () => void
+  onToggleSession?: () => Promise<boolean | undefined>
   sessionBindingDisabled?: boolean
   rowRef?: React.Ref<HTMLLIElement>
   highlighted?: boolean
@@ -57,6 +57,7 @@ export function TodoRow(props: TodoRowProps) {
     className: 'dsh-an-workspaceName',
     title: workspaceLabel ? undefined : workspaceName,
   }, workspaceName)
+  const recallRef = React.useRef<HTMLButtonElement>(null)
   const [copying, setCopying] = React.useState(false)
   const mountedRef = React.useRef(true)
 
@@ -162,13 +163,21 @@ export function TodoRow(props: TodoRowProps) {
           className: 'dsh-an-iconBtn dsh-an-sessionBinding',
           'aria-label': sessionToggleLabel,
           disabled: insertPending || sessionBindingDisabled,
-          onClick: onToggleSession,
+          onClick: async (event: React.MouseEvent<HTMLButtonElement>) => {
+            const trigger = event.currentTarget
+            const hadFocus = document.activeElement === trigger
+            if (await onToggleSession?.() && hadFocus) requestAnimationFrame(() => {
+              if (!trigger.disabled || (document.activeElement !== trigger && document.activeElement !== document.body)) return
+              recallRef.current?.focus({ preventScroll: true })
+            })
+          },
         }, h(SessionLinkGlyph, { size: 14, slashed: Boolean(sessionLink) }))),
         // Rewind moves the note back to the panel's editor.
         withTooltip(say('item.recall'), h(
           'button',
           {
             type: 'button',
+            ref: recallRef,
             className: 'dsh-an-iconBtn',
             'aria-label': say('item.recall'),
             'aria-disabled': insertPending || undefined,

@@ -65,6 +65,7 @@ export function useNoteActions({ commit, report }) {
       return { ...note, ...(linkedSessionId ? { linkedSessionId } : {}), updatedAt: Date.now() }
     })).catch(() => false)
     if (!ok || !matched) report('saveFailed')
+    return ok && matched
   }
 
   return { archive, move, takeBack, setSessionBinding }

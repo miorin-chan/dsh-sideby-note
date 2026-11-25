@@ -109,7 +109,7 @@ In a standalone session, new notes go into a reserved unassigned workspace and a
 
 ### Return to the conversation or continue here
 
-Once a conversation starts, new notes link to that session by default. You can take notes on a blank new-session page, but linking is disabled there. Use the link button to unlink the draft or change an existing note. The link changes neither the note’s workspace nor its visibility or count. Below a note, use **Workspace / Session** to jump to either destination. Recalling a note for editing preserves its link or lack of one.
+Once a conversation starts, new notes link to that session by default. On a blank new-session page, you can take notes and unlink a draft or an existing note, but you cannot create a link. The link changes neither the note’s workspace nor its visibility or count. Below a note, use **Workspace / Session** to jump to either destination. Recalling a note for editing preserves its link or lack of one.
 
 Use **Insert** in the current conversation for an unlinked note, or in the linked conversation for a linked one. Opening that conversation does not change its draft. **Insert** appends the text and all attachments to the draft, then archives the note. Note text starts on a new line after any existing text. Review or edit the draft and send it when you are ready.
 
