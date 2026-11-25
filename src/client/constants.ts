@@ -15,7 +15,7 @@ export const WORKSPACE_STORAGE_KEY = 'dsh.aside-note.workspaces'
 /** Unsaved composer drafts, restored when the panel is reopened. */
 export const DRAFT_STORAGE_KEY = 'dsh.aside-note.drafts'
 /** Shown in the panel footer; keep in sync with package.json. */
-export const PLUGIN_VERSION = '0.1.0'
+export const PLUGIN_VERSION = '0.1.1'
 export const PLUGIN_PACKAGE = '@miorin/dsh-sideby-note'
 export const PLUGIN_REPO_URL = 'https://github.com/miorin-chan/dsh-sideby-note'
 /** Last chosen list scope: the workspace list or the session list. */

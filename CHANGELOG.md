@@ -14,6 +14,8 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 
 ## next-released
 
+## 0.1.1
+
 <!-- app-update-notes:en:start -->
 ### Added
 - New notes link to the current session once it starts, without changing their workspace.

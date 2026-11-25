@@ -24,13 +24,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11'
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
       - name: Install
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         env:
           NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
           # The lockfile resolves through the npm mirror used during development;
