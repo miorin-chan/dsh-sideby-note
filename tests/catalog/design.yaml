@@ -489,6 +489,17 @@ features:
         technique: [决策表]
         reviewed: { by: "LighghtEeloo", at: '2026-11-24', hash: '07483d959194dfcb' }
 
+      - id: R-PANEL-OUTSIDE-CLICK
+        statement: 点击面板外部时收起面板，保留点击目标的操作、焦点和边记部草稿。
+        failure: 外部点击后面板仍打开、挡住目标操作或抢回焦点，或面板内交互误关面板。
+        kind: presentation
+        branches:
+          - kind: valid
+            text: 点击外部目标时面板收起，重开时恢复草稿
+          - kind: invalid
+            text: 点击面板或其预览时不收起，从面板内开始的手势也不当成外部点击
+        technique: [状态迁移]
+
       - id: R-PANEL-SHORTCUT
         statement: 会话工具行的入口可用时，DSH 快捷键可打开或收起面板，入口提示随有效键位更新。
         failure: 键盘无法切换面板，或提示仍显示已经换掉的绑定。

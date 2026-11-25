@@ -657,6 +657,55 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(document.activeElement, button)
   })
 
+  await t.test('PANEL-012 点击面板外收起且保留目标操作与草稿', async () => {
+    const outside = document.querySelector('[data-composer-input]')
+    const mouseClick = target => target.dispatchEvent(new window.MouseEvent('click', {
+      bubbles: true, cancelable: true, detail: 1,
+    }))
+    const finishClick = () => new Promise(resolve => window.setTimeout(resolve, 0))
+    await act(async () => { mouseClick(button) })
+    const panel = document.querySelector('.dsh-an-popover')
+    const field = panel.querySelector('.dsh-an-input')
+    await act(async () => {
+      valueSetter.call(field, '关闭后继续写')
+      field.dispatchEvent(new window.Event('input', { bubbles: true }))
+      mouseClick(field)
+      await finishClick()
+    })
+    assert.equal(document.querySelector('.dsh-an-popover'), panel, 'an inside click leaves the panel open')
+
+    await act(async () => {
+      field.dispatchEvent(new window.PointerEvent('pointerdown', { bubbles: true }))
+      mouseClick(document.body)
+      await finishClick()
+    })
+    assert.equal(document.querySelector('.dsh-an-popover'), panel, 'a gesture that started inside does not dismiss')
+
+    let targetClicks = 0
+    outside.addEventListener('click', event => {
+      targetClicks++
+      outside.focus()
+      event.stopPropagation()
+    }, { once: true })
+    await act(async () => {
+      outside.dispatchEvent(new window.PointerEvent('pointerdown', { bubbles: true }))
+      assert.equal(mouseClick(outside), true, 'outside click defaults are not canceled')
+      await finishClick()
+    })
+    assert.equal(targetClicks, 1)
+    assert.equal(document.activeElement, outside)
+    assert.equal(document.querySelector('.dsh-an-popover'), null)
+    assert.equal(button.getAttribute('aria-expanded'), 'false')
+
+    await act(async () => { mouseClick(button) })
+    assert.equal(document.querySelector('.dsh-an-popover .dsh-an-input').value, '关闭后继续写')
+    await act(async () => {
+      mouseClick(button.querySelector('svg') ?? button)
+      await finishClick()
+    })
+    assert.equal(document.querySelector('.dsh-an-popover'), null, 'the opener still toggles the panel closed')
+  })
+
   await t.test('PKG-002 卸载时移除注入的样式', async () => {
     await act(async () => { reactRoot.unmount() })
     for (const dispose of disposers) dispose()
@@ -1322,18 +1371,19 @@ test('workspace notes share a list and global actions preserve ownership', async
     const sessionEntry = document.createElement('button')
     document.body.append(sessionEntry)
     t.after(() => sessionEntry.remove())
-    const selectSession = sessionId => {
+    const selectSession = (sessionId, detail = 0) => {
       sessionEntry.onclick = () => secondRoot.render(React.createElement(capture, { sessionId, useWorkspaces: confirmedWorkspaces }))
       return act(async () => {
-        pointer(sessionEntry, 'pointerdown', 0)
+        if (detail) pointer(sessionEntry, 'pointerdown', 0)
         sessionEntry.focus()
-        sessionEntry.click()
+        sessionEntry.dispatchEvent(new window.MouseEvent('click', { bubbles: true, detail }))
+        await new Promise(resolve => window.setTimeout(resolve, 0))
       })
     }
     finishWorkspaceOpen()
     await selectSession('session-4')
     assert.equal(document.querySelector('.dsh-an-popover'), secondPopover,
-      'a session click outside the panel keeps the same panel open')
+      'keyboard activation of a different session keeps the same panel open')
     assert.equal(document.querySelector('.dsh-an-headerBtn').getAttribute('aria-expanded'), 'true')
     assert.equal(inputOf(secondPopover).value, '目标工作区的新草稿')
     assert.equal(document.activeElement, sessionEntry, 'switching sessions does not pull focus into the panel')
@@ -1341,10 +1391,13 @@ test('workspace notes share a list and global actions preserve ownership', async
     await selectSession('session-2')
     assert.equal(inputOf(secondPopover).value, '原工作区的草稿')
 
-    await act(async () => { secondPopover.querySelector('.dsh-an-popClose').click() })
-    await selectSession('session-4')
-    assert.equal(document.querySelector('.dsh-an-popover'), null, 'a closed panel does not reopen in another session')
-    assert.equal(document.querySelector('.dsh-an-headerBtn').getAttribute('aria-expanded'), 'false')
+    await selectSession('session-4', 1)
+    assert.equal(document.querySelector('.dsh-an-popover'), null, 'clicking a session outside the panel dismisses it')
+    assert.equal(document.activeElement, sessionEntry)
+    const entry = document.querySelector('.dsh-an-headerBtn')
+    assert.equal(entry.getAttribute('aria-expanded'), 'false')
+    await act(async () => { entry.click() })
+    assert.equal(inputOf(document.querySelector('.dsh-an-popover')).value, '目标工作区的新草稿', 'the clicked session still opens')
   })
 
   await act(async () => { secondRoot.unmount() })

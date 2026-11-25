@@ -185,3 +185,21 @@ cases:
         status: automated
     suites: [pr, nightly, release]
     tags: [keyboard, header-entry]
+
+  - id: PANEL-012
+    title: 点击面板外收起且保留目标操作与草稿
+    priority: P1
+    class: B
+    rules: [R-PANEL-OUTSIDE-CLICK]
+    risk: ux
+    expected:
+      - 点击面板外部时收起，目标照常执行并保留焦点
+      - 面板内点击与从面板内开始的手势不触发收起
+      - 入口仍可切换面板，重开后保留草稿
+    automation:
+      - type: integration
+        file: tests/bundle.test.mts
+        test: PANEL-012 点击面板外收起且保留目标操作与草稿
+        status: automated
+    suites: [pr, nightly, release]
+    tags: [header-entry, focus]

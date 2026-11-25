@@ -219,6 +219,8 @@ function apply(ctx: DshClientCtx) {
     refreshHeaderEntry()
   }
 
+  const panelClicks = new WeakSet<MouseEvent>()
+
   const getWorkspaceNavigation = (): Pick<UiWorkspace, 'openWorkspace'> | undefined => {
     const service: UiWorkspace | undefined = ctx.get('uiWorkspace')
     return typeof service?.openWorkspace === 'function' ? service : undefined
@@ -271,10 +273,44 @@ function apply(ctx: DshClientCtx) {
   function FrameOverlay({ renderFactorySlot, t }: Partial<PropsRenderFactories> & { t?: (key: string) => string }) {
     const panel = React.useSyncExternalStore(subscribePanel, readPanel)
     const sessions = React.useSyncExternalStore(subscribeSessions, readSessionList)
+    const panelId = panel?.id
+    React.useEffect(() => {
+      if (panelId === undefined) return
+      let pendingClose: number | undefined
+      let startedInside = false
+      const isInside = (event: Event) => {
+        const current = readPanel()
+        if (!current) return false
+        const path = event.composedPath()
+        return path.includes(current.anchorRef.current)
+          || (current.containerRef.current !== null && path.includes(current.containerRef.current))
+      }
+      const onPointerDown = (event: PointerEvent) => { startedInside = isInside(event) }
+      const onClick = (event: MouseEvent) => {
+        if (event.detail === 0) return
+        const inside = startedInside || isInside(event)
+        startedInside = false
+        if (inside) return
+
+        // Let the target act and React mark clicks from portaled panel children.
+        window.clearTimeout(pendingClose)
+        pendingClose = window.setTimeout(() => {
+          if (readPanel()?.id === panelId && !panelClicks.has(event)) closeMemoPopover(false)
+        }, 0)
+      }
+      window.addEventListener('pointerdown', onPointerDown, true)
+      window.addEventListener('click', onClick, true)
+      return () => {
+        window.removeEventListener('pointerdown', onPointerDown, true)
+        window.removeEventListener('click', onClick, true)
+        window.clearTimeout(pendingClose)
+      }
+    }, [panelId])
     return h(React.Fragment, null,
       h(toastSeat.ToastHost, { t }),
       panel && createPortal(h('div', {
         ref: panel.containerRef,
+        onClickCapture: (event: React.MouseEvent) => panelClicks.add(event.nativeEvent),
         'data-dsh-memo-popover-root': 'true',
       }, h(MemoPopover, {
         sessionId: panel.sessionId,
