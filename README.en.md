@@ -96,12 +96,13 @@ A few small tasks should not need a whole management system. Capture a thought, 
 
 ### Capture it and keep going
 
-Click the **Sideby Note** button at the top right of the conversation to open the right-side panel. Record tasks, ideas, and details to revisit. The button shows the open count; drag an open note directly to change the order.
+Click the **Sideby Note** button at the top right of the conversation to open the right-side panel. Record tasks, ideas, and details to revisit. The button shows the open count.
 Use **Send to Sideby Note** on the right of the chat input toolbar to move a text-only draft of up to 280 characters to the workspace’s open notes, linked to that conversation.
 
 ### Keep it in the workspace and pick it up later
 
-**Global** shows notes from all workspaces, with the current workspace first in both **Open** and **Archived**.
+**Global** shows notes from all workspaces. **Open** defaults to newest by creation time, and **Archived** to newest by archive time.
+Hover over either section header to change its order. **By workspace** leads with the current workspace, with notes linked to the current session first within it.
 Select the workspace name beside the folder icon to see only notes from that workspace.
 Both filters show their open counts. The entry badge shows the current workspace count, or the global count in a standalone session.
 Whichever filter you use, new notes are saved to the current workspace for its sessions to share.
@@ -134,16 +135,15 @@ Use **Insert** in the current conversation for an unlinked note, or in the linke
 - **Note actions**: add, reorder, copy, insert a note into the chat input, and rewind one into the composer to edit; there is no manual checkbox — inserting it archives it. Clearing archived notes asks for confirmation, and archived notes expand for review. Clearing the composer after rewinding a note removes it.
 - **Attachments**: choose files with the paperclip, paste them from the clipboard, or drop them onto the note composer. A note can hold up to 10 nonempty files of up to 25 MiB each, with optional text. Select a file name to preview supported images, audio, and video. Each attachment can be downloaded, and recalling a note restores its attachments with the text.
 - **Insert** adds the note’s text and original files to the open conversation’s draft, after any existing content. If the note is linked, Insert is only available in that conversation. Attachment-only notes work the same way. Once the composer accepts the complete note, it moves to **Archived**. You decide when to send. DSH applies its usual attachment limits, and the note stays open if a file cannot be read or the composer rejects the batch.
-- **Drag to reorder**. Move an open note by dragging it or by focusing Insert and pressing ↑ / ↓.
+- **Drag to reorder**. Choose **Manual order** in the **Open** header, then drag a note or focus Insert and press ↑ / ↓.
   Reordering applies within the note’s own workspace. Esc cancels an active drag.
 - **Remembered state**. New note drafts are saved per workspace, or per session for standalone sessions.
   Switching filters preserves the draft. Reopening the panel restores the draft, the chosen filter,
-  and which sections were expanded.
+  and each section’s sort order and expanded state.
 - **Panel size**: drag the left edge for width and the bottom handle for height, double-click either to reset; both persist in the browser.
 - **List regions**. **Open** and **Archived** each have a sticky header and their own scroll area.
   Expanding the archive preserves the space for open notes.
   Open notes have **Insert** on the left and show **Copy** and **Rewind** on hover.
-  Archived notes appear newest first within the current workspace and within the rest of the list.
 - **Storage & updates** in the footer starts collapsed. Expand it to see the storage status, host file path, and installed version.
   You can also copy the path, reveal the file in your file manager, or check for updates. If the connection fails
   after switching to host storage, the panel shows the reason and a **Reconnect** action.
@@ -216,7 +216,7 @@ Feedback reuses product surfaces too: copy, rewind, insert, clear-archived, and 
    Press Shift+Enter for a new line.
 3. To edit a note, click **Rewind** (↺) to return it to the note composer. Submitting the edit saves it in the
    note’s original workspace. Clearing the composer removes the note.
-4. To change the order within a workspace, drag an open note by its text or focus Insert and press ↑ / ↓.
+4. To reorder open notes yourself, choose **Manual order** in the **Open** header, then drag a note or focus Insert and press ↑ / ↓.
 5. When you are ready to continue, click the note's **Insert** button: the text is appended to the chat input and the note is archived; review and send it yourself. Expand **Archived** to look back.
 6. Use the close button, click the header toggle again, or press Esc to close. On Desktop, `Mod+E` toggles the panel (`⌘E` on macOS and `Ctrl+E` elsewhere).
    In macOS and Windows browsers, the default is `Mod+Alt+E`. Linux browsers start with no binding.

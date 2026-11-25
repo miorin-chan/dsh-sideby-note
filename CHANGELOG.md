@@ -51,7 +51,9 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   New notes save to the current workspace regardless of the filter.
   Standalone sessions save to an unassigned workspace.
   Row actions and reordering apply within the note’s own workspace.
-- **Global** shows the current workspace’s notes first in both the open and archived sections.
+- Open and archived notes default to newest first.
+  Hover over a section header to change its sort order.
+  **By workspace** puts the current workspace first, led by notes linked to the current session.
 - The title bar shows open counts for Global and the current workspace on one line.
   A folder icon and the workspace name identify the workspace filter.
   Hover tints the shared background beneath both filters, including the curved gaps at their seam.
@@ -75,7 +77,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   Local fallback preserves unreadable payloads in a recovery copy.
 - Hand to chat is now Insert and uses the list-and-pen icon.
   Insert now sits to the left of the note text.
-  Drag an open note directly to reorder it.
+  Choose **Manual order** in the Open header to drag notes into a different order.
 - The note composer uses a borderless return icon button and removes the visible keyboard hint.
 - An empty note composer shows a faint “About {workspace}...” hint when the draft has a workspace.
   The save location appears in standalone sessions and for notes recalled from another workspace.
@@ -115,7 +117,8 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - 面板可用「全局」查看各工作区的便笺，也可在绑定工作区后用「工作区」查看当前工作区的便笺。
   空白新会话也能用「全局」。新增便笺始终写入当前工作区，独立会话写入未分配工作区。
   行操作和排序都在便笺所属工作区内生效。
-- 「全局」的待续和归档均优先显示当前工作区的便笺。
+- 「待续」和「归档」默认按时间倒序，悬停分区标题可切换排序。
+  选择「按工作区」后，当前工作区优先，其中绑定当前会话的便笺排在最前。
 - 单行标题栏显示全局和当前工作区各自的待续数，工作区由文件夹图标和名称表示。
   悬停时，浅高亮铺满两个筛选项共用的外层胶囊，包括交界处的圆角空隙。
   入口角标显示所在工作区的待续数，独立会话显示全局待续数。
@@ -133,7 +136,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - 仅在检测到新版时，页脚才显示单独的更新入口。
 - 清单可超过 300 条。本地回落遇到无法读取的数据时会保留恢复副本。
 - 便笺的「递入对话」改为「填入」，换用列表加笔图标。
-  「填入」移到正文左侧，直接拖动待续便笺即可排序。
+  「填入」移到正文左侧。在待续标题选择「手动排序」后，可以拖动便笺调整顺序。
 - 便笺录入区移除键盘说明，添加按钮改用无边框的回车图标。
 - 有工作区的便笺录入框为空时，淡色显示「关于{工作区}...」。
   独立会话和跨工作区退回便笺时仍会显示保存位置。

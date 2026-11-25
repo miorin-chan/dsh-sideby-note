@@ -134,8 +134,8 @@ test('SCOPE-010 无工作区时只显示全局并写入未归属清单', async t
   await app.settle(20)
 
   assert.deepEqual(standaloneItems(app.window).map(item => item.text), ['不绑定工作区的便笺'])
-  assert.deepEqual(rowsOf(app.popover).map(textOf), ['其他工作区的便笺', '不绑定工作区的便笺'],
-    'Global keeps the original order when there is no current workspace')
+  assert.deepEqual(rowsOf(app.popover).map(textOf), ['不绑定工作区的便笺', '其他工作区的便笺'],
+    'Global still orders by time when there is no current workspace')
   assert.deepEqual(JSON.parse(app.window.localStorage.getItem(WORKSPACE_KEY)).workspaces['ws-other'], existingList)
   assert.equal(app.window.localStorage.getItem('dsh.aside-note'), null, 'no legacy session list is created')
   await app.dispose()
@@ -455,7 +455,7 @@ test('STORE-017 畸形记录被清洗而不是渲染成乱码', async t => {
 
   const rows = rowsOf(app.popover)
   assert.equal(rows.length, 3, 'non-objects and blank text are dropped')
-  assert.deepEqual(rows.map(textOf), ['甲', '乙', '丙'], 'the surviving records keep their order')
+  assert.deepEqual(rows.map(textOf), ['丙', '乙', '甲'], 'the surviving records display newest first')
   assert.equal(app.popover.textContent.includes('undefined'), false, 'nothing renders as undefined')
 
   await typeInto(app, app.popover.querySelector('.dsh-an-input'), '新增一条')

@@ -40,6 +40,14 @@ const PRERELEASE = `${LATEST}-beta.1`
 const DRAFT = `${MAJOR + 1}.0.1`
 const WORKSPACE_KEY = 'dsh.aside-note.workspaces'
 const UNASSIGNED = 'sideby-note:unassigned'
+const orderPicker = (panel, section = 'open') => panel.querySelector(
+  `${section === 'open' ? '.dsh-an-sectionHead' : '.dsh-an-doneHead'} .dsh-an-sectionSort`,
+)
+const chooseOrder = (act, panel, section, value) => act(async () => {
+  const select = orderPicker(panel, section)
+  select.value = value
+  select.dispatchEvent(new select.ownerDocument.defaultView.Event('change', { bubbles: true }))
+})
 const browserWorkspaceItems = (window, workspaceId = UNASSIGNED) =>
   JSON.parse(window.localStorage.getItem(WORKSPACE_KEY))?.workspaces[workspaceId]?.items ?? []
 
@@ -431,6 +439,8 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(openRows()[0].querySelector('.dsh-an-workspaceName').textContent, '未归属')
     assert.equal(openRows()[0].querySelector('.dsh-an-workspaceJump'), null)
     assert.equal(firstInsert.getAttribute('aria-label'), '填入')
+    assert.equal(firstInsert.getAttribute('aria-keyshortcuts'), null, 'automatic sorting does not offer manual moves')
+    await chooseOrder(act, popover, 'open', 'manual')
     assert.equal(firstInsert.getAttribute('aria-keyshortcuts'), 'ArrowUp ArrowDown')
     firstInsert.focus()
     const press = async (node, key) => {
@@ -937,18 +947,66 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.equal(inputOf(popover).value, '会话一的旧草稿', 'the shared draft starts from the legacy text')
   })
 
+  await t.test('排序默认按时间，工作区排序将本工作区的当前会话便笺置顶', async () => {
+    const original = window.localStorage.getItem(WORKSPACE_KEY)
+    const store = JSON.parse(original)
+    store.workspaces['ws-1'].items.find(item => item.id === 'seed-1').linkedSessionId = 'session-1'
+    store.workspaces['ws-2'].items.find(item => item.id === 'seed-2').linkedSessionId = 'session-1'
+    const archive = (id, createdAt, completedAt, linkedSessionId) => ({
+      id, text: id, done: true, createdAt, updatedAt: completedAt, completedAt, linkedSessionId,
+    })
+    store.workspaces['ws-1'].items.push(archive('当前会话归档', 30, 5, 'session-1'), archive('同工作区归档', 10, 7, 'session-2'))
+    store.workspaces['ws-2'].items.push(archive('跨工作区绑定归档', 20, 9, 'session-1'))
+    const update = async raw => act(async () => {
+      window.localStorage.setItem(WORKSPACE_KEY, raw)
+      window.dispatchEvent(new window.StorageEvent('storage', { key: WORKSPACE_KEY }))
+    })
+    const openToggle = popover.querySelector('.dsh-an-sectionHead .dsh-an-doneToggle')
+    const archiveToggle = () => popover.querySelector('.dsh-an-doneHead .dsh-an-doneToggle')
+    const texts = selector => [...popover.querySelectorAll(`${selector} .dsh-an-text`)].map(node => node.textContent)
+    const openTexts = () => texts('.dsh-an-listSection:first-child .dsh-an-rows')
+    const doneTexts = () => texts('.dsh-an-doneRows')
+    await update(JSON.stringify(store))
+    await act(async () => {
+      popover.querySelector('[data-scope-mode="global"]').click()
+      archiveToggle().click()
+    })
+    assert.deepEqual(openTexts(), ['先前未并入的事项', '另一工作区的旧事项', '会话二的事项', '会话一的事项'])
+    assert.deepEqual(doneTexts(), ['跨工作区绑定归档', '同工作区归档', '当前会话归档'])
+    const openSort = orderPicker(popover)
+    const archiveSort = orderPicker(popover, 'done')
+    assert.equal(openSort.getAttribute('aria-label'), '待续排序方式')
+    assert.equal(archiveSort.getAttribute('aria-label'), '归档排序方式')
+    assert.deepEqual([...archiveSort.options].map(option => option.value), ['time', 'workspace'])
+    openSort.focus()
+    await chooseOrder(act, popover, 'open', 'workspace')
+    assert.equal(document.activeElement, openSort)
+    assert.deepEqual(openTexts(), ['会话一的事项', '会话二的事项', '先前未并入的事项', '另一工作区的旧事项'])
+    assert.equal(archiveSort.value, 'time', 'the two sections select their orders independently')
+    assert.equal(openToggle.getAttribute('aria-expanded'), 'true')
+    await chooseOrder(act, popover, 'done', 'workspace')
+    assert.deepEqual(doneTexts(), ['当前会话归档', '同工作区归档', '跨工作区绑定归档'])
+    assert.equal(window.localStorage.getItem(WORKSPACE_KEY), JSON.stringify(store), 'changing a sort never rewrites notes')
+    await chooseOrder(act, popover, 'open', 'time')
+    await chooseOrder(act, popover, 'done', 'time')
+    await act(async () => {
+      archiveToggle().click()
+      popover.querySelector('[data-scope-mode="workspace"]').click()
+    })
+    await update(original)
+  })
+
   await t.test('SCOPE-003 全局范围汇总各工作区便笺', async () => {
     const workspaceRows = [...popover.querySelectorAll('.dsh-an-row')]
-    const currentOrder = workspaceRows.map(row => row.querySelector('.dsh-an-text').textContent)
-    const otherOrder = browserWorkspaceItems(window, 'ws-2').map(item => item.text)
     const workspaceRow = workspaceRows.find(row => row.querySelector('.dsh-an-text').textContent === '会话二的事项')
     assert.equal(workspaceRow.dataset.rowId, 'seed-2')
     assert.equal(workspaceRow.querySelector('.dsh-an-workspaceJump'), null)
     await act(async () => { popover.querySelector('[data-scope-mode="global"]').click() })
     assertLocalStorageDetails(popover)
     const rows = [...popover.querySelectorAll('.dsh-an-row')]
-    assert.deepEqual(rows.map(row => row.querySelector('.dsh-an-text').textContent), [...currentOrder, ...otherOrder],
-      'Global shows the current workspace first and keeps the saved order in each workspace')
+    assert.deepEqual(rows.map(row => row.querySelector('.dsh-an-text').textContent), [
+      '先前未并入的事项', '另一工作区的旧事项', '会话二的事项', '会话一的事项',
+    ], 'Global defaults to newest creation first across workspaces')
     const duplicateRows = rows.filter(row => ['会话二的事项', '另一工作区的旧事项'].includes(row.querySelector('.dsh-an-text').textContent))
     const ids = duplicateRows.map(row => row.dataset.rowId)
     assert.equal(new Set(ids).size, 2, 'equal raw IDs in different workspaces get distinct row IDs')
@@ -1109,6 +1167,7 @@ test('workspace notes share a list and global actions preserve ownership', async
   const openList = () => secondPopover.querySelector('.dsh-an-listSection:first-child .dsh-an-rows')
 
   await t.test('NOTE-010 拖动调整排序且 Escape 取消拖动', async () => {
+    await chooseOrder(act, secondPopover, 'open', 'manual')
     const openOrder = () => [...openList().querySelectorAll('.dsh-an-text')].map(node => node.textContent)
     const storedOpen = () => workspaceItems().filter(item => !item.done).map(item => item.text)
     const before = openOrder()
@@ -1195,6 +1254,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.deepEqual(scopeCounts(), [globalBefore - 1, workspaceBefore])
 
     await act(async () => { secondPopover.querySelector('.dsh-an-doneHead .dsh-an-doneToggle').click() })
+    await chooseOrder(act, secondPopover, 'done', 'workspace')
     assert.deepEqual([...secondPopover.querySelectorAll('.dsh-an-rowArchived .dsh-an-text')].map(node => node.textContent),
       ['新增的共享事项', otherText], 'the current workspace archive appears before a newer archive from another workspace')
     const archivedRow = rowByText(otherText)

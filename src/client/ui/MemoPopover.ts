@@ -12,7 +12,7 @@ import { PANEL_DEFAULT_WIDTH, SCOPE_MODE_KEY } from '../constants'
 import { bindableSessionId, draftKeyForSession, UNASSIGNED_WORKSPACE, workspaceCatalogReady, workspaceForSession, workspaceById, type ScopeMode } from '../scope'
 import { STORE_READY_LISTENERS, TODO_LISTENERS, notifyTodoChange } from '../storage/events'
 import { retryStorage } from '../storage/boot'
-import { readScopeMode, writeScopeMode } from '../storage/prefs'
+import { readScopeMode, readSectionOrders, writeScopeMode, writeSectionOrders } from '../storage/prefs'
 import { hasArchiveRetry, setArchiveRetry } from '../storage/archiveRetries'
 import { isHostConnectionFailure, storageFailure, storageMode } from '../storage/state'
 import { readWorkspaceRecord } from '../storage/workspace'
@@ -28,7 +28,7 @@ import { useClearConfirm } from './useClearConfirm'
 import { useListEdge } from './useListEdge'
 import { usePanelEscape } from './usePanelEscape'
 import { scrollNoteIntoView } from './position'
-import { compareDoneItems } from '../domain/items'
+import { orderNotes, type SectionOrders } from '../domain/order'
 import { appendToConversation, type ComposerInputForSession } from '../domain/forward'
 
 import { TodoRow } from './TodoRow'
@@ -274,27 +274,25 @@ export function MemoPopover(props: MemoPopoverProps) {
     onPanelHeightKeyDown,
   } = usePanelGeometry(props.anchorRef, props.placement, panelRef)
 
-  const currentWorkspaceFirst = (notes: WorkspaceNote[]) => {
-    if (!workspace || workspaceFilter) return notes
-    const id = workspace.workspaceId
-    return [
-      ...notes.filter(item => item.workspaceId === id),
-      ...notes.filter(item => item.workspaceId !== id),
-    ]
+  const [orders, setOrders] = React.useState(readSectionOrders)
+  const chooseOrder = (patch: Partial<SectionOrders>) => {
+    setOrders(current => ({ ...current, ...patch }))
+    writeSectionOrders(patch)
   }
-  const openItems = currentWorkspaceFirst(items.filter(item => !item.done))
-  const doneItems = items.filter(item => item.done).sort(compareDoneItems)
+  const openItems = orderNotes(items, 'open', orders.open, workspace?.workspaceId, sessionId)
+  const doneItems = orderNotes(items, 'done', orders.done, workspace?.workspaceId, sessionId)
+  const manualOrder = orders.open === 'manual'
   const openCount = openItems.length
   const total = items.length
   const { listRef, listHasMore, syncListEdge } = useListEdge({ items, showOpen, showDone })
   const openById = new Map(openItems.map(item => [item.id, item]))
   const reorder = useRowReorder({
-    ids: openItems.map(item => item.id),
+    ids: manualOrder ? openItems.map(item => item.id) : [],
     groupFor: id => openById.get(id)?.workspaceId,
     scrollRef: listRef,
     onMove: (id, index) => {
       const item = openById.get(id)
-      if (!item) return Promise.resolve(false)
+      if (!manualOrder || !item) return Promise.resolve(false)
       const first = openItems.findIndex(candidate => candidate.workspaceId === item.workspaceId)
       return move(item, index - first)
     },
@@ -499,8 +497,8 @@ export function MemoPopover(props: MemoPopoverProps) {
       onToast: report,
       onInsert: insertItem,
       onRecall: recallItem,
-      dragProps: item.done ? undefined : reorder.dragProps(item.id),
-      onReorderKey: item.done ? undefined : reorder.reorderKey(item.id),
+      dragProps: manualOrder && !item.done ? reorder.dragProps(item.id) : undefined,
+      onReorderKey: manualOrder && !item.done ? reorder.reorderKey(item.id) : undefined,
     })
   }
 
@@ -611,7 +609,9 @@ export function MemoPopover(props: MemoPopoverProps) {
       row,
       showDone,
       toggleDone,
-      doneItems: currentWorkspaceFirst(doneItems),
+      doneItems,
+      orders,
+      chooseOrder,
       clearConfirmText: say(workspaceFilter ? 'popover.clearConfirm' : 'popover.clearGlobalConfirm', { n: doneItems.length }),
       confirmClear,
       askClearConfirm,

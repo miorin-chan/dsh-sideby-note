@@ -7,9 +7,11 @@ import {
   PANEL_WIDTH_KEY,
   SCOPE_MODE_DEFAULT,
   SCOPE_MODE_KEY,
+  SECTION_ORDER_KEY,
   SECTION_STATE_DEFAULT,
   SECTION_STATE_KEY,
 } from '../constants'
+import { normalizeArchiveOrder, normalizeOpenOrder, type SectionOrders } from '../domain/order'
 import type { ScopeMode } from '../scope'
 import { storage } from './codec'
 import { pendingHostScopeMode, setHostScopeMode } from './ops'
@@ -116,6 +118,23 @@ export function writeSectionState(state) {
   if (!ls) return
   try {
     ls.setItem(SECTION_STATE_KEY, JSON.stringify({ open: state.open === true, done: state.done === true }))
+  } catch {
+    /* storage is best effort */
+  }
+}
+
+export function readSectionOrders(): SectionOrders {
+  try {
+    const saved = JSON.parse(storage()?.getItem(SECTION_ORDER_KEY) ?? 'null')
+    return { open: normalizeOpenOrder(saved?.open), done: normalizeArchiveOrder(saved?.done) }
+  } catch {
+    return { open: 'time', done: 'time' }
+  }
+}
+
+export function writeSectionOrders(patch: Partial<SectionOrders>) {
+  try {
+    storage()?.setItem(SECTION_ORDER_KEY, JSON.stringify({ ...readSectionOrders(), ...patch }))
   } catch {
     /* storage is best effort */
   }

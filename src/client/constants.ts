@@ -24,6 +24,7 @@ export const SCOPE_MODE_DEFAULT = 'workspace'
 /** Remembered expand/collapse state of the open/archived sections. */
 export const SECTION_STATE_KEY = 'dsh.aside-note.sections'
 export const SECTION_STATE_DEFAULT = { open: true, done: false }
+export const SECTION_ORDER_KEY = 'dsh.aside-note.section-order'
 /** How long the inline clear-completed confirmation waits before it dismisses itself. */
 export const CLEAR_CONFIRM_MS = 5000
 /** Persisted width of the experimental right-side panel. */

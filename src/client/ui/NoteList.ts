@@ -2,15 +2,45 @@
 import React from 'react'
 import { ClearConfirm } from './ClearConfirm'
 import { EmptyState } from './EmptyState'
+import { normalizeArchiveOrder, normalizeOpenOrder, type SectionOrders } from '../domain/order'
 import { IconChevron } from './primitives'
 
 const h = React.createElement
+
+interface SectionSortProps {
+  section: keyof SectionOrders
+  title: string
+  say: (key: string, vars?: Record<string, string>) => string
+  orders: SectionOrders
+  chooseOrder: (patch: Partial<SectionOrders>) => void
+}
+
+// The native picker stays above the clipped scroll area and handles keyboard and touch input.
+function SectionSort({ section, title, say, orders, chooseOrder }: SectionSortProps) {
+  const label = say('sort.label', { section: title })
+  const value = orders[section]
+  const hint = value === 'workspace' ? say('sort.workspaceHint') : value === 'manual' ? say('item.reorder') : undefined
+  const options = section === 'open' ? ['time', 'workspace', 'manual'] : ['time', 'workspace']
+  return h('select', {
+    className: 'dsh-an-sectionSort',
+    'aria-label': label,
+    'aria-description': hint,
+    title: hint ?? label,
+    value,
+    onChange: (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = event.currentTarget.value
+      chooseOrder(section === 'open'
+        ? { open: normalizeOpenOrder(value) }
+        : { done: normalizeArchiveOrder(value) })
+    },
+  }, options.map(value => h('option', { key: value, value }, say(`sort.${value}`))))
+}
 
 export function NoteList(props) {
   const {
     say, listRef, listHasMore, syncListEdge,
     showOpen, toggleOpen, openItems, openListRef, openCount, total, row, hideEmptyState,
-    showDone, toggleDone, doneItems,
+    showDone, toggleDone, doneItems, orders, chooseOrder,
     clearConfirmText, confirmClear, askClearConfirm, dismissClearConfirm, confirmClearDone,
   } = props
   return     h(
@@ -40,6 +70,7 @@ export function NoteList(props) {
                 say('list.open'),
                 openCount ? h('span', { className: 'dsh-an-sectionCount' }, String(openCount)) : null,
               ),
+              h(SectionSort, { section: 'open', title: say('list.open'), say, orders, chooseOrder }),
             ),
             showOpen
               ? openItems.length
@@ -69,6 +100,7 @@ export function NoteList(props) {
                     say('popover.archived'),
                     h('span', { className: 'dsh-an-sectionCount' }, String(doneItems.length)),
                   ),
+                  h(SectionSort, { section: 'done', title: say('popover.archived'), say, orders, chooseOrder }),
                   showDone
                     ? h('button', {
                         type: 'button',

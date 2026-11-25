@@ -43,7 +43,7 @@ export function TodoRow(props: TodoRowProps) {
   const linkedElsewhere = Boolean(sessionLink && !sessionLink.current)
   const insertDisabled = insertPending || linkedElsewhere
   const insertHint = linkedElsewhere ? say('toast.sessionMismatch') : undefined
-  const reorderLabel = say('item.reorder')
+  const insertDescription = [insertHint, onReorderKey && say('item.reorder')].filter(Boolean).join(' ') || undefined
   const sessionToggleLabel = onToggleSession ? say(sessionLink ? 'session.unbind' : 'session.bind') : undefined
   const openSessionLabel = sessionLink?.onOpen && !sessionLink.current ? say('session.open') : undefined
   const sessionTitle = sessionLink?.title
@@ -99,8 +99,8 @@ export function TodoRow(props: TodoRowProps) {
         type: 'button',
         className: 'dsh-an-iconBtn dsh-an-insert',
         'aria-label': insertLabel,
-        'aria-description': insertHint ? `${insertHint} ${reorderLabel}` : reorderLabel,
-        'aria-keyshortcuts': 'ArrowUp ArrowDown',
+        'aria-description': insertDescription,
+        'aria-keyshortcuts': onReorderKey ? 'ArrowUp ArrowDown' : undefined,
         'aria-busy': insertPending || undefined,
         'aria-disabled': insertDisabled || undefined,
         'data-loading': insertPending ? 'true' : undefined,
