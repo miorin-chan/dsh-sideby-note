@@ -987,6 +987,18 @@ test('workspace notes share a list and global actions preserve ownership', async
     await chooseOrder(act, popover, 'done', 'workspace')
     assert.deepEqual(doneTexts(), ['当前会话归档', '同工作区归档', '跨工作区绑定归档'])
     assert.equal(window.localStorage.getItem(WORKSPACE_KEY), JSON.stringify(store), 'changing a sort never rewrites notes')
+    for (const [section, toggle, otherSection] of [
+      ['open', openToggle, 'done'],
+      ['done', archiveToggle(), 'open'],
+    ]) {
+      await act(async () => { toggle.click() })
+      assert.equal(toggle.getAttribute('aria-expanded'), 'false')
+      assert.ok(!orderPicker(popover, section), `${section} has no sort control while collapsed`)
+      assert.equal(orderPicker(popover, otherSection).value, 'workspace', 'the other section is unaffected')
+      await act(async () => { toggle.click() })
+      assert.equal(toggle.getAttribute('aria-expanded'), 'true')
+      assert.equal(orderPicker(popover, section).value, 'workspace', 'reopening keeps the selected order')
+    }
     await chooseOrder(act, popover, 'open', 'time')
     await chooseOrder(act, popover, 'done', 'time')
     await act(async () => {

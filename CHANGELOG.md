@@ -52,7 +52,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   Standalone sessions save to an unassigned workspace.
   Row actions and reordering apply within the note’s own workspace.
 - Open and archived notes default to newest first.
-  Hover over a section header to change its sort order.
+  Expand a section and hover over its header to change the sort order.
   **By workspace** puts the current workspace first, led by notes linked to the current session.
 - The title bar shows open counts for Global and the current workspace on one line.
   A folder icon and the workspace name identify the workspace filter.
@@ -118,7 +118,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - 面板可用「全局」查看各工作区的便笺，也可在绑定工作区后用「工作区」查看当前工作区的便笺。
   空白新会话也能用「全局」。新增便笺始终写入当前工作区，独立会话写入未分配工作区。
   行操作和排序都在便笺所属工作区内生效。
-- 「待续」和「归档」默认按时间倒序，悬停分区标题可切换排序。
+- 「待续」和「归档」默认按时间倒序。展开分区后，悬停标题可切换排序。
   选择「按工作区」后，当前工作区优先，其中绑定当前会话的便笺排在最前。
 - 单行标题栏显示全局和当前工作区各自的待续数，工作区由文件夹图标和名称表示。
   悬停时，浅高亮铺满两个筛选项共用的外层胶囊，包括交界处的圆角空隙。

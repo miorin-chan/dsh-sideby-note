@@ -70,7 +70,7 @@ export function NoteList(props) {
                 say('list.open'),
                 openCount ? h('span', { className: 'dsh-an-sectionCount' }, String(openCount)) : null,
               ),
-              h(SectionSort, { section: 'open', title: say('list.open'), say, orders, chooseOrder }),
+              showOpen ? h(SectionSort, { section: 'open', title: say('list.open'), say, orders, chooseOrder }) : null,
             ),
             showOpen
               ? openItems.length
@@ -100,7 +100,7 @@ export function NoteList(props) {
                     say('popover.archived'),
                     h('span', { className: 'dsh-an-sectionCount' }, String(doneItems.length)),
                   ),
-                  h(SectionSort, { section: 'done', title: say('popover.archived'), say, orders, chooseOrder }),
+                  showDone ? h(SectionSort, { section: 'done', title: say('popover.archived'), say, orders, chooseOrder }) : null,
                   showDone
                     ? h('button', {
                         type: 'button',

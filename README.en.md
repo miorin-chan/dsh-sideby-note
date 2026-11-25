@@ -102,7 +102,7 @@ Use **Send to Sideby Note** on the right of the chat input toolbar to move a tex
 ### Keep it in the workspace and pick it up later
 
 **Global** shows notes from all workspaces. **Open** defaults to newest by creation time, and **Archived** to newest by archive time.
-Hover over either section header to change its order. **By workspace** leads with the current workspace, with notes linked to the current session first within it.
+Expand either section and hover over its header to change the sort order. **By workspace** leads with the current workspace, with notes linked to the current session first within it.
 Select the workspace name beside the folder icon to see only notes from that workspace.
 Both filters show their open counts. The entry badge shows the current workspace count, or the global count in a standalone session.
 Whichever filter you use, new notes are saved to the current workspace for its sessions to share.
