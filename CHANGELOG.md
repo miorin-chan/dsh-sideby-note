@@ -89,6 +89,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 - Hide a note’s action bar again when the pointer leaves after clicking a link or action.
   Keyboard focus still reveals it.
 - On macOS, exclude the floating note panel from the window title bar's drag region so its controls stay clickable.
+- Multiline drafts use the full width of the note composer, with the action buttons below the text.
 <!-- app-update-notes:en:end -->
 
 <!-- app-update-notes:zh:start -->
@@ -147,6 +148,7 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
   通过键盘切换会话或使用面板内的跳转链接时，面板保持打开。
 - 点击便笺链接或条目按钮后，鼠标移出条目即可收起操作栏，键盘聚焦仍会显示。
 - 在 macOS 上将边记部浮层排除出窗口标题栏拖拽区，避免面板按钮的点击被窗口接管。
+- 多行草稿可使用录入区的完整宽度，操作按钮放在正文下方。
 <!-- app-update-notes:zh:end -->
 
 <!-- app-update-notes:en:start -->

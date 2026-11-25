@@ -36,9 +36,9 @@ html[data-platform="darwin"] .dsh-an-popover{-webkit-app-region:no-drag}
 .dsh-an-scopeBtn:focus-visible{outline:2px solid var(--dsw-focus-ring-color,var(--dsw-alias-label-primary));outline-offset:1px}
 
 /* ── 4 添加区 · 嵌套表单组 R16，字段 0.5px 发丝线 ──────────────────── */
-.dsh-an-add{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}
+.dsh-an-add{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--an-space-2);padding:var(--an-space-3);border:0.5px solid var(--dsw-alias-settings-card-stroke);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-settings-card-fill);transition:var(--an-transition)}
 .dsh-an-add:focus-within,.dsh-an-add[data-file-drag]{border-color:var(--dsw-alias-state-business-primary)}
-.dsh-an-composerTools{display:flex;align-items:center;gap:var(--an-space-1)}
+.dsh-an-composerTools{display:flex;align-items:center;justify-content:flex-end;gap:var(--an-space-1)}
 .dsh-an-attachBtn{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}
 .dsh-an-attachBtn:disabled{cursor:not-allowed;opacity:.55}
 .dsh-an-sessionBinding[data-linked="true"]:not(:disabled){background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-brand-primary);box-shadow:inset 0 0 0 0.5px var(--dsw-alias-border-l3)}

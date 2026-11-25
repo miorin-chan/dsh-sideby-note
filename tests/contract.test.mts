@@ -910,6 +910,15 @@ test('archived notes sort by newest archive', () => {
   assert.equal(factory.completedStamp({}), 0)
 })
 
+test('multiline notes use the full composer width above the actions', () => {
+  const css = readCss()
+  assert.match(css, /\.dsh-an-add\{[^}]*grid-template-columns:minmax\(0,1fr\);/)
+  assert.match(css, /\.dsh-an-input\{[^}]*width:100%;[^}]*max-height:120px;[^}]*overflow-y:auto/)
+  assert.match(css, /\.dsh-an-composerTools\{[^}]*justify-content:flex-end;/)
+  const form = read('src/client/ui/ComposerForm.ts')
+  assert.match(form, /h\('textarea',[\s\S]*?h\('div', \{ className: 'dsh-an-composerTools' \}/)
+})
+
 test('the composer adds on Enter and preserves Shift+Enter and IME', () => {
   const composer = read('src/client/ui/useComposerDraft.ts')
   assert.match(composer, /if \(event\.shiftKey \|\| composing\) return/)
