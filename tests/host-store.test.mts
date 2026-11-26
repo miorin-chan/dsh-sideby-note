@@ -9,6 +9,7 @@ import assert from 'node:assert/strict'
 import path from 'node:path'
 import test from 'node:test'
 import { createStore, StoreError } from '../host/store.js'
+import { registerAttachmentRoute } from '../host/attachment-route.js'
 import { LOCATION_PATH, REVEAL_PATH, registerStoreRoutes, revealCommand, resolveStoreFile, STORE_PATH } from '../host/store-route.js'
 import { createSpec, prefsSchema, sessionSchema, workspaceSchema } from '../host/store-spec.js'
 import { fakeCtx, fakeDomain, admit } from './fake-store.mts'
@@ -466,6 +467,7 @@ test('store routes require the shared browser-session check', async () => {
   const denied = [
     { connection: { admit: () => ({ rejection: 401 }) }, status: 401 },
     { connection: { admit: () => ({ rejection: 403 }) }, status: 403 },
+    { connection: { admit: () => { throw new Error('cannot get property "connection.authentication" without inject') } }, status: 403 },
     { connection: {}, status: 403 },
     { connection: undefined, status: 403 },
   ]
@@ -474,11 +476,70 @@ test('store routes require the shared browser-session check', async () => {
     const ctx = { get: name => name === 'connection' ? connection : undefined }
     const store = { snapshot: () => assert.fail('unauthorized request reached storage') }
     registerStoreRoutes(server, { ctx, store })
-    for (const [endpoint, method] of [[STORE_PATH, 'GET'], [LOCATION_PATH, 'GET'], [REVEAL_PATH, 'POST']]) {
+    registerAttachmentRoute(server, ctx)
+    for (const [endpoint, method, code] of [
+      [STORE_PATH, 'GET', 'STORE_FORBIDDEN'],
+      [LOCATION_PATH, 'GET', 'STORE_FORBIDDEN'],
+      [REVEAL_PATH, 'POST', 'STORE_FORBIDDEN'],
+      ['/dsh-sideby-note/attachments', 'GET', 'ATTACHMENT_FORBIDDEN'],
+    ]) {
       const res = response()
       await server.route(endpoint).handler(request(method), res)
       assert.equal(res.status, status)
-      assert.equal(res.body.code, 'STORE_FORBIDDEN')
+      assert.equal(res.body.code, code)
+    }
+  }
+})
+
+test('host routes accept live WebServer-admitted peer and reject invalid or aborted peer', async () => {
+  const throwingConnection = {
+    admit() {
+      throw new Error('cannot get property "connection.authentication" without inject')
+    },
+  }
+  const server = fakeServer()
+  const store = await storeWith(fakeDomain())
+  const ctx = { get: name => name === 'connection' ? throwingConnection : undefined }
+  registerStoreRoutes(server, { ctx, store })
+  registerAttachmentRoute(server, ctx)
+
+  for (const peer of [{}, { signal: { aborted: false } }]) {
+    const storeRes = response()
+    await server.route(STORE_PATH).handler(request('GET'), storeRes, peer)
+    assert.equal(storeRes.status, 200)
+    assert.equal(storeRes.body.ok, true)
+
+    const locationRes = response()
+    await server.route(LOCATION_PATH).handler(request('GET'), locationRes, peer)
+    assert.equal(locationRes.status, 200)
+    assert.equal(locationRes.body.ok, true)
+
+    const revealRes = response()
+    await server.route(REVEAL_PATH).handler(request('POST'), revealRes, peer)
+    assert.equal(revealRes.status, 404)
+    assert.equal(revealRes.body.code, 'STORE_PATH_UNAVAILABLE')
+
+    const attachmentRes = { ...response(), setHeader() {} }
+    await server.route('/dsh-sideby-note/attachments').handler(request('PUT'), attachmentRes, peer)
+    assert.equal(attachmentRes.status, 405)
+    assert.equal(attachmentRes.body.code, 'METHOD_NOT_ALLOWED')
+  }
+
+  for (const [peer, status] of [
+    [{ signal: { aborted: true } }, 401],
+    [null, 403],
+    [false, 403],
+  ]) {
+    for (const [endpoint, method, code] of [
+      [STORE_PATH, 'GET', 'STORE_FORBIDDEN'],
+      [LOCATION_PATH, 'GET', 'STORE_FORBIDDEN'],
+      [REVEAL_PATH, 'POST', 'STORE_FORBIDDEN'],
+      ['/dsh-sideby-note/attachments', 'GET', 'ATTACHMENT_FORBIDDEN'],
+    ]) {
+      const res = response()
+      await server.route(endpoint).handler(request(method), res, peer)
+      assert.equal(res.status, status)
+      assert.equal(res.body.code, code)
     }
   }
 })

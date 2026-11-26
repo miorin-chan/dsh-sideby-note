@@ -10,8 +10,27 @@ export function sendJson(response: ServerResponse, status: number, body: unknown
   response.end(JSON.stringify(body))
 }
 
-/** Use the Host's authority, origin, and browser-session checks. */
-export function requestRejection(ctx: Context, request: IncomingMessage): RouteRejection {
+/**
+ * Use the Host's authority, origin, and browser-session checks.
+ *
+ * DSH 0.2.3+ WebServer authenticates routes up front and passes the admitted
+ * `peer` as the third handler argument; 0.2.2-rc.5 calls handlers without a
+ * peer, so we fall back to `connection.admit(request)` only when `peer` is absent.
+ */
+export function requestRejection(ctx: Context, request: IncomingMessage, peer?: unknown): RouteRejection {
+  if (peer !== undefined) {
+    if (peer === null || typeof peer !== 'object') return 403
+    if (
+      'signal' in peer
+      && peer.signal !== null
+      && typeof peer.signal === 'object'
+      && 'aborted' in peer.signal
+      && peer.signal.aborted === true
+    ) {
+      return 401
+    }
+    return undefined
+  }
   try {
     const connection = ctx.get?.('connection')
     if (typeof connection?.admit === 'function') {

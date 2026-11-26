@@ -183,8 +183,8 @@ export function registerStoreRoutes(server: Pick<WebServer, 'register'>, options
   const main = server.register({
     kind: 'exact',
     path: STORE_PATH,
-    handler: async (request, response) => {
-      const rejection = requestRejection(ctx, request)
+    handler: async (request, response, peer?: unknown) => {
+      const rejection = requestRejection(ctx, request, peer)
       if (rejection !== undefined) {
         sendJson(response, rejection, { ok: false, code: 'STORE_FORBIDDEN', message: 'forbidden' })
         return
@@ -234,8 +234,8 @@ export function registerStoreRoutes(server: Pick<WebServer, 'register'>, options
   const location = server.register({
     kind: 'exact',
     path: LOCATION_PATH,
-    handler: async (request, response) => {
-      const rejection = requestRejection(ctx, request)
+    handler: async (request, response, peer?: unknown) => {
+      const rejection = requestRejection(ctx, request, peer)
       if (rejection !== undefined) {
         sendJson(response, rejection, { ok: false, code: 'STORE_FORBIDDEN', message: 'forbidden' })
         return
@@ -247,8 +247,8 @@ export function registerStoreRoutes(server: Pick<WebServer, 'register'>, options
   const reveal = server.register({
     kind: 'exact',
     path: REVEAL_PATH,
-    handler: async (request, response) => {
-      const rejection = requestRejection(ctx, request)
+    handler: async (request, response, peer?: unknown) => {
+      const rejection = requestRejection(ctx, request, peer)
       if (rejection !== undefined) {
         sendJson(response, rejection, { ok: false, code: 'STORE_FORBIDDEN', message: 'forbidden' })
         return

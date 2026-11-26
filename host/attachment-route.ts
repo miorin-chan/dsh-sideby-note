@@ -136,8 +136,8 @@ export function registerAttachmentRoute(server: Pick<WebServer, 'register'>, ctx
   return server.register({
     kind: 'exact',
     path: ATTACHMENTS_PATH,
-    async handler(request, response) {
-      const rejected = requestRejection(ctx, request)
+    async handler(request, response, peer?: unknown) {
+      const rejected = requestRejection(ctx, request, peer)
       if (rejected !== undefined) {
         sendJson(response, rejected, { ok: false, code: 'ATTACHMENT_FORBIDDEN', message: 'forbidden' })
         return
