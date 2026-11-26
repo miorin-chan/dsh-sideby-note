@@ -240,10 +240,15 @@ async function setup(options = {}) {
     const reactRoot = ReactDOMClient.createRoot(container)
     await act(async () => {
       const FrameOverlay = registered.find(entry => entry.meta.name === 'shell.overlay').component
+      const utilitiesEntry = registered.find(entry => entry.meta.name === 'conversation.session.header.utilities')?.component
+      const utilitiesHost = window.document.querySelector('._headerUtilities')
       const composerEntry = registered.find(entry => entry.meta.name === 'conversation.input.right')
       const slotProps = { sessionId: 'session-1', ...props }
       reactRoot.render(React.createElement(React.Fragment, null,
         React.createElement(capture, slotProps),
+        utilitiesEntry && utilitiesHost
+          ? ReactDOM.createPortal(React.createElement(utilitiesEntry, slotProps), utilitiesHost)
+          : null,
         props.useInput && React.createElement(composerEntry.component, slotProps),
         React.createElement(FrameOverlay, { renderFactorySlot }),
       ))

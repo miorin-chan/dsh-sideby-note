@@ -124,6 +124,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   await t.test('PKG-001 构建产物注册三个座位与八种语言', async () => {
     const panelSlots = ['conversation.composer.dock', 'conversation.hero.options', 'shell.overlay']
     assert.deepEqual(injected.filter(name => panelSlots.includes(name)).sort(), panelSlots)
+    assert.ok(injected.includes('conversation.session.header.utilities'))
     assert.deepEqual(registered.map(entry => entry.meta.name).sort(), injected.sort())
     assert.equal(dictionaries.length, 1, 'the bundle registers one locale namespace')
     assert.deepEqual(
@@ -1485,12 +1486,13 @@ test('a blank new session opens a usable notes panel from the header corner', as
     await act(async () => {
       sessionsSnapshot = { byId: { 'session-new': { id: 'session-new', blank: false } } }
       for (const listener of [...sessionListeners]) listener()
-      await new Promise(resolve => window.setTimeout(resolve, 80))
+      root.render(React.createElement(hero, { sessionId: 'session-new', useWorkspaces, useSessions }))
     })
 
     assert.ok(document.querySelector('.dsh-an-popover'), 'the open panel survives the first turn')
-    assert.equal(document.querySelector('._headerUtilities > .dsh-an-headerBtn'), button,
-      'the entry moves into the conversation utilities row once the session starts')
+    button = document.querySelector('._headerUtilities > .dsh-an-headerBtn')
+    assert.ok(button, 'the entry moves into the conversation utilities row once the session starts')
+    assert.equal(document.querySelector('._headerCorner > .dsh-an-headerBtn'), null)
     assert.equal(button.dataset.anchor, 'utilities')
     const composerBinding = popover.querySelector('form .dsh-an-sessionBinding')
     assert.equal(composerBinding.disabled, false)

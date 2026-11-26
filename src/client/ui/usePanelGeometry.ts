@@ -161,17 +161,43 @@ export function usePanelGeometry(anchorRef, placement, panelRef) {
 
   React.useEffect(() => {
     const anchor = anchorRef.current
-    if (!anchor || typeof ResizeObserver !== 'function') return undefined
-    const target = anchor.closest('[class*="_header"]') || anchor
-    const observer = new ResizeObserver(updatePosition)
-    observer.observe(target)
-    return () => observer.disconnect()
-  }, [anchorRef, updatePosition])
-
-  React.useEffect(() => {
-    const timer = window.setInterval(updatePosition, 400)
-    return () => window.clearInterval(timer)
-  }, [updatePosition])
+    const header = anchor?.closest('[class*="_header"]') ?? null
+    const corner = anchor?.closest('[data-conversation-header-corner], [class*="_headerCorner"]') ?? null
+    const rightbarPanel = document.querySelector('[data-sidebar-right-panel]')
+    const rightbarCol = rightbarPanel?.parentElement ?? null
+    const appFrame = anchor?.closest('[data-app-frame], [class*="_appFrame"]')
+      ?? document.querySelector('[data-app-frame], [class*="_appFrame"]')
+    const resizeTargets = Array.from(new Set(
+      [anchor, header, corner, rightbarPanel, rightbarCol, appFrame].filter((el): el is Element => Boolean(el)),
+    ))
+    let resizeObserver: ResizeObserver | undefined
+    if (typeof ResizeObserver === 'function' && resizeTargets.length > 0) {
+      resizeObserver = new ResizeObserver(updatePosition)
+      for (const target of resizeTargets) resizeObserver.observe(target)
+    }
+    const mutationTargets = [rightbarPanel, appFrame].filter((el): el is Element => Boolean(el))
+    let mutationObserver: MutationObserver | undefined
+    if (typeof MutationObserver === 'function' && mutationTargets.length > 0) {
+      mutationObserver = new MutationObserver(updatePosition)
+      for (const target of mutationTargets) {
+        mutationObserver.observe(target, {
+          attributes: true,
+          attributeFilter: ['data-sidebar-right-open', 'data-sidebar-collapsed', 'style', 'class'],
+          subtree: false,
+        })
+      }
+    }
+    const transitionTargets = [appFrame, rightbarCol, header].filter((el): el is Element => Boolean(el))
+    for (const target of transitionTargets) target.addEventListener('transitionend', updatePosition)
+    const viewport = window.visualViewport
+    viewport?.addEventListener('resize', updatePosition)
+    return () => {
+      resizeObserver?.disconnect()
+      mutationObserver?.disconnect()
+      for (const target of transitionTargets) target.removeEventListener('transitionend', updatePosition)
+      viewport?.removeEventListener('resize', updatePosition)
+    }
+  }, [anchorRef, anchorRef.current, updatePosition])
 
   return {
     style,

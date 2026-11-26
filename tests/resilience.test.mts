@@ -571,13 +571,13 @@ test('PANEL-011 DSH 快捷键切换面板并跟随当前绑定', async t => {
   assert.equal(command.defaults['web:linux'], undefined)
   assert.equal(isWebBindingAllowed(normalizeBinding(command.defaults['desktop:macos'], 'macos'), 'macos'), false)
 
-  const publishBinding = (keys, aria) => {
+  const publishBinding = async (keys, aria) => {
     rows = [{ id: command.id, keys, aria, conflicts: [], issue: null }]
-    onCatalogChange()
+    await app.act(async () => { onCatalogChange() })
   }
   const button = app.button
   const title = button.title
-  publishBinding(['⌘', 'E'], 'Meta+E')
+  await publishBinding(['⌘', 'E'], 'Meta+E')
   assert.equal(button.getAttribute('aria-keyshortcuts'), 'Meta+E')
   assert.equal(button.title, `${title} (⌘ E)`)
 
@@ -592,9 +592,9 @@ test('PANEL-011 DSH 快捷键切换面板并跟随当前绑定', async t => {
     assert.equal(Boolean(app.document.querySelector('.dsh-an-popover')), expanded)
     assert.equal(button.getAttribute('aria-expanded'), String(expanded))
   }
-  publishBinding(['⌥', '⌘', 'N'], 'Alt+Meta+N')
+  await publishBinding(['⌥', '⌘', 'N'], 'Alt+Meta+N')
   assert.equal(button.getAttribute('aria-keyshortcuts'), 'Alt+Meta+N')
-  publishBinding([], undefined)
+  await publishBinding([], undefined)
   assert.equal(button.hasAttribute('aria-keyshortcuts'), false)
   assert.equal(button.title, title)
 

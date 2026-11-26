@@ -18,14 +18,16 @@
   由入口在 `apply()` 里插入**一张** `<style data-dsh-plugin="dsh-sideby-note">`，dispose 时移除。
   面板与输入框 dock 不在同一棵 React 树里，所以不能做面板级 `<style>`。
 - 浏览器侧用 `slots`（`conversation.composer.dock` 捕获当前会话、`conversation.hero.options` 捕获空白新会话、
-  `conversation.input.right` 提供「发至边记部」、`shell.overlay` 渲染面板与全局 Toast）与 `locale`（注册字典、
+  `conversation.session.header.utilities` 渲染常规会话顶部入口、`conversation.input.right` 提供「发至边记部」、
+  `shell.overlay` 渲染空白新会话角落入口、面板与全局 Toast）与 `locale`（注册字典、
   绑定 `t`，并订阅语言变化让已打开的面板就地换语言）。
   提供 `shortcuts` 服务时，浏览器侧同时注册面板切换命令，由 DSH 管理键位和用户偏好。
   宿主侧使用 `webServer`（路由）、`connection`（校验 Web 请求）与 `storageDomain`（存储领域），
   存储服务缺失时路由返回 503，客户端据此不切换。
 - 存储切换是**一次性**的：启动探测宿主 → 可用则迁移后单向使用，不可用则留在 `localStorage` 并提示；
   标记只在成功后写，之后不再回退（见 [上游存储迁移设计 §7](./design/host-storage-migration.md)）。
-- 顶部入口是注入宿主 header 的原生 DOM 按钮，不是 React portal——宿主重渲染会回收 portal。
+- 顶部入口在常规会话通过官方 `conversation.session.header.utilities` 槽位以 React 组件声明式挂载；
+  仅在空白新会话隐藏顶栏工具区时，由 `shell.overlay` 向 header corner 退路 portal。
 
 ### 原生输入框接入
 

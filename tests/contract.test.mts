@@ -95,7 +95,7 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /function MemoPopover/)
   assert.match(client, /refreshHeaderEntry/)
   assert.match(client, /dsh-an-headerBtn/)
-  assert.match(read('src/client/ui/headerEntry.ts'), /button\.dataset\.entryTitle = `\$\{tr\('title'\)\}/)
+  assert.match(read('src/client/ui/headerEntry.tsx'), /data-entry-title=\{view\.entryTitle\}/)
   assert.match(client, /scope\.workspaceHint/)
   assert.match(client, /scope\.globalHint/)
   assert.doesNotMatch(client, /add\.shortcut/)

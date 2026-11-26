@@ -114,3 +114,56 @@ test('usePanelGeometry cleans up active height resize on unmount without committ
   assert.equal(win.document.body.style.cursor, 'auto')
   assert.equal(win.localStorage.getItem('aside-note:panel-height'), null)
 })
+
+test('usePanelGeometry uses targeted observers instead of polling intervals and disconnects on unmount', t => {
+  const win = setupDom(t)
+  const rightbar = win.document.createElement('div')
+  rightbar.setAttribute('data-sidebar-right-panel', '')
+  win.document.body.appendChild(rightbar)
+
+  const intervals: number[] = []
+  t.mock.method(win, 'setInterval', () => {
+    intervals.push(1)
+    return 1
+  })
+  const roTargets: unknown[] = []
+  let roDisconnected = 0
+  Object.defineProperty(globalThis, 'ResizeObserver', {
+    configurable: true,
+    value: class FakeResizeObserver {
+      observe(target: unknown) { roTargets.push(target) }
+      disconnect() { roDisconnected += 1 }
+    },
+  })
+  const moCalls: Array<{ target: unknown; options: MutationObserverInit }> = []
+  let moDisconnected = 0
+  const hadMo = Object.getOwnPropertyDescriptor(globalThis, 'MutationObserver')
+  Object.defineProperty(globalThis, 'MutationObserver', {
+    configurable: true,
+    value: class FakeMutationObserver {
+      observe(target: unknown, options: MutationObserverInit) { moCalls.push({ target, options }) }
+      disconnect() { moDisconnected += 1 }
+    },
+  })
+  t.after(() => {
+    if (hadMo) Object.defineProperty(globalThis, 'MutationObserver', hadMo)
+    else Reflect.deleteProperty(globalThis, 'MutationObserver')
+  })
+
+  const button = win.document.createElement('button')
+  win.document.body.appendChild(button)
+  const anchorRef = { current: button }
+  const panelRef = { current: null }
+  const { unmount } = renderHook(() => usePanelGeometry(anchorRef, 'right', panelRef))
+
+  assert.equal(intervals.length, 0, 'must not register setInterval polling')
+  assert.ok(roTargets.includes(button))
+  assert.ok(roTargets.includes(rightbar))
+  assert.equal(moCalls.length, 1)
+  assert.equal(moCalls[0].target, rightbar)
+  assert.equal(moCalls[0].options.subtree, false)
+
+  unmount()
+  assert.equal(roDisconnected, 1)
+  assert.equal(moDisconnected, 1)
+})

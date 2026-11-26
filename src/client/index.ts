@@ -33,7 +33,7 @@ import {
 import { requestHostRefresh, storageMode } from './storage/state'
 import { migrateWorkspaceNotes } from './storage/workspace'
 import { createToastSeat } from './ui/toastSeat'
-import { createHeaderEntry } from './ui/headerEntry'
+import { createHeaderEntry, HeaderEntryButton } from './ui/headerEntry'
 import { MemoPopover, type NoteJump } from './ui/MemoPopover'
 import { SendDraftToNotes, type ComposerNoteSlotProps } from './ui/SendDraftToNotes'
 
@@ -231,7 +231,52 @@ function apply(ctx: DshClientCtx) {
   function FrameOverlay({ renderFactorySlot, t }: Partial<PropsRenderFactories> & { t?: (key: string) => string }) {
     const panel = React.useSyncExternalStore(subscribePanel, readPanel)
     const sessions = React.useSyncExternalStore(subscribeSessions, readSessionList)
+    const headerRevision = React.useSyncExternalStore(
+      headerEntry.subscribe,
+      headerEntry.getRevision,
+      headerEntry.getRevision,
+    )
     const panelId = panel?.id
+    const blankSessionId = activeSessionId && !headerEntry.hasUtilitiesMount() && !headerEntry.isBlankReady(activeSessionId)
+      ? activeSessionId
+      : ''
+    const findCornerHost = () => (typeof document === 'undefined'
+      ? null
+      : document.querySelector('[data-conversation-header-corner], [class*="_headerCorner"]'))
+    const [cornerHost, setCornerHost] = React.useState<Element | null>(() => (blankSessionId ? findCornerHost() : null))
+    React.useLayoutEffect(() => {
+      if (!blankSessionId) {
+        setCornerHost(null)
+        return undefined
+      }
+      const immediate = findCornerHost()
+      if (immediate) {
+        setCornerHost(immediate)
+        return undefined
+      }
+      setCornerHost(null)
+      let cancelled = false
+      let attempts = 0
+      let frame = 0
+      const poll = () => {
+        if (cancelled) return
+        const next = findCornerHost()
+        if (next) {
+          setCornerHost(next)
+          return
+        }
+        attempts += 1
+        if (attempts < 4 && typeof requestAnimationFrame === 'function') {
+          frame = requestAnimationFrame(poll)
+        }
+      }
+      if (typeof requestAnimationFrame === 'function') frame = requestAnimationFrame(poll)
+      return () => {
+        cancelled = true
+        if (frame && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(frame)
+      }
+    }, [blankSessionId, headerRevision, panelId])
+    const resolvedCornerHost = blankSessionId ? (cornerHost?.isConnected ? cornerHost : findCornerHost()) : null
     React.useEffect(() => {
       if (panelId === undefined) return
       let pendingClose: number | undefined
@@ -266,6 +311,11 @@ function apply(ctx: DshClientCtx) {
     }, [panelId])
     return h(React.Fragment, null,
       h(toastSeat.ToastHost, { t }),
+      resolvedCornerHost && createPortal(h(HeaderEntryButton, {
+        anchorKind: 'corner',
+        sessionId: blankSessionId,
+        controller: headerEntry,
+      }), resolvedCornerHost, 'corner-entry'),
       panel && createPortal(h('div', {
         ref: panel.containerRef,
         onClickCapture: (event: React.MouseEvent) => panelClicks.add(event.nativeEvent),
@@ -318,6 +368,7 @@ function apply(ctx: DshClientCtx) {
     getShortcut: readToggleShortcut,
     getSessionId: () => activeSessionId,
     getActiveAnchor: () => activePopover?.anchorRef.current ?? null,
+    getActiveSessionId: () => activePopover?.sessionId ?? null,
     getLocaleId: () => localeId(),
     tr,
     onOpen: openMemoPopover,
@@ -501,6 +552,26 @@ function apply(ctx: DshClientCtx) {
         locale: NS,
       },
       ComposerNoteEntry,
+    ),
+  )
+
+  function HeaderUtilitiesEntry(props: { sessionId?: string }) {
+    return h(HeaderEntryButton, {
+      anchorKind: 'utilities',
+      sessionId: props.sessionId || activeSessionId,
+      controller: headerEntry,
+    })
+  }
+
+  ctx.slots.inject('conversation.session.header.utilities', () =>
+    ctx.slots.register(
+      {
+        name: 'conversation.session.header.utilities',
+        id: PANEL_ID,
+        order: 90,
+        locale: NS,
+      },
+      HeaderUtilitiesEntry,
     ),
   )
 
