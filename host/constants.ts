@@ -1,7 +1,6 @@
 /**
  * Identity of the host-side note domain, kept free of the schema module so a
- * missing `zod` can only fail the storage endpoints, never plugin activation
- * or the update routes.
+ * missing `zod` can only fail the storage endpoints, never plugin activation.
  */
 /** Shared v1 storage domain and JSON filename used by AsideNote. */
 export const DOMAIN_NAME = 'aside_note'

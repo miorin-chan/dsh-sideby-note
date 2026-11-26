@@ -1,12 +1,9 @@
 /**
  * Host half of the Sideby Note panel.
  *
- * Two responsibilities live here, both impossible from the browser:
- * - install a newer build of this same plugin into the profile (the update
- *   endpoints), which the plugin market cannot do while this bundle is in use;
- * - own the durable note store through DSH's storage domain
- *   (`$DSH_HOME/storages/aside_note.json`) and serve it over authenticated
- *   routes, because browser code cannot reach host storage directly.
+ * Owns the durable note store through DSH's storage domain
+ * (`$DSH_HOME/storages/aside_note.json`) and serves notes and attachments over
+ * authenticated routes, because browser code cannot reach host storage directly.
  *
  * The store route is registered even when storage is not mounted: it answers
  * 503 so the browser can tell "this host has no storage" apart from "this host
@@ -14,27 +11,10 @@
  */
 import type { Context } from '@deepseek-ai/cordis'
 import { registerAttachmentRoute } from './host/attachment-route.js'
-import { registerUpdateRoutes } from './host/route.js'
 import { createStore } from './host/store.js'
 import { registerStoreRoutes } from './host/store-route.js'
 
-interface Config {
-  updateEnabled?: boolean
-}
-
-export function apply(ctx: Context, config?: Config): void {
-  // Headless and ACP hosts can run without a web server.
-  if (config?.updateEnabled !== false) {
-    ctx.inject(['webServer'], hostCtx => {
-      hostCtx.effect(() => {
-        const dispose = registerUpdateRoutes(hostCtx.webServer, { ctx })
-        return () => {
-          if (typeof dispose === 'function') dispose()
-        }
-      }, 'dsh-sideby-note: update routes')
-    })
-  }
-
+export function apply(ctx: Context): void {
   // The store is lazy: `ctx.storageDomain` may never mount (custom profiles,
   // older hosts), and the route answers 503 in that case instead of failing
   // activation. Closing the domain belongs to the effect that opened it.

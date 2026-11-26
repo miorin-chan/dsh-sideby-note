@@ -86,14 +86,6 @@ const MUTATIONS = [
     expect: ['FWD-005'],
   },
   {
-    id: 'update-notes-keep-drafts',
-    rule: 'R-UPD-NOTES',
-    file: 'src/client/update/releaseHistory.ts',
-    find: '    if (release.draft === true) continue\n    if (release.prerelease === true && !allowPrerelease) continue\n',
-    replace: '',
-    expect: ['UPD-003'],
-  },
-  {
     id: 'capacity-cap-returns',
     rule: 'R-STORE-CAPACITY',
     file: 'src/client/domain/items.ts',

@@ -120,7 +120,7 @@ Use **Insert** in the current conversation for an unlinked note, or in the linke
 - **Archive to look back on**: separate open and archived sections, with creation and archive times.
 - **Adjustable panel**: resize the width and height, with your preferences remembered.
 - **Fits into DSH**: follows the light/dark theme and all eight DSH-official languages (Chinese, English, Japanese, Spanish, French, German, Russian and Brazilian Portuguese).
-- **Host-file persistence**: notes live in `~/.dsh/storages/aside_note.json`, so page refreshes, DSH restarts and a different browser all keep them; tabs in the same browser stay in sync in real time, while other browsers on the same host refresh when they open the panel. Open **Storage & updates** in the panel footer to see the full path, copy it, or reveal the file in your file manager.
+- **Host-file persistence**: notes live in `~/.dsh/storages/aside_note.json`, so page refreshes, DSH restarts and a different browser all keep them; tabs in the same browser stay in sync in real time, while other browsers on the same host refresh when they open the panel. Open **Storage** in the panel footer to see the full path, copy it, or reveal the file in your file manager.
 
 > With host storage, browsers connected to the same DSH host share notes. See [Where data lives](#where-data-lives) for the upgrade and fallback behavior.
 
@@ -144,16 +144,14 @@ Use **Insert** in the current conversation for an unlinked note, or in the linke
 - **List regions**. **Open** and **Archived** each have a sticky header and their own scroll area.
   Expanding the archive preserves the space for open notes.
   Open notes have **Insert** on the left and show **Copy** and **Rewind** on hover.
-- **Storage & updates** in the footer starts collapsed. Expand it to see the storage status, host file path, and installed version.
-  You can also copy the path, reveal the file in your file manager, or check for updates. If the connection fails
+- **Storage** in the footer starts collapsed. Expand it to see the storage status and host file path.
+  You can also copy the path or reveal the file in your file manager. If the connection fails
   after switching to host storage, the panel shows the reason and a **Reconnect** action.
-- **Update available** appears in the footer only when there is a newer version. Open it for release notes and the update
-  action. See [Update notice](#update-notice).
 - **Native look**: colours, radii, elevation and scrollbars all reuse DSH design tokens, following light/dark and the DSH locale; see [Design tokens](#design-tokens).
 
 ## Feature screenshots
 
-These screenshots show the previous panel in both themes. The current panel places storage and update controls in the footer.
+These screenshots show the previous panel in both themes. The current panel places storage details in the footer.
 
 <table>
   <tr>
@@ -225,7 +223,7 @@ Feedback reuses product surfaces too: copy, rewind, insert, clear-archived, and 
 ## Where data lives
 
 When host storage is available, notes live in `$DSH_HOME/storages/aside_note.json`, which defaults to
-`~/.dsh/storages/aside_note.json`. Open **Storage & updates** in the panel footer to see the actual path.
+`~/.dsh/storages/aside_note.json`. Open **Storage** in the panel footer to see the actual path.
 After migration, the workspace table holds all notes. The host format retains the session table to read legacy data.
 
 - The first start checks the host. If its store is empty, Sideby Note imports notes from `dsh.aside-note` and `dsh.aside-note.workspaces` and keeps the browser originals for recovery. If the host already contains notes, those lists take precedence and the browser originals remain available for recovery.
@@ -236,22 +234,6 @@ After migration, the workspace table holds all notes. The host format retains th
 - Panel size, open/archived expansion and unsaved drafts stay in the browser. Sessions in one workspace share a draft. Standalone sessions have their own drafts.
 
 Sideby Note uses the same host file and format as AsideNote 1.2.0. It reads existing host notes and can import from the earlier `dsh.aside-note.*` browser keys. DSH lets one plugin open the store at a time. Disable the plugin currently using the store before switching. Sideby Note pauses writes and shows a message when the store is occupied.
-
-## Update notice
-
-When the panel opens, the plugin quietly checks the latest published version (npm, falling back to npmmirror and then the latest GitHub Release) and caches the answer for an hour. The footer shows a separate **Update available** control only when there is a newer version.
-
-- **Check for updates** in **Storage & updates** reads the registry immediately, bypassing the hourly cache. The check status and result appear beside the button.
-- **Release notes** appear when you expand the update control. The plugin displays the text between the `app-update-notes:en` / `app-update-notes:zh` markers in the GitHub Release body as plain text.
-- **Across several versions:** when the published release is several versions ahead, the notes list every release in the gap, newest first. The newest stays open and each older version expands on its own. Drafts and prereleases are skipped, at most six releases are listed, and a link points at the releases page when more were left out.
-- **Full release notes** sits to the right of the update button and opens the matching GitHub Release page in a new tab.
-- **Update now** installs over the running copy through the host's own update route, without going through the plugin market, and offers a page refresh when it finishes.
-- **Manual fallback:** when the host has no update route, or refuses to replace the in-use plugin files, the card states the command with the offered version and profile directory, plus **Copy update prompt** — one click to copy a ready-to-paste instruction for an agent. Prereleases also pin the npmjs registry so the command cannot fall back to the stable line.
-
-Updating starts when you click **Update now**. The panel asks the host to install the update. Version checks read
-public version numbers and release bodies.
-
-Release notes are composed by `tools/release/notes.mts` from `CHANGELOG.md` — English and Chinese blocks with `app-update-notes` markers, install links and a Full Changelog link — and the tag-triggered workflow creates the Release (with the tarball attached) from it. See [release and versioning](./docs/release.md).
 
 ## Development
 

@@ -66,7 +66,6 @@
     "lint": "oxlint src index.ts host/*.ts scripts/install.mts tools",
     "test": "npm run build && node --test \"tests/*.test.mts\"",
     "check": "npm run lint && npm run typecheck && npm test && npm run catalog:check",
-    "release": "node tools/release.mts",
     "catalog:check": "node tools/catalog/check.mts",
     "design:review": "node tools/catalog/review.mts",
     "test:run": "npm run build && node tools/catalog/run.mts",

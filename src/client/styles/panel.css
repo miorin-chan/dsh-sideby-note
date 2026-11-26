@@ -151,54 +151,11 @@ html[data-platform="darwin"] .dsh-an-popover{-webkit-app-region:no-drag}
 .dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}
 .dsh-an-listStatus{margin:0;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}
 
-/* ── 10 存储详情与更新 ─────────────────────────────────────────── */
+/* ── 10 存储详情 ───────────────────────────────────────────────── */
 .dsh-an-storageBlock{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}
 .dsh-an-storagePathRow{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}
 .dsh-an-storagePath{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;user-select:all}
 .dsh-an-storageActions{display:flex;flex-wrap:wrap;gap:var(--an-space-1)}
-/* 更新中心：检查入口、可展开的更新说明与更新动作，全部走共享令牌 */
-.dsh-an-updateCheck{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}
-.dsh-an-updateCheck:active{background:var(--an-active)}
-.dsh-an-updateCheck[aria-disabled="true"]{color:var(--dsw-alias-label-secondary);cursor:default}
-.dsh-an-updateCheck:focus-visible{outline-offset:2px}
-.dsh-an-updateHint{margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}
-.dsh-an-updateHintError{color:var(--dsw-alias-state-error-primary)}
-.dsh-an-updateCard{display:flex;flex-direction:column;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}
-.dsh-an-updateTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-primary)}
-.dsh-an-updateFull:focus-visible,.dsh-an-updateLinkBtn:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}
-.dsh-an-updateFull{flex:none;color:var(--dsw-alias-link);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-decoration:none;transition:var(--an-transition)}
-.dsh-an-updateNotes{display:flex;flex-direction:column;gap:var(--an-space-2);max-height:220px;overflow-y:auto;padding-right:0;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);scrollbar-gutter:stable}
-.dsh-an-updateNotes[data-fade="true"]{--dsh-an-fadeHeight:var(--an-space-5);-webkit-mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));mask-image:linear-gradient(to bottom,currentColor 0,currentColor calc(100% - var(--dsh-an-fadeHeight)),transparent 100%),linear-gradient(to right,transparent calc(100% - var(--dsh-an-scrollRail)),currentColor calc(100% - var(--dsh-an-scrollRail)));-webkit-mask-composite:source-over;mask-composite:add}
-.dsh-an-updateVersions{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}
-.dsh-an-updateVersion{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}
-.dsh-an-updateVersion+.dsh-an-updateVersion{padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}
-.dsh-an-updateVersionHead{display:flex;align-items:center;gap:var(--an-space-1);width:100%;padding:2px 0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;text-align:left;cursor:pointer}
-.dsh-an-updateVersionHead:active{background:var(--an-active)}
-.dsh-an-updateVersionHead:focus-visible{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1px;text-underline-offset:3px}
-.dsh-an-updateChevron{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);transition:transform var(--an-dur-fast) var(--an-ease)}
-.dsh-an-updateChevron[data-open="true"]{transform:rotate(90deg)}
-.dsh-an-updateVersionLabel{font-variant-numeric:tabular-nums}
-.dsh-an-updateLatest{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:18px;height:18px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-caption);line-height:16px;font-weight:500}
-.dsh-an-updateVersionBody{display:flex;flex-direction:column;gap:var(--an-space-2);padding-left:var(--an-space-4);min-width:0}
-.dsh-an-updateGroup{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}
-.dsh-an-updateGroupTitle{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;color:var(--dsw-alias-label-secondary)}
-.dsh-an-updateItems{display:flex;flex-direction:column;gap:var(--an-space-1);margin:0;padding-left:var(--an-space-4);color:var(--dsw-alias-label-primary)}
-.dsh-an-updateItem{font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);overflow-wrap:anywhere}
-.dsh-an-updateItem strong{font-weight:500}
-.dsh-an-updateActions{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}
-.dsh-an-updatePrimary{display:inline-flex;align-items:center;justify-content:center;flex:none;height:24px;padding:0 var(--an-space-3);border:0;border-radius:var(--dsw-radius-sm);background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}
-.dsh-an-updatePrimary:active{background:var(--dsw-alias-button-primary-dimmed)}
-.dsh-an-updatePrimary:disabled{opacity:.55;cursor:default}
-.dsh-an-updatePrimary:focus-visible{outline-offset:2px}
-.dsh-an-updateDone{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}
-.dsh-an-updateErrorRow{display:flex;align-items:baseline;gap:var(--an-space-2);flex-wrap:wrap;min-width:0}
-.dsh-an-updateError{flex:1 1 auto;min-width:0;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere}
-.dsh-an-updateLinkBtn{padding:0;border:0;background:transparent;color:var(--dsw-alias-link);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer}
-.dsh-an-updateFallback{display:flex;align-items:center;gap:var(--an-space-2);flex-wrap:wrap;min-width:0;padding-top:var(--an-space-1);border-top:0.5px solid var(--an-divider)}
-.dsh-an-updateFallback .dsh-an-updateHint{flex:1 1 100%;min-width:0}
-.dsh-an-updateCopy{flex:none;height:24px;padding:0 var(--an-space-2);border:0.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font:inherit;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);font-weight:500;cursor:pointer;transition:var(--an-transition)}
-.dsh-an-updateCopy:active{background:var(--an-active)}
-.dsh-an-updateCopy:focus-visible{outline-offset:2px}
 
 /* ── 11 存储异常与面板底部入口 ─────────────────────────────────── */
 .dsh-an-storageStatus{display:flex;align-items:flex-start;flex-wrap:wrap;gap:var(--an-space-2);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);font-size:var(--an-fs-caption);overflow-wrap:anywhere}
@@ -207,14 +164,10 @@ html[data-platform="darwin"] .dsh-an-popover{-webkit-app-region:no-drag}
 .dsh-an-storageFailure{color:var(--dsw-alias-label-secondary)}
 .dsh-an-reconnect[aria-disabled="true"]{color:var(--dsw-alias-label-secondary);cursor:progress}
 .dsh-an-popFoot{flex:0 1 auto;min-height:24px;max-height:40dvh;margin:0;padding:2px;overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}
-.dsh-an-storageToggle,.dsh-an-updateToggle{width:fit-content;padding:2px var(--an-space-1);border-radius:var(--dsw-radius-sm);cursor:pointer}
-.dsh-an-storageToggle{display:block;list-style:none;text-decoration:underline;text-decoration-color:var(--dsw-alias-label-tertiary);text-decoration-thickness:1px;text-underline-offset:3px}
+.dsh-an-storageToggle{width:fit-content;padding:2px var(--an-space-1);border-radius:var(--dsw-radius-sm);cursor:pointer;display:block;list-style:none;text-decoration:underline;text-decoration-color:var(--dsw-alias-label-tertiary);text-decoration-thickness:1px;text-underline-offset:3px}
 .dsh-an-storageToggle::-webkit-details-marker{display:none}
-.dsh-an-storageToggle:focus-visible,.dsh-an-updateToggle:focus-visible{outline:2px solid var(--dsw-alias-label-primary)}
-.dsh-an-updateToggle{font-weight:500;color:var(--dsw-alias-label-primary)}
+.dsh-an-storageToggle:focus-visible{outline:2px solid var(--dsw-alias-label-primary)}
 .dsh-an-footerBody{display:grid;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}
-.dsh-an-versionRow{display:flex;align-items:center;flex-wrap:wrap;gap:var(--an-space-2)}
-.dsh-an-versionRow>span:empty{position:absolute}
 /* Keep controls reachable when errors or disclosures add more than the panel can fit. */
 .dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]){overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}
 .dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-listViewport{min-height:48px}
@@ -276,8 +229,7 @@ html[data-platform="darwin"] .dsh-an-popover{-webkit-app-region:no-drag}
 :is(.dsh-an-sectionHead,.dsh-an-doneHead):is(:hover,:has(:focus-visible)) .dsh-an-sectionSort,.dsh-an-sectionSort:focus{opacity:1;pointer-events:auto}
 .dsh-an-sectionSort:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
-.dsh-an-doneToggle:hover,.dsh-an-storageToggle:hover,.dsh-an-updateToggle:hover{background:var(--an-hover)}
-.dsh-an-updatePrimary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}
+.dsh-an-doneToggle:hover,.dsh-an-storageToggle:hover{background:var(--an-hover)}
 .dsh-an-headerBtn:hover,.dsh-an-sendDraft:hover:not(:disabled,[aria-busy="true"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}
 .dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}

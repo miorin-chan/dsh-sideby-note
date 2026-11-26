@@ -143,7 +143,6 @@ async function setup(options = {}) {
         ? json(502, { ok: false, code: 'STORE_REVEAL_FAILED', message: 'no file manager' })
         : json(200, { ok: true })
     }
-    // The panel's update check must not reach the network in this realm.
     return json(404, {})
   }
 
@@ -638,7 +637,7 @@ test('STORE-028 存储详情按需加载路径并支持拷贝与定位', async t
   }
 
   assert.equal(details.open, false)
-  assert.equal(footer.textContent.trim(), '存储与更新')
+  assert.equal(footer.textContent.trim(), '存储')
   assert.equal(body(), null)
   assert.deepEqual(locationCalls(), [], 'opening the panel does not fetch a file path')
 
@@ -651,7 +650,7 @@ test('STORE-028 存储详情按需加载路径并支持拷贝与定位', async t
   await ctx.act(async () => { probe.resolve() })
   await ctx.settle()
   assert.equal(ctx.window.localStorage.getItem(MODE_KEY), 'host')
-  assert.equal(footer.textContent.trim(), '存储与更新')
+  assert.equal(footer.textContent.trim(), '存储')
   assert.equal(body(), null)
   assert.deepEqual(locationCalls(), [], 'connecting to the host with the disclosure closed does not fetch a path')
 

@@ -36,184 +36,24 @@ test('package declares the DSH bundle and web client halves', () => {
   }
 })
 
-test('the operations log stays beside the changelog, out of the notes and the tarball', () => {
+test('the operations log stays beside the changelog and out of the tarball', () => {
   assert.ok(exists('CHANGELOG-OPS.md'), 'missing CHANGELOG-OPS.md; operations history has nowhere to go')
-  const ops = read('CHANGELOG-OPS.md')
-  // The markers are how tools/release/notes.mts and the panel find the notes.
-  // Ops entries must never carry them, or build chores leak into the update card.
-  assert.doesNotMatch(
-    ops,
-    /<!--\s*app-update-notes:/,
-    'the operations log must not carry release-note markers',
-  )
   const manifest = JSON.parse(read('package.json'))
   assert.ok(!manifest.files.includes('CHANGELOG-OPS.md'), 'the operations log stays out of the npm tarball')
-  // Same version headings as the changelog, so a release rotates both files.
-  const changelog = read('CHANGELOG.md')
-  const headings = [...ops.matchAll(/^## (.+)$/gm)].map((match) => match[1].trim())
-  assert.equal(headings[0], 'next-released', 'CHANGELOG-OPS.md must start with "## next-released"')
-  for (const title of headings.slice(1)) {
-    assert.ok(
-      changelog.includes(`\n## ${title}\n`),
-      `CHANGELOG.md has no "## ${title}" section to pair with the operations log`,
-    )
-  }
 })
 
-test('client version matches the package version', () => {
-  const manifest = JSON.parse(read('package.json'))
-  assert.match(read('src/client/constants.ts'), new RegExp(`PLUGIN_VERSION = '${manifest.version.replace(/\./g, '\\.')}'`))
-})
-
-test('the release body is composed from CHANGELOG markers and used by the publish workflow', () => {
-  assert.ok(exists('tools/release/notes.mts'))
-  const workflow = read('.github/workflows/publish.yml')
-  assert.match(workflow, /tools\/release\/notes\.mts/)
-  assert.match(workflow, /--notes-file/)
-  // The tag gate proves the section exists, so a builder failure must fail the
-  // release instead of quietly publishing generated notes without markers.
-  assert.match(workflow, /tools\/release\.mts check/)
-  assert.doesNotMatch(workflow, /--generate-notes/)
-  const changelog = read('CHANGELOG.md')
-  const version = JSON.parse(read('package.json')).version
-  // Development keeps a next-released section; the release commit renames it to
-  // the version chosen then, so either title is valid for this check.
-  const heading = changelog.match(/^## (.+)$/m)
-  assert.ok(heading, 'CHANGELOG needs a section heading')
-  assert.ok(
-    heading[1] === 'next-released' || heading[1] === version,
-    `the first section is next-released until release day (saw ${heading[1]})`,
-  )
-  // After a release the notes live under the version heading, with the fresh
-  // next-released placeholder above it; before one they live under next-released.
-  const target = changelog.includes(`\n## ${version}\n`) ? version : heading[1]
-  const start = changelog.indexOf(`## ${target}`)
-  const next = changelog.indexOf('\n## ', start + 3)
-  const section = next === -1 ? changelog.slice(start) : changelog.slice(start, next)
-  const markers = ['en', 'zh'].map(locale => `<!-- app-update-notes:${locale}:start -->`)
-  for (const marker of markers) assert.ok(section.includes(marker), `the release section for ${target} needs ${marker}`)
-})
-
-test('the client checks for a newer release, reads its notes inline and falls back to the update command', () => {
+test('in-app update logic and custom release scripts are removed', () => {
   const client = readClientTree()
   const css = readCss()
-  assert.match(client, /https:\/\/registry\.npmjs\.org/)
-  assert.match(client, /https:\/\/registry\.npmmirror\.com/)
-  assert.match(client, /api\.github\.com\/repos/)
-  // The tag is a variable now: a prerelease build also reads `next`.
-  assert.match(client, /encodeURIComponent\(PLUGIN_PACKAGE\)/)
-  assert.match(client, /const channels = isPrereleaseVersion/)
-  assert.match(client, /tag_name/)
-  assert.match(client, /export function createUpdateProbe/)
-  assert.match(client, /export function isNewerVersion/)
-  assert.match(client, /export function createReleaseHistoryProbe/)
-  assert.match(client, /export const UPDATE_GITHUB_API/)
-  assert.match(client, /per_page=50/)
-  assert.match(client, /selectReleaseHistory/)
-  assert.match(client, /'update\.historyCount'/)
-  assert.match(client, /export function resetUpdateChecks/)
-  assert.match(client, /export function useUpdateCenter/)
-  assert.match(client, /updateNotesForLocale/)
-  // The market is not a dependency of any kind: the update goes through the
-  // host route, then the terminal command.
-  assert.match(client, /\/dsh-sideby-note\/update\/apply/)
-  assert.match(client, /export async function applyHostUpdate/)
-  assert.doesNotMatch(client, /dsh-market|createMarketClient|marketClient/)
-  assert.equal(exists('src/client/update/market.ts'), false, 'the market client must be gone')
-  assert.doesNotMatch(read('client/client.js'), /createMarketClient/, 'the shipped bundle must not carry the market client')
-  assert.doesNotMatch(client, /update\.notesShow|update\.notesHide/)
-  assert.match(client, /'update\.now'/)
-  assert.match(client, /'update\.copyPrompt'/)
-  assert.match(client, /'update\.manualHint'/)
-  assert.match(client, /'update\.prompt'/)
-  // A manual command always pins the offered version; prereleases also tell
-  // npx where to fetch the package from.
-  assert.match(client, /const PLUGIN_PACKAGE = '@miorin\/dsh-sideby-note'/)
-  assert.match(client, /npx -y\$\{registry\}/)
-  assert.match(client, /--version \$\{latestVersion\}/)
-  assert.match(client, /PLUGIN_VERSION\.includes\('-'\)/)
-  assert.match(css, /\.dsh-an-updateCard\{/)
-  assert.match(css, /\.dsh-an-updateVersionHead\{/)
-  assert.match(css, /--dsh-scrollbar-width:var\(--dsh-an-scrollRail\)/)
-  assert.match(css, /\.dsh-an-updateNotes\[data-fade="true"\]\{/)
-  assert.match(client, /'update\.notesTitle'/)
-  assert.match(client, /'aria-controls': `\$\{NOTES_ID\}/)
-  assert.match(client, /copyText/)
-  assert.match(css, /\.dsh-an-updateChevron\[data-open="true"\]\{/)
-  assert.match(css, /\.dsh-an-updatePrimary\{/)
-  assert.match(read('client/client.js'), /function createUpdateProbe/, 'the shipped bundle carries the check')
-  assert.match(read('client/client.js'), /function applyHostUpdate/, 'the shipped bundle carries the host client')
-  assert.match(read('client/client.js'), /function extractUpdateNotes/, 'the shipped bundle carries the notes parser')
-  // Read-only check: it installs and executes nothing.
-  assert.doesNotMatch(client, /child_process|node:child_process/)
-})
-
-test('the update probe falls back from npm to the mirror and GitHub, and caches both hits and misses', async () => {
-  const { createUpdateProbe, isNewerVersion } = readUpdateHelpers()
-  const hour = 60 * 60 * 1000
-  const calls = []
-  let now = 1000
-  const probe = createUpdateProbe({
-    fetchImpl: async url => {
-      calls.push(url)
-      if (url.startsWith('https://registry.npmjs.org/')) throw new Error('offline')
-      return { ok: true, json: async () => ({ version: '2.1.0' }) }
-    },
-    now: () => now,
-    ttlMs: hour,
-  })
-  assert.equal(await probe.latest(), '2.1.0')
-  assert.deepEqual(calls, [
-    'https://registry.npmjs.org/%40miorin%2Fdsh-sideby-note/latest',
-    'https://registry.npmmirror.com/%40miorin%2Fdsh-sideby-note/latest',
-  ], 'npm is consulted first and the mirror is the fallback')
-  calls.length = 0
-  now += hour - 1
-  assert.equal(await probe.latest(), '2.1.0')
-  assert.equal(calls.length, 0, 'a version inside the TTL is reused')
-  now += 1
-  await probe.latest()
-  assert.equal(calls.length, 2, 'the TTL expiry reads the registry again')
-
-  const releaseCalls = []
-  const releaseOnly = createUpdateProbe({
-    fetchImpl: async url => {
-      releaseCalls.push(url)
-      if (url.startsWith('https://api.github.com/')) {
-        return { ok: true, json: async () => ({ tag_name: 'v2.1.2' }) }
-      }
-      return { ok: false, json: async () => ({}) }
-    },
-    now: () => 0,
-    ttlMs: hour,
-  })
-  assert.equal(await releaseOnly.latest(), '2.1.2', 'a GitHub Release backs a checkout that is not on npm, with its v prefix stripped')
-  assert.deepEqual(releaseCalls, [
-    'https://registry.npmjs.org/%40miorin%2Fdsh-sideby-note/latest',
-    'https://registry.npmmirror.com/%40miorin%2Fdsh-sideby-note/latest',
-    'https://api.github.com/repos/miorin-chan/dsh-sideby-note/releases/latest',
-  ], 'GitHub is consulted only after both npm hosts miss')
-
-  let offline = true
-  const flaky = createUpdateProbe({
-    fetchImpl: async () => {
-      if (offline) throw new Error('offline')
-      return { ok: true, json: async () => ({ version: '2.1.1' }) }
-    },
-    now: () => 0,
-    ttlMs: hour,
-  })
-  assert.equal(await flaky.latest(), null, 'an unreachable registry resolves null')
-  offline = false
-  assert.equal(await flaky.latest(), null, 'the miss is cached too, so repeated opens make no request')
-
-  assert.equal(isNewerVersion('2.1.0', '2.0.0'), true)
-  assert.equal(isNewerVersion('v3.0.0', '2.0.0'), true)
-  assert.equal(isNewerVersion('2.0.0', '2.0.0'), false)
-  assert.equal(isNewerVersion('1.9.9', '2.0.0'), false)
-  assert.equal(isNewerVersion('2.1', '2.0.9'), true)
-  assert.equal(isNewerVersion('2.1.0-rc.1', '2.1.0'), false)
-  assert.equal(isNewerVersion('x.y', '0.0.0'), false)
+  assert.equal(exists('src/client/update'), false)
+  assert.equal(exists('src/client/ui/useUpdateCenter.ts'), false)
+  assert.equal(exists('src/client/ui/UpdateNotice.ts'), false)
+  assert.equal(exists('host/route.ts'), false)
+  assert.equal(exists('host/apply-update.ts'), false)
+  assert.equal(exists('tools/release.mts'), false)
+  assert.doesNotMatch(client, /registry\.npmjs\.org|registry\.npmmirror\.com|api\.github\.com|\/dsh-sideby-note\/update\//)
+  assert.doesNotMatch(css, /\.dsh-an-update|\.dsh-an-versionRow/)
+  assert.doesNotMatch(read('client/client.js'), /createUpdateProbe|applyHostUpdate|extractUpdateNotes/)
 })
 
 test('patch inserts exactly the package host row', () => {
@@ -234,11 +74,9 @@ test('the browser half never reaches for Node globals', () => {
 })
 
 test('host and browser entries use the package identity', () => {
-  // The host half carries the in-app update route now, so the entry takes the
-  // host context instead of being a loadable no-op row.
-  assert.match(read('index.js'), /export function apply\(ctx, config\)/)
-  assert.match(read('host/route.js'), /registerUpdateRoutes/)
-  assert.match(read('host/apply-update.js'), /already-installed/)
+  assert.match(read('index.js'), /export function apply\(ctx\)/)
+  assert.match(read('host/store-route.js'), /registerStoreRoutes/)
+  assert.match(read('host/attachment-route.js'), /registerAttachmentRoute/)
   // The client half is several modules now; identity checks span the tree.
   const client = readClientTree()
   // The loader shell is now emitted by tsdown, not hand-written in the source.
@@ -292,7 +130,6 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /IconInsert/)
   assert.match(client, /item\.insert/)
   assert.doesNotMatch(client, /IconForward|item\.forward\b|'item\.mark(?:Done|Open)'/)
-  assert.match(client, /PLUGIN_VERSION/)
   assert.doesNotMatch(clientWithoutMigration, /SEND_SHORTCUT|sendShortcut|settings\.shortcut/, 'the send shortcut setting is gone')
   assert.match(client, /conversation\.session\.header\.utilities|_headerUtilities/)
   assert.match(client, /placement === 'right'|placement === "right"/)
@@ -311,7 +148,6 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /copyText/)
   assert.match(client, /toast\.copied/)
   assert.match(client, /time\.createdArchived/)
-  assert.match(client, /PLUGIN_REPO_URL/)
   assert.match(client, /SESSION_STORAGE_KEY/)
   const storageKeys = read('src/client/constants.ts')
   assert.match(storageKeys, /'dsh\.aside-note'/)
@@ -373,10 +209,11 @@ test('locale files carry metadata and the dictionary stays in sync', () => {
     assert.ok([...dict.zh[key]].length <= 6, `${key} grew past a short label: ${dict.zh[key]}`)
   }
   for (const [key, value] of Object.entries(dict.zh)) {
-    // Update copy may talk about finishing an install.
-    if (key.startsWith('update.')) continue
+    assert.doesNotMatch(key, /^update\./, `${key} should be removed`)
     assert.doesNotMatch(value, /完成/, `${key} still says 完成`)
   }
+  assert.equal(dict.zh['storage.details'], '存储')
+  assert.equal(dict.en['storage.details'], 'Storage')
   assert.equal(dict.zh['item.insert'], '填入')
   assert.equal(dict.en['item.insert'], 'Insert')
   for (const id of LOCALE_IDS) {
@@ -527,17 +364,6 @@ function readLiteral(file, name) {
   const end = text.lastIndexOf('}')
   assert.ok(start >= 0 && end > start, `${name} literal not found in ${file}`)
   return JSON.parse(text.slice(start, end + 1))
-}
-
-/** The shipped update probe and comparator, evaluated from the built bundle. */
-function readUpdateHelpers() {
-  const bundle = read('client/client.js')
-  // Carry the package and repository constants into the standalone snippet.
-  const identity = bundle.match(/const PLUGIN_(?:PACKAGE|REPO_URL) = "[^"]+";/g).join('\n')
-  const start = bundle.indexOf('const UPDATE_REGISTRY_HOSTS = ')
-  const end = bundle.indexOf('const updateProbe = createUpdateProbe', start)
-  assert.ok(start > 0 && end > start, 'update helpers not found in the bundle')
-  return new Function(`${identity}\n${bundle.slice(start, end)}\nreturn { createUpdateProbe, isNewerVersion }`)()
 }
 
 test('colours come from theme aliases, never from a second palette', () => {

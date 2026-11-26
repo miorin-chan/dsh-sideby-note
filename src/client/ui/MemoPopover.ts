@@ -20,7 +20,6 @@ import { useMemoStore, type WorkspaceNote } from './useSessionMemoStore'
 import { usePanelGeometry } from './usePanelGeometry'
 
 import { useSections } from './useSections'
-import { useUpdateCenter } from './useUpdateCenter'
 import { useComposerDraft } from './useComposerDraft'
 import { useNoteActions } from './useNoteActions'
 import { useRowReorder } from './useRowReorder'
@@ -246,9 +245,6 @@ export function MemoPopover(props: MemoPopoverProps) {
   const storageInUse = connectionError && failure?.code === 'STORE_IN_USE'
   const [retrying, setRetrying] = React.useState(false)
   const { sectionsRef, showOpen, showDone, toggleOpen, toggleDone, applySections } = useSections()
-  // Version check, release notes and the in-app update share one hook; the
-  // registry answer is cached for an hour across panel opens.
-  const update = useUpdateCenter(localeId)
   const changingBindings = React.useRef(new Set<string>())
   const inserting = React.useRef(new Map<string, AbortController>())
   const [insertingKeys, setInsertingKeys] = React.useState<ReadonlySet<string>>(() => new Set())
@@ -618,7 +614,7 @@ export function MemoPopover(props: MemoPopoverProps) {
       dismissClearConfirm,
       confirmClearDone,
     }),
-    h(PanelFooter, { say, mode: connectionError ? 'error' : storeMode, syncError, update, onToast: report }),
+    h(PanelFooter, { say, mode: connectionError ? 'error' : storeMode, syncError, onToast: report }),
   )
 
   return content

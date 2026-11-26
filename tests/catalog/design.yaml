@@ -249,7 +249,7 @@ features:
         reviewed: { by: "LighghtEeloo", at: '2026-11-21', hash: '30c310f8861277f3' }
 
       - id: R-STORE-HOST-PATH
-        statement: 宿主连接完成且页脚「存储与更新」展开后才请求并展示宿主存储文件的完整路径，可拷贝或在宿主文件管理器中定位；无法定位时须说明原因。
+        statement: 宿主连接完成且页脚「存储」展开后才请求并展示宿主存储文件的完整路径，可拷贝或在宿主文件管理器中定位；无法定位时须说明原因。
         failure: 想备份或排查却找不到文件，只能猜默认目录；或显示一个实际不存在的路径。
         kind: presentation
         branches:
@@ -524,14 +524,14 @@ features:
         reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: '25d0468e3383a6ee' }
 
       - id: R-PANEL-FOOTER
-        statement: 正常页脚折叠时只显示「存储与更新」；展开后可查看存储信息和当前版本，并可手动检查更新。保存警告与新版本入口独立显示。
-        failure: 折叠时仍显示存储说明，保存警告被折叠隐藏，或用户无法查看存储信息和手动检查更新。
+        statement: 正常页脚折叠时只显示「存储」；展开后可查看存储信息。保存警告独立显示。
+        failure: 折叠时仍显示存储说明，保存警告被折叠隐藏，或用户无法查看存储信息。
         kind: presentation
         branches:
           - kind: valid
-            text: 展开页脚「存储与更新」后可以查看存储信息和版本，并可手动检查更新
+            text: 展开页脚「存储」后可以查看存储信息
           - kind: invalid
-            text: 折叠时仍显示存储说明，或保存警告与新版本入口受存储折叠状态影响
+            text: 折叠时仍显示存储说明，或保存警告受存储折叠状态影响
         technique: [等价类]
 
       - id: R-PANEL-NO-ANALYTICS
@@ -599,58 +599,6 @@ features:
         technique: [等价类]
         reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: 'cedb0ec5e5041016' }
 
-  - id: update
-    title: 更新中心
-    owner: update
-    rules:
-      - id: R-UPD-SOURCE
-        statement: 版本探测按 npm → 镜像 → GitHub Release 顺序回退，结果缓存 1 小时；手动检查绕过缓存。
-        failure: npm 挂了就永远显示“已是最新”，用户装不上新版本。
-        kind: failure
-        branches:
-          - kind: valid
-            text: 首个源失败时回退到下一个
-          - kind: boundary
-            text: 1 小时内复用缓存，过期后重新探测
-        technique: [故障注入, 时序]
-        reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: 'a31344b98b5104b6' }
-
-      - id: R-UPD-NOTES
-        statement: 更新说明只列「本地版本之后、最新版本之前」的发布，草稿与预发布一律不展示；最新版本默认展开，完整说明链接指向对应 Release 并在新标签页打开。
-        failure: 说明里混进草稿和预发布版，用户被未发布内容误导。
-        kind: rule
-        branches:
-          - kind: valid
-            text: 区间内版本按倒序列出
-          - kind: invalid
-            text: 草稿、预发布、早于本版本的发布不出现
-        technique: [边界值, 决策表]
-        reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: 'a07929925fc534fc' }
-
-      - id: R-UPD-APPLY
-        statement: 「立即更新」只走宿主更新端点，不得回落到插件市场；成功后引导刷新，需要重启时说清楚。
-        failure: 点更新跳去插件市场，装到别的版本或根本装不上。
-        kind: rule
-        branches:
-          - kind: valid
-            text: 一次宿主请求完成安装
-          - kind: n-a
-            reason: 走市场是缺陷，没有合法的“换一条安装路径”分支
-        technique: [不变量]
-        reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: '160b51afedf145d1' }
-
-      - id: R-UPD-FAILURE
-        statement: 宿主没有更新路由或拒绝更新时，必须给出手动命令兜底，不得显示成已更新。
-        failure: 宿主不支持更新时仍显示“正在更新”，界面卡住且没有兜底。
-        kind: failure
-        branches:
-          - kind: valid
-            text: 给出可复制的命令
-          - kind: invalid
-            text: 显示成功属于缺陷
-        technique: [故障注入]
-        reviewed: { by: "reviewed-in-chat", at: '2026-11-18', hash: '3bc5aa64954f74b1' }
-
   - id: package
     title: 产物与卸载
     owner: package
@@ -693,5 +641,5 @@ invariants:
     rules: [R-SCOPE-SEED, R-STORE-MERGE]
 
   - id: INV-NO-SILENT-SUCCESS
-    statement: 失败必须可见：写失败、更新失败、加载失败都要明确告知，不得报告成功。
-    rules: [R-STORE-WRITE-FAIL, R-UPD-FAILURE, R-PKG-BOOT]
+    statement: 失败必须可见：写失败、加载失败都要明确告知，不得报告成功。
+    rules: [R-STORE-WRITE-FAIL, R-PKG-BOOT]

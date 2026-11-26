@@ -20,24 +20,6 @@ const bundlePath = path.join(root, 'client', 'client.js')
 const bundle = fs.readFileSync(bundlePath, 'utf8')
 
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'))
-// Update-flow fixtures move with the build. LATEST is one major above the
-// running version, IN_BETWEEN sits in the gap so the panel lists two releases,
-// and OLD is below the build so it must never be listed. Pinning these broke
-// every release: the build bumps and the "newer" fixture silently becomes older.
-const RUNNING = manifest.version
-// A build from a published channel (`X.Y.Z-beta.N`) also reads `next`; a stable
-// build reads `latest` alone. The expected request list follows the shipped
-// version instead of pinning one shape, which broke every release.
-const CHANNELS = /-(?:alpha|beta|rc)\./.test(RUNNING) ? ['latest', 'next'] : ['latest']
-const REGISTRY_URLS = ['https://registry.npmjs.org', 'https://registry.npmmirror.com']
-  .flatMap(host => CHANNELS.map(channel => `${host}/%40miorin%2Fdsh-sideby-note/${channel}`))
-// The core only: a prerelease build (1.1.2-beta.1) would otherwise make PATCH NaN.
-const [MAJOR, MINOR, PATCH] = RUNNING.replace(/-.*$/, '').split('.').map(Number)
-const LATEST = `${MAJOR + 1}.0.0`
-const IN_BETWEEN = `${MAJOR}.${MINOR}.${PATCH + 1}`
-const OLD = '0.0.1'
-const PRERELEASE = `${LATEST}-beta.1`
-const DRAFT = `${MAJOR + 1}.0.1`
 const WORKSPACE_KEY = 'dsh.aside-note.workspaces'
 const UNASSIGNED = 'sideby-note:unassigned'
 const orderPicker = (panel, section = 'open') => panel.querySelector(
@@ -77,81 +59,14 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const ReactDOMClient = await import('react-dom/client')
   const { act } = React
 
-  // The panel probes npm when it opens and asks the host only when a newer
-  // version exists. Answer inside this realm so the shipped notes fetch,
-  // cache and update flow run without touching the network.
-  const RELEASE_BODY = `# English
-
-<!-- app-update-notes:en:start -->
-### Added
-- **Update centre:** Notes are readable in the panel. (#31)
-<!-- app-update-notes:en:end -->
-
-# 中文
-
-<!-- app-update-notes:zh:start -->
-### 新增
-- **更新中心：** 可以直接在面板里查看更新说明。 （#31）
-
-### 修复
-- **提示点：** 已是最新版本时不再显示。 （#32）
-<!-- app-update-notes:zh:end -->
-`
-  const OLDER_BODY = `# 中文
-
-<!-- app-update-notes:zh:start -->
-### 修复
-- **旧版本：** 修复了上一个版本的问题。 （#30）
-<!-- app-update-notes:zh:end -->
-`
-  const releaseUrl = version => `https://github.com/miorin-chan/dsh-sideby-note/releases/tag/v${version}`
-  const RELEASES = [
-    { tag_name: `v${LATEST}`, html_url: releaseUrl(LATEST), body: RELEASE_BODY },
-    { tag_name: `v${IN_BETWEEN}`, html_url: releaseUrl(IN_BETWEEN), body: OLDER_BODY },
-    // Older than the running build and a prerelease: neither may appear.
-    { tag_name: `v${OLD}`, html_url: releaseUrl(OLD), body: OLDER_BODY },
-    { tag_name: `v${PRERELEASE}`, prerelease: true, body: RELEASE_BODY },
-    { tag_name: `v${DRAFT}`, draft: true, body: RELEASE_BODY },
-  ]
   const calls = []
-  let hostUpdates = 0
-  let hostTarget = null
-  // One manual check is held open so the test can see the in-flight render.
-  let holdManualCheck = false
-  let releaseManualCheck = null
   const json = (status, body) => ({ ok: status >= 200 && status < 300, status, json: async () => body })
   window.fetch = async (input, init = {}) => {
     const url = String(input)
     const method = init.method || 'GET'
     calls.push({ url, method })
-    if (url.startsWith('https://registry.npmjs.org/')) return json(404, {})
-    if (url.startsWith('https://registry.npmmirror.com/')) {
-      if (holdManualCheck) {
-        holdManualCheck = false
-        return new Promise(resolve => {
-          releaseManualCheck = () => resolve(json(200, { version: LATEST }))
-        })
-      }
-      return json(200, { version: LATEST })
-    }
-    if (url === 'https://api.github.com/repos/miorin-chan/dsh-sideby-note/releases?per_page=50') {
-      return json(200, RELEASES)
-    }
-    if (url === '/dsh-sideby-note/update/apply' && method === 'POST') {
-      hostUpdates += 1
-      hostTarget = JSON.parse(init.body).target
-      return json(200, {
-        ok: true,
-        route: 'dsh',
-        previousVersion: RUNNING,
-        installedVersion: hostTarget,
-        updated: true,
-        restartRequired: true,
-      })
-    }
     return json(404, {})
   }
-  const registryCalls = () => calls.filter(call => call.url.includes('registry.'))
 
   let loaded = null
   window.__ModuleLoader__ = { load: spec => { loaded = spec } }
@@ -171,7 +86,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   }
   const exported = loaded.factory(requireShim)
   // Bindings the subtests hand to each other: they run in order, as one session.
-  let button, popover, reactRoot, valueSetter, beforeCheck, updateButton
+  let button, popover, reactRoot, valueSetter
   assert.deepEqual([...exported.inject], ['slots'])
   assert.equal(typeof exported.apply, 'function')
 
@@ -297,10 +212,10 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const footer = () => popover.querySelector('.dsh-an-popFoot details.dsh-an-footerDetails')
   const storageToggle = () => footer().querySelector(':scope > summary.dsh-an-storageToggle')
 
-  await t.test('PANEL-004 页脚存储详情展示版本与检查入口', async () => {
+  await t.test('PANEL-004 页脚存储详情默认折叠并在展开后展示存储信息', async () => {
     assert.ok(footer(), 'the panel footer always offers storage details')
     assert.equal(footer().open, false)
-    assert.equal(footer().textContent.trim(), '存储与更新')
+    assert.equal(footer().textContent.trim(), '存储')
     const css = document.querySelector('style[data-dsh-plugin="dsh-sideby-note"]').textContent
     assert.match(css, /\.dsh-an-storageToggle\s*\{[^}]*\blist-style:\s*none\b/)
     assert.match(css, /\.dsh-an-storageToggle::-webkit-details-marker\s*\{[^}]*\bdisplay:\s*none\b/)
@@ -311,8 +226,8 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     await act(async () => { storageToggle().click() })
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
     assert.equal(footer().open, true)
-    assert.ok(footer().textContent.includes(RUNNING), 'the footer displays the running version')
-    assert.equal(footer().querySelector('button.dsh-an-updateCheck').textContent, '检查更新')
+    assert.ok(footer().querySelector('.dsh-an-storageBlock'), 'the expanded footer renders storage details')
+    assert.equal(popover.querySelector('.dsh-an-updateDetails, .dsh-an-updateCheck'), null)
     assert.equal(popover.querySelector('#dsh-an-forward-prefix, input[type="radio"]'), null)
 
     await act(async () => { storageToggle().click() })
@@ -325,105 +240,9 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(popover.querySelector('#dsh-an-analytics-hint, input[role="switch"]'), null)
     assert.equal(window.localStorage.getItem('dsh.aside-note.analytics'), null)
     await act(async () => { storageToggle().click() })
-    const allowed = new Set([...REGISTRY_URLS, '/dsh-sideby-note/store',
-      '/dsh-sideby-note/store/location', 'https://api.github.com/repos/miorin-chan/dsh-sideby-note/releases?per_page=50'])
+    const allowed = new Set(['/dsh-sideby-note/store', '/dsh-sideby-note/store/location'])
     assert.deepEqual(calls.filter(call => call.method !== 'GET' || !allowed.has(call.url)), [],
-      'opening the panel and storage details only reads storage and update endpoints')
-  })
-
-  const updateDetails = () => popover.querySelector('details.dsh-an-updateDetails')
-
-  await t.test('UPD-001 npm 失败回退镜像并显示更新卡片与说明', async () => {
-    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
-    assert.deepEqual(registryCalls().map(call => call.url), REGISTRY_URLS, 'the npmjs miss must fall back to the npmmirror host')
-    const details = updateDetails()
-    assert.ok(details, 'a newer version gives the panel an update disclosure')
-    assert.equal(details.parentElement, footer().closest('.dsh-an-popFoot'))
-    assert.equal(footer().open, false, 'storage stays collapsed when a newer version is offered')
-    const summary = details.querySelector(':scope > summary.dsh-an-updateToggle')
-    assert.ok(summary.textContent.trim(), 'the available update has a visible label')
-    assert.equal(details.open, false)
-    assert.equal(popover.querySelector('.dsh-an-updateCard'), null)
-
-    await act(async () => { summary.click() })
-    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 80)) })
-    assert.equal(details.open, true)
-    assert.ok(details.querySelector('.dsh-an-updateCard .dsh-an-updateNotes'), 'release notes load inside the open disclosure')
-
-    await act(async () => { summary.click() })
-    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
-    assert.equal(details.open, false)
-    assert.equal(popover.querySelector('.dsh-an-updateCard'), null, 'closing the disclosure unmounts the update card')
-    await act(async () => { summary.click() })
-    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
-  })
-
-  await t.test('UPD-002 手动检查绕过缓存且卡片不卸载', async () => {
-    // The manual check bypasses the hourly cache and reads the registry again.
-    // Hold its answer to assert the card does not unmount while the check runs.
-    await act(async () => { storageToggle().click() })
-    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
-    const updateCard = updateDetails().querySelector('.dsh-an-updateCard')
-    assert.ok(updateCard)
-    const check = footer().querySelector('.dsh-an-updateCheck')
-    beforeCheck = registryCalls().length
-    holdManualCheck = true
-    check.focus()
-    await act(async () => { check.click() })
-    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 60)) })
-    assert.equal(updateDetails().open, true)
-    assert.equal(updateDetails().querySelector('.dsh-an-updateCard'), updateCard, 'the card must stay mounted while a manual check runs')
-    assert.equal(check.textContent, '正在检查…', 'the manual check button reports progress')
-    assert.equal(check.getAttribute('aria-disabled'), 'true')
-    assert.equal(document.activeElement, check, 'a pending check keeps keyboard focus on the button')
-    releaseManualCheck()
-    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 80)) })
-    assert.equal(registryCalls().length, beforeCheck + REGISTRY_URLS.length, 'a manual check must bypass the cache')
-    // The checking state is deliberately held for at least three seconds; wait it
-    // out before expecting an available release again.
-    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 3200)) })
-    assert.ok(footer().textContent.includes(`有新版本 v${LATEST}`), 'the footer reports the result of the manual check')
-    await act(async () => { storageToggle().click() })
-  })
-
-  await t.test('UPD-003 更新说明列出区间版本并支持展开', async () => {
-    // The release list is already visible: two releases in the gap, the newest
-    // open and the older one collapsed until its version heading is clicked.
-    const notes = popover.querySelector('.dsh-an-updateNotes')
-    assert.ok(notes, 'release notes stay visible after a check')
-    assert.match(notes.textContent, /本次更新包含 2 个版本/)
-    const heads = [...notes.querySelectorAll('.dsh-an-updateVersionHead')]
-    assert.deepEqual(heads.map(head => head.textContent.replace('▸', '')), [`v${LATEST}最新`, `v${IN_BETWEEN}`])
-    assert.match(notes.textContent, /更新中心/)
-    assert.ok(!notes.textContent.includes(`v${PRERELEASE}`), 'prereleases are not offered')
-    assert.ok(!notes.textContent.includes(`v${OLD}`), 'releases older than the build are not listed')
-    assert.equal(heads[0].getAttribute('aria-expanded'), 'true', 'the release being installed opens')
-    assert.equal(heads[1].getAttribute('aria-expanded'), 'false', 'older releases wait for a click')
-    await act(async () => { heads[1].click() })
-    assert.match(notes.textContent, /修复了上一个版本的问题/, 'clicking an older version expands its notes')
-    const fullLink = popover.querySelector('.dsh-an-updateFull')
-    assert.equal(fullLink.getAttribute('href'), releaseUrl(LATEST))
-    assert.equal(fullLink.getAttribute('target'), '_blank')
-    const actions = popover.querySelector('.dsh-an-updateActions')
-    assert.ok(actions, 'the action row carries the update button and the full-release link')
-    assert.equal(actions.lastElementChild, fullLink, 'the full-release link sits to the right of the update button')
-    updateButton = actions.querySelector('.dsh-an-updatePrimary')
-    assert.ok(updateButton, 'the update button shares that row')
-    assert.equal(updateButton.textContent, '立即更新')
-    assert.equal(popover.querySelector('.dsh-an-updateFallback'), null,
-      'a reachable host shows no manual fallback before it is needed')
-  })
-
-  await t.test('UPD-004 立即更新只走宿主端点并落到刷新', async () => {
-    // "Update now" posts one host request and settles on the refresh action.
-    await act(async () => { updateButton.click() })
-    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 200)) })
-    assert.equal(hostUpdates, 1, 'the update must POST to the host exactly once')
-    assert.equal(hostTarget, LATEST, 'the host receives the offered version')
-    assert.equal(calls.filter(call => call.url.includes('/dsh-market/')).length, 0,
-      'the update path must not probe the plugin market')
-    const done = [...popover.querySelectorAll('.dsh-an-updatePrimary')].map(node => node.textContent)
-    assert.ok(done.includes('刷新页面'), `the finished host update offers a refresh, saw ${JSON.stringify(done)}`)
+      'opening the panel and storage details only reads storage endpoints')
   })
 
   let addField = popover.querySelector('.dsh-an-input')
@@ -642,21 +461,12 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(sections.open, false)
   })
 
-  await t.test('UPD-005 重开面板复用探测缓存', async () => {
-    // The probe caches its answer, so reopening the panel reads no registry again.
+  await t.test('Escape returns focus from the footer to the panel entry', async () => {
     await act(async () => { popover.querySelector('.dsh-an-popClose').click() })
     assert.equal(document.querySelector('.dsh-an-popover'), null, 'the close button removes the panel')
     await act(async () => { button.click() })
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
-    assert.equal(registryCalls().length, beforeCheck + REGISTRY_URLS.length, 'the cached answer must be reused by a reopened panel')
-    const reopened = document.querySelector('.dsh-an-popover')
-    const update = reopened.querySelector('details.dsh-an-updateDetails')
-    assert.ok(update.querySelector('summary.dsh-an-updateToggle'))
-    assert.equal(update.open, false)
-    assert.equal(reopened.querySelector('.dsh-an-sectionHead .dsh-an-doneToggle').getAttribute('aria-expanded'), 'false')
-  })
-
-  await t.test('Escape returns focus from the footer to the panel entry', async () => {
+    assert.equal(document.querySelector('.dsh-an-popover .dsh-an-sectionHead .dsh-an-doneToggle').getAttribute('aria-expanded'), 'false')
     const summary = document.querySelector('.dsh-an-popover summary.dsh-an-storageToggle')
     summary.focus()
     assert.equal(document.activeElement, summary)
@@ -921,7 +731,7 @@ test('workspace notes share a list and global actions preserve ownership', async
       'the workspace list is the default scope')
     const footer = popover.querySelector('.dsh-an-popFoot')
     assert.equal(footer.querySelectorAll('details').length, 1)
-    assert.equal(footer.textContent.trim(), '存储与更新')
+    assert.equal(footer.textContent.trim(), '存储')
     await openStorageDetails(popover)
     assertLocalStorageDetails(popover)
   })
@@ -1836,11 +1646,11 @@ test('handing notes to chat joins them on new lines, without a prefix or list ma
     assert.equal(popover.querySelector('.dsh-an-popTitle').textContent, '边记部')
     assert.equal(popover.querySelector('.dsh-an-input').placeholder, '关于工作区...')
     const storageToggle = popover.querySelector('summary.dsh-an-storageToggle')
-    assert.equal(storageToggle.textContent.trim(), '存储与更新')
+    assert.equal(storageToggle.textContent.trim(), '存储')
     await act(async () => { locale.setLocale('en') })
     assert.equal(popover.querySelector('.dsh-an-popTitle').textContent, 'Sideby Note')
     assert.equal(popover.querySelector('.dsh-an-input').placeholder, 'About 工作区...')
-    assert.equal(storageToggle.textContent.trim(), 'Storage & updates')
+    assert.equal(storageToggle.textContent.trim(), 'Storage')
     assert.equal(await insert('Alpha'), 'Alpha')
   })
 

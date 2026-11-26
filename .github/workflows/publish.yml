@@ -1,120 +1,15 @@
 name: publish
 
 on:
-  # Manual first publish (and re-runs); a tag push publishes the matching version.
   workflow_dispatch:
   push:
     tags: ['v*']
 
 permissions:
-  # The tag run also creates the matching GitHub Release, which is the target
-  # of the in-app "new version" link.
   contents: write
-  # Required for trusted publishing: npm exchanges this OIDC token for a
-  # short-lived publish credential instead of a long-lived access token.
   id-token: write
-
-concurrency:
-  group: publish
-  cancel-in-progress: false
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: '11'
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          registry-url: https://registry.npmjs.org
-
-      - name: Install
-        run: pnpm install --frozen-lockfile
-        env:
-          NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
-          # The lockfile resolves through the npm mirror used during development;
-          # fetch from the public registry on the runner instead.
-          NPM_CONFIG_REPLACE_REGISTRY_HOST: always
-
-      - name: Check
-        run: npm run check
-
-      - name: The tag must match the package version
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: |
-          version="v$(node -p "require('./package.json').version")"
-          if [ "$version" != "$GITHUB_REF_NAME" ]; then
-            echo "::error::tag $GITHUB_REF_NAME does not match package.json $version"
-            exit 1
-          fi
-
-      - name: The changelog must have a section for the tag
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: |
-          # Gate before npm publish: a missing or empty section would otherwise
-          # publish the package and then silently generate unrelated notes.
-          # Re-running after a publish is not possible (the version is taken).
-          node tools/release.mts check "${GITHUB_REF_NAME#v}"
-
-      - name: Publish
-        run: |
-          # A manual first publish or a re-run may have already shipped this
-          # version; in that case the tag still owns the Release creation below.
-          name="$(node -p "require('./package.json').name")"
-          version="$(node -p "require('./package.json').version")"
-          if npm view "${name}@${version}" version >/dev/null 2>&1; then
-            echo "${name}@${version} already exists; skipping npm publish"
-            exit 0
-          fi
-          # A tag carrying a prerelease suffix goes to the `next` dist-tag so it
-          # never becomes `latest` (and never nags stable users).
-          if [[ "$GITHUB_REF_NAME" == v*-* ]]; then
-            npm publish --provenance --access public --tag next
-          else
-            npm publish --provenance --access public
-          fi
-
-      - name: Create the GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # The update notice links to releases/latest, so a tag without a
-          # Release would leave that link at 404 even though npm published.
-          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            echo "Release $GITHUB_REF_NAME already exists"
-            exit 0
-          fi
-          version="${GITHUB_REF_NAME#v}"
-          notes_file="$(mktemp)"
-          prev="$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)"
-          # Compose the release body from CHANGELOG.md: English + 中文 sections,
-          # app-update-notes markers for the in-app update card, install links and
-          # the Full Changelog link. The tag gate above already proved the section
-          # exists and is not empty, so a failure here means the section lacks the
-          # markers; that fails the release on purpose instead of falling back to
-          # generated notes the update card cannot read.
-          builder=(node tools/release/notes.mts --version "$version" --tag "$GITHUB_REF_NAME")
-          if [ -n "$prev" ]; then builder+=(--prev "$prev"); fi
-          "${builder[@]}" --out "$notes_file"
-          flags=(--verify-tag --title "Sideby Note $version" --notes-file "$notes_file")
-          if [[ "$GITHUB_REF_NAME" == v*-* ]]; then
-            flags+=(--prerelease)
-          fi
-          gh release create "$GITHUB_REF_NAME" "${flags[@]}"
-
-      - name: Attach the package tarball
-        if: startsWith(github.ref, 'refs/tags/v')
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # Keep the "install from a Release" path working even though npm is
-          # now the primary channel.
-          mkdir -p dist
-          npm pack --pack-destination dist
-          gh release upload "$GITHUB_REF_NAME" dist/*.tgz --clobber
+    uses: miorin-chan/.github/.github/workflows/publish-dsh-plugin.yml@main
+    secrets: inherit

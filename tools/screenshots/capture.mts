@@ -132,14 +132,14 @@ async function captureFeatures() {
     toggle.click()
     return toggle.parentElement.open
   })()`)
-  if (!openStorage) throw new Error('could not open Storage & updates in the panel footer')
+  if (!openStorage) throw new Error('could not open Storage in the panel footer')
   let pathVisible = false
   for (let attempt = 0; attempt < 20; attempt++) {
     pathVisible = await evaluate<boolean>(session, `!!document.querySelector('.dsh-an-storagePath')?.textContent`)
     if (pathVisible) break
     await sleep(100)
   }
-  if (!pathVisible) throw new Error('Storage & updates did not show the demo host file path')
+  if (!pathVisible) throw new Error('Storage did not show the demo host file path')
   await capture('settings')
   await evaluate(session, `document.querySelector('.dsh-an-storageToggle').click()`)
   await sleep(400)

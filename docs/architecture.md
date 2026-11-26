@@ -102,15 +102,10 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 存储 | `storage/state.ts` / `host-client.ts` / `ops.ts` | 内存快照、同标签广播、同源 HTTP、按 key 串行与乐观/回滚策略 |
 | 存储 | `storage/legacy.ts` | 旧 `localStorage` 快照（迁移来源）、兼容上游的 `dsh.aside-note.storage-mode` 切换标记与 `dsh.aside-note.storage-notice` 提示去重 |
 | 范围 | `scope.ts` | 解析当前会话的工作区归属，区分列表筛选和新增便笺的写入目标 |
-| 更新 | `update/latest.ts` | npm → npmmirror → GitHub Release 的版本探测（1 小时缓存），按版本读取 Release 正文 |
-| 更新 | `update/releaseNotes.ts` | 提取 `app-update-notes` 标记块、按语言回退、压平 Markdown、上限兜底 |
-| 更新 | `update/releaseHistory.ts` | 从 releases feed 选出「本地 < 版本 ≤ 最新」的区间，剔除草稿/预发布，倒序与上限 |
-| 更新 | `ui/useUpdateCenter.ts` | 自动/手动检查、懒加载说明、更新状态机（starting/running/done/error）；只走宿主更新端点，没有市场分支 |
-| 更新 | `ui/UpdateNotice.ts` | 页脚「有新版本」展开后的内容：说明、完整说明链接、立即更新与刷新，宿主没有路由或拒绝时提供带版本号的命令与拷贝更新提示词 |
 | 存储 | `storage/prefs.ts` | 筛选选择在宿主模式写入 `global`，面板宽高与分区状态留在设备本地 |
 | UI 组件 | `ui/MemoPopover.ts` | 组合面板 hook 与组件，由 `shell.overlay` 中的 React portal 渲染 |
 | UI 组件 | `PanelHead` / `ScopeSwitch` / `ComposerForm` / `NoteList` / `ClearConfirm` / `TodoRow` / `EmptyState` | 纯展示，数据与回调由面板传入 |
-| UI 组件 | `PanelFooter` / `StorageDetails` | 页脚「存储与更新」默认折叠，展开后显示存储状态并读取宿主文件路径。有新版时显示独立的「有新版本」入口 |
+| UI 组件 | `PanelFooter` / `StorageDetails` | 页脚「存储」默认折叠，展开后显示存储状态并读取宿主文件路径 |
 | UI hooks | `useSessionMemoStore` / `usePanelGeometry` / `useSections` / `useComposerDraft` / `useNoteActions` / `useRowReorder` / `useClearConfirm` / `useListEdge` / `useOutsideDismiss` | 把状态与副作用从 JSX 里分离；每个 hook 只做一件事 |
 | UI 基础设施 | `primitives` / `position` / `toastSeat` / `headerEntry` | 共享图标与 Tooltip、浮层定位与吸顶、跨面板 Toast、宿主 header 入口（空白新会话回落到 header corner） |
 
@@ -141,7 +136,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 - 浏览器在宿主之外仍保留设备本地状态（`localStorage`）：面板宽高、分区展开、首次打开标记、
   未提交草稿（`dsh.aside-note.drafts`，按工作区/会话共享）。
 - 领域 `version` 是当前格式版本；读旧版本要配 `compatibleVersions`，删字段前必须重写所有记录（官方无值迁移 runner）。
-- 展开页脚「存储与更新」后，通过 `GET /store/location` 读取该文件的完整路径，可复制路径。
+- 展开页脚「存储」后，通过 `GET /store/location` 读取该文件的完整路径，可复制路径。
   `POST /store/reveal` 让宿主在文件管理器中定位它。
   后端不是 JSON 文件时明确显示「无法定位」，不猜路径。
 - `Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt?, attachments?, linkedSessionId? }`；
