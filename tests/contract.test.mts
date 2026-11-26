@@ -79,7 +79,7 @@ test('host and browser entries use the package identity', () => {
   assert.match(read('host/attachment-route.js'), /registerAttachmentRoute/)
   // The client half is several modules now; identity checks span the tree.
   const client = readClientTree()
-  // The loader shell is now emitted by tsdown, not hand-written in the source.
+  // The loader shell is now emitted by scripts/build.mjs, not hand-written in the source.
   const bundle = read('client/client.js')
   assert.match(bundle, /^window\.__ModuleLoader__\.load\(/)
   assert.match(bundle, /id: "@miorin\/dsh-sideby-note"/)

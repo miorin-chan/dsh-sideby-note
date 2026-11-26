@@ -16,7 +16,7 @@ import type { UiWorkspace } from '@deepseek-ai/dsh-client-ui-workspace/client'
 import type { ShortcutBinding, ShortcutCatalogEntry, ShortcutCommandId, Shortcuts } from '@deepseek-ai/dsh-client-shortcuts/client'
 
 import CSS from './styles/panel.css?inline'
-import { officialAttachmentCSS } from './ui/AttachmentList'
+import { attachmentCSS } from './ui/AttachmentList'
 import { NS, PANEL_ID, STORAGE_MODE_KEY } from './constants'
 import { DICT, fill, makeSay } from './i18n'
 import { bindWorkspace, draftKeyForSession, workspaceById, workspaceForSession, type NoteWorkspace } from './scope'
@@ -46,48 +46,6 @@ const webToggle: ShortcutBinding = { code: 'KeyE', modifiers: ['primary', 'alt']
 // product's Tooltip and Toast instead of a second copy. The bundle declares it
 // external: a host that cannot resolve it fails the build, never ships a duplicate.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /** Workspace hooks are optional on profiles without the workspace UI. */
 const useNoWorkspace = () => null
 /** Hosts without a session list cannot tell a new session from an old one. */
@@ -111,7 +69,7 @@ function apply(ctx: DshClientCtx) {
   ctx.effect(() => {
     const style = document.createElement('style')
     style.dataset.dshPlugin = 'dsh-sideby-note'
-    style.textContent = `${officialAttachmentCSS}\n${CSS}`
+    style.textContent = `${attachmentCSS}\n${CSS}`
     document.head.appendChild(style)
     return () => { style.remove() }
   }, 'dsh-sideby-note: styles')

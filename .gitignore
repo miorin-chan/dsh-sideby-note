@@ -4,6 +4,8 @@ node_modules/
 /index.js
 /host/*.js
 /client/client.js
+/scripts/build.mjs
+/scripts/sync-types.mjs
 /scripts/install.mjs
 
 coverage/

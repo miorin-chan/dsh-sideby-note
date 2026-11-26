@@ -1,8 +1,12 @@
 {
-  "extends": "./tsconfig.host.json",
   "compilerOptions": {
-    "allowImportingTsExtensions": true,
-    "noEmit": true
+    "target": "ES2022",
+    "module": "NodeNext",
+    "strict": true,
+    "noEmitOnError": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "types": ["node"]
   },
-  "include": ["tools/**/*.mts"]
+  "include": ["scripts/build.mts", "scripts/sync-types.mts"]
 }

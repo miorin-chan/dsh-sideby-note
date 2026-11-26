@@ -25,7 +25,6 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "src/**/*.d.ts",
-    "tsdown.config.ts"
+    "src/**/*.d.ts"
   ]
 }
