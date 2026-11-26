@@ -230,3 +230,73 @@ test('STORE-032 宿主清单兼容纯文本与仅附件便笺', async t => {
   })
   assert.deepEqual((await store.snapshot()).data.workspaces.workspace.items, [legacy, fileOnly, maxed])
 })
+
+test('store list.patch unlinks unreferenced attachment blobs while preserving shared and unattached files', async t => {
+  const { mkdir, writeFile } = await import('node:fs/promises')
+  const { tmpdir } = await import('node:os')
+  const { join } = await import('node:path')
+  const { createStore } = await import('../host/store.js')
+
+  const root = await mkdtemp(join(tmpdir(), 'dsh-note-gc-'))
+  t.after(() => rm(root, { recursive: true, force: true }))
+  const sidecar = join(root, 'dsh-sideby-note-attachments')
+  await mkdir(sidecar, { recursive: true })
+
+  const idRemoved = 'a'.repeat(64)
+  const idShared = 'b'.repeat(64)
+  const idUnattached = 'c'.repeat(64)
+  await Promise.all([
+    writeFile(join(sidecar, idRemoved), 'removed'),
+    writeFile(join(sidecar, idShared), 'shared'),
+    writeFile(join(sidecar, idUnattached), 'unattached'),
+  ])
+
+  const domain = fakeDomain()
+  const baseCtx = fakeCtx(domain)
+  const ctx = {
+    get(name: string) {
+      if (name === 'storage') return { backend: new Map([['json', { root }]]) }
+      if (name === 'storageDomain') {
+        return {
+          config: { backend: 'default', routes: { aside_note: 'json' } },
+          open: () => (baseCtx.get('storageDomain') as { open: () => Promise<unknown> }).open(),
+        }
+      }
+      return baseCtx.get(name)
+    },
+  }
+  const store = createStore(ctx as never)
+  t.after(() => store.close())
+
+  const makeAttachment = (id: string) => ({ id, name: `${id.slice(0, 6)}.txt`, type: 'text/plain', size: 6 })
+  const noteA = noteSchema.parse({
+    id: 'note-a',
+    text: 'first note',
+    done: false,
+    createdAt: 1,
+    updatedAt: 1,
+    attachments: [makeAttachment(idRemoved), makeAttachment(idShared)],
+  })
+  const noteB = noteSchema.parse({
+    id: 'note-b',
+    text: 'second note',
+    done: false,
+    createdAt: 1,
+    updatedAt: 1,
+    attachments: [makeAttachment(idShared)],
+  })
+
+  await store.apply({ op: 'list.patch', kind: 'workspace', listKey: 'workspace', upserts: [noteA, noteB] })
+  assert.deepEqual((await readdir(sidecar)).sort(), [idRemoved, idShared, idUnattached])
+
+  await store.apply({
+    op: 'list.patch',
+    kind: 'workspace',
+    listKey: 'workspace',
+    upserts: [{ ...noteA, updatedAt: 2, attachments: [] }],
+  })
+  assert.deepEqual((await readdir(sidecar)).sort(), [idShared, idUnattached])
+
+  await store.apply({ op: 'list.patch', kind: 'workspace', listKey: 'workspace', deletes: [noteB.id] })
+  assert.deepEqual((await readdir(sidecar)).sort(), [idUnattached])
+})

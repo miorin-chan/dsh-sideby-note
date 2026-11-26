@@ -8,6 +8,8 @@
  */
 import type { Context } from '@deepseek-ai/cordis'
 import type { Domain, KvTable } from '@deepseek-ai/dsh-storage-domain'
+import { ATTACHMENT_ID } from './attachment-metadata.js'
+import { unlinkOrphanAttachments } from './attachment-route.js'
 import { DOMAIN_NAME, TABLES } from './constants.js'
 import type { createSpec, ForwardedRecord, Note, Prefs, SessionRecord, WorkspaceRecord } from './store-spec.js'
 import {
@@ -246,8 +248,18 @@ class Store {
       ordered.push(item)
     }
 
+    const beforeIds = collectAttachmentIds(current?.items)
+    const afterIds = collectAttachmentIds(ordered)
+    const removedIds = [...beforeIds].filter(id => !afterIds.has(id))
+
     const next = normalizeWorkspaceRecord({ ...current, items: ordered, updatedAt: Date.now() }, key)
     await writeRecord(table, key, current, next)
+    if (removedIds.length > 0) {
+      const stillReferenced = new Set<string>()
+      for (const [, record] of table.entries()) collectAttachmentIds(record.items, stillReferenced)
+      for (const [, record] of domain.table(TABLES.sessions).entries()) collectAttachmentIds(record.items, stillReferenced)
+      await unlinkOrphanAttachments(this.ctx, removedIds, stillReferenced)
+    }
     this.rev += 1
     return { rev: this.rev, record: next }
   }
@@ -408,4 +420,14 @@ async function putIfMissing<T>(table: KvTable<string, T>, key: string, value: T)
 async function writeRecord<T>(table: KvTable<string, T>, key: string, current: T | undefined, next: T): Promise<void> {
   if (current === undefined) await table.put(key, next)
   else await table.update(key, () => next)
+}
+
+function collectAttachmentIds(items: readonly Note[] | undefined, into = new Set<string>()): Set<string> {
+  if (!Array.isArray(items)) return into
+  for (const item of items) {
+    for (const attachment of item.attachments ?? []) {
+      if (ATTACHMENT_ID.test(attachment.id)) into.add(attachment.id)
+    }
+  }
+  return into
 }

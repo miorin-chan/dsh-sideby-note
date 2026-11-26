@@ -16,6 +16,11 @@ export function usePanelGeometry(anchorRef, placement, panelRef) {
   const panelWidthRef = React.useRef(panelWidth)
   const panelHeightRef = React.useRef(panelHeight)
   const lastStyleRef = React.useRef('')
+  const activeResizeCleanupRef = React.useRef<(() => void) | null>(null)
+
+  React.useEffect(() => () => {
+    activeResizeCleanupRef.current?.()
+  }, [])
 
   const updatePosition = React.useCallback(() => {
     // Keep the last position while the host replaces the conversation header.
@@ -49,6 +54,36 @@ export function usePanelGeometry(anchorRef, placement, panelRef) {
     writePanelWidth(next)
   }
 
+  const beginPointerDrag = (cursor: string, onMoveEvent: (event: PointerEvent) => void, onCommit: () => void) => {
+    activeResizeCleanupRef.current?.()
+    const prevUserSelect = document.body.style.userSelect
+    const prevCursor = document.body.style.cursor
+    let finished = false
+    const finish = (commit: boolean) => {
+      if (finished) return
+      finished = true
+      window.removeEventListener('pointermove', onMoveEvent)
+      window.removeEventListener('pointerup', onFinish)
+      window.removeEventListener('pointercancel', onFinish)
+      window.removeEventListener('blur', onFinish)
+      document.body.style.userSelect = prevUserSelect
+      document.body.style.cursor = prevCursor
+      if (activeResizeCleanupRef.current === abortDrag) {
+        activeResizeCleanupRef.current = null
+      }
+      if (commit) onCommit()
+    }
+    const onFinish = () => finish(true)
+    const abortDrag = () => finish(false)
+    activeResizeCleanupRef.current = abortDrag
+    window.addEventListener('pointermove', onMoveEvent)
+    window.addEventListener('pointerup', onFinish)
+    window.addEventListener('pointercancel', onFinish)
+    window.addEventListener('blur', onFinish)
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = cursor
+  }
+
   const startPanelResize = event => {
     if (event.button !== 0) return
     event.preventDefault()
@@ -59,17 +94,7 @@ export function usePanelGeometry(anchorRef, placement, panelRef) {
       panelWidthRef.current = next
       setPanelWidth(next)
     }
-    const onUp = () => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
-      document.body.style.userSelect = ''
-      document.body.style.cursor = ''
-      writePanelWidth(panelWidthRef.current)
-    }
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp, { once: true })
-    document.body.style.userSelect = 'none'
-    document.body.style.cursor = 'ew-resize'
+    beginPointerDrag('ew-resize', onMove, () => writePanelWidth(panelWidthRef.current))
   }
 
   const onPanelResizeKeyDown = event => {
@@ -108,17 +133,7 @@ export function usePanelGeometry(anchorRef, placement, panelRef) {
       panelHeightRef.current = next
       setPanelHeight(next)
     }
-    const onUp = () => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
-      document.body.style.userSelect = ''
-      document.body.style.cursor = ''
-      writePanelHeight(panelHeightRef.current)
-    }
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp, { once: true })
-    document.body.style.userSelect = 'none'
-    document.body.style.cursor = 'ns-resize'
+    beginPointerDrag('ns-resize', onMove, () => writePanelHeight(panelHeightRef.current))
   }
 
   const onPanelHeightKeyDown = event => {

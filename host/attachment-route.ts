@@ -40,6 +40,34 @@ async function checkDirectory(directory: string): Promise<void> {
   if (!(await lstat(directory)).isDirectory()) throw new Error('attachment sidecar is not a directory')
 }
 
+/**
+ * Best-effort GC for attachment blobs that were removed from a saved note and
+ * are no longer referenced anywhere in the note store.
+ */
+export async function unlinkOrphanAttachments(
+  ctx: Context,
+  candidateIds: Iterable<string>,
+  stillReferenced: ReadonlySet<string>,
+): Promise<void> {
+  const targets = [...new Set(candidateIds)].filter(id => ATTACHMENT_ID.test(id) && !stillReferenced.has(id))
+  if (targets.length === 0) return
+  try {
+    const { path } = resolveStoreFile(ctx)
+    if (!path) return
+    const directory = join(dirname(path), SIDECAR)
+    await checkDirectory(directory)
+    for (const id of targets) {
+      try {
+        await unlink(join(directory, id))
+      } catch {
+        // Missing files or transient filesystem errors never fail a saved note edit.
+      }
+    }
+  } catch {
+    // Missing sidecar directory means there is nothing to clean up.
+  }
+}
+
 async function upload(request: IncomingMessage, directory: string): Promise<string> {
   if (request.headers['content-type']?.trim().toLowerCase() !== OCTET_STREAM) {
     throw new AttachmentError(415, 'ATTACHMENT_MEDIA_TYPE', 'content-type must be application/octet-stream')
