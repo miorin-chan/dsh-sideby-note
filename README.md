@@ -230,7 +230,7 @@ npm run test:mutate   # 变异测试：确认用例能抓到真实缺陷
 window.__ModuleLoader__.load({ id: '@miorin/dsh-sideby-note', factory: (require) => { … } })
 ```
 
-JavaScript 产物随 npm 包分发，Git 记录 TypeScript 源码和构建配置。CI 用 `npm pack` 核对打包结果。
+JavaScript 产物随 npm 包分发，Git 记录 TypeScript 源码和构建配置。CI 用 `npm pack` 核对打包结果，并执行类型检查和代码测试。
 
 `index.ts` 注册宿主更新与便笺存储端点；`cordis.patch.yml` 负责把包插入 profile 的组合。界面依赖 `slots` 与 `locale` 两个服务：
 

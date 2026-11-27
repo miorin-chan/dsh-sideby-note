@@ -34,14 +34,16 @@
 
 CI（`.github/workflows/ci.yml`）按顺序执行：
 
-1. `npm ci` 构建 Host、Client 和安装器，连续两次 `npm pack` 核对包内容与完整性，并检查安装器路径、执行权限和 shebang。
-2. lint、typecheck；
-3. `test:run`，并把 `run.json` / 报告 / junit 作为 artifact 保留 30 天（失败也上传）；
-4. `catalog:check`：automation 指针必须命中真实测试，带 ID 的测试必须都在目录里；
-5. `review --strict`：被 P0 用例引用的规则必须有当前文本的评审（哈希绑定）；
-6. changelog 必须保留 `## next-released`。
+1. `pnpm install --frozen-lockfile` 安装依赖并构建 Host、Client 和安装器。
+2. 连续两次 `npm pack` 校验打包结果是否一致，并核对包内的运行文件、安装器权限和 shebang。
+3. `npm run typecheck` 执行类型检查。
+4. `node scripts/build.mjs --check` 校验构建产物，`node scripts/sync-types.mjs --check` 校验 DSH 类型依赖版本。
+   未设置 `DSH_INSTALL_DIR` 时，CI 会跳过类型版本比对。
+5. `npm test` 重新构建并运行 `tests/*.test.mts` 下的全部代码测试。
 
-发布前额外执行 `test:strict`：全部用例通过、复核签名与结果哈希一致。
+本地仍可使用规则与用例目录及相关命令（`npm run catalog:check`、`npm run test:run`、
+`npm run design:review` 和 `npm run test:strict`）。
+这些命令不再是 CI 门禁。
 
 ## 4. 规则与用例
 
@@ -98,14 +100,14 @@ CI（`.github/workflows/ci.yml`）按顺序执行：
 `MISSING` 表示目录里有这条用例、这次却没有测试产出结果，**不算通过**。
 
 复核：`--approve` 写入 `{ by, at, digest }`，`digest` 是全部结果的哈希；结果被改动后复核失效，`test:strict` 会拒绝。
-`.test/` 不提交；CI 把记录作为 artifact 保留 30 天。
+执行记录只保存在本地 `.test/runs/`，不提交 `.test/`。
 
 ## 8. 已知边界
 
 1. **真机验证**：配额满、磁盘满、profile 只读在 jsdom 里注入。
    宿主路由由单元和集成测试覆盖，`aside_note.json` 的读写可用真实 DSH 存储栈验证。
    Electron 界面验收按[本机实装与验收 SOP](./auto-test-sop.md)执行。
-2. **发版证据**：`run.json` 目前只进 CI artifact（30 天），发版时应挂到 GitHub Release 作为长期证据，尚未接入；
+2. **发版证据**：`run.json` 目前只保存在本地，发版时应挂到 GitHub Release 作为长期证据，尚未接入；
 3. **性能**：400 条已验证功能可用，滚动与渲染耗时未测量；
 4. **变异测试**：13 个变异覆盖关键路径，不是全量；宿主迁移、宿主合并与错误态没有对应变异；
 5. **宿主多进程**：多个 DSH 进程共用同一 `$DSH_HOME` 时没有跨进程写锁，测试未覆盖，属于已知限制。

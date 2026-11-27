@@ -256,7 +256,8 @@ The entry is `src/client/index.ts`, which exports `apply(ctx)`; tsdown wraps it 
 window.__ModuleLoader__.load({ id: '@miorin/dsh-sideby-note', factory: (require) => { … } })
 ```
 
-The npm package ships the generated JavaScript. Git tracks the TypeScript sources and build configuration, and CI verifies the tarball with `npm pack`.
+The npm package ships the generated JavaScript. Git tracks the TypeScript sources and build configuration,
+and CI verifies the tarball with `npm pack`, checks types, and runs the code tests.
 
 `index.ts` registers the update and note storage routes. `cordis.patch.yml` inserts the package into the profile composition. The UI depends on two services, `slots` and `locale`.
 

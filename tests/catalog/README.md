@@ -117,7 +117,7 @@ npm run catalog:check
 必填字段与枚举（含 A–F 分类与 planned 状态）、`automation` 指向的用例真的存在（文件与名字都要对上）、
 P0 必须有自动实现或 waiver，以及**反向**检查——测试里以 ID 开头的用例必须都在目录里，避免孤儿 ID。
 
-CI 在 `npm run test:run` 之后跑同一条命令。
+本地在 `npm run test:run` 之后跑同一条命令；CI 不再执行目录校验。
 改目录忘改测试、或改测试忘改目录，都会失败。
 
 ## 新增一个案例（顺序不能反）

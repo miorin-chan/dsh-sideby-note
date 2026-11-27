@@ -108,7 +108,7 @@
 npm run design:review                         # 一屏索引：规则 / 分支数 / 用例数 / 评审状态
 npm run design:review -- --since origin/main  # 只列改过的规则及其影响面
 npm run design:review -- --approve --by <name> [--rules R-…]
-npm run design:review -- --strict             # P0 规则未评审时退出 1（可用于后续 CI）
+npm run design:review -- --strict             # P0 规则未评审时退出 1（可用于发布前本地检查）
 ```
 
 审批写入的是内容哈希而不是版本号：`statement`、`failure`、任一分支改动，
