@@ -135,11 +135,15 @@ test('host and browser entries use the package identity', () => {
   assert.match(client, /placement === 'right'|placement === "right"/)
   assert.match(client, /BoundSessionCapture/)
   assert.match(client, /dsh-an-resizeHandle/)
-  assert.match(client, /dsh-an-resizeHandleBottom/)
+  assert.match(client, /dsh-an-resizeCorner/)
+  assert.doesNotMatch(client, /dsh-an-resizeHandleBottom/)
   assert.match(client, /PANEL_WIDTH_KEY/)
   assert.match(client, /PANEL_HEIGHT_KEY/)
   assert.match(client, /startPanelResize/)
-  assert.match(client, /startPanelHeightResize/)
+  assert.match(client, /resetPanelSize/)
+  assert.doesNotMatch(client, /startPanelHeightResize/)
+  assert.match(readCss(), /\.dsh-an-resizeHandle\{[^}]*left:0;bottom:0;[^}]*cursor:nesw-resize/)
+  assert.doesNotMatch(readCss(), /dsh-an-resizeHandleBottom/)
   assert.doesNotMatch(client, /refreshMemoBadges/)
   assert.doesNotMatch(client, /BoundDock/)
   assert.match(client, /createPortal\(h\('div'/)
@@ -212,12 +216,32 @@ test('locale files carry metadata and the dictionary stays in sync', () => {
     assert.doesNotMatch(key, /^update\./, `${key} should be removed`)
     assert.doesNotMatch(value, /完成/, `${key} still says 完成`)
   }
-  assert.equal(dict.zh['storage.details'], '存储')
-  assert.equal(dict.en['storage.details'], 'Storage')
+  assert.equal(dict.zh['resize.panel'], '调整边记部大小')
+  assert.equal(dict.en['resize.panel'], 'Resize Sideby Note')
   assert.equal(dict.zh['item.insert'], '填入')
   assert.equal(dict.en['item.insert'], 'Insert')
+  const retiredKeys = [
+    'item.markDone',
+    'item.markOpen',
+    'item.forward',
+    'item.forwarded',
+    'toast.forwarded',
+    'toast.unforwarded',
+    'toast.forwardFailed',
+    'storage.whereHost',
+    'storage.details',
+    'storage.copyPath',
+    'storage.reveal',
+    'storage.pathLoading',
+    'storage.pathUnavailable',
+    'storage.pathMissing',
+    'toast.pathCopied',
+    'toast.revealFailed',
+    'resize.width',
+    'resize.height',
+  ]
   for (const id of LOCALE_IDS) {
-    for (const gone of ['item.markDone', 'item.markOpen', 'item.forward', 'item.forwarded', 'toast.forwarded', 'toast.unforwarded', 'toast.forwardFailed']) {
+    for (const gone of retiredKeys) {
       assert.equal(dict[id][gone], undefined, `${id} still carries ${gone}`)
     }
   }
@@ -487,6 +511,14 @@ test('the retired settings surface leaves no settings styles or panel state', ()
   assert.equal(exists('src/client/ui/SettingsPanel.ts'), false)
 })
 
+test('the retired storage disclosure surface is gone', () => {
+  const retiredSelectors = /dsh-an-(?:storageToggle|storageBlock|storagePath|storagePathRow|storageActions|storageAction|footerDetails|footerBody)/
+  assert.doesNotMatch(readCss(), retiredSelectors)
+  assert.doesNotMatch(readClientTree(), retiredSelectors)
+  assert.doesNotMatch(readClientTree(), /fetchStoreLocation|revealStoreFile|HOST_STORE_LOCATION_PATH|HOST_STORE_REVEAL_PATH/)
+  assert.equal(exists('src/client/ui/StorageDetails.ts'), false)
+})
+
 test('the bottom edge fades only while notes sit below the fold', () => {
   const css = readCss()
   const client = read('src/client/index.ts') + read('src/client/ui/NoteList.ts') + read('src/client/ui/MemoPopover.ts') + read('src/client/ui/useListEdge.ts')
@@ -577,10 +609,8 @@ test('notes stay behind one host-owned domain file', () => {
   const identity = read('host/constants.js')
   assert.match(constants, /HOST_STORE_PATH = '\/dsh-sideby-note\/store'/)
   assert.match(route, /STORE_PATH = '\/dsh-sideby-note\/store'/, 'both halves must name the same endpoint')
-  assert.match(constants, /HOST_STORE_LOCATION_PATH = '\/dsh-sideby-note\/store\/location'/)
-  assert.match(constants, /HOST_STORE_REVEAL_PATH = '\/dsh-sideby-note\/store\/reveal'/)
-  assert.match(route, /LOCATION_PATH = `\$\{STORE_PATH\}\/location`/)
-  assert.match(route, /REVEAL_PATH = `\$\{STORE_PATH\}\/reveal`/)
+  assert.doesNotMatch(constants, /\/dsh-sideby-note\/store\/(?:location|reveal)/)
+  assert.doesNotMatch(route, /LOCATION_PATH|REVEAL_PATH|\/store\/(?:location|reveal)/)
   assert.match(identity, /DOMAIN_NAME = 'aside_note'/, 'the unit name also names the JSON file')
   assert.match(identity, /DOMAIN_VERSION = 1/)
   assert.match(spec, /layout: 'single'/)

@@ -12,7 +12,6 @@ body{--an-space-1:4px;--an-space-2:8px;--an-space-3:12px;--an-space-4:16px;--an-
 .dsh-an-popover{position:fixed;z-index:1000;box-sizing:border-box;display:flex;flex-direction:column;gap:var(--an-space-3);min-height:0;padding:var(--an-space-4);border:0;border-radius:var(--dsw-radius-panel);background:var(--dsh-an-panelSurface);box-shadow:var(--dsw-elevation-panel);color:var(--dsw-alias-label-primary);font-size:var(--an-fs-row);line-height:var(--an-lh-row);--dsw-elevation-stroke-color:var(--dsw-alias-border-l2);--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2,var(--an-divider));--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2,var(--dsw-alias-scrollbar-bg-l2,var(--an-divider)));--dsh-an-panelSurface:var(--dsw-alias-bg-layer-2);--dsh-an-listGutter:var(--an-space-4);--dsh-an-scrollRail:9px;--dsh-an-scrollInset:2px;overflow:hidden;animation:dsh-an-pop-in var(--an-dur-base) var(--an-ease) both}
 /* The fixed panel has its own box. The portal wrapper's no-drag region does not cover it. */
 html[data-platform="darwin"] .dsh-an-popover{-webkit-app-region:no-drag}
-.dsh-an-popoverRight{padding-left:var(--an-space-4)}
 
 /* ── 3 面板头 · 标题与计数同一行，动作收在右侧 ───────────────────── */
 .dsh-an-popHead{display:flex;align-items:center;justify-content:space-between;gap:var(--an-space-3);min-width:0}
@@ -151,27 +150,16 @@ html[data-platform="darwin"] .dsh-an-popover{-webkit-app-region:no-drag}
 .dsh-an-emptyBody{max-width:36ch;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}
 .dsh-an-listStatus{margin:0;color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption)}
 
-/* ── 10 存储详情 ───────────────────────────────────────────────── */
-.dsh-an-storageBlock{display:flex;flex-direction:column;gap:var(--an-space-2);min-width:0}
-.dsh-an-storagePathRow{display:flex;flex-direction:column;gap:var(--an-space-1);min-width:0}
-.dsh-an-storagePath{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;user-select:all}
-.dsh-an-storageActions{display:flex;flex-wrap:wrap;gap:var(--an-space-1)}
-
-/* ── 11 存储异常与面板底部入口 ─────────────────────────────────── */
+/* ── 10 存储异常与保存警告 ─────────────────────────────────────── */
 .dsh-an-storageStatus{display:flex;align-items:flex-start;flex-wrap:wrap;gap:var(--an-space-2);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);font-size:var(--an-fs-caption);overflow-wrap:anywhere}
 .dsh-an-storageStatus>div{flex:1 1 135px;min-width:0}
-.dsh-an-storageStatus p,.dsh-an-footerBody p{margin:0}
+.dsh-an-storageStatus p{margin:0}
 .dsh-an-storageFailure{color:var(--dsw-alias-label-secondary)}
 .dsh-an-reconnect[aria-disabled="true"]{color:var(--dsw-alias-label-secondary);cursor:progress}
-.dsh-an-popFoot{flex:0 1 auto;min-height:24px;max-height:40dvh;margin:0;padding:2px;overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset);font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}
-.dsh-an-storageToggle{width:fit-content;padding:2px var(--an-space-1);border-radius:var(--dsw-radius-sm);cursor:pointer;display:block;list-style:none;text-decoration:underline;text-decoration-color:var(--dsw-alias-label-tertiary);text-decoration-thickness:1px;text-underline-offset:3px}
-.dsh-an-storageToggle::-webkit-details-marker{display:none}
-.dsh-an-storageToggle:focus-visible{outline:2px solid var(--dsw-alias-label-primary)}
-.dsh-an-footerBody{display:grid;gap:var(--an-space-2);margin-top:var(--an-space-1);padding:var(--an-space-2);border:0.5px solid var(--an-divider);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-1)}
-/* Keep controls reachable when errors or disclosures add more than the panel can fit. */
-.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]){overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}
-.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-listViewport{min-height:48px}
-.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot details[open]) .dsh-an-popFoot{flex-shrink:0}
+.dsh-an-popFoot{flex:0 0 auto;margin:0;font-size:var(--an-fs-caption);line-height:var(--an-lh-caption);color:var(--dsw-alias-label-secondary)}
+/* Keep controls reachable when errors add more than the panel can fit. */
+.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot){overflow:auto;overscroll-behavior:contain;--dsh-scrollbar-width:var(--dsh-an-scrollRail);--dsh-scrollbar-thumb-border:var(--dsh-an-scrollInset)}
+.dsh-an-popover:has(.dsh-an-storageStatus,.dsh-an-popFoot) .dsh-an-listViewport{min-height:48px}
 .dsh-an-error{color:var(--dsw-alias-state-error-primary)}
 
 /* Conversation composer action, sized like the toolbar's secondary controls. */
@@ -193,15 +181,11 @@ html[data-platform="darwin"] .dsh-an-popover{-webkit-app-region:no-drag}
 .dsh-an-headerIcon{display:flex;align-items:center;justify-content:center;flex:none;width:16px;height:16px;color:currentColor}
 .dsh-an-headerCount{position:absolute;top:-2px;right:-2px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 var(--an-space-1);border:0.5px solid var(--dsw-alias-bg-base);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-interactive-bg-hover-solid);color:var(--dsw-alias-label-secondary);font-size:var(--an-fs-caption);line-height:14px;font-weight:500;font-variant-numeric:tabular-nums}
 
-/* ── 13 拖拽把手 · 8px 命中带，3px 视觉条 ─────────────────────────── */
-.dsh-an-resizeHandle{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-2);cursor:ew-resize;touch-action:none;outline:0}
-.dsh-an-resizeHandle::before{content:"";width:3px;height:var(--an-space-6);border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}
-.dsh-an-resizeHandle:focus-visible::before{background:var(--dsw-alias-label-secondary)}
-.dsh-an-resizeHandle:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}
-.dsh-an-resizeHandleBottom{position:absolute;left:50%;bottom:0;z-index:2;display:flex;align-items:center;justify-content:center;width:var(--an-space-6);height:var(--an-space-3);transform:translateX(-50%);cursor:ns-resize;touch-action:none;outline:0}
-.dsh-an-resizeHandleBottom::before{content:"";width:var(--an-space-5);height:3px;border-radius:var(--an-radius-pill);corner-shape:round;background:var(--dsw-alias-border-l4);transition:transform var(--an-dur-fast) var(--an-ease),background-color var(--an-dur-fast) var(--an-ease)}
-.dsh-an-resizeHandleBottom:focus-visible::before{background:var(--dsw-alias-label-secondary)}
-.dsh-an-resizeHandleBottom:focus-visible{outline-offset:-2px;border-radius:var(--dsw-radius-sm)}
+/* ── 13 拖拽把手 · 左下角圆角，同时调整宽高 ────────────────────────── */
+.dsh-an-resizeHandle{position:absolute;left:0;bottom:0;z-index:2;width:28px;height:28px;color:var(--dsw-alias-border-l4);cursor:nesw-resize;touch-action:none;outline:0;clip-path:polygon(0 0,15px 0,15px 13px,28px 13px,28px 28px,0 28px);transition:color var(--an-dur-fast) var(--an-ease)}
+.dsh-an-resizeCorner{display:block;width:100%;height:100%;pointer-events:none;transform-origin:37% 63%;transition:transform var(--an-dur-fast) var(--an-ease)}
+.dsh-an-resizeHandle:focus-visible{color:var(--dsw-alias-label-primary)}
+.dsh-an-resizeHandle:focus-visible .dsh-an-resizeCorner{transform:scale(1.12)}
 
 /* ── 14 加载 · 控件内 12px 环，文字隐藏，不报"进行中" ──────────────── */
 [data-loading="true"]{position:relative;color:transparent!important;pointer-events:none;cursor:progress}
@@ -229,10 +213,10 @@ html[data-platform="darwin"] .dsh-an-popover{-webkit-app-region:no-drag}
 :is(.dsh-an-sectionHead,.dsh-an-doneHead):is(:hover,:has(:focus-visible)) .dsh-an-sectionSort,.dsh-an-sectionSort:focus{opacity:1;pointer-events:auto}
 .dsh-an-sectionSort:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
 .dsh-an-clear:hover{background:var(--an-hover);color:var(--dsw-alias-label-primary)}
-.dsh-an-doneToggle:hover,.dsh-an-storageToggle:hover{background:var(--an-hover)}
+.dsh-an-doneToggle:hover{background:var(--an-hover)}
 .dsh-an-headerBtn:hover,.dsh-an-sendDraft:hover:not(:disabled,[aria-busy="true"]){background:var(--an-hover);color:var(--dsw-alias-label-primary)}
-.dsh-an-resizeHandle:hover::before{transform:scaleY(1.4);background:var(--dsw-alias-label-secondary)}
-.dsh-an-resizeHandleBottom:hover::before{transform:scaleX(1.4);background:var(--dsw-alias-label-secondary)}
+.dsh-an-resizeHandle:hover{color:var(--dsw-alias-label-secondary)}
+.dsh-an-resizeHandle:hover .dsh-an-resizeCorner{transform:scale(1.12)}
 }
 
 @media (any-pointer:coarse){
@@ -252,13 +236,12 @@ html[data-platform="darwin"] .dsh-an-popover{-webkit-app-region:no-drag}
 @keyframes dsh-an-spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){
 .dsh-an-popover,.dsh-an-rows>.dsh-an-row,.dsh-an-chevron,[data-loading="true"]::after{animation:none}
-.dsh-an-popover,.dsh-an-row,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn{transition-duration:1ms}
+.dsh-an-popover,.dsh-an-row,.dsh-an-meta,.dsh-an-actions,.dsh-an-iconBtn,.dsh-an-resizeHandle,.dsh-an-resizeCorner{transition-duration:1ms}
 }
 
 /* ── 17 窄视口 · 390 基准下收紧内边距，主操作全部可达 ──────────────── */
 @media (max-width:480px){
 .dsh-an-popover{padding:var(--an-space-3);--dsh-an-listGutter:var(--an-space-3)}
-.dsh-an-popoverRight{padding-left:var(--an-space-4)}
 .dsh-an-popHead,.dsh-an-popTitleLine{gap:var(--an-space-2)}
 .dsh-an-add{padding:var(--an-space-2) var(--an-space-3)}
 .dsh-an-sectionHead,.dsh-an-doneHead{min-height:24px}

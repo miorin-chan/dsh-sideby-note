@@ -26,8 +26,6 @@ const TOAST_COPY = {
   sessionUnavailable: { key: 'toast.sessionUnavailable' },
   sessionMismatch: { key: 'toast.sessionMismatch' },
   archiveFailed: { key: 'toast.archiveFailed' },
-  pathCopied: { key: 'toast.pathCopied', tone: 'success' },
-  revealFailed: { key: 'toast.revealFailed' },
   saveFailed: { key: 'toast.saveFailed' },
 }
 

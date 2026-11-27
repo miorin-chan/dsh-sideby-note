@@ -254,10 +254,9 @@ test('写入失败时读取不降级且保留输入', async t => {
   assert.equal(input.value, '写不进去的', 'the typed text is kept')
   assert.deepEqual(rowsOf(app.popover).map(textOf), ['已经保存的'], 'the failed note never appears')
   const footer = app.popover.querySelector('.dsh-an-popFoot')
-  assert.equal(footer.querySelector('details.dsh-an-footerDetails').open, false)
-  assert.equal(footer.querySelector('.dsh-an-footerBody'), null)
+  assert.equal(footer.querySelector('details'), null)
   assert.match(footer.querySelector(':scope > [role="status"]')?.textContent ?? '', /本地存储不可用/,
-    'the failure is visible outside the collapsed disclosure')
+    'the failure is visible at the bottom of the panel')
 
   assert.equal(standaloneItems({ localStorage: app.window.__realStorage }).length, 1, 'nothing half-written reached the store')
   await app.dispose()
@@ -296,16 +295,18 @@ test('另一个标签页写入后本页视图同步', async t => {
   await app.dispose()
 })
 
-test('面板宽度夹在 280 到 720 之间', async t => {
+test('面板宽高夹在边界内并支持复位', async t => {
   const app = await bootBundle(t)
   await app.open()
   const handle = app.popover.querySelector('.dsh-an-resizeHandle')
+  assert.equal(app.popover.querySelector('.dsh-an-resizeHandleBottom'), null)
   const press = async key => {
     await app.act(async () => {
       handle.dispatchEvent(new app.window.KeyboardEvent('keydown', { key, bubbles: true }))
     })
   }
   const width = () => Number(app.window.localStorage.getItem('dsh.aside-note.panel-width'))
+  const height = () => Number(app.window.localStorage.getItem('dsh.aside-note.panel-height'))
 
   for (let i = 0; i < 40; i += 1) await press('ArrowLeft')
   const max = Math.min(720, app.window.innerWidth - 32)
@@ -328,6 +329,19 @@ test('面板宽度夹在 280 到 720 之间', async t => {
 
   for (let i = 0; i < 80; i += 1) await press('ArrowRight')
   assert.ok(width() >= 280, `width ${width()} must not go below 280`)
+
+  for (let i = 0; i < 40; i += 1) await press('ArrowDown')
+  const maxHeight = Math.max(240, app.window.innerHeight - 64 - 16)
+  assert.ok(height() <= maxHeight, `height ${height()} must not exceed ${maxHeight}`)
+  assert.ok(height() >= 240)
+
+  for (let i = 0; i < 40; i += 1) await press('ArrowUp')
+  assert.ok(height() >= 240, `height ${height()} must not go below 240`)
+
+  await press('Home')
+  assert.equal(width(), 360)
+  assert.equal(app.window.localStorage.getItem('dsh.aside-note.panel-height'), null)
+  assert.equal(app.popover.style.height, '')
   await app.dispose()
 })
 

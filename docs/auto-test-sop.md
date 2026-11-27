@@ -8,7 +8,7 @@
 
 - 记录运行中的 profile、现有插件来源和待部署的 Git 提交。
   可在「插件」详情或 DSH 插件管理工具中确认来源。
-- 展开边记部页脚的「存储与更新」，确认宿主清单的实际路径。
+- 确认宿主清单位于 `$DSH_HOME/storages/aside_note.json`（或当前存储后端配置目录）。
   等正在保存的便笺和附件写入完毕后，一起复制清单及其旁边的 `dsh-sideby-note-attachments/`。
   默认清单位于 `$DSH_HOME/storages/aside_note.json`。
 - 备份范围限于 `$DSH_HOME` 下的宿主清单和附件目录。

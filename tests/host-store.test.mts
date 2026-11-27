@@ -10,7 +10,7 @@ import path from 'node:path'
 import test from 'node:test'
 import { createStore, StoreError } from '../host/store.js'
 import { registerAttachmentRoute } from '../host/attachment-route.js'
-import { LOCATION_PATH, REVEAL_PATH, registerStoreRoutes, revealCommand, resolveStoreFile, STORE_PATH } from '../host/store-route.js'
+import { registerStoreRoutes, resolveStoreFile, STORE_PATH } from '../host/store-route.js'
 import { createSpec, prefsSchema, sessionSchema, workspaceSchema } from '../host/store-spec.js'
 import { fakeCtx, fakeDomain, admit } from './fake-store.mts'
 
@@ -479,8 +479,6 @@ test('store routes require the shared browser-session check', async () => {
     registerAttachmentRoute(server, ctx)
     for (const [endpoint, method, code] of [
       [STORE_PATH, 'GET', 'STORE_FORBIDDEN'],
-      [LOCATION_PATH, 'GET', 'STORE_FORBIDDEN'],
-      [REVEAL_PATH, 'POST', 'STORE_FORBIDDEN'],
       ['/dsh-sideby-note/attachments', 'GET', 'ATTACHMENT_FORBIDDEN'],
     ]) {
       const res = response()
@@ -509,16 +507,6 @@ test('host routes accept live WebServer-admitted peer and reject invalid or abor
     assert.equal(storeRes.status, 200)
     assert.equal(storeRes.body.ok, true)
 
-    const locationRes = response()
-    await server.route(LOCATION_PATH).handler(request('GET'), locationRes, peer)
-    assert.equal(locationRes.status, 200)
-    assert.equal(locationRes.body.ok, true)
-
-    const revealRes = response()
-    await server.route(REVEAL_PATH).handler(request('POST'), revealRes, peer)
-    assert.equal(revealRes.status, 404)
-    assert.equal(revealRes.body.code, 'STORE_PATH_UNAVAILABLE')
-
     const attachmentRes = { ...response(), setHeader() {} }
     await server.route('/dsh-sideby-note/attachments').handler(request('PUT'), attachmentRes, peer)
     assert.equal(attachmentRes.status, 405)
@@ -532,8 +520,6 @@ test('host routes accept live WebServer-admitted peer and reject invalid or abor
   ]) {
     for (const [endpoint, method, code] of [
       [STORE_PATH, 'GET', 'STORE_FORBIDDEN'],
-      [LOCATION_PATH, 'GET', 'STORE_FORBIDDEN'],
-      [REVEAL_PATH, 'POST', 'STORE_FORBIDDEN'],
       ['/dsh-sideby-note/attachments', 'GET', 'ATTACHMENT_FORBIDDEN'],
     ]) {
       const res = response()
@@ -575,7 +561,7 @@ test('宿主模式 400 条仍可新增', async () => {
   assert.equal(snapshot.data.workspaces.big.items.length, 401)
 })
 
-test('存储文件路径可查看', async () => {
+test('resolveStoreFile resolves json backend path for attachment sidecar', async () => {
   const root = '/tmp/sideby-note-location-test'
   const backend = { root }
   const ctx = {
@@ -588,27 +574,16 @@ test('存储文件路径可查看', async () => {
   }
   const file = path.join(root, 'aside_note.json')
   assert.deepEqual(resolveStoreFile(ctx), { path: file, backend: 'json' })
+  assert.deepEqual(resolveStoreFile({ get: () => undefined }), {
+    path: null,
+    backend: null,
+    reason: 'storage-unavailable',
+  })
 
   const server = fakeServer()
   registerStoreRoutes(server, { ctx, store: {} })
-  const location = response()
-  await server.route(LOCATION_PATH).handler(request('GET'), location)
-  assert.equal(location.status, 200)
-  assert.equal(location.body.path, file)
-  assert.equal(location.body.exists, false)
-  assert.equal(location.body.backend, 'json')
-
-  assert.deepEqual(revealCommand(file, 'darwin', true), { command: 'open', args: ['-R', file] })
-  assert.deepEqual(revealCommand(file, 'win32', true), { command: 'explorer.exe', args: [`/select,${file}`] })
-  assert.deepEqual(revealCommand(file, 'linux', false), { command: 'xdg-open', args: [root] })
-
-  // A backend without a file path is reported, never guessed.
-  const emptyServer = fakeServer()
-  registerStoreRoutes(emptyServer, { ctx: { get: name => name === 'connection' ? { admit } : undefined }, store: {} })
-  const missing = response()
-  await emptyServer.route(REVEAL_PATH).handler(request('POST'), missing)
-  assert.equal(missing.status, 404)
-  assert.equal(missing.body.code, 'STORE_PATH_UNAVAILABLE')
+  assert.equal(server.route(`${STORE_PATH}/location`), undefined)
+  assert.equal(server.route(`${STORE_PATH}/reveal`), undefined)
 })
 
 test('宿主区分文件已被占用与普通打开错误', async () => {

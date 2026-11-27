@@ -84,32 +84,6 @@ export function usePanelGeometry(anchorRef, placement, panelRef) {
     document.body.style.cursor = cursor
   }
 
-  const startPanelResize = event => {
-    if (event.button !== 0) return
-    event.preventDefault()
-    const startX = event.clientX
-    const startWidth = panelWidthRef.current
-    const onMove = moveEvent => {
-      const next = clampPanelWidth(startWidth + (startX - moveEvent.clientX))
-      panelWidthRef.current = next
-      setPanelWidth(next)
-    }
-    beginPointerDrag('ew-resize', onMove, () => writePanelWidth(panelWidthRef.current))
-  }
-
-  const onPanelResizeKeyDown = event => {
-    if (event.key === 'ArrowLeft') {
-      event.preventDefault()
-      commitPanelWidth(panelWidthRef.current + 16)
-    } else if (event.key === 'ArrowRight') {
-      event.preventDefault()
-      commitPanelWidth(panelWidthRef.current - 16)
-    } else if (event.key === 'Home') {
-      event.preventDefault()
-      commitPanelWidth(PANEL_DEFAULT_WIDTH)
-    }
-  }
-
   const clampPanelHeight = value => {
     const max = Math.max(PANEL_MIN_HEIGHT, window.innerHeight - 64 - 16)
     return Math.max(PANEL_MIN_HEIGHT, Math.min(max, value))
@@ -122,30 +96,60 @@ export function usePanelGeometry(anchorRef, placement, panelRef) {
     writePanelHeight(next)
   }
 
-  const startPanelHeightResize = event => {
-    if (event.button !== 0) return
-    event.preventDefault()
-    const startY = event.clientY
-    const startHeight = panelHeightRef.current
-      || (panelRef.current ? panelRef.current.getBoundingClientRect().height : 360)
-    const onMove = moveEvent => {
-      const next = clampPanelHeight(startHeight + (moveEvent.clientY - startY))
-      panelHeightRef.current = next
-      setPanelHeight(next)
-    }
-    beginPointerDrag('ns-resize', onMove, () => writePanelHeight(panelHeightRef.current))
+  const resetPanelSize = () => {
+    commitPanelWidth(PANEL_DEFAULT_WIDTH)
+    commitPanelHeight(0)
   }
 
-  const onPanelHeightKeyDown = event => {
-    if (event.key === 'ArrowDown') {
+  const startPanelResize = event => {
+    if (event.button !== 0) return
+    event.preventDefault()
+    const startX = event.clientX
+    const startY = event.clientY
+    const startWidth = panelWidthRef.current
+    const startHeight = panelHeightRef.current
+      || (panelRef.current ? panelRef.current.getBoundingClientRect().height : 0)
+      || 360
+    let widthMoved = false
+    let heightMoved = false
+    const onMove = moveEvent => {
+      if (Number.isFinite(moveEvent.clientX) && Number.isFinite(startX) && moveEvent.clientX !== startX) {
+        widthMoved = true
+        const nextWidth = clampPanelWidth(startWidth + (startX - moveEvent.clientX))
+        panelWidthRef.current = nextWidth
+        setPanelWidth(nextWidth)
+      }
+      if (Number.isFinite(moveEvent.clientY) && Number.isFinite(startY) && moveEvent.clientY !== startY) {
+        heightMoved = true
+        const nextHeight = clampPanelHeight(startHeight + (moveEvent.clientY - startY))
+        panelHeightRef.current = nextHeight
+        setPanelHeight(nextHeight)
+      }
+    }
+    beginPointerDrag('nesw-resize', onMove, () => {
+      if (widthMoved) writePanelWidth(panelWidthRef.current)
+      if (heightMoved) writePanelHeight(panelHeightRef.current)
+    })
+  }
+
+  const onPanelResizeKeyDown = event => {
+    if (event.key === 'ArrowLeft') {
       event.preventDefault()
-      commitPanelHeight((panelHeightRef.current || 360) + 16)
+      commitPanelWidth(panelWidthRef.current + 16)
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault()
+      commitPanelWidth(panelWidthRef.current - 16)
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      const current = panelHeightRef.current || (panelRef.current ? panelRef.current.getBoundingClientRect().height : 0) || 360
+      commitPanelHeight(current + 16)
     } else if (event.key === 'ArrowUp') {
       event.preventDefault()
-      commitPanelHeight((panelHeightRef.current || 360) - 16)
+      const current = panelHeightRef.current || (panelRef.current ? panelRef.current.getBoundingClientRect().height : 0) || 360
+      commitPanelHeight(current - 16)
     } else if (event.key === 'Home') {
       event.preventDefault()
-      commitPanelHeight(0)
+      resetPanelSize()
     }
   }
 
@@ -203,9 +207,8 @@ export function usePanelGeometry(anchorRef, placement, panelRef) {
     style,
     commitPanelWidth,
     commitPanelHeight,
+    resetPanelSize,
     startPanelResize,
-    startPanelHeightResize,
     onPanelResizeKeyDown,
-    onPanelHeightKeyDown,
   }
 }

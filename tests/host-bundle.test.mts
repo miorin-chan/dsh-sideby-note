@@ -20,8 +20,6 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const bundle = fs.readFileSync(path.join(root, 'client', 'client.js'), 'utf8')
 
 const STORE_PATH = '/dsh-sideby-note/store'
-const LOCATION_PATH = `${STORE_PATH}/location`
-const REVEAL_PATH = `${STORE_PATH}/reveal`
 const SESSION_KEY = 'dsh.aside-note'
 const WORKSPACE_KEY = 'dsh.aside-note.workspaces'
 const UNASSIGNED = 'sideby-note:unassigned'
@@ -129,19 +127,6 @@ async function setup(options = {}) {
       if (await options.rejectAttachmentRead?.(id, init.signal)) return json(404, {})
       const blob = attachments.get(id)
       return { ok: Boolean(blob), blob: async () => blob }
-    }
-    if (url === LOCATION_PATH) {
-      return json(200, {
-        ok: true,
-        path: options.storePath || null,
-        exists: options.storePath ? options.storePathExists !== false : false,
-        backend: options.storePath ? 'json' : null,
-      })
-    }
-    if (url === REVEAL_PATH) {
-      return options.revealDown
-        ? json(502, { ok: false, code: 'STORE_REVEAL_FAILED', message: 'no file manager' })
-        : json(200, { ok: true })
     }
     return json(404, {})
   }
@@ -297,9 +282,7 @@ test('首次启动把浏览器便笺迁移到宿主并写模式标记', async t 
   assert.deepEqual(snapshot.data.sessions, {}, 'standalone writes leave the legacy host table empty')
   const legacy = JSON.parse(ctx.window.localStorage.getItem(SESSION_KEY))
   assert.equal(legacy.sessions['session-1'].items.length, 1, 'host mode never writes the legacy browser store')
-  await ctx.act(async () => { popover.querySelector('summary.dsh-an-storageToggle').click() })
-  await ctx.settle()
-  assert.match(popover.querySelector('.dsh-an-footerBody').textContent, /便笺保存在 DSH 本地文件/)
+  assert.equal(popover.querySelector('.dsh-an-popFoot, details.dsh-an-footerDetails, summary.dsh-an-storageToggle'), null)
   const migratedRow = [...popover.querySelectorAll('.dsh-an-row')]
     .find(row => row.querySelector('.dsh-an-text').textContent === '旧便笺')
   assert.ok(migratedRow.querySelector('.dsh-an-insert'), 'compatibility marks do not disable the fork insert action')
@@ -499,7 +482,7 @@ test('已切换后宿主不可用进入错误态且不改写浏览器', async t 
   const status = popover.querySelector('.dsh-an-storageStatus')
   assert.match(status.textContent, /便笺存储暂不可用/)
   assert.match(status.textContent, /STORE_OPEN_FAILED/)
-  assert.equal(popover.querySelector('details.dsh-an-footerDetails').open, false)
+  assert.equal(popover.querySelector('.dsh-an-popFoot, details.dsh-an-footerDetails'), null)
   assert.doesNotMatch(popover.textContent, /旧便笺/)
   const reconnect = status.querySelector('button.dsh-an-reconnect')
   assert.ok(reconnect, 'reconnection is available directly in the panel')
@@ -525,7 +508,7 @@ test('已切换后宿主不可用进入错误态且不改写浏览器', async t 
   await ctx.settle()
   assert.ok(ctx.calls.slice(count).some(call => call.url === STORE_PATH && call.method === 'GET'))
   assert.equal(popover.querySelector('.dsh-an-storageStatus, .dsh-an-reconnect'), null)
-  assert.equal(popover.querySelector('details.dsh-an-footerDetails').open, false)
+  assert.equal(popover.querySelector('.dsh-an-popFoot, details.dsh-an-footerDetails'), null)
   assert.deepEqual([...popover.querySelectorAll('.dsh-an-text')].map(row => row.textContent), ['宿主便笺'])
   assert.equal(field.value, '不应写入', 'the failed draft stays available after reconnection')
   assert.equal(ctx.window.localStorage.getItem(MODE_KEY), 'host')
@@ -615,76 +598,15 @@ test('宿主文件打不开时不切换并提示', async t => {
   assert.deepEqual(snapshot.data.workspaces, {}, 'no host write happened')
 })
 
-test('存储详情按需加载路径并支持拷贝与定位', async t => {
-  const file = '/Users/me/.dsh/storages/aside_note.json'
-  const probe = Promise.withResolvers()
-  const options = { legacyNote: true, storePath: file, storeReady: probe.promise }
-  t.after(() => probe.resolve())
-  const ctx = await setup(options)
+test('面板正常连接宿主时不显示页脚存储按钮且不请求路径接口', async t => {
+  const ctx = await setup({ legacyNote: true })
   t.after(() => ctx.window.close())
-  const copied = []
-  Object.defineProperty(ctx.window.navigator, 'clipboard', {
-    configurable: true,
-    value: { writeText: async value => { copied.push(value) } },
-  })
 
   const { button } = await ctx.openPanel()
   await ctx.act(async () => { button.click() })
   const popover = ctx.window.document.querySelector('.dsh-an-popover')
-  const footer = popover.querySelector('.dsh-an-popFoot')
-  const details = footer.querySelector('details.dsh-an-footerDetails')
-  const summary = details.querySelector(':scope > summary.dsh-an-storageToggle')
-  const body = () => details.querySelector('.dsh-an-footerBody')
-  const locationCalls = () => ctx.calls.filter(call => call.url === LOCATION_PATH)
-  const toggleStorage = async () => {
-    await ctx.act(async () => { summary.click() })
-    await ctx.settle()
-  }
-
-  assert.equal(details.open, false)
-  assert.equal(footer.textContent.trim(), '存储')
-  assert.equal(body(), null)
-  assert.deepEqual(locationCalls(), [], 'opening the panel does not fetch a file path')
-
-  await toggleStorage()
-  assert.equal(details.open, true)
-  assert.match(body().textContent, /正在读取便笺…/)
-  assert.deepEqual(locationCalls(), [], 'the path is unavailable while the host probe is pending')
-
-  await toggleStorage()
-  await ctx.act(async () => { probe.resolve() })
-  await ctx.settle()
-  assert.equal(ctx.window.localStorage.getItem(MODE_KEY), 'host')
-  assert.equal(footer.textContent.trim(), '存储')
-  assert.equal(body(), null)
-  assert.deepEqual(locationCalls(), [], 'connecting to the host with the disclosure closed does not fetch a path')
-
-  await toggleStorage()
-  assert.equal(details.open, true)
-  assert.match(body().textContent, /便笺保存在 DSH 本地文件/)
-  assert.deepEqual(locationCalls(), [{ url: LOCATION_PATH, method: 'GET' }])
-  assert.equal(details.querySelector('.dsh-an-storagePath').textContent, file)
-  const actions = [...details.querySelectorAll('button.dsh-an-storageAction')]
-  assert.equal(actions.length, 2)
-
-  await ctx.act(async () => { actions[0].click() })
-  await ctx.settle(10)
-  assert.deepEqual(copied, [file])
-
-  await ctx.act(async () => { actions[1].click() })
-  await ctx.settle(10)
-  assert.ok(ctx.calls.some(call => call.url === REVEAL_PATH && call.method === 'POST'))
-
-  await toggleStorage()
-  assert.equal(details.open, false)
-  assert.equal(body(), null)
-  assert.equal(locationCalls().length, 1, 'closing the disclosure does not fetch the path again')
-
-  options.storePath = null
-  await toggleStorage()
-  assert.equal(locationCalls().length, 2)
-  assert.match(details.textContent, /无法定位存储文件/)
-  assert.equal(details.querySelector('.dsh-an-storagePath, .dsh-an-storageAction'), null)
+  assert.equal(popover.querySelector('.dsh-an-popFoot, details.dsh-an-footerDetails, summary.dsh-an-storageToggle'), null)
+  assert.ok(ctx.calls.every(call => call.url === STORE_PATH))
 })
 
 test('共用宿主文件已被占用时停止写入', async t => {

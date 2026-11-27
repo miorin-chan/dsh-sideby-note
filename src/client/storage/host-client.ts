@@ -8,9 +8,7 @@
  */
 import {
   HOST_READ_TIMEOUT_MS,
-  HOST_STORE_LOCATION_PATH,
   HOST_STORE_PATH,
-  HOST_STORE_REVEAL_PATH,
   HOST_WRITE_TIMEOUT_MS,
 } from '../constants'
 
@@ -19,14 +17,6 @@ export interface HostSnapshot {
   sessions: Record<string, any>
   workspaces: Record<string, any>
   prefs: Record<string, any>
-}
-
-/** Where the host file lives; `path` is null when the backend has no file. */
-export interface StoreLocation {
-  path: string | null
-  exists: boolean
-  backend: string | null
-  reason?: string
 }
 
 /** One mutation response: `record` for list ops, `prefs` for preferences. */
@@ -155,35 +145,4 @@ export async function postOp(op: Record<string, any>): Promise<HostOpResult> {
     headers: { 'content-type': 'application/json', accept: 'application/json' },
     body: JSON.stringify(op),
   }, { timeoutMs: HOST_WRITE_TIMEOUT_MS, attempts: 2 })
-}
-
-/** Read the durable file path; null when the host has no such route. */
-export async function fetchStoreLocation(): Promise<StoreLocation | null> {
-  try {
-    const body = await request(HOST_STORE_LOCATION_PATH, {
-      method: 'GET',
-      headers: { accept: 'application/json' },
-    }, { timeoutMs: HOST_READ_TIMEOUT_MS, attempts: 1 })
-    return {
-      path: typeof body.path === 'string' && body.path ? body.path : null,
-      exists: body.exists === true,
-      backend: typeof body.backend === 'string' ? body.backend : null,
-      ...(typeof body.reason === 'string' ? { reason: body.reason } : {}),
-    }
-  } catch {
-    return null
-  }
-}
-
-/** Ask the host to show the store file (or its folder) in the OS file manager. */
-export async function revealStoreFile(): Promise<boolean> {
-  try {
-    const body = await request(HOST_STORE_REVEAL_PATH, {
-      method: 'POST',
-      headers: { accept: 'application/json' },
-    }, { timeoutMs: HOST_WRITE_TIMEOUT_MS, attempts: 1 })
-    return body?.ok === true
-  } catch {
-    return false
-  }
 }

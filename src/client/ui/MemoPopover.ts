@@ -8,7 +8,7 @@
 import React from 'react'
 import type { RenderFactorySlot } from '@deepseek-ai/dsh-client-ui-slots'
 import type { FileDragService } from '@deepseek-ai/dsh-client-ui-file-drag/client'
-import { PANEL_DEFAULT_WIDTH, SCOPE_MODE_KEY } from '../constants'
+import { SCOPE_MODE_KEY } from '../constants'
 import { bindableSessionId, draftKeyForSession, UNASSIGNED_WORKSPACE, workspaceCatalogReady, workspaceForSession, workspaceById, type ScopeMode } from '../scope'
 import { STORE_READY_LISTENERS, TODO_LISTENERS, notifyTodoChange } from '../storage/events'
 import { retryStorage } from '../storage/boot'
@@ -262,12 +262,9 @@ export function MemoPopover(props: MemoPopoverProps) {
   const panelRef = React.useRef(null)
   const {
     style,
-    commitPanelWidth,
-    commitPanelHeight,
+    resetPanelSize,
     startPanelResize,
-    startPanelHeightResize,
     onPanelResizeKeyDown,
-    onPanelHeightKeyDown,
   } = usePanelGeometry(props.anchorRef, props.placement, panelRef)
 
   const [orders, setOrders] = React.useState(readSectionOrders)
@@ -502,7 +499,7 @@ export function MemoPopover(props: MemoPopoverProps) {
     'div',
     {
       ref: panelRef,
-      className: props.placement === 'right' ? 'dsh-an-popover dsh-an-popoverRight' : 'dsh-an-popover',
+      className: 'dsh-an-popover',
       style,
       role: 'dialog',
       'aria-label': say('popover.title'),
@@ -511,27 +508,31 @@ export function MemoPopover(props: MemoPopoverProps) {
       ? h('div', {
           className: 'dsh-an-resizeHandle',
           role: 'separator',
-          'aria-orientation': 'vertical',
-          'aria-label': say('resize.width'),
+          'aria-label': say('resize.panel'),
+          'aria-keyshortcuts': 'ArrowLeft ArrowRight ArrowUp ArrowDown Home',
           tabIndex: 0,
           title: say('resize.hint'),
           onPointerDown: startPanelResize,
-          onDoubleClick: () => commitPanelWidth(PANEL_DEFAULT_WIDTH),
+          onDoubleClick: resetPanelSize,
           onKeyDown: onPanelResizeKeyDown,
-        })
-      : null,
-    props.placement === 'right'
-      ? h('div', {
-          className: 'dsh-an-resizeHandleBottom',
-          role: 'separator',
-          'aria-orientation': 'horizontal',
-          'aria-label': say('resize.height'),
-          tabIndex: 0,
-          title: say('resize.hint'),
-          onPointerDown: startPanelHeightResize,
-          onDoubleClick: () => commitPanelHeight(0),
-          onKeyDown: onPanelHeightKeyDown,
-        })
+        },
+          h('svg', {
+            className: 'dsh-an-resizeCorner',
+            viewBox: '0 0 28 28',
+            width: 28,
+            height: 28,
+            fill: 'none',
+            'aria-hidden': 'true',
+          },
+            h('path', {
+              d: 'M 6.27 7.49 C 7.24 16.62 11.38 20.76 20.51 21.73',
+              stroke: 'currentColor',
+              strokeWidth: 3,
+              strokeLinecap: 'round',
+              vectorEffect: 'non-scaling-stroke',
+            }),
+          ),
+        )
       : null,
     h(PanelHead, {
       say,
@@ -614,7 +615,7 @@ export function MemoPopover(props: MemoPopoverProps) {
       dismissClearConfirm,
       confirmClearDone,
     }),
-    h(PanelFooter, { say, mode: connectionError ? 'error' : storeMode, syncError, onToast: report }),
+    h(PanelFooter, { say, mode: connectionError ? 'error' : storeMode, syncError }),
   )
 
   return content

@@ -210,40 +210,20 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(document.querySelector('.dsh-an-headerCount').textContent, '2')
   })
 
-  const footer = () => popover.querySelector('.dsh-an-popFoot details.dsh-an-footerDetails')
-  const storageToggle = () => footer().querySelector(':scope > summary.dsh-an-storageToggle')
-
-  await t.test('页脚存储详情默认折叠并在展开后展示存储信息', async () => {
-    assert.ok(footer(), 'the panel footer always offers storage details')
-    assert.equal(footer().open, false)
-    assert.equal(footer().textContent.trim(), '存储')
-    const css = document.querySelector('style[data-dsh-plugin="dsh-sideby-note"]').textContent
-    assert.match(css, /\.dsh-an-storageToggle\s*\{[^}]*\blist-style:\s*none\b/)
-    assert.match(css, /\.dsh-an-storageToggle::-webkit-details-marker\s*\{[^}]*\bdisplay:\s*none\b/)
-    assert.equal(footer().querySelector('.dsh-an-footerBody'), null)
+  await t.test('正常面板底部不渲染存储按钮与说明', async () => {
+    assert.equal(popover.querySelector('.dsh-an-popFoot, details.dsh-an-footerDetails, summary.dsh-an-storageToggle, .dsh-an-storageBlock'), null)
     assert.equal(popover.querySelector('.dsh-an-settingsBtn, .dsh-an-settings, .dsh-an-settingsViewport'), null)
     assert.equal(popover.hasAttribute('data-settings'), false)
-
-    await act(async () => { storageToggle().click() })
-    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
-    assert.equal(footer().open, true)
-    assert.ok(footer().querySelector('.dsh-an-storageBlock'), 'the expanded footer renders storage details')
     assert.equal(popover.querySelector('.dsh-an-updateDetails, .dsh-an-updateCheck'), null)
     assert.equal(popover.querySelector('#dsh-an-forward-prefix, input[type="radio"]'), null)
-
-    await act(async () => { storageToggle().click() })
   })
 
-  await t.test('使用面板和存储详情不会上报统计', async () => {
-    await act(async () => { storageToggle().click() })
-    await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
-    assert.equal(footer().open, true)
+  await t.test('使用面板不会上报统计', async () => {
     assert.equal(popover.querySelector('#dsh-an-analytics-hint, input[role="switch"]'), null)
     assert.equal(window.localStorage.getItem('dsh.aside-note.analytics'), null)
-    await act(async () => { storageToggle().click() })
-    const allowed = new Set(['/dsh-sideby-note/store', '/dsh-sideby-note/store/location'])
+    const allowed = new Set(['/dsh-sideby-note/store'])
     assert.deepEqual(calls.filter(call => call.method !== 'GET' || !allowed.has(call.url)), [],
-      'opening the panel and storage details only reads storage endpoints')
+      'opening the panel only reads the storage snapshot endpoint')
   })
 
   let addField = popover.querySelector('.dsh-an-input')
@@ -363,12 +343,20 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(addField.value, '', 'the composer clears after adding the recalled note')
   })
 
-  await t.test('键盘调整面板宽度并持久化', async () => {
-    const widthHandle = popover.querySelector('.dsh-an-resizeHandle')
-    assert.ok(widthHandle, 'a right-side panel exposes the width handle')
+  await t.test('左下角把手支持键盘调整宽高并双击复位', async () => {
+    const resizeHandle = popover.querySelector('.dsh-an-resizeHandle')
+    assert.ok(resizeHandle, 'a right-side panel exposes the bottom-left resize handle')
+    assert.equal(popover.querySelector('.dsh-an-resizeHandleBottom'), null)
     const widthBefore = Number(window.localStorage.getItem('dsh.aside-note.panel-width')) || 360
-    await act(async () => { widthHandle.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true })) })
+    await act(async () => { resizeHandle.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true })) })
     assert.ok(Number(window.localStorage.getItem('dsh.aside-note.panel-width')) > widthBefore)
+    await act(async () => { resizeHandle.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })) })
+    assert.ok(Number(window.localStorage.getItem('dsh.aside-note.panel-height')) > 0)
+    assert.ok(popover.style.height)
+    await act(async () => { resizeHandle.dispatchEvent(new window.MouseEvent('dblclick', { bubbles: true })) })
+    assert.equal(Number(window.localStorage.getItem('dsh.aside-note.panel-width')), 360)
+    assert.equal(window.localStorage.getItem('dsh.aside-note.panel-height'), null)
+    assert.equal(popover.style.height, '')
   })
 
   await t.test('the top composer uses Enter, the command chord and Shift+Enter', async () => {
@@ -462,17 +450,17 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(sections.open, false)
   })
 
-  await t.test('Escape returns focus from the footer to the panel entry', async () => {
+  await t.test('Escape returns focus from the resize handle to the panel entry', async () => {
     await act(async () => { popover.querySelector('.dsh-an-popClose').click() })
     assert.equal(document.querySelector('.dsh-an-popover'), null, 'the close button removes the panel')
     await act(async () => { button.click() })
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
     assert.equal(document.querySelector('.dsh-an-popover .dsh-an-sectionHead .dsh-an-doneToggle').getAttribute('aria-expanded'), 'false')
-    const summary = document.querySelector('.dsh-an-popover summary.dsh-an-storageToggle')
-    summary.focus()
-    assert.equal(document.activeElement, summary)
+    const handle = document.querySelector('.dsh-an-popover .dsh-an-resizeHandle')
+    handle.focus()
+    assert.equal(document.activeElement, handle)
     await act(async () => {
-      summary.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))
+      handle.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))
     })
     assert.equal(document.querySelector('.dsh-an-popover'), null)
     assert.equal(document.activeElement, button)
@@ -664,17 +652,6 @@ test('workspace notes share a list and global actions preserve ownership', async
 
   // Cross-subtest bindings: the flow is one session, each step seeds the next.
   let header, popover, firstRoot, secondPopover, secondRoot
-  const openStorageDetails = async panel => {
-    const summary = panel.querySelector('summary.dsh-an-storageToggle')
-    await act(async () => {
-      const toggled = new Promise(resolve => summary.parentElement.addEventListener('toggle', resolve, { once: true }))
-      summary.click()
-      await toggled
-    })
-  }
-  const assertLocalStorageDetails = panel => {
-    assert.match(panel.querySelector('.dsh-an-footerBody')?.textContent ?? '', /便笺仍保存在本浏览器/)
-  }
 
   await t.test('首次见到工作区时一次性并入成员会话便笺', async () => {
     const host = document.createElement('div')
@@ -718,7 +695,7 @@ test('workspace notes share a list and global actions preserve ownership', async
       'the fold is recorded in the store, not with a second marker key')
   })
 
-  await t.test('面板默认工作区范围并显示本地存储提示', async () => {
+  await t.test('面板默认工作区范围且不显示页脚存储按钮', async () => {
     header = document.querySelector('.dsh-an-headerBtn')
     popover = document.querySelector('.dsh-an-popover')
     assert.ok(popover, 'the shared list is visible after the workspace resolves')
@@ -730,11 +707,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.equal(popover.querySelector('.dsh-an-popMeta'), null)
     assert.equal(popover.querySelector('[data-scope-mode="workspace"]').getAttribute('aria-pressed'), 'true',
       'the workspace list is the default scope')
-    const footer = popover.querySelector('.dsh-an-popFoot')
-    assert.equal(footer.querySelectorAll('details').length, 1)
-    assert.equal(footer.textContent.trim(), '存储')
-    await openStorageDetails(popover)
-    assertLocalStorageDetails(popover)
+    assert.equal(popover.querySelector('.dsh-an-popFoot, details.dsh-an-footerDetails, summary.dsh-an-storageToggle'), null)
   })
 
   const inputOf = root => root.querySelector('.dsh-an-input')
@@ -825,7 +798,6 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.equal(workspaceRow.dataset.rowId, 'seed-2')
     assert.equal(workspaceRow.querySelector('.dsh-an-workspaceJump'), null)
     await act(async () => { popover.querySelector('[data-scope-mode="global"]').click() })
-    assertLocalStorageDetails(popover)
     const rows = [...popover.querySelectorAll('.dsh-an-row')]
     assert.deepEqual(rows.map(row => row.querySelector('.dsh-an-text').textContent), [
       '先前未并入的事项', '另一工作区的旧事项', '会话二的事项', '会话一的事项',
@@ -866,7 +838,6 @@ test('workspace notes share a list and global actions preserve ownership', async
     // Switching back restores the shared list and remembers the choice.
     await act(async () => { popover.querySelector('[data-scope-mode="workspace"]').click() })
     assert.equal(window.localStorage.getItem('dsh.aside-note.scope-mode'), 'workspace')
-    assertLocalStorageDetails(popover)
     assert.deepEqual(
       [...popover.querySelectorAll('.dsh-an-text')].map(node => node.textContent).sort(),
       ['会话二的事项', '会话一的事项'].sort(),
@@ -959,8 +930,7 @@ test('workspace notes share a list and global actions preserve ownership', async
       'the shared draft stays visible in Global too')
     assert.equal(window.localStorage.getItem('dsh.aside-note.scope-mode'), 'global')
     await act(async () => { secondPopover.querySelector('[data-scope-mode="workspace"]').click() })
-    await openStorageDetails(secondPopover)
-    assertLocalStorageDetails(secondPopover)
+    assert.equal(secondPopover.querySelector('.dsh-an-popFoot, details.dsh-an-footerDetails'), null)
   })
 
   const workspaceItems = () => JSON.parse(window.localStorage.getItem('dsh.aside-note.workspaces')).workspaces['ws-1'].items
@@ -1647,12 +1617,12 @@ test('handing notes to chat joins them on new lines, without a prefix or list ma
   await t.test('面板文案跟随当前语言且递入保留原文', async () => {
     assert.equal(popover.querySelector('.dsh-an-popTitle').textContent, '边记部')
     assert.equal(popover.querySelector('.dsh-an-input').placeholder, '关于工作区...')
-    const storageToggle = popover.querySelector('summary.dsh-an-storageToggle')
-    assert.equal(storageToggle.textContent.trim(), '存储')
+    const resizeHandle = popover.querySelector('.dsh-an-resizeHandle')
+    assert.equal(resizeHandle.getAttribute('aria-label'), '调整边记部大小')
     await act(async () => { locale.setLocale('en') })
     assert.equal(popover.querySelector('.dsh-an-popTitle').textContent, 'Sideby Note')
     assert.equal(popover.querySelector('.dsh-an-input').placeholder, 'About 工作区...')
-    assert.equal(storageToggle.textContent.trim(), 'Storage')
+    assert.equal(resizeHandle.getAttribute('aria-label'), 'Resize Sideby Note')
     assert.equal(await insert('Alpha'), 'Alpha')
   })
 

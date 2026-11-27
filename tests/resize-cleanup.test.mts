@@ -51,20 +51,23 @@ function setupDom(t: test.TestContext) {
 test('usePanelGeometry restores body styles and stops dragging on pointercancel and blur', t => {
   const win = setupDom(t)
   const anchorRef = { current: null }
-  const panelRef = { current: null }
+  const panelRef = { current: { getBoundingClientRect: () => ({ height: 360 }) } }
   const { result, unmount } = renderHook(() => usePanelGeometry(anchorRef, 'right', panelRef))
 
   try {
     act(() => {
-      result.current.startPanelResize({ button: 0, clientX: 400, preventDefault() {} })
+      result.current.startPanelResize({ button: 0, clientX: 400, clientY: 200, preventDefault() {} })
     })
     assert.equal(win.document.body.style.userSelect, 'none')
-    assert.equal(win.document.body.style.cursor, 'ew-resize')
+    assert.equal(win.document.body.style.cursor, 'nesw-resize')
 
     act(() => {
-      win.dispatchEvent(Object.assign(new win.Event('pointermove'), { clientX: 360 }))
+      win.dispatchEvent(Object.assign(new win.Event('pointermove'), { clientX: 360, clientY: 240 }))
     })
     const widthAfterMove = result.current.style.width
+    const heightAfterMove = result.current.style.height
+    assert.equal(widthAfterMove, '400px')
+    assert.equal(heightAfterMove, '400px')
 
     act(() => {
       win.dispatchEvent(new win.Event('pointercancel'))
@@ -73,14 +76,15 @@ test('usePanelGeometry restores body styles and stops dragging on pointercancel 
     assert.equal(win.document.body.style.cursor, 'auto')
 
     act(() => {
-      win.dispatchEvent(Object.assign(new win.Event('pointermove'), { clientX: 250 }))
+      win.dispatchEvent(Object.assign(new win.Event('pointermove'), { clientX: 250, clientY: 320 }))
     })
     assert.equal(result.current.style.width, widthAfterMove)
+    assert.equal(result.current.style.height, heightAfterMove)
 
     act(() => {
-      result.current.startPanelResize({ button: 0, clientX: 360, preventDefault() {} })
+      result.current.startPanelResize({ button: 0, clientX: 360, clientY: 240, preventDefault() {} })
     })
-    assert.equal(win.document.body.style.cursor, 'ew-resize')
+    assert.equal(win.document.body.style.cursor, 'nesw-resize')
 
     act(() => {
       win.dispatchEvent(new win.Event('blur'))
@@ -92,27 +96,79 @@ test('usePanelGeometry restores body styles and stops dragging on pointercancel 
   }
 })
 
-test('usePanelGeometry cleans up active height resize on unmount without committing', t => {
+test('usePanelGeometry cleans up active corner resize on unmount without committing', t => {
   const win = setupDom(t)
   const anchorRef = { current: null }
   const panelRef = { current: { getBoundingClientRect: () => ({ height: 360 }) } }
   const { result, unmount } = renderHook(() => usePanelGeometry(anchorRef, 'right', panelRef))
 
   act(() => {
-    result.current.startPanelHeightResize({ button: 0, clientY: 200, preventDefault() {} })
+    result.current.startPanelResize({ button: 0, clientX: 400, clientY: 200, preventDefault() {} })
   })
   assert.equal(win.document.body.style.userSelect, 'none')
-  assert.equal(win.document.body.style.cursor, 'ns-resize')
+  assert.equal(win.document.body.style.cursor, 'nesw-resize')
 
   act(() => {
-    win.dispatchEvent(Object.assign(new win.Event('pointermove'), { clientY: 240 }))
+    win.dispatchEvent(Object.assign(new win.Event('pointermove'), { clientX: 360, clientY: 240 }))
   })
-  assert.equal(win.localStorage.getItem('aside-note:panel-height'), null)
+  assert.equal(win.localStorage.getItem('dsh.aside-note.panel-width'), null)
+  assert.equal(win.localStorage.getItem('dsh.aside-note.panel-height'), null)
 
   unmount()
   assert.equal(win.document.body.style.userSelect, 'text')
   assert.equal(win.document.body.style.cursor, 'auto')
-  assert.equal(win.localStorage.getItem('aside-note:panel-height'), null)
+  assert.equal(win.localStorage.getItem('dsh.aside-note.panel-width'), null)
+  assert.equal(win.localStorage.getItem('dsh.aside-note.panel-height'), null)
+})
+
+test('usePanelGeometry keeps auto height on click without drag and resets both axes on Home or resetPanelSize', t => {
+  const win = setupDom(t)
+  const anchorRef = { current: null }
+  const panelRef = { current: { getBoundingClientRect: () => ({ height: 360 }) } }
+  const { result, unmount } = renderHook(() => usePanelGeometry(anchorRef, 'right', panelRef))
+
+  try {
+    act(() => {
+      result.current.startPanelResize({ button: 0, clientX: 400, clientY: 200, preventDefault() {} })
+    })
+    act(() => {
+      win.dispatchEvent(new win.Event('pointerup'))
+    })
+    assert.equal(win.localStorage.getItem('dsh.aside-note.panel-width'), null)
+    assert.equal(win.localStorage.getItem('dsh.aside-note.panel-height'), null)
+    assert.equal(result.current.style.height, undefined)
+
+    for (const key of ['ArrowLeft', 'ArrowDown']) {
+      act(() => {
+        result.current.onPanelResizeKeyDown({ key, preventDefault() {} })
+      })
+    }
+    assert.equal(win.localStorage.getItem('dsh.aside-note.panel-width'), '376')
+    assert.equal(win.localStorage.getItem('dsh.aside-note.panel-height'), '376')
+
+    act(() => {
+      result.current.onPanelResizeKeyDown({ key: 'Home', preventDefault() {} })
+    })
+    assert.equal(win.localStorage.getItem('dsh.aside-note.panel-width'), '360')
+    assert.equal(win.localStorage.getItem('dsh.aside-note.panel-height'), null)
+    assert.equal(result.current.style.height, undefined)
+
+    act(() => {
+      result.current.onPanelResizeKeyDown({ key: 'ArrowRight', preventDefault() {} })
+      result.current.onPanelResizeKeyDown({ key: 'ArrowUp', preventDefault() {} })
+    })
+    assert.equal(win.localStorage.getItem('dsh.aside-note.panel-width'), '344')
+    assert.equal(win.localStorage.getItem('dsh.aside-note.panel-height'), '344')
+
+    act(() => {
+      result.current.resetPanelSize()
+    })
+    assert.equal(win.localStorage.getItem('dsh.aside-note.panel-width'), '360')
+    assert.equal(win.localStorage.getItem('dsh.aside-note.panel-height'), null)
+    assert.equal(result.current.style.height, undefined)
+  } finally {
+    unmount()
+  }
 })
 
 test('usePanelGeometry uses targeted observers instead of polling intervals and disconnects on unmount', t => {

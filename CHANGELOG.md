@@ -14,6 +14,16 @@ in [CHANGELOG-OPS.md](./CHANGELOG-OPS.md), so the notes the panel shows never ca
 
 ## next-released
 
+### Changed
+- Unified the left width handle and bottom height handle into a single rounded resize handle at the bottom-left corner
+  of the panel; drag diagonally to resize width and height together, or double-click / press `Home` to reset both.
+- 面板左侧宽度把手与底部高度把手合并为左下角圆角拖拽把手，可拖动同时调整宽高，双击或按 `Home` 一键复位。
+
+### Removed
+- Removed the footer **Storage** disclosure button and its storage location/copy/reveal details;
+  save warnings still appear at the bottom when writes fail.
+- 移除面板页脚「存储」按钮及其展开的存储状态与路径详情；写入失败时仍在底部保留保存警告。
+
 ## 0.1.1
 
 <!-- app-update-notes:en:start -->

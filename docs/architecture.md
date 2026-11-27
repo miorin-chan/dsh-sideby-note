@@ -79,7 +79,7 @@ index.ts                 # 宿主入口，注册更新、便笺存储和附件�
 host/                    # TypeScript 宿主模块（构建产物与源码同目录）：
                          # route（两个更新端点）、apply-update（三级安装）、profile、versions、exec
                          # store-spec（aside_note 领域与 zod schema）、store（懒打开/快照/原子变更/迁移）、
-                         # store-route（GET/POST /dsh-sideby-note/store、GET /store/location、POST /store/reveal）、normalize、http
+                         # store-route（GET/POST /dsh-sideby-note/store）、normalize、http
 client/client.js         # tsdown 生成的浏览器产物
 index.js                 # tsc 生成的宿主入口
 scripts/install.mts      # npm 安装器源码，编译为 scripts/install.mjs
@@ -108,7 +108,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | 存储 | `storage/prefs.ts` | 筛选选择在宿主模式写入 `global`，面板宽高与分区状态留在设备本地 |
 | UI 组件 | `ui/MemoPopover.ts` | 组合面板 hook 与组件，由 `shell.overlay` 中的 React portal 渲染 |
 | UI 组件 | `PanelHead` / `ScopeSwitch` / `ComposerForm` / `NoteList` / `ClearConfirm` / `TodoRow` / `EmptyState` | 纯展示，数据与回调由面板传入 |
-| UI 组件 | `PanelFooter` / `StorageDetails` | 页脚「存储」默认折叠，展开后显示存储状态并读取宿主文件路径 |
+| UI 组件 | `PanelFooter` | 仅在写入失败时渲染面板底部的保存警告 |
 | UI hooks | `useSessionMemoStore` / `usePanelGeometry` / `useSections` / `useComposerDraft` / `useNoteActions` / `useRowReorder` / `useClearConfirm` / `useListEdge` / `useOutsideDismiss` | 把状态与副作用从 JSX 里分离；每个 hook 只做一件事 |
 | UI 基础设施 | `primitives` / `position` / `toastSeat` / `headerEntry` | 共享图标与 Tooltip、浮层定位与吸顶、跨面板 Toast、宿主 header 入口（空白新会话回落到 header corner） |
 
@@ -139,9 +139,6 @@ docs/assets/             # README 截图（preview-* 与 features/）
 - 浏览器在宿主之外仍保留设备本地状态（`localStorage`）：面板宽高、分区展开、首次打开标记、
   未提交草稿（`dsh.aside-note.drafts`，按工作区/会话共享）。
 - 领域 `version` 是当前格式版本；读旧版本要配 `compatibleVersions`，删字段前必须重写所有记录（官方无值迁移 runner）。
-- 展开页脚「存储」后，通过 `GET /store/location` 读取该文件的完整路径，可复制路径。
-  `POST /store/reveal` 让宿主在文件管理器中定位它。
-  后端不是 JSON 文件时明确显示「无法定位」，不猜路径。
 - `Note` 形如 `{ id, text, done, createdAt, updatedAt, completedAt?, attachments?, linkedSessionId? }`；
   `text` 上限 280，**清单条数不设上限**。
 - 每次写入整文件替换；数据量远小于文件系统压力，写入排队由领域写链串行化。
@@ -240,7 +237,7 @@ docs/assets/             # README 截图（preview-* 与 features/）
 | `tests/resilience.test.mts` | 浏览器存储故障和重试、跨标签页刷新、空白与独立会话、大清单及面板边界 |
 | `tests/forward.test.mts`、`tests/draft-uploads.test.mts` | 递入时的会话草稿交接、附件上传与失败恢复 |
 | `tests/host-store.test.mts`、`tests/host-attachments.test.mts` | 宿主迁移与原子合并、存储和附件路由、附件去重与原件读取 |
-| `tests/host-bundle.test.mts` | 用假宿主端点验证切换、不可用、重连、路径详情与附件流程 |
+| `tests/host-bundle.test.mts` | 用假宿主端点验证切换、不可用、重连与附件流程 |
 | `tests/linked-session-bundle.test.mts`、`tests/linked-session-storage.test.mts` | 会话绑定的面板行为、递入隔离与存储兼容 |
 | `tests/locale-reload.test.mts`、`tests/resize-cleanup.test.mts` | 语言服务切换与尺寸交互清理 |
 | `tests/install.test.mts`、`tests/screenshot-notes.test.mts` | 安装器行为和截图 SOP 与演示数据的一致性 |
