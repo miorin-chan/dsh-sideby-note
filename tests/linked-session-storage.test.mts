@@ -32,7 +32,7 @@ function setup(t: TestContext) {
 
 const note = (id: string) => ({ id, text: id, done: false, createdAt: 1, updatedAt: 1 })
 
-test('STORE-034 浏览器便笺会话关联在本地和宿主模式往返', async t => {
+test('浏览器便笺会话关联在本地和宿主模式往返', async t => {
   const local = setup(t)
   const legacy = note('legacy')
   const attachment = { id: 'a'.repeat(64), name: 'ref.txt', type: 'text/plain', size: 5 }
@@ -81,7 +81,7 @@ test('STORE-034 浏览器便笺会话关联在本地和宿主模式往返', asyn
   assert.equal(local.getItem(WORKSPACE_STORAGE_KEY), localRaw, 'Host mode leaves the local copy untouched')
 })
 
-test('STORE-035 浏览器草稿会话关联支持保留、清除与旧记录迁移', t => {
+test('浏览器草稿会话关联支持保留、清除与旧记录迁移', t => {
   let unsubscribe: (() => void) | undefined
   t.after(() => unsubscribe?.())
   const local = setup(t)

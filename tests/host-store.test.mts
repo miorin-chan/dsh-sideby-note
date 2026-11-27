@@ -90,7 +90,7 @@ test('list.patch creates, orders and deletes notes', async () => {
   assert.equal(snapshot.empty, false)
 })
 
-test('STORE-033 宿主便笺会话关联往返且兼容旧记录', async () => {
+test('宿主便笺会话关联往返且兼容旧记录', async () => {
   const domain = fakeDomain()
   const store = await storeWith(domain)
   const legacy = note('legacy')
@@ -118,7 +118,7 @@ test('STORE-033 宿主便笺会话关联往返且兼容旧记录', async () => {
   assert.deepEqual((await reopened.snapshot()).data.workspaces.w1.items, [note('linked'), legacy, note('invalid')])
 })
 
-test('STORE-023 宿主合并另一标签页新增的条目', async () => {
+test('宿主合并另一标签页新增的条目', async () => {
   const store = await storeWith(fakeDomain())
   const a = { id: 'a', text: 'A', done: false, createdAt: 1, updatedAt: 1 }
   const b = { id: 'b', text: 'B', done: false, createdAt: 2, updatedAt: 2 }
@@ -264,7 +264,7 @@ test('a workspace deletion cannot run ahead of a failed source cleanup', async (
   assert.deepEqual(data.workspaces.w1.items, [])
 })
 
-test('STORE-026 宿主模式清单保存归档状态', async () => {
+test('宿主模式清单保存归档状态', async () => {
   const domain = fakeDomain()
   const store = await storeWith(domain)
   const mark = { n1: true }
@@ -280,7 +280,7 @@ test('STORE-026 宿主模式清单保存归档状态', async () => {
   assert.deepEqual(domain.table('forwarded').get('ws:w1'), mark, 'existing compatibility marks survive fork writes')
 })
 
-test('STORE-026 宿主模式偏好持久化', async () => {
+test('宿主模式偏好持久化', async () => {
   const domain = fakeDomain()
   await domain.global.set({ version: 1, scopeMode: 'session', forwardPrefix: '上游前缀', sendShortcut: 'enter' })
   const store = await storeWith(domain)
@@ -356,7 +356,7 @@ test('browser import compacts durable session rows after it finishes, including 
   assert.equal(data.prefs.sidebyNoteScopeMode, 'global')
 })
 
-test('STORE-021 探测后已有宿主数据时拒绝迁移', async () => {
+test('探测后已有宿主数据时拒绝迁移', async () => {
   const domain = fakeDomain()
   const store = await storeWith(domain)
   assert.equal((await store.snapshot()).empty, true)
@@ -375,7 +375,7 @@ test('STORE-021 探测后已有宿主数据时拒绝迁移', async () => {
   assert.equal(data.prefs.migration, undefined)
 })
 
-test('STORE-024 迁移中断后重启补完且不重复', async () => {
+test('迁移中断后重启补完且不重复', async () => {
   const domain = fakeDomain()
   const store = await storeWith(domain)
   // Simulate a crash after writing the marker and some records.
@@ -402,7 +402,7 @@ test('STORE-024 迁移中断后重启补完且不重复', async () => {
   assert.equal(data.prefs.scopeMode, 'session')
 })
 
-test('STORE-025 宿主文件打不开时报告存储错误', async () => {
+test('宿主文件打不开时报告存储错误', async () => {
   const noStorage = createStore({ get: () => undefined })
   await assert.rejects(noStorage.snapshot(), error => error instanceof StoreError && error.code === 'STORE_UNAVAILABLE' && error.status === 503)
 
@@ -544,7 +544,7 @@ test('host routes accept live WebServer-admitted peer and reject invalid or abor
   }
 })
 
-test('STORE-027 宿主模式 400 条仍可新增', async () => {
+test('宿主模式 400 条仍可新增', async () => {
   const store = await storeWith(fakeDomain())
   const notes = Array.from({ length: 400 }, (_, index) => ({
     id: `n${index}`,
@@ -575,7 +575,7 @@ test('STORE-027 宿主模式 400 条仍可新增', async () => {
   assert.equal(snapshot.data.workspaces.big.items.length, 401)
 })
 
-test('STORE-028 存储文件路径可查看', async () => {
+test('存储文件路径可查看', async () => {
   const root = '/tmp/sideby-note-location-test'
   const backend = { root }
   const ctx = {
@@ -611,7 +611,7 @@ test('STORE-028 存储文件路径可查看', async () => {
   assert.equal(missing.body.code, 'STORE_PATH_UNAVAILABLE')
 })
 
-test('STORE-029 宿主区分文件已被占用与普通打开错误', async () => {
+test('宿主区分文件已被占用与普通打开错误', async () => {
   const store = createStore({
     get: name => name === 'storageDomain' ? {
       async open() {

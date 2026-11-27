@@ -121,7 +121,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
 
   await act(async () => { exported.apply(ctx) })
 
-  await t.test('PKG-001 构建产物注册三个座位与八种语言', async () => {
+  await t.test('构建产物注册三个座位与八种语言', async () => {
     const panelSlots = ['conversation.composer.dock', 'conversation.hero.options', 'shell.overlay']
     assert.deepEqual(injected.filter(name => panelSlots.includes(name)).sort(), panelSlots)
     assert.ok(injected.includes('conversation.session.header.utilities'))
@@ -134,7 +134,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     )
   })
 
-  await t.test('STORE-001 宿主不可用时启动保留既有便笺且不切换', async () => {
+  await t.test('宿主不可用时启动保留既有便笺且不切换', async () => {
     const seeded = JSON.parse(window.localStorage.getItem('dsh.aside-note'))
     assert.equal(seeded.sessions['session-1'].items[0].text, '旧便笺')
     assert.equal(window.localStorage.getItem('dsh.aside-note.send-shortcut'), 'ctrl-enter')
@@ -148,7 +148,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.match(styles[0].textContent, /\.dsh-an-popover\{/)
   })
 
-  await t.test('PANEL-002 header 入口挂进宿主工具行并显示未完成数', async () => {
+  await t.test('header 入口挂进宿主工具行并显示未完成数', async () => {
     // Render the session capture the shell would mount, then let its effect seat
     // the header entry into the host-owned utilities row.
     const capture = captureWithFrame(React, registered)
@@ -168,7 +168,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(button.querySelector('.dsh-an-headerCount').textContent, '1')
   })
 
-  await t.test('PANEL-003 点击入口打开面板并渲染标题', async () => {
+  await t.test('点击入口打开面板并渲染标题', async () => {
     // Open the panel from that entry and write a note through the real form.
     await act(async () => { button.click() })
     popover = document.querySelector('.dsh-an-popover')
@@ -176,7 +176,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(popover.querySelector('.dsh-an-popTitle').textContent, '边记部', 'the panel title is the product name')
   })
 
-  await t.test('NOTE-001 经表单新增便笺写入存储并刷新角标', async () => {
+  await t.test('经表单新增便笺写入存储并刷新角标', async () => {
     const addField = popover.querySelector('.dsh-an-input')
     assert.ok(addField, 'the panel must render the add field')
     assert.equal(addField.getAttribute('placeholder'), '随手记一条')
@@ -213,7 +213,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const footer = () => popover.querySelector('.dsh-an-popFoot details.dsh-an-footerDetails')
   const storageToggle = () => footer().querySelector(':scope > summary.dsh-an-storageToggle')
 
-  await t.test('PANEL-004 页脚存储详情默认折叠并在展开后展示存储信息', async () => {
+  await t.test('页脚存储详情默认折叠并在展开后展示存储信息', async () => {
     assert.ok(footer(), 'the panel footer always offers storage details')
     assert.equal(footer().open, false)
     assert.equal(footer().textContent.trim(), '存储')
@@ -234,7 +234,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     await act(async () => { storageToggle().click() })
   })
 
-  await t.test('PANEL-005 使用面板和存储详情不会上报统计', async () => {
+  await t.test('使用面板和存储详情不会上报统计', async () => {
     await act(async () => { storageToggle().click() })
     await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 20)) })
     assert.equal(footer().open, true)
@@ -251,7 +251,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
   const openTexts = () => openRows().map(node => node.querySelector('.dsh-an-text').textContent)
   const storedTexts = () => browserWorkspaceItems(window).map(item => item.text)
 
-  await t.test('NOTE-010 键盘调整待续排序并保留焦点', async () => {
+  await t.test('键盘调整待续排序并保留焦点', async () => {
     assert.equal(popover.querySelector('.dsh-an-check'), null, 'notes are no longer completed by hand')
     assert.deepEqual(openTexts(), ['新的一条', '旧便笺'])
     const firstInsert = openRows()[0].querySelector('.dsh-an-leading .dsh-an-insert')
@@ -278,7 +278,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.deepEqual(storedTexts(), ['新的一条', '旧便笺'], 'ArrowUp moves it back')
   })
 
-  await t.test('NOTE-002 归档便笺与清除归档需二次确认', async () => {
+  await t.test('归档便笺与清除归档需二次确认', async () => {
     // 填入 needs a composer on screen; without one nothing changes.
     const composer = document.querySelector('[data-composer-input]')
     const insertButton = text => openRows()
@@ -323,7 +323,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(afterClear[0].done, false)
   })
 
-  await t.test('NOTE-003 退回顶部输入框后可续写并持久化', async () => {
+  await t.test('退回顶部输入框后可续写并持久化', async () => {
     // 退回 is the only way back into the composer: it moves the remaining note
     // into the top input and clears the row. A non-empty draft is never replaced.
     const recallButton = popover.querySelector('.dsh-an-iconBtn[aria-label="退回"]')
@@ -363,7 +363,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(addField.value, '', 'the composer clears after adding the recalled note')
   })
 
-  await t.test('PANEL-006 键盘调整面板宽度并持久化', async () => {
+  await t.test('键盘调整面板宽度并持久化', async () => {
     const widthHandle = popover.querySelector('.dsh-an-resizeHandle')
     assert.ok(widthHandle, 'a right-side panel exposes the width handle')
     const widthBefore = Number(window.localStorage.getItem('dsh.aside-note.panel-width')) || 360
@@ -434,7 +434,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.deepEqual([addField.selectionStart, addField.selectionEnd], [1, 3])
   })
 
-  await t.test('NOTE-004 删除最后一条后回到空状态', async () => {
+  await t.test('删除最后一条后回到空状态', async () => {
     const clearDraft = async () => {
       await act(async () => {
         valueSetter.call(addField, '')
@@ -455,7 +455,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.match(empty.textContent, /趁 agent 工作时，异步记下你的想法/)
   })
 
-  await t.test('PANEL-007 分区折叠状态持久化', async () => {
+  await t.test('分区折叠状态持久化', async () => {
     // Section collapse is remembered.
     await act(async () => { popover.querySelector('.dsh-an-sectionHead .dsh-an-doneToggle').click() })
     const sections = JSON.parse(window.localStorage.getItem('dsh.aside-note.sections'))
@@ -478,7 +478,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(document.activeElement, button)
   })
 
-  await t.test('PANEL-012 点击面板外收起且保留目标操作与草稿', async () => {
+  await t.test('点击面板外收起且保留目标操作与草稿', async () => {
     const outside = document.querySelector('[data-composer-input]')
     const mouseClick = target => target.dispatchEvent(new window.MouseEvent('click', {
       bubbles: true, cancelable: true, detail: 1,
@@ -527,7 +527,7 @@ test('the built bundle boots, applies, and seats its slots', async t => {
     assert.equal(document.querySelector('.dsh-an-popover'), null, 'the opener still toggles the panel closed')
   })
 
-  await t.test('PKG-002 卸载时移除注入的样式', async () => {
+  await t.test('卸载时移除注入的样式', async () => {
     await act(async () => { reactRoot.unmount() })
     for (const dispose of disposers) dispose()
     assert.equal(document.querySelector('style[data-dsh-plugin="dsh-sideby-note"]'), null,
@@ -676,7 +676,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.match(panel.querySelector('.dsh-an-footerBody')?.textContent ?? '', /便笺仍保存在本浏览器/)
   }
 
-  await t.test('SCOPE-001 首次见到工作区时一次性并入成员会话便笺', async () => {
+  await t.test('首次见到工作区时一次性并入成员会话便笺', async () => {
     const host = document.createElement('div')
     document.body.appendChild(host)
     firstRoot = ReactDOMClient.createRoot(host)
@@ -718,7 +718,7 @@ test('workspace notes share a list and global actions preserve ownership', async
       'the fold is recorded in the store, not with a second marker key')
   })
 
-  await t.test('SCOPE-002 面板默认工作区范围并显示本地存储提示', async () => {
+  await t.test('面板默认工作区范围并显示本地存储提示', async () => {
     header = document.querySelector('.dsh-an-headerBtn')
     popover = document.querySelector('.dsh-an-popover')
     assert.ok(popover, 'the shared list is visible after the workspace resolves')
@@ -746,7 +746,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     })
   }
 
-  await t.test('STORE-002 会话草稿并入工作区键并退役旧副本', async () => {
+  await t.test('会话草稿并入工作区键并退役旧副本', async () => {
     // The pre-workspace draft is folded under the shared workspace key on first
     // open; the per-session copies are retired so they cannot reappear later.
     const migrated = JSON.parse(window.localStorage.getItem('dsh.aside-note.drafts'))
@@ -819,7 +819,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     await update(original)
   })
 
-  await t.test('SCOPE-003 全局范围汇总各工作区便笺', async () => {
+  await t.test('全局范围汇总各工作区便笺', async () => {
     const workspaceRows = [...popover.querySelectorAll('.dsh-an-row')]
     const workspaceRow = workspaceRows.find(row => row.querySelector('.dsh-an-text').textContent === '会话二的事项')
     assert.equal(workspaceRow.dataset.rowId, 'seed-2')
@@ -862,7 +862,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.deepEqual([...popover.querySelectorAll('.dsh-an-scopeCount')].map(node => node.textContent), ['4', '2'])
   })
 
-  await t.test('SCOPE-004 切回工作区恢复共享清单并记住选择', async () => {
+  await t.test('切回工作区恢复共享清单并记住选择', async () => {
     // Switching back restores the shared list and remembers the choice.
     await act(async () => { popover.querySelector('[data-scope-mode="workspace"]').click() })
     assert.equal(window.localStorage.getItem('dsh.aside-note.scope-mode'), 'workspace')
@@ -875,7 +875,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.equal(header.querySelector('.dsh-an-headerCount').textContent, '2')
   })
 
-  await t.test('STORE-003 草稿在范围切换后保留', async () => {
+  await t.test('草稿在范围切换后保留', async () => {
     // The workspace draft stays available across both filters.
     await typeInto(inputOf(popover), '工作区草稿')
     const sharedDrafts = JSON.parse(window.localStorage.getItem('dsh.aside-note.drafts'))
@@ -888,7 +888,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.equal(inputOf(popover).value, '工作区草稿', 'and comes back with the workspace list')
   })
 
-  await t.test('STORE-004 退回形成的草稿在范围切换后保留', async () => {
+  await t.test('退回形成的草稿在范围切换后保留', async () => {
     const composer = inputOf(popover)
     await typeInto(composer, '')
     const seedRow = [...popover.querySelectorAll('.dsh-an-row')]
@@ -906,7 +906,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.equal(workspace.items.filter(item => item.text === '会话一的事项').length, 1)
   })
 
-  await t.test('SCOPE-005 工作区范围新增便笺落在共享清单', async () => {
+  await t.test('工作区范围新增便笺落在共享清单', async () => {
     // An explicitly shared note created in session-1 belongs to its workspace.
     await act(async () => { popover.querySelector('form .dsh-an-sessionBinding').click() })
     await typeInto(inputOf(popover), '新增的共享事项')
@@ -921,7 +921,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.equal(inputOf(popover).placeholder, '关于共享工作区...')
   })
 
-  await t.test('STORE-005 未提交草稿留在工作区缓冲', async () => {
+  await t.test('未提交草稿留在工作区缓冲', async () => {
     // Leave an unsaved draft behind before the conversation switch.
     await typeInto(inputOf(popover), '跨会话草稿')
     assert.equal(
@@ -931,7 +931,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     )
   })
 
-  await t.test('SCOPE-006 另一个会话打开同一工作区读到同一清单', async () => {
+  await t.test('另一个会话打开同一工作区读到同一清单', async () => {
     await act(async () => { popover.querySelector('.dsh-an-popClose').click() })
     await act(async () => { firstRoot.unmount() })
 
@@ -949,7 +949,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.deepEqual(texts, ['会话二的事项', '会话一的事项', '新增的共享事项'].sort())
   })
 
-  await t.test('STORE-006 草稿跨会话与跨范围可见', async () => {
+  await t.test('草稿跨会话与跨范围可见', async () => {
     // The draft typed in session-1 is visible from session-2 in both scopes: the
     // workspace owns the buffer, so switching conversations never strands it.
     assert.equal(inputOf(secondPopover).value, '跨会话草稿',
@@ -965,7 +965,7 @@ test('workspace notes share a list and global actions preserve ownership', async
 
   const workspaceItems = () => JSON.parse(window.localStorage.getItem('dsh.aside-note.workspaces')).workspaces['ws-1'].items
 
-  await t.test('FWD-002 递入只写当前可见会话且归档到原工作区', async () => {
+  await t.test('递入只写当前可见会话且归档到原工作区', async () => {
     // 填入 writes into session-2's composer only: session-1's stays empty,
     // proving the shared note follows the conversation currently on screen.
     const row = [...secondPopover.querySelectorAll('.dsh-an-row')]
@@ -989,7 +989,7 @@ test('workspace notes share a list and global actions preserve ownership', async
   }))
   const openList = () => secondPopover.querySelector('.dsh-an-listSection:first-child .dsh-an-rows')
 
-  await t.test('NOTE-010 拖动调整排序且 Escape 取消拖动', async () => {
+  await t.test('拖动调整排序且 Escape 取消拖动', async () => {
     await chooseOrder(act, secondPopover, 'open', 'manual')
     const openOrder = () => [...openList().querySelectorAll('.dsh-an-text')].map(node => node.textContent)
     const storedOpen = () => workspaceItems().filter(item => !item.done).map(item => item.text)
@@ -1043,7 +1043,7 @@ test('workspace notes share a list and global actions preserve ownership', async
       'every row returns to its own slot')
   })
 
-  await t.test('SCOPE-007 全局范围新增便笺写入当前工作区', async () => {
+  await t.test('全局范围新增便笺写入当前工作区', async () => {
     const secondInput = inputOf(secondPopover)
     await typeInto(secondInput, '第二个会话的草稿')
     const sharedAgain = JSON.parse(window.localStorage.getItem('dsh.aside-note.drafts'))
@@ -1062,7 +1062,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.equal(document.getElementById(secondInput.getAttribute('aria-describedby'))?.textContent, '记到 共享工作区')
   })
 
-  await t.test('SCOPE-014 全局范围操作更新便笺所属工作区', async () => {
+  await t.test('全局范围操作更新便笺所属工作区', async () => {
     const rowByText = text => [...secondPopover.querySelectorAll('.dsh-an-row')]
       .find(row => row.querySelector('.dsh-an-text').textContent === text)
     const currentBefore = workspaceItems()
@@ -1104,7 +1104,7 @@ test('workspace notes share a list and global actions preserve ownership', async
     assert.ok(browserWorkspaceItems(window, 'ws-2').every(item => !item.done), 'global clear reaches other workspaces')
   })
 
-  await t.test('SCOPE-015 面板内跳转工作区时保持面板打开', async t => {
+  await t.test('面板内跳转工作区时保持面板打开', async t => {
     const openTarget = { id: 'seed-2', text: '目标工作区的待续便笺', done: false, createdAt: 8, updatedAt: 8 }
     const archivedTarget = { id: 'archive-jump', text: '共享工作区的归档便笺', done: true, createdAt: 9, updatedAt: 9, completedAt: 9 }
     const store = JSON.parse(window.localStorage.getItem(WORKSPACE_KEY))
@@ -1386,7 +1386,7 @@ test('a blank new session opens a usable notes panel from the header corner', as
 
   // Cross-subtest bindings: the entry moves and the panel stays open between cases.
   let button, popover, input, setter, root, scopeButtons
-  await t.test('PANEL-008 空白新会话把入口挂在右上角并显示工作区计数', async () => {
+  await t.test('空白新会话把入口挂在右上角并显示工作区计数', async () => {
     const host = document.createElement('div')
     document.body.appendChild(host)
     root = ReactDOMClient.createRoot(host)
@@ -1408,7 +1408,7 @@ test('a blank new session opens a usable notes panel from the header corner', as
       'the corner entry counts the workspace notes')
   })
 
-  await t.test('SCOPE-008 空白会话可切换筛选、写入工作区并解除已有绑定', async () => {
+  await t.test('空白会话可切换筛选、写入工作区并解除已有绑定', async () => {
     await act(async () => { button.click() })
     popover = document.querySelector('.dsh-an-popover')
     assert.ok(popover, 'the corner entry opens the panel')
@@ -1478,7 +1478,7 @@ test('a blank new session opens a usable notes panel from the header corner', as
       'the recalled draft saves without its previous link')
   })
 
-  await t.test('SCOPE-009 首轮对话后入口迁移并保留筛选', async () => {
+  await t.test('首轮对话后入口迁移并保留筛选', async () => {
     // The panel stays open and the header entry moves to the utilities row.
     const utilities = document.createElement('div')
     utilities.className = '_headerUtilities'
@@ -1644,7 +1644,7 @@ test('handing notes to chat joins them on new lines, without a prefix or list ma
     return composer.value
   }
 
-  await t.test('I18N-001 面板文案跟随当前语言且递入保留原文', async () => {
+  await t.test('面板文案跟随当前语言且递入保留原文', async () => {
     assert.equal(popover.querySelector('.dsh-an-popTitle').textContent, '边记部')
     assert.equal(popover.querySelector('.dsh-an-input').placeholder, '关于工作区...')
     const storageToggle = popover.querySelector('summary.dsh-an-storageToggle')
@@ -1656,16 +1656,16 @@ test('handing notes to chat joins them on new lines, without a prefix or list ma
     assert.equal(await insert('Alpha'), 'Alpha')
   })
 
-  await t.test('FWD-003 第二条便笺另起一行追加', async () => {
+  await t.test('第二条便笺另起一行追加', async () => {
     assert.equal(await insert('Beta'), 'Alpha\nBeta')
   })
 
-  await t.test('FWD-004 递入保留会话现有草稿', async () => {
+  await t.test('递入保留会话现有草稿', async () => {
     await setComposer('已经写好的内容')
     assert.equal(await insert('Gamma'), '已经写好的内容\nGamma')
   })
 
-  await t.test('FWD-005 草稿末尾已有换行时直接追加', async () => {
+  await t.test('草稿末尾已有换行时直接追加', async () => {
     await setComposer('上一行\n')
     assert.equal(await insert('Delta'), '上一行\nDelta')
   })
@@ -1741,7 +1741,7 @@ test('a damaged note store is set aside before anything overwrites it', async t 
   await act(async () => { root.render(React.createElement(capture, { sessionId: 'session-1' })) })
 
   let button, popover
-  await t.test('STORE-007 损坏的存储先备份再继续', async () => {
+  await t.test('损坏的存储先备份再继续', async () => {
     button = document.querySelector('.dsh-an-headerBtn')
     await act(async () => { button.click() })
     popover = document.querySelector('.dsh-an-popover')
@@ -1857,7 +1857,7 @@ test('two tabs writing at once keep both sets of notes', async t => {
     })
   }
 
-  await t.test('STORE-013 另一个标签页新增的便笺不会被覆盖', async () => {
+  await t.test('另一个标签页新增的便笺不会被覆盖', async () => {
     writeFromOtherTab([note('c', '另一标签页记的', 3), note('b', '乙', 2), note('a', '甲', 1)])
     await typeInto(popover.querySelector('.dsh-an-input'), '这一页记的')
     await act(async () => { popover.querySelector('.dsh-an-addBtn').click() })
@@ -1867,7 +1867,7 @@ test('two tabs writing at once keep both sets of notes', async t => {
     assert.equal(storedItems().length, 4)
   })
 
-  await t.test('STORE-014 同一条目两端并发修改取较新版本', async () => {
+  await t.test('同一条目两端并发修改取较新版本', async () => {
     const ahead = note('a', '另一标签页改过', 1, Date.now() + 60000)
     writeFromOtherTab([note('c', '另一标签页记的', 3), note('b', '乙', 2), ahead])
     const row = [...popover.querySelectorAll('.dsh-an-row')]
@@ -1878,7 +1878,7 @@ test('two tabs writing at once keep both sets of notes', async t => {
     assert.ok(popover.textContent.includes('另一标签页改过'), 'the panel renders what was actually stored')
   })
 
-  await t.test('STORE-015 本页删除不会被并发写入复活', async () => {
+  await t.test('本页删除不会被并发写入复活', async () => {
     writeFromOtherTab([note('d', '并发新增', 4), ...storedItems()])
     const row = [...popover.querySelectorAll('.dsh-an-row')]
       .find(node => node.querySelector('.dsh-an-text')?.textContent === '乙')
@@ -1970,14 +1970,14 @@ test('note text rules', async t => {
   }
   const storedItems = () => browserWorkspaceItems(window)
 
-  await t.test('NOTE-005 纯空白文本不产生记录', async () => {
+  await t.test('纯空白文本不产生记录', async () => {
     await type('   \n\t  ')
     assert.equal(addButton.disabled, true, 'whitespace alone cannot be submitted')
     await act(async () => { addButton.click() })
     assert.equal(storedItems().length, 0, 'a rejected submit writes nothing')
   })
 
-  await t.test('NOTE-006 超长文本截断到 280 字符', async () => {
+  await t.test('超长文本截断到 280 字符', async () => {
     const exact = '边'.repeat(280)
     await type(exact)
     assert.equal(addButton.disabled, false)

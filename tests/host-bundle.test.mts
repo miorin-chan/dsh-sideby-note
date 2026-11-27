@@ -274,7 +274,7 @@ async function setup(options = {}) {
   return { window, dom, domain, store, calls, requests, composerScopes, previewUrls, revokedPreviews, openPanel, addNote, settle, act, React }
 }
 
-test('STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记', async t => {
+test('首次启动把浏览器便笺迁移到宿主并写模式标记', async t => {
   const ctx = await setup({ legacyNote: true, legacyMetadata: true })
   t.after(() => ctx.window.close())
 
@@ -306,7 +306,7 @@ test('STORE-019 首次启动把浏览器便笺迁移到宿主并写模式标记'
   assert.equal(migratedRow.querySelector('[data-forwarded]'), null)
 })
 
-test('NOTE-013 从主输入框移入文本草稿并保留未保存内容', async t => {
+test('从主输入框移入文本草稿并保留未保存内容', async t => {
   let storeResponse
   let writes = 0
   const ctx = await setup({ beforeStoreWrite: op => {
@@ -410,7 +410,7 @@ test('NOTE-013 从主输入框移入文本草稿并保留未保存内容', async
   }
 })
 
-test('SCOPE-017 连续切换范围时旧保存响应不覆盖最新选择', async t => {
+test('连续切换范围时旧保存响应不覆盖最新选择', async t => {
   const globalWrite = Promise.withResolvers()
   const workspaceWrite = Promise.withResolvers()
   const rejectedWrite = Promise.withResolvers()
@@ -461,7 +461,7 @@ test('SCOPE-017 连续切换范围时旧保存响应不覆盖最新选择', asyn
   assert.equal((await ctx.store.snapshot()).data.prefs.sidebyNoteScopeMode, 'workspace')
 })
 
-test('STORE-020 宿主不可用时不切换并保留浏览器写入', async t => {
+test('宿主不可用时不切换并保留浏览器写入', async t => {
   const ctx = await setup({ legacyNote: true, storeDown: true })
   t.after(() => ctx.window.close())
   // The probe retries once with a 250 ms pause before refusing the switch.
@@ -479,7 +479,7 @@ test('STORE-020 宿主不可用时不切换并保留浏览器写入', async t =>
   assert.deepEqual(snapshot.data.workspaces, {}, 'no host write happened before the switch')
 })
 
-test('STORE-022 已切换后宿主不可用进入错误态且不改写浏览器', async t => {
+test('已切换后宿主不可用进入错误态且不改写浏览器', async t => {
   const hostNote = { id: 'host-1', text: '宿主便笺', done: false, createdAt: 2, updatedAt: 2 }
   const options = {
     legacyNote: true,
@@ -538,7 +538,7 @@ test('STORE-022 已切换后宿主不可用进入错误态且不改写浏览器'
   assert.equal(ctx.window.localStorage.getItem(SESSION_KEY), legacy)
 })
 
-test('STORE-022 已连接宿主写入失败后可重新连接', async t => {
+test('已连接宿主写入失败后可重新连接', async t => {
   const options = { markedHost: true, legacyNote: true }
   const ctx = await setup(options)
   t.after(() => ctx.window.close())
@@ -579,7 +579,7 @@ test('STORE-022 已连接宿主写入失败后可重新连接', async t => {
   assert.equal(ctx.window.localStorage.getItem(SESSION_KEY), legacy)
 })
 
-test('STORE-021 宿主已有数据时不迁移并保留本地旧副本', async t => {
+test('宿主已有数据时不迁移并保留本地旧副本', async t => {
   const hostNote = { id: 'host-1', text: '宿主便笺', done: false, createdAt: 2, updatedAt: 2 }
   const ctx = await setup({ legacyNote: true, hostSeed: { sessions: { 'session-1': [hostNote] } } })
   t.after(() => ctx.window.close())
@@ -598,7 +598,7 @@ test('STORE-021 宿主已有数据时不迁移并保留本地旧副本', async t
   assert.equal(legacy.sessions['session-1'].items[0].text, '旧便笺', 'the browser copy stays as a recovery source')
 })
 
-test('STORE-025 宿主文件打不开时不切换并提示', async t => {
+test('宿主文件打不开时不切换并提示', async t => {
   const ctx = await setup({ legacyNote: true, storeDown: true, storeCode: 'STORE_OPEN_FAILED' })
   t.after(() => ctx.window.close())
   await ctx.settle(400)
@@ -615,7 +615,7 @@ test('STORE-025 宿主文件打不开时不切换并提示', async t => {
   assert.deepEqual(snapshot.data.workspaces, {}, 'no host write happened')
 })
 
-test('STORE-028 存储详情按需加载路径并支持拷贝与定位', async t => {
+test('存储详情按需加载路径并支持拷贝与定位', async t => {
   const file = '/Users/me/.dsh/storages/aside_note.json'
   const probe = Promise.withResolvers()
   const options = { legacyNote: true, storePath: file, storeReady: probe.promise }
@@ -687,7 +687,7 @@ test('STORE-028 存储详情按需加载路径并支持拷贝与定位', async t
   assert.equal(details.querySelector('.dsh-an-storagePath, .dsh-an-storageAction'), null)
 })
 
-test('STORE-029 共用宿主文件已被占用时停止写入', async t => {
+test('共用宿主文件已被占用时停止写入', async t => {
   const ctx = await setup({ legacyNote: true, storeDown: true, storeCode: 'STORE_IN_USE' })
   t.after(() => ctx.window.close())
   await ctx.settle(400)
@@ -786,7 +786,7 @@ function mountChatComposer({ window, composerScopes }, sessionId = 'session-1', 
   return chat
 }
 
-test('NOTE-011 附件可选择粘贴拖放并随便笺恢复', async t => {
+test('附件可选择粘贴拖放并随便笺恢复', async t => {
   let nativeImage: File
   const ctx = await setup({ nativeGallery: true, fileDrag: { read: () => nativeImage } })
   const { window, act, store } = ctx
@@ -924,7 +924,7 @@ const openHostNotes = async ctx => {
   await ctx.act(async () => { button.click() })
 }
 
-test('FWD-007 填入保留正文和全部原文件', async t => {
+test('填入保留正文和全部原文件', async t => {
   const ctx = await setup()
   const { window, act, store } = ctx
   t.after(() => window.close())
@@ -959,7 +959,7 @@ test('FWD-007 填入保留正文和全部原文件', async t => {
   assert.ok((await store.snapshot()).data.workspaces[UNASSIGNED].items.every(item => item.done))
 })
 
-test('FWD-008 附件不可用或拒收时保留待续便笺', async t => {
+test('附件不可用或拒收时保留待续便笺', async t => {
   let readFails = false
   const ctx = await setup({ rejectAttachmentRead: id => readFails && id.endsWith('2') })
   const { window, act, store } = ctx
@@ -993,7 +993,7 @@ test('FWD-008 附件不可用或拒收时保留待续便笺', async t => {
   assert.equal((await store.snapshot()).data.workspaces[UNASSIGNED].items[0].done, true)
 })
 
-test('FWD-009 附件读取期间切换会话不写错草稿', async t => {
+test('附件读取期间切换会话不写错草稿', async t => {
   const entered = Promise.withResolvers()
   const release = Promise.withResolvers()
   let reads = 0
@@ -1050,7 +1050,7 @@ test('archive retry keeps the completed handoff and only retries the store write
   assert.equal(window.sessionStorage.getItem(receiptKey), null)
 })
 
-test('NOTE-012 拒绝无效附件并保留上传失败前的草稿', async t => {
+test('拒绝无效附件并保留上传失败前的草稿', async t => {
   const ctx = await setup({ holdUploads: true })
   const { window, act, calls, requests } = ctx
   t.after(() => window.close())

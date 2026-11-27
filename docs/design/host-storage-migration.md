@@ -706,20 +706,15 @@ boot:
 
 ### 9.5 测试体系落点
 
-按仓库的规则 → 用例 → 测试三层补齐宿主存储：
+宿主存储和浏览器回退的预期行为见 [行为规则](../behavior.md)，测试组织与运行方式见 [测试工程](../testing.md)。
+迁移相关场景由以下测试文件覆盖。
 
-| 规则 | 用例 | 测试 |
-| --- | --- | --- |
-| `R-STORE-HOST-FILE` | `STORE-019`、`STORE-026` | `tests/host-bundle.test.mts`、`tests/host-store.test.mts` |
-| `R-STORE-HOST-SWITCH` | `STORE-019/020/021/024` | 同上 |
-| `R-STORE-HOST-UNAVAILABLE` | `STORE-020/022/025` | 同上 |
-| `R-STORE-HOST-MERGE` | `STORE-023` | `tests/host-store.test.mts` |
-| `R-STORE-CAPACITY` | `STORE-027`（宿主 401 条） | `tests/host-store.test.mts` |
-| `R-STORE-HOST-PATH` | `STORE-028`（路径、拷贝、定位） | `tests/host-store.test.mts`、`tests/host-bundle.test.mts` |
-
-`STORE-001` 的验收语从「启动不写迁移标记」改为「宿主不可用时启动保留便笺且不切换」；
-宿主可用时的迁移由 `STORE-019` 承担。
-规则变更已通过 `design:review --approve --by reviewed-in-chat`，执行结果由 `test:run` 写入 `.test/runs/`。
+| 测试文件 | 覆盖 |
+| --- | --- |
+| `tests/host-store.test.mts` | 工作区归属与两阶段迁移、幂等重试、并发原子合并、偏好与大清单、路径与错误映射 |
+| `tests/host-bundle.test.mts` | 首次启动探测与数据切换、保留已有数据、宿主不可用与重连、路径复制和定位 |
+| `tests/host-attachments.test.mts` | 附件鉴权、内容去重、原件读取以及新旧便笺的附件引用兼容 |
+| `tests/resilience.test.mts` | 浏览器回退的读写故障、迁移失败时保留源记录、重试不重复及跨标签页刷新 |
 
 ---
 

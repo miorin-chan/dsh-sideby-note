@@ -59,7 +59,7 @@ async function fixture(t) {
   return { app, items, panel, row, field, chat, click, type, add, selectSession, get navigation() { return navigation } }
 }
 
-test('NOTE-014 可选绑定不改变工作区且随退回草稿保留', async t => {
+test('可选绑定不改变工作区且随退回草稿保留', async t => {
   const f = await fixture(t)
   try {
     assert.equal(f.items()[0].linkedSessionId, undefined, 'legacy session migration does not infer a link')
@@ -129,7 +129,7 @@ test('NOTE-014 可选绑定不改变工作区且随退回草稿保留', async t 
   }
 })
 
-test('FWD-010 绑定便笺只在目标会话填入且返回本身不写草稿', async t => {
+test('绑定便笺只在目标会话填入且返回本身不写草稿', async t => {
   const f = await fixture(t)
   try {
     await f.click(clickOf(f.row('旧便笺'), bindLabel))
@@ -166,7 +166,7 @@ test('FWD-010 绑定便笺只在目标会话填入且返回本身不写草稿', 
   }
 })
 
-test('FWD-011 会话不可用或绑定刚变更时不填入', async t => {
+test('会话不可用或绑定刚变更时不填入', async t => {
   const f = await fixture(t)
   try {
     const store = JSON.parse(f.app.window.localStorage.getItem(WORKSPACES))

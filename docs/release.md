@@ -30,7 +30,7 @@
 git switch -c feat/xxx main
 # 改宿主或客户端源码，并把说明写到 CHANGELOG.md 的 ## next-released 下
 npm ci                # 安装开发依赖并生成 Host 和 Client 产物
-npm run check          # lint、类型检查、构建与测试
+npm run check         # 类型检查、构建与测试、产物和类型校验
 git add index.ts host/ src/ CHANGELOG.md
 git commit -m "feat: ..."
 git push -u origin feat/xxx
@@ -89,8 +89,7 @@ git push origin v0.2.0
 2. 同步 `package.json` 的 `version` 与 `src/client/constants.ts` 的 `PLUGIN_VERSION`；
 3. 把 `## next-released` 改名为 `## <version>`，并在顶部插入一个新的空 `## next-released`；
    `CHANGELOG-OPS.md` 存在且其 `## next-released` 下有内容时，对它做同样的改名；
-4. 运行 `npm run check`，验证 lint、类型、构建和测试。
-   发布前再跑 `npm run test:strict` 并复核用例记录（见 [测试工程](./testing.md)）；
+4. 运行 `npm run check`，执行类型检查、构建与测试、产物和类型钉住校验（见 [测试工程](./testing.md)）；
 5. 提交 `release: <version>` 并打 `v<version>` tag，**不自动 push**。
 
 预发布同样适用：`npm run release -- 0.2.0-beta.1` 会得到 `v0.2.0-beta.1` tag，workflow 自动发到 npm 的 `next` dist-tag。

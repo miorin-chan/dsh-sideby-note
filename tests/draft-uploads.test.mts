@@ -214,7 +214,7 @@ test('cross-tab owner and draft changes guard delayed writes and retry reuses up
   assert.equal(readScopeDrafts(draftKey).add, 'other tab changed the draft')
 })
 
-test('STORE-036 上传完成或移除附件不覆盖草稿会话关联', async t => {
+test('上传完成或移除附件不覆盖草稿会话关联', async t => {
   const { requests } = setup(t)
   assert.equal(saveAddDraft(draftKey, '', undefined, undefined, 'first-session'), true)
   assert.equal(addDraftUploads(draftKey, [file('first.txt'), file('second.txt')]), true)

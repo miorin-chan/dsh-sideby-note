@@ -18,8 +18,9 @@
 
 ## next-released
 
-- **测试基建：** CI 只保留代码功能测试及类型、构建与打包校验。
-  规则与用例目录校验、P0 评审保留为本地工具，不再作为 CI 门禁。
+- **测试基建：** 移除 `tests/catalog/`、`tools/catalog/` 及相关命令，测试只保留 `tests/*.test.mts`。
+  CI 只保留代码测试与类型、构建、打包校验；业务规则整理到 [行为规则](./docs/behavior.md)，
+  测试说明见 [测试工程](./docs/testing.md)。
 
 ## 0.1.1
 

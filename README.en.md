@@ -242,12 +242,10 @@ To update a local installation, follow the [local deployment and verification SO
 Back up the data first, then build, update the existing entry in the active profile, and verify it in the same UI.
 
 ```bash
-npm ci                # install dependencies and build Host and Client
-npm run check         # lint + typecheck + tests + build + catalog check
-npm run build         # regenerate index.js, host/*.js and client/client.js
-npm run catalog:check # validate the test catalog against the tests
-npm run test:run      # per-case run record + report.html/md (.test/runs/)
-npm run test:mutate   # mutation check: do the cases catch real defects?
+npm ci         # install dependencies and build Host and Client
+npm run check  # typecheck, build, test, and verify artifacts and type pins
+npm run build  # regenerate index.js, host/*.js and client/client.js
+npm test       # build and run all code tests
 ```
 
 The entry is `src/client/index.ts`, which exports `apply(ctx)`; tsdown wraps it in DSH's loader shell:
@@ -268,7 +266,9 @@ The panel mounts as its own `react-dom/client` root on `document.body` and follo
 
 The screenshot and preview pipeline lives in the [screenshot SOP](./docs/screenshot-sop.md): one command re-shoots both themes from an isolated profile, and credentials are not copied unless `COPY_CREDENTIALS=1`.
 
-Code structure, data model and build conventions: [architecture](./docs/architecture.md); the test system (rules, cases, run records, gates): [testing](./docs/testing.md).
+See the [architecture](./docs/architecture.md) for code structure, the data model and build conventions.
+Expected user-visible behavior is in the [behavior rules](./docs/behavior.md).
+Code tests and CI gates are documented in [testing](./docs/testing.md).
 
 Branching, versioning and the release checklist: [release and versioning](./docs/release.md) (Chinese).
 
@@ -283,4 +283,4 @@ The panel workflow is covered by integration tests:
 - records survive a refresh, and the panel header switches between **Global** and **Workspace**;
 - the npmjs → npmmirror → GitHub Release fallback, the one-hour cache, and the version comparison are covered by the contract tests, and the jsdom test drives the visible update notice; the live notice needs a published npm package or a GitHub Release.
 
-Run `npm run check` for lint, type checking, the build, automated tests and catalog validation. See [the test catalog](./tests/catalog/README.md).
+Run `npm run check` for type checking, the build, automated tests and verification of build artifacts and type pins.

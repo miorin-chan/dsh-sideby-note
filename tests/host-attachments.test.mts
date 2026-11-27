@@ -99,7 +99,7 @@ async function expectJson(response, status, code) {
   assert.equal(body.code, code)
 }
 
-test('STORE-030 宿主附件并发上传和重试按内容去重', async t => {
+test('宿主附件并发上传和重试按内容去重', async t => {
   const { directory, get, post, origin } = await fixture(t)
   const prefix = Buffer.from([0, 255, 2])
   const suffix = Buffer.from([65, 66, 67])
@@ -140,7 +140,7 @@ test('STORE-030 宿主附件并发上传和重试按内容去重', async t => {
   await noName.arrayBuffer()
 })
 
-test('STORE-031 宿主拒绝未授权请求和无效附件', async t => {
+test('宿主拒绝未授权请求和无效附件', async t => {
   const { directory, get, post, origin, pending } = await fixture(t)
   const bytes = Buffer.from([1])
   const id = digest(bytes)
@@ -188,7 +188,7 @@ test('STORE-031 宿主拒绝未授权请求和无效附件', async t => {
   await assert.rejects(stat(unavailable.directory), { code: 'ENOENT' })
 })
 
-test('STORE-032 宿主清单兼容纯文本与仅附件便笺', async t => {
+test('宿主清单兼容纯文本与仅附件便笺', async t => {
   const store = createStore(fakeCtx(fakeDomain()))
   t.after(() => store.close())
   const legacy = { id: 'old', text: 'Legacy note', done: false, createdAt: 1, updatedAt: 1 }

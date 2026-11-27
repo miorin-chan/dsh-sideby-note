@@ -9,6 +9,8 @@
   两份都说明安装、使用与数据保存范围。
 - 插件详情页要整体短、每项一眼能懂。
   只展示用户当下需要知道或操作的内容，细节按需展开。
+- [行为规则](docs/behavior.md)是用户可见行为规则与不变量的唯一来源。
+  [测试工程](docs/testing.md)记录代码测试的组织、运行、覆盖与 CI 门禁。
 - [架构文档](docs/architecture.md)记录运行时契约、数据模型与构建。
   [面板 UI 规则](docs/panel-ui-rules.md)记录录入区的原生输入框能力目标、组件复用与界面约束。
   维护文档沿用中文。
@@ -57,7 +59,7 @@
   再构建并更新当前 profile 里的已有边记部条目。
   本地实装只复用现有 bundle 和安装来源，并在现用 GUI 验收。
   若源码接入现用 profile，备份须先于构建。
-- 运行 `npm run check`（lint、类型检查、构建、`tests/` 下的契约与集成测试）。
+- 运行 `npm run check`，执行类型检查、构建和 `tests/` 下的测试，并校验产物和 DSH 类型版本。
   源码依赖安装、`npm test` 和打包均会重建 Host 与 Client。
 - 在工作区根目录运行 `node tools/new-dsh-plugin/cli.mts --check plugins/dsh-sideby-note` 检查骨架。
 - 发版时用 `npm pack --dry-run` 检查发布包内容，并按截图 SOP 重拍。

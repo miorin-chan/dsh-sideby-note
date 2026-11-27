@@ -216,12 +216,10 @@ npx @miorin/dsh-sideby-note install --version 0.1.0   # 固定版本，而不是
 更新本机的边记部时，先按[本机实装与验收 SOP](./docs/auto-test-sop.md)备份数据，再构建、更新并验收现用 profile 里的已有条目。
 
 ```bash
-npm ci                # 安装依赖并生成 Host 和 Client 产物
-npm run check         # lint + typecheck + 测试 + 构建 + 案例目录校验
-npm run build         # 重新生成 index.js、host/*.js 和 client/client.js
-npm run catalog:check # 只校验测试案例目录与测试是否对得上
-npm run test:run      # 逐用例执行记录 + report.html/md（.test/runs/）
-npm run test:mutate   # 变异测试：确认用例能抓到真实缺陷
+npm ci         # 安装依赖并生成 Host 和 Client 产物
+npm run check  # 类型检查、构建与测试、产物和类型版本校验
+npm run build  # 重新生成 index.js、host/*.js 和 client/client.js
+npm test       # 构建并运行全部代码测试
 ```
 
 入口是 `src/client/index.ts`，导出 `apply(ctx)`；tsdown 负责套上 DSH 的加载壳：
@@ -241,7 +239,8 @@ JavaScript 产物随 npm 包分发，Git 记录 TypeScript 源码和构建配置
 
 截图与预览图的产出流程见 [截图与预览图 SOP](./docs/screenshot-sop.md)：在隔离 profile 里造演示会话，一条命令重拍明暗两套；凭据默认不复制。
 
-代码结构、数据模型与构建约定见 [架构文档](./docs/architecture.md)；测试工程（规则 / 用例 / 执行记录 / 门禁）见 [测试工程](./docs/testing.md)。
+代码结构、数据模型与构建约定见 [架构文档](./docs/architecture.md)。
+用户可见的预期行为见 [行为规则](./docs/behavior.md)，代码测试与 CI 门禁见 [测试工程](./docs/testing.md)。
 
 分支模型、版本策略与发版步骤见 [发布与版本迭代](./docs/release.md)。
 
@@ -256,4 +255,4 @@ JavaScript 产物随 npm 包分发，Git 记录 TypeScript 源码和构建配置
 - 刷新页面后记录仍在；面板头部可在「全局」与「工作区」之间切换；
 - 版本检查的 npmjs → npmmirror → GitHub Release 回退、1 小时缓存与版本比较由契约测试覆盖；发布说明的标记提取、中英文回退、上限与 Markdown 压平有独立测试；jsdom 集成测试会驱动面板显示更新卡片、展开说明并通过宿主更新端点完成一次更新。真实更新提示需先发布到 npm 或创建 GitHub Release。
 
-运行 `npm run check` 可验证 lint、类型检查、构建、自动化测试和用例目录，详见[测试案例目录](./tests/catalog/README.md)。
+运行 `npm run check` 可执行类型检查、构建、自动化测试以及产物和类型版本校验。

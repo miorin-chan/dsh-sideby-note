@@ -1,7 +1,6 @@
 /**
- * Resilience cases: ordering, undo, scope fallbacks, storage failures and
- * cross-tab refreshes. Every case here was designed in tests/catalog first and
- * its acceptance criteria live there; this file is the implementation.
+ * Resilience tests: ordering, undo, scope fallbacks, storage failures and
+ * cross-tab refreshes.
  */
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -61,7 +60,7 @@ const typeInto = async (app, node, text) => {
 
 const rowByText = (root, text) => rowsOf(root).find(row => textOf(row) === text)
 
-test('NOTE-007 已完成条目按完成时间倒序', async t => {
+test('已完成条目按完成时间倒序', async t => {
   const app = await bootBundle(t, {
     prepare: window => seedSession(window, [note('a', '甲', 1), note('b', '乙', 2), note('c', '丙', 3)]),
   })
@@ -81,7 +80,7 @@ test('NOTE-007 已完成条目按完成时间倒序', async t => {
   await app.dispose()
 })
 
-test('NOTE-008 归档条目退回后可重新提交到待续区', async t => {
+test('归档条目退回后可重新提交到待续区', async t => {
   const app = await bootBundle(t, {
     prepare: window => seedSession(window, [note('a', '甲', 1), note('b', '乙', 2)]),
   })
@@ -108,7 +107,7 @@ test('NOTE-008 归档条目退回后可重新提交到待续区', async t => {
   await app.dispose()
 })
 
-test('SCOPE-010 无工作区时只显示全局并写入未归属清单', async t => {
+test('无工作区时只显示全局并写入未归属清单', async t => {
   const existingList = {
     workspaceId: 'ws-other', updatedAt: 1, items: [note('a', '其他工作区的便笺', 1)],
   }
@@ -141,7 +140,7 @@ test('SCOPE-010 无工作区时只显示全局并写入未归属清单', async t
   await app.dispose()
 })
 
-test('SCOPE-011 空白会话遵循显式全局选择', async t => {
+test('空白会话遵循显式全局选择', async t => {
   const app = await bootBundle(t, {
     prepare: window => {
       seedSession(window, [note('a', '甲', 1)])
@@ -161,7 +160,7 @@ test('SCOPE-011 空白会话遵循显式全局选择', async t => {
   await app.dispose()
 })
 
-test('SCOPE-016 待续计数等待宿主快照并保留完整工作区名称', async t => {
+test('待续计数等待宿主快照并保留完整工作区名称', async t => {
   const workspaceName = '一个用于检验单行标题栏在空间不足时如何显示完整名称的工作区'
   let resolveSnapshot
   const snapshot = new Promise(resolve => { resolveSnapshot = resolve })
@@ -196,7 +195,7 @@ test('SCOPE-016 待续计数等待宿主快照并保留完整工作区名称', a
   await app.dispose()
 })
 
-test('STORE-011 存储读不到时按空继续且不丢输入', async t => {
+test('存储读不到时按空继续且不丢输入', async t => {
   const app = await bootBundle(t, {
     prepare: window => {
       Object.defineProperty(window, 'localStorage', {
@@ -223,7 +222,7 @@ test('STORE-011 存储读不到时按空继续且不丢输入', async t => {
   await app.dispose()
 })
 
-test('STORE-012 写入失败时读取不降级且保留输入', async t => {
+test('写入失败时读取不降级且保留输入', async t => {
   const app = await bootBundle(t, {
     prepare: window => {
       seedStandalone(window, [note('a', '已经保存的', 1)])
@@ -264,7 +263,7 @@ test('STORE-012 写入失败时读取不降级且保留输入', async t => {
   await app.dispose()
 })
 
-test('STORE-016 另一个标签页写入后本页视图同步', async t => {
+test('另一个标签页写入后本页视图同步', async t => {
   const app = await bootBundle(t, {
     prepare: window => seedStandalone(window, [note('a', '甲', 1)]),
   })
@@ -297,7 +296,7 @@ test('STORE-016 另一个标签页写入后本页视图同步', async t => {
   await app.dispose()
 })
 
-test('PANEL-009 面板宽度夹在 280 到 720 之间', async t => {
+test('面板宽度夹在 280 到 720 之间', async t => {
   const app = await bootBundle(t)
   await app.open()
   const handle = app.popover.querySelector('.dsh-an-resizeHandle')
@@ -332,7 +331,7 @@ test('PANEL-009 面板宽度夹在 280 到 720 之间', async t => {
   await app.dispose()
 })
 
-test('PANEL-010 清除确认 5 秒后失效', async t => {
+test('清除确认 5 秒后失效', async t => {
   const app = await bootBundle(t, {
     prepare: window => {
       // Let the five-second confirm window expire without waiting five seconds.
@@ -360,7 +359,7 @@ test('PANEL-010 清除确认 5 秒后失效', async t => {
   await app.dispose()
 })
 
-test('I18N-002 未知语言回落英文', async t => {
+test('未知语言回落英文', async t => {
   const app = await bootBundle(t, { locale: 'xx' })
   await app.open()
 
@@ -372,7 +371,7 @@ test('I18N-002 未知语言回落英文', async t => {
   await app.dispose()
 })
 
-test('SCOPE-012 迁移失败时保留源记录且重试不重复', async t => {
+test('迁移失败时保留源记录且重试不重复', async t => {
   const legacyNotes = [note('a', '甲', 1), note('b', '乙', 2)]
   let failWrite = true
   const app = await bootBundle(t, {
@@ -409,7 +408,7 @@ test('SCOPE-012 迁移失败时保留源记录且重试不重复', async t => {
   await app.dispose()
 })
 
-test('SCOPE-013 切换范围本身不写入任何清单', async t => {
+test('切换范围本身不写入任何清单', async t => {
   const app = await bootBundle(t, {
     prepare: window => seedSession(window, [note('a', '甲', 1)]),
     props: workspaceProps(),
@@ -433,7 +432,7 @@ test('SCOPE-013 切换范围本身不写入任何清单', async t => {
   await app.dispose()
 })
 
-test('STORE-017 畸形记录被清洗而不是渲染成乱码', async t => {
+test('畸形记录被清洗而不是渲染成乱码', async t => {
   const app = await bootBundle(t, {
     prepare: window => window.localStorage.setItem('dsh.aside-note', JSON.stringify({
       version: 1,
@@ -469,7 +468,7 @@ test('STORE-017 畸形记录被清洗而不是渲染成乱码', async t => {
   await app.dispose()
 })
 
-test('NOTE-009 相对时间按经过时长分档', async t => {
+test('相对时间按经过时长分档', async t => {
   const now = Date.now()
   const app = await bootBundle(t, {
     prepare: window => seedSession(window, [
@@ -494,7 +493,7 @@ test('NOTE-009 相对时间按经过时长分档', async t => {
   await app.dispose()
 })
 
-test('STORE-018 大清单仍可展示与新增', async t => {
+test('大清单仍可展示与新增', async t => {
   const items = Array.from({ length: 400 }, (_, index) => note(`n${index}`, `第 ${index} 条`, index + 1))
   const app = await bootBundle(t, { prepare: window => seedSession(window, items) })
   await app.open()
@@ -508,7 +507,7 @@ test('STORE-018 大清单仍可展示与新增', async t => {
   await app.dispose()
 })
 
-test('FWD-001 旧前缀偏好不会影响递入', async t => {
+test('旧前缀偏好不会影响递入', async t => {
   const legacyKey = 'dsh.aside-note.forward-prefix'
   const app = await bootBundle(t, {
     prepare: window => {
@@ -524,7 +523,7 @@ test('FWD-001 旧前缀偏好不会影响递入', async t => {
   await app.dispose()
 })
 
-test('FWD-006 归档条目没有再次递入操作', async t => {
+test('归档条目没有再次递入操作', async t => {
   const app = await bootBundle(t, {
     prepare: window => seedSession(window, [note('a', '要递入的', 1)]),
   })
@@ -541,7 +540,7 @@ test('FWD-006 归档条目没有再次递入操作', async t => {
   await app.dispose()
 })
 
-test('PANEL-011 DSH 快捷键切换面板并跟随当前绑定', async t => {
+test('DSH 快捷键切换面板并跟随当前绑定', async t => {
   let command, onCatalogChange
   let rows = []
   const shortcuts = {
