@@ -302,3 +302,11 @@ DSH 插件市场在更新前会拒绝 `runningAgentsForGuard()` 非空的请求�
 **需要重新评估的条件**：一旦本包出现 agent 会加载的东西——tools、skills、agent 侧 provider，
 或宿主半边开始被 agent 调用——就必须补上与市场一致的守卫（含 `confirmAgentsRunning` 逃生阀），
 并让 `useUpdateCenter` 把该拒绝码交给 `UpdateNotice` 的命令兜底路径。
+
+### 安装器命令行与卸载
+
+`npx @miorin/dsh-sideby-note install` 支持 `--profile <name>`、`--dry-run` 与 `--version <ver>`，
+并读取 `DSH_PROFILE_DIR` 与 `DSH_RUNTIME_DIR`（优先使用 DSH 自带的 Node 与 pnpm，避免与宿主 store 版本冲突）。
+执行前先将 `package.json` 与 `pnpm-lock.yaml` 备份到 `.local-backup/`，幂等写入依赖并替换旧的无 scope 包。
+卸载时从 profile 的 `dsh.profile.bundles` 移除 `@miorin/dsh-sideby-note` 并运行 `pnpm remove @miorin/dsh-sideby-note`
+即可。

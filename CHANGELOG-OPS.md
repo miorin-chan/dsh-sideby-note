@@ -18,6 +18,8 @@
 
 ## next-released
 
+- **README 与详情页：** 精简中英文 README（保留改版说明、四张界面截图与安装使用要点，
+  安装器命令行细节归入 [架构文档](./docs/architecture.md)），并移除详情页指南链接的旧标题锚点。
 - **截图：** 中英文 README 和市场截图清单改用本次实拍的面板、入口及其明暗配对，DSH 详情页展示一张主图。
 - **测试基建：** 移除 `tests/catalog/`、`tools/catalog/` 及相关命令，测试只保留 `tests/*.test.mts`。
   CI 只保留代码测试与类型、构建、打包校验；业务规则整理到 [行为规则](./docs/behavior.md)，
