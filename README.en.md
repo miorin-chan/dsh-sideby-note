@@ -21,21 +21,13 @@ then tuck the panel away and carry on.
 
 ## Preview and entry
 
-These previews show the panel before the footer redesign.
+The panel separates open and archived notes. The Sideby Note button at the top right shows the open count.
+The screenshots show the Chinese interface.
 
-![Sideby Note right-side panel](./docs/assets/preview-right.png)
-
-The same panel in the dark theme; every colour comes from DSH theme tokens:
-
-![Sideby Note right-side panel, dark](./docs/assets/preview-right-dark.png)
-
-A **Sideby Note** button at the top right of the conversation, with the open count:
-
-<img src="./docs/assets/preview-badge.png" width="460" alt="Sideby Note button at the top right">
-
-The same button in the dark theme:
-
-<img src="./docs/assets/preview-badge-dark.png" width="460" alt="Sideby Note button at the top right, dark">
+| | Light | Dark |
+| --- | --- | --- |
+| Notes panel | ![Light Sideby Note panel with open and archived notes](docs/assets/screenshots/main-light.png) | ![Dark Sideby Note panel with open and archived notes](docs/assets/screenshots/main-dark.png) |
+| Top-right button | ![Light Sideby Note button with the open count](docs/assets/screenshots/entry-light.png) | ![Dark Sideby Note button with the open count](docs/assets/screenshots/entry-dark.png) |
 
 Clicking the entry opens a fixed panel on the right. In a blank new session, the button sits in the top-right
 corner beside the right-sidebar control. **Global** is available there, and **Workspace** is available
@@ -148,43 +140,6 @@ Use **Insert** in the current conversation for an unlinked note, or in the linke
   You can also copy the path or reveal the file in your file manager. If the connection fails
   after switching to host storage, the panel shows the reason and a **Reconnect** action.
 - **Native look**: colours, radii, elevation and scrollbars all reuse DSH design tokens, following light/dark and the DSH locale; see [Design tokens](#design-tokens).
-
-## Feature screenshots
-
-These screenshots show the previous panel in both themes. The current panel places storage details in the footer.
-
-<table>
-  <tr>
-    <th width="130">Feature</th>
-    <th>Light</th>
-    <th>Dark</th>
-  </tr>
-  <tr>
-    <td>Panel overview<br>open / archived sections</td>
-    <td><img src="./docs/assets/features/panel.png" width="300" alt="Panel overview"></td>
-    <td><img src="./docs/assets/features/panel-dark.png" width="300" alt="Panel overview, dark"></td>
-  </tr>
-  <tr>
-    <td>Previous settings<br>about</td>
-    <td><img src="./docs/assets/features/settings.png" width="300" alt="Settings"></td>
-    <td><img src="./docs/assets/features/settings-dark.png" width="300" alt="Settings, dark"></td>
-  </tr>
-  <tr>
-    <td>Row actions<br>Insert, copy, and rewind</td>
-    <td><img src="./docs/assets/features/actions.png" width="300" alt="Row actions"></td>
-    <td><img src="./docs/assets/features/actions-dark.png" width="300" alt="Row actions, dark"></td>
-  </tr>
-  <tr>
-    <td>Clear archived<br>a second confirmation guards clearing</td>
-    <td><img src="./docs/assets/features/clear.png" width="300" alt="Clear archived confirmation"></td>
-    <td><img src="./docs/assets/features/clear-dark.png" width="300" alt="Clear archived confirmation, dark"></td>
-  </tr>
-  <tr>
-    <td>Empty state<br>guidance when the selected view has no notes</td>
-    <td><img src="./docs/assets/features/empty.png" width="300" alt="Empty state"></td>
-    <td><img src="./docs/assets/features/empty-dark.png" width="300" alt="Empty state, dark"></td>
-  </tr>
-</table>
 
 ## Design tokens
 

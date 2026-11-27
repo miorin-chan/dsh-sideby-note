@@ -269,7 +269,7 @@ test('the marketplace screenshot declaration points at shipped images', () => {
     assert.ok(exists(file), `screenshots.json declares a missing file: ${file}`)
     assert.ok(fs.statSync(path.join(root, file)).size > 1000, `${file} looks empty`)
   }
-  assert.equal(declared[0], 'docs/assets/preview-right.png', 'the card cover should stay the full-window preview')
+  assert.equal(declared[0], 'docs/assets/screenshots/main-light.png', 'the card cover should show the current feature panel')
   assert.equal(new Set(declared).size, declared.length, 'screenshots.json repeats a file')
 })
 
@@ -290,20 +290,12 @@ test('the marketplace icon is a shipped square bitmap', () => {
   assert.equal(width, 180, 'icon.png ships at 180px; regenerating it at another size needs a look at 16px')
 })
 
-test('feature screenshots ship in both themes', () => {
-  const features = ['panel', 'settings', 'actions', 'clear', 'empty']
-  for (const name of features) {
-    for (const file of [`docs/assets/features/${name}.png`, `docs/assets/features/${name}-dark.png`]) {
-      assert.ok(exists(file), `missing ${file}`)
-      assert.ok(fs.statSync(path.join(root, file)).size > 1000, `${file} looks empty`)
-    }
-  }
+test('both user guides show the same main and entry shots in both themes', () => {
+  const shots = ['main-light', 'main-dark', 'entry-light', 'entry-dark']
+    .map(name => `docs/assets/screenshots/${name}.png`)
+  assert.deepEqual(JSON.parse(read('screenshots.json')), shots)
   for (const readme of ['README.md', 'README.en.md']) {
-    const text = read(readme)
-    for (const name of features) {
-      assert.match(text, new RegExp(`docs/assets/features/${name}\\.png`), `${readme} does not show ${name}`)
-      assert.match(text, new RegExp(`docs/assets/features/${name}-dark\\.png`), `${readme} does not show ${name} in dark`)
-    }
+    for (const file of shots) assert.ok(read(readme).includes(`](${file})`), `${readme} does not show ${file}`)
   }
 })
 

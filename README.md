@@ -19,21 +19,12 @@
 
 ## 界面与入口
 
-以下预览拍摄于页脚改版前。
+工作区便笺在右侧面板按「待续」和「归档」分开。会话右上角的入口会显示待续数量。
 
-![边记部右侧面板](./docs/assets/preview-right.png)
-
-暗色主题下外观保持一致，颜色全部取自 DSH 主题令牌：
-
-![边记部右侧面板（暗色）](./docs/assets/preview-right-dark.png)
-
-会话顶部右侧的「边记部」按钮，带待续数量：
-
-<img src="./docs/assets/preview-badge.png" width="460" alt="顶部右侧边记部按钮">
-
-暗色主题下的同一按钮：
-
-<img src="./docs/assets/preview-badge-dark.png" width="460" alt="顶部右侧边记部按钮（暗色）">
+| | 浅色 | 深色 |
+| --- | --- | --- |
+| 便笺面板 | ![浅色边记部面板，展开待续和归档](docs/assets/screenshots/main-light.png) | ![深色边记部面板，展开待续和归档](docs/assets/screenshots/main-dark.png) |
+| 右上角入口 | ![浅色边记部按钮，带待续计数](docs/assets/screenshots/entry-light.png) | ![深色边记部按钮，带待续计数](docs/assets/screenshots/entry-dark.png) |
 
 点击入口后在右侧打开固定面板。空白新会话还没有对话头，按钮落在右上角、右侧栏按钮左侧。此时也可以查看「全局」，绑定工作区时还可以选择「工作区」。
 
@@ -129,43 +120,6 @@ npx @miorin/dsh-sideby-note install --version 0.1.0   # 固定版本，而不是
 - **列表分区**：「待续」「归档」各有吸顶标题与独立滚动，展开归档不会压缩待续。待续便笺左侧显示「填入」，右侧悬停时由时间切换为「复制 / 退回」。
 - **存储**：页脚的「存储」默认折叠。展开后可查看存储状态和宿主文件路径，也可复制路径或在文件管理器中定位。切换到宿主存储后若连接失效，面板会直接显示原因与「重新连接」。
 - **界面融入**：颜色、圆角、阴影与滚动条全部复用 DSH 设计令牌，自动适配明暗主题与 DSH 全部官方语言；详见[设计规范](#设计规范)。
-
-## 功能截图
-
-以下为上一版面板的实拍，明暗同源（同一演示会话、同一批便笺，只切换主题）。新版的存储详情位于页脚。
-
-<table>
-  <tr>
-    <th width="130">功能</th>
-    <th>明色</th>
-    <th>暗色</th>
-  </tr>
-  <tr>
-    <td>面板总览<br>待续 / 归档分区</td>
-    <td><img src="./docs/assets/features/panel.png" width="300" alt="面板总览"></td>
-    <td><img src="./docs/assets/features/panel-dark.png" width="300" alt="面板总览（暗色）"></td>
-  </tr>
-  <tr>
-    <td>旧版设置<br>关于</td>
-    <td><img src="./docs/assets/features/settings.png" width="300" alt="设置"></td>
-    <td><img src="./docs/assets/features/settings-dark.png" width="300" alt="设置（暗色）"></td>
-  </tr>
-  <tr>
-    <td>行操作<br>填入、复制与退回</td>
-    <td><img src="./docs/assets/features/actions.png" width="300" alt="行操作"></td>
-    <td><img src="./docs/assets/features/actions-dark.png" width="300" alt="行操作（暗色）"></td>
-  </tr>
-  <tr>
-    <td>清空归档<br>二次确认，避免误删</td>
-    <td><img src="./docs/assets/features/clear.png" width="300" alt="清空归档确认"></td>
-    <td><img src="./docs/assets/features/clear-dark.png" width="300" alt="清空归档确认（暗色）"></td>
-  </tr>
-  <tr>
-    <td>空状态<br>还没有记录时的引导</td>
-    <td><img src="./docs/assets/features/empty.png" width="300" alt="空状态"></td>
-    <td><img src="./docs/assets/features/empty-dark.png" width="300" alt="空状态（暗色）"></td>
-  </tr>
-</table>
 
 ## 设计规范
 

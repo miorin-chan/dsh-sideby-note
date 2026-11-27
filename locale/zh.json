@@ -1,6 +1,7 @@
 {
   "meta": {
     "title": "边记部",
-    "description": "趁 agent 工作时随手记。便笺按工作区保存，也可在全局查看。"
+    "description": "趁 agent 工作时随手记。便笺按工作区保存，也可在全局查看。",
+    "detail": "docs/DETAIL.zh.md"
   }
 }

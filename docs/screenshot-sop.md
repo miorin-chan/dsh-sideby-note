@@ -1,14 +1,16 @@
 # 边记部（Sideby Note）截图与预览图 SOP
 
-本文件固定本插件的截图产出流程：从一套**隔离的 DSH 环境**里生成演示会话，拍下面板状态，再裁切成 README 用图。
-目标是任何人（或 agent）照此执行都能得到同一批图，且图中不出现任何其它工程的信息。
+README、市场和详情页现用的截图位于 `docs/assets/screenshots/`。
+从默认工作区根目录运行 `node tools/dsh-plugin-shots/cli.mts --pilot sideby-note` 重拍。
+逐张检查后，把本次输出中的 `main-light.png`、`main-dark.png`、`entry-light.png` 和 `entry-dark.png` 复制到该目录。
+共用工具使用隔离的 DSH 环境和演示数据，不读取现用 profile。
 
-**什么时候做：发版之前。** 截图是发布内容的一部分，必须在 `npm run release -- <version>` 之前提交，
-让 `release: <version>` 提交以及由它生成的 `v<version>` tag 本身就带着新图——
-这样任何人 checkout 或浏览该 tag，看到的 README 就是当前版本的界面。
-发版之后才补图，就只能移动已经发布的 tag（例如把 `v1.1.0` 从 release 提交前移到补图提交），能不做就不做。
-万一确实需要给某个已发布版本补文档或截图，用 `docs/<version>` 形式的标记标签指住补充提交，
-**不要**为此重发版本或改 `package.json`。
+发版时，把新图提交到打标签之前，便于从版本标签看到对应的界面。
+仅为已发行版本补图时不移动旧标签。
+
+## 旧版整窗与多状态图库
+
+下文记录旧版图库的独立拍摄流程。其输出不再用于 README、市场截图清单或 DSH 详情页。
 
 配套脚本在 [`tools/screenshots/`](../tools/screenshots/)：
 
@@ -181,22 +183,13 @@ Windows 上把 `python3` 换成 `PYTHON` 指向的解释器，并带上 `SHOT_VI
 - [ ] 四张预览图与功能图出自同一批便笺（名称、计数、时间一致）；
 - [ ] 图里没有任何其它项目的信息（逐张过一遍）；
 - [ ] 四张预览图里没有账号头像、昵称或邮箱；
-- [ ] `npm test` 通过（`feature screenshots ship in both themes` 会校验 10 张功能图与两份 README 的引用，
-  `the SOP note table lists exactly the notes the capture types in` 会校验第 7 节的便笺表与 `NOTES` 一致，
-  `the marketplace screenshot declaration points at shipped images` 会校验根目录 `screenshots.json`，
-  `the marketplace icon is a shipped square bitmap` 会校验 `icon.png` 是 180×180 的 PNG）；
+- [ ] `npm test` 通过，便笺表与 `NOTES` 一致；
 - [ ] `git status` 里没有 `.screenshots/`、`.pnpm-store/`、凭据文件。
 
-## 9. 收尾
+## 9. 市场图标
 
-1. 需要时同步 README 的「功能截图」表格与根目录 `screenshots.json`——插件市场按这个顺序展示，
-   卡片只取前三张，所以封面永远是 `preview-right.png`。
-   图片路径不变则两处都无需改动；
-2. 改过市场图标时，重新从 `docs/assets/storefront-icon.svg` 渲染 `icon.png`（540 → 180，做法见第 1 节），
-   并在 16px 下确认还认得出来；
-3. 在 `CHANGELOG.md` 当前版本小节记一条；
-4. `npm test`；
-5. 提交并推送。
+改过市场图标时，重新从 `docs/assets/storefront-icon.svg` 渲染 `icon.png`（540 → 180，做法见第 1 节），
+并在 16px 下确认还认得出来。
 
 ## 10. 故障排查
 

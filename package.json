@@ -48,6 +48,7 @@
     "locale/*.json",
     "icon.svg",
     "docs/assets",
+    "docs/DETAIL*.md",
     "docs/panel-ui-rules.md",
     "docs/README.md",
     "README.md",

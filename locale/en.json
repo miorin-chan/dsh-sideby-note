@@ -1,6 +1,7 @@
 {
   "meta": {
     "title": "Sideby Note",
-    "description": "Jot down ideas while the agent works. Save notes by workspace and view them all in one place."
+    "description": "Jot down ideas while the agent works. Save notes by workspace and view them all in one place.",
+    "detail": "docs/DETAIL.md"
   }
 }
